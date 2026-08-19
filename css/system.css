@@ -1,807 +1,1350 @@
-/* ===========================================================
+/* =========================================================
    ORBIT AI
    SYSTEM PAGE
-   Sidebar-safe layout
-=========================================================== */
+   ========================================================= */
 
 
-/* ===========================================================
-   SYSTEM PAGE
-=========================================================== */
+/* =========================================================
+   SYSTEM PAGE CONTAINER
+   ========================================================= */
 
 .system-page {
-    width: 100%;
-    min-height: 100vh;
+  width: 100%;
+  min-height: 100vh;
 
-    background: var(--bg);
-    color: var(--text);
+  color: var(--text);
 
-    font-family: var(--font-family);
+  font-family: var(--font-family);
 }
 
 
-/* ===========================================================
-   MAIN SYSTEM CONTENT
-=========================================================== */
-
-/*
+/* =========================================================
+   SYSTEM MAIN CONTENT
    IMPORTANT:
-   The sidebar is NOT styled here.
-
-   The existing sidebar.css remains responsible
-   for the sidebar.
-
-   This only gives the system content enough room
-   beside the sidebar.
-*/
+   Uses the SAME sidebar width as index.html
+   ========================================================= */
 
 .system-main {
-    width: calc(100% - var(--sidebar-width));
+  width: calc(100% - var(--sidebar-width));
+  min-width: 0;
+  min-height: 100vh;
 
-    min-width: 0;
-    min-height: 100vh;
+  margin-left: var(--sidebar-width);
 
-    margin-left: var(--sidebar-width);
+  padding: var(--spacing-xl);
 
-    padding: var(--spacing-xl);
+  overflow-x: hidden;
 
-    overflow-x: hidden;
-    overflow-y: auto;
+  background: transparent;
 
-    background:
-        radial-gradient(
-            circle at 80% 10%,
-            rgba(0, 140, 255, 0.08),
-            transparent 30%
-        ),
-        var(--bg);
+  font-family: var(--font-family);
+
+  animation:
+    fade-in
+    0.6s
+    ease
+    both;
 }
 
 
-/* ===========================================================
-   PAGE HEADER
-=========================================================== */
+/* =========================================================
+   SYSTEM HEADER
+   ========================================================= */
 
 .system-header {
-    width: 100%;
+  width: 100%;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    gap: var(--spacing-lg);
+  gap: var(--spacing-lg);
 
-    padding-bottom: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
 
-    border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+
+  animation:
+    fade-in
+    0.6s
+    ease
+    0.05s
+    both;
 }
 
 
-.page-label {
-    display: block;
-
-    margin-bottom: var(--spacing-sm);
-
-    color: var(--cyan);
-
-    font-size: var(--font-size-xs);
-
-    font-weight: var(--font-weight-semibold);
-
-    letter-spacing: 2px;
-}
-
+/* =========================================================
+   HEADER CONTENT
+   ========================================================= */
 
 .system-header h1 {
-    margin: 0;
+  margin: 0;
 
-    color: var(--text);
+  color: var(--text);
 
-    font-size: var(--font-size-2xl);
+  font-family: var(--font-family);
 
-    font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-2xl);
 
-    letter-spacing: 2px;
+  font-weight: var(--font-weight-bold);
+
+  letter-spacing: 2px;
+
+  text-shadow:
+    0 0 20px
+    rgba(0, 229, 255, 0.15);
 }
 
 
 .system-header p {
-    margin-top: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
 
-    color: var(--muted);
+  color: var(--muted);
 
-    font-size: var(--font-size-sm);
+  font-family: var(--font-family);
 
-    letter-spacing: 0.5px;
+  font-size: var(--font-size-sm);
+
+  font-weight: var(--font-weight-normal);
+
+  letter-spacing: 0.5px;
 }
 
 
-/* ===========================================================
+.page-label {
+  display: block;
+
+  margin-bottom: var(--spacing-sm);
+
+  color: var(--cyan);
+
+  font-family: var(--font-family);
+
+  font-size: var(--font-size-xs);
+
+  font-weight: var(--font-weight-semibold);
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+
+  text-shadow:
+    0 0 12px
+    rgba(0, 229, 255, 0.4);
+
+  animation:
+    data-flicker
+    6s
+    ease-in-out
+    infinite;
+}
+
+
+/* =========================================================
    SYSTEM STATUS
-=========================================================== */
+   ========================================================= */
 
 .system-status {
-    display: flex;
-    align-items: center;
+  display: flex;
 
-    gap: var(--spacing-sm);
+  align-items: center;
 
-    padding:
-        var(--spacing-sm)
-        var(--spacing-md);
+  gap: var(--spacing-sm);
 
-    border: 1px solid
-        rgba(0, 255, 174, 0.2);
+  padding:
+    var(--spacing-sm)
+    var(--spacing-md);
 
-    border-radius: var(--radius-full);
+  border:
+    1px solid
+    rgba(0, 255, 174, 0.25);
 
-    background:
-        rgba(0, 255, 174, 0.04);
+  border-radius: var(--radius-full);
 
-    color: var(--green);
+  background:
+    rgba(0, 255, 174, 0.05);
 
-    font-size: var(--font-size-xs);
+  color: var(--green);
 
-    font-weight: var(--font-weight-medium);
+  font-family: var(--font-family);
 
-    letter-spacing: 1px;
+  font-size: var(--font-size-xs);
 
-    white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+
+  letter-spacing: 1px;
+
+  white-space: nowrap;
+
+  animation:
+    scale-in
+    0.5s
+    ease
+    0.2s
+    both;
 }
 
 
 .status-indicator {
-    width: 7px;
-    height: 7px;
+  width: 7px;
+  height: 7px;
 
-    flex-shrink: 0;
+  flex-shrink: 0;
 
-    border-radius: var(--radius-full);
+  border-radius: 50%;
 
-    background: var(--green);
+  background: var(--green);
 
-    box-shadow:
-        0 0 8px var(--green);
+  box-shadow:
+    0 0 10px
+    rgba(0, 255, 174, 0.8);
 
-    animation: statusPulse 2s infinite;
+  animation:
+    system-status-pulse
+    2s
+    ease-in-out
+    infinite;
 }
 
 
-/* ===========================================================
-   SYSTEM SECTIONS
-=========================================================== */
+/* =========================================================
+   SYSTEM SECTION
+   ========================================================= */
 
 .system-section {
-    width: 100%;
+  width: 100%;
 
-    margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+
+  animation:
+    fade-in
+    0.6s
+    ease
+    both;
 }
 
 
-/* ===========================================================
+/* =========================================================
    SECTION HEADING
-=========================================================== */
+   ========================================================= */
 
 .section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
 
-    gap: var(--spacing-md);
+  align-items: center;
 
-    margin-bottom: var(--spacing-md);
+  justify-content: space-between;
+
+  gap: var(--spacing-md);
+
+  margin-bottom: var(--spacing-md);
 }
 
 
 .section-heading > div {
-    min-width: 0;
+  min-width: 0;
 }
 
 
 .section-heading span:first-child {
-    display: block;
+  display: block;
 
-    margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
 
-    color: var(--text-dim);
+  color: var(--text-dim);
 
-    font-size: var(--font-size-xs);
+  font-family: var(--font-family);
 
-    font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-xs);
 
-    letter-spacing: 2px;
+  font-weight: var(--font-weight-medium);
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
 }
 
 
 .section-heading h2 {
-    margin: 0;
+  margin: 0;
 
-    color: var(--text-secondary);
+  color: var(--text-secondary);
 
-    font-size: var(--font-size-lg);
+  font-family: var(--font-family);
 
-    font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
 
-    letter-spacing: 1px;
+  font-weight: var(--font-weight-semibold);
+
+  letter-spacing: 1px;
 }
 
 
-/* ===========================================================
+/* =========================================================
    RESOURCE GRID
-=========================================================== */
+   ========================================================= */
 
 .resource-grid {
-    width: 100%;
+  width: 100%;
 
-    display: grid;
+  display: grid;
 
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
 
-    gap: var(--spacing-md);
+  gap: var(--spacing-md);
 }
 
 
-/* ===========================================================
+/* =========================================================
    RESOURCE CARD
-=========================================================== */
+   ========================================================= */
 
 .resource-card {
-    min-width: 0;
+  min-width: 0;
 
-    display: flex;
-    align-items: center;
+  display: flex;
 
-    gap: var(--spacing-md);
+  align-items: center;
 
-    padding: var(--spacing-lg);
+  gap: var(--spacing-md);
 
-    border: 1px solid var(--border);
+  padding: var(--spacing-lg);
 
-    border-radius: var(--radius-lg);
+  border:
+    1px solid
+    var(--border);
 
-    background: var(--card);
+  border-radius: var(--radius-lg);
 
-    box-shadow: var(--shadow-soft);
+  background: var(--card);
 
-    transition:
-        transform var(--transition-normal),
-        background var(--transition-normal),
-        border-color var(--transition-normal),
-        box-shadow var(--transition-normal);
+  box-shadow: var(--shadow-soft);
+
+  font-family: var(--font-family);
+
+  transition:
+    transform var(--transition-normal),
+    border-color var(--transition-normal),
+    background var(--transition-normal),
+    box-shadow var(--transition-normal);
+
+  animation:
+    scale-in
+    0.55s
+    ease
+    both;
 }
 
+
+/* =========================================================
+   RESOURCE CARD STAGGER
+   ========================================================= */
+
+.resource-card:nth-child(1) {
+  animation-delay: 0.15s;
+}
+
+
+.resource-card:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+
+.resource-card:nth-child(3) {
+  animation-delay: 0.35s;
+}
+
+
+.resource-card:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+
+/* =========================================================
+   RESOURCE CARD HOVER
+   ========================================================= */
 
 .resource-card:hover {
-    transform: translateY(-3px);
+  transform: translateY(-4px);
 
-    background: var(--card-hover);
+  background: var(--card-hover);
 
-    border-color:
-        rgba(0, 229, 255, 0.25);
+  border-color:
+    rgba(0, 229, 255, 0.25);
 
-    box-shadow:
-        var(--shadow-soft),
-        var(--glow-cyan);
+  box-shadow:
+    var(--shadow-soft),
+    var(--glow-cyan);
 }
 
 
-/* ===========================================================
+/* =========================================================
    RESOURCE ICON
-=========================================================== */
+   ========================================================= */
 
 .resource-icon {
-    width: 46px;
-    height: 46px;
+  width: 46px;
+  height: 46px;
 
-    flex-shrink: 0;
+  flex-shrink: 0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
 
-    border: 1px solid
-        rgba(0, 229, 255, 0.2);
+  align-items: center;
+  justify-content: center;
 
-    border-radius: var(--radius-md);
+  border:
+    1px solid
+    rgba(0, 229, 255, 0.2);
 
-    background:
-        rgba(0, 229, 255, 0.05);
+  border-radius: var(--radius-md);
 
-    color: var(--cyan);
+  background:
+    rgba(0, 229, 255, 0.05);
 
-    font-size: var(--font-size-md);
+  color: var(--cyan);
 
-    box-shadow: var(--glow-cyan);
+  font-size: var(--font-size-md);
+
+  box-shadow:
+    var(--glow-cyan);
+
+  transition:
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 
-/* ===========================================================
+.resource-card:hover .resource-icon {
+  transform: scale(1.08);
+
+  box-shadow:
+    0 0 25px
+    rgba(0, 229, 255, 0.25);
+}
+
+
+/* =========================================================
    RESOURCE CONTENT
-=========================================================== */
+   ========================================================= */
 
 .resource-content {
-    min-width: 0;
+  min-width: 0;
 
-    display: flex;
-    flex-direction: column;
+  display: flex;
 
-    gap: var(--spacing-xs);
+  flex-direction: column;
+
+  gap: var(--spacing-xs);
 }
 
 
 .resource-content > span {
-    color: var(--muted);
+  color: var(--muted);
 
-    font-size: var(--font-size-xs);
+  font-family: var(--font-family);
 
-    letter-spacing: 1px;
+  font-size: var(--font-size-xs);
+
+  letter-spacing: 1px;
 }
 
 
 .resource-content strong {
-    color: var(--text);
+  color: var(--text);
 
-    font-size: var(--font-size-lg);
+  font-family: var(--font-family);
 
-    font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
 
-    letter-spacing: 1px;
+  font-weight: var(--font-weight-semibold);
+
+  letter-spacing: 1px;
+
+  animation:
+    data-flicker
+    8s
+    ease-in-out
+    infinite;
 }
 
 
 .resource-content p {
-    margin: 0;
+  margin: 0;
 
-    color: var(--text-dim);
+  color: var(--text-dim);
 
-    font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+
+  font-size: var(--font-size-xs);
 }
 
 
-/* ===========================================================
-   NETWORK STATUS
-=========================================================== */
+/* =========================================================
+   CONNECTION STATUS
+   ========================================================= */
 
 .connection-status {
-    display: flex !important;
-    align-items: center;
+  display: flex !important;
 
-    gap: var(--spacing-xs);
+  align-items: center;
 
-    margin: 0 !important;
+  gap: var(--spacing-xs);
 
-    color: var(--green) !important;
+  margin: 0 !important;
 
-    font-size: var(--font-size-xs) !important;
+  color: var(--green) !important;
 
-    letter-spacing: 1px !important;
+  font-family: var(--font-family);
+
+  font-size: var(--font-size-xs) !important;
+
+  letter-spacing: 1px !important;
 }
 
 
 .connection-status i {
-    font-size: 6px;
+  color: var(--green);
 
-    color: var(--green);
+  font-size: 6px;
+
+  text-shadow:
+    0 0 8px
+    rgba(0, 255, 174, 0.8);
 }
 
 
-/* ===========================================================
+/* =========================================================
    NETWORK CARD
-=========================================================== */
+   ========================================================= */
 
 .network-card {
-    width: 100%;
+  width: 100%;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
 
-    gap: var(--spacing-xl);
+  align-items: center;
 
-    padding: var(--spacing-lg);
+  justify-content: space-between;
 
-    border: 1px solid var(--border);
+  gap: var(--spacing-xl);
 
-    border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
 
-    background: var(--card);
+  border:
+    1px solid
+    var(--border);
 
-    box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-lg);
+
+  background: var(--card);
+
+  box-shadow: var(--shadow-soft);
+
+  font-family: var(--font-family);
+
+  animation:
+    fade-in-up
+    0.7s
+    ease
+    0.2s
+    both;
+
+  transition:
+    border-color var(--transition-normal),
+    background var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
 
-/* ===========================================================
+.network-card:hover {
+  background: var(--card-hover);
+
+  border-color:
+    rgba(0, 229, 255, 0.2);
+
+  box-shadow:
+    var(--shadow-soft),
+    var(--glow-cyan);
+}
+
+
+/* =========================================================
    NETWORK MAIN
-=========================================================== */
+   ========================================================= */
 
 .network-main {
-    min-width: 0;
+  min-width: 0;
 
-    display: flex;
-    align-items: center;
+  display: flex;
 
-    gap: var(--spacing-md);
+  align-items: center;
+
+  gap: var(--spacing-md);
 }
 
 
 .network-icon {
-    width: 52px;
-    height: 52px;
+  width: 52px;
+  height: 52px;
 
-    flex-shrink: 0;
+  flex-shrink: 0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
 
-    border: 1px solid
-        rgba(0, 255, 174, 0.2);
+  align-items: center;
+  justify-content: center;
 
-    border-radius: var(--radius-md);
+  border:
+    1px solid
+    rgba(0, 255, 174, 0.2);
 
-    background:
-        rgba(0, 255, 174, 0.05);
+  border-radius: var(--radius-md);
 
-    color: var(--green);
+  background:
+    rgba(0, 255, 174, 0.05);
 
-    font-size: var(--font-size-lg);
+  color: var(--green);
 
-    box-shadow:
-        0 0 20px
-        rgba(0, 255, 174, 0.08);
+  font-size: var(--font-size-lg);
+
+  box-shadow:
+    0 0 20px
+    rgba(0, 255, 174, 0.08);
+
+  animation:
+    cyan-glow
+    3s
+    ease-in-out
+    infinite;
 }
 
 
 .network-main strong {
-    display: block;
+  display: block;
 
-    margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
 
-    color: var(--text-secondary);
+  color: var(--text-secondary);
 
-    font-size: var(--font-size-md);
+  font-family: var(--font-family);
 
-    font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-md);
+
+  font-weight: var(--font-weight-semibold);
 }
 
 
 .network-main p {
-    margin: 0;
+  margin: 0;
 
-    color: var(--muted);
+  color: var(--muted);
 
-    font-size: var(--font-size-xs);
+  font-family: var(--font-family);
+
+  font-size: var(--font-size-xs);
 }
 
 
-/* ===========================================================
-   NETWORK STATS
-=========================================================== */
+/* =========================================================
+   NETWORK STATISTICS
+   ========================================================= */
 
 .network-stats {
-    display: grid;
+  display: grid;
 
-    grid-template-columns:
-        repeat(3, minmax(90px, 1fr));
+  grid-template-columns:
+    repeat(3, minmax(90px, 1fr));
 
-    gap: var(--spacing-lg);
+  gap: var(--spacing-lg);
 }
 
 
 .network-stats div {
-    display: flex;
-    flex-direction: column;
+  display: flex;
 
-    gap: var(--spacing-xs);
+  flex-direction: column;
 
-    padding-left: var(--spacing-md);
+  gap: var(--spacing-xs);
 
-    border-left: 1px solid var(--border);
+  padding-left: var(--spacing-md);
+
+  border-left:
+    1px solid
+    var(--border);
 }
 
 
 .network-stats span {
-    color: var(--text-dim);
+  color: var(--text-dim);
 
-    font-size: var(--font-size-xs);
+  font-family: var(--font-family);
 
-    letter-spacing: 1px;
+  font-size: var(--font-size-xs);
+
+  letter-spacing: 1px;
 }
 
 
 .network-stats strong {
-    color: var(--text-secondary);
+  color: var(--text-secondary);
 
-    font-size: var(--font-size-sm);
+  font-family: var(--font-family);
 
-    font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+
+  font-weight: var(--font-weight-semibold);
+
+  animation:
+    data-flicker
+    7s
+    ease-in-out
+    infinite;
 }
 
 
-/* ===========================================================
-   SYSTEM INFORMATION
-=========================================================== */
+/* =========================================================
+   SYSTEM INFORMATION CARD
+   ========================================================= */
 
 .info-card {
-    width: 100%;
+  width: 100%;
 
-    overflow: hidden;
+  overflow: hidden;
 
-    border: 1px solid var(--border);
+  border:
+    1px solid
+    var(--border);
 
-    border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg);
 
-    background: var(--card);
+  background: var(--card);
 
-    box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-soft);
+
+  font-family: var(--font-family);
+
+  animation:
+    fade-in
+    0.7s
+    ease
+    0.35s
+    both;
 }
 
 
-/* ===========================================================
+/* =========================================================
    INFORMATION ROW
-=========================================================== */
+   ========================================================= */
 
 .info-row {
-    min-height: 58px;
+  min-height: 58px;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
 
-    gap: var(--spacing-lg);
+  align-items: center;
 
-    padding:
-        var(--spacing-md)
-        var(--spacing-lg);
+  justify-content: space-between;
 
-    border-bottom:
-        1px solid var(--border-light);
+  gap: var(--spacing-lg);
 
-    transition:
-        background var(--transition-fast);
+  padding:
+    var(--spacing-md)
+    var(--spacing-lg);
+
+  border-bottom:
+    1px solid
+    var(--border-light);
+
+  font-family: var(--font-family);
+
+  transition:
+    background var(--transition-fast),
+    padding-left var(--transition-normal);
 }
 
 
 .info-row:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 
 .info-row:hover {
-    background: var(--card-hover);
+  background: var(--card-hover);
+
+  padding-left:
+    calc(var(--spacing-lg) + 5px);
 }
 
 
 .info-row span {
-    color: var(--muted);
+  color: var(--muted);
 
-    font-size: var(--font-size-sm);
+  font-family: var(--font-family);
+
+  font-size: var(--font-size-sm);
 }
 
 
 .info-row strong {
-    color: var(--text-secondary);
+  color: var(--text-secondary);
 
-    font-size: var(--font-size-sm);
+  font-family: var(--font-family);
 
-    font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
 
-    text-align: right;
+  font-weight: var(--font-weight-medium);
+
+  text-align: right;
+
+  animation:
+    data-flicker
+    9s
+    ease-in-out
+    infinite;
 }
 
 
 .info-row .online-text {
-    color: var(--green);
+  color: var(--green);
 
-    text-shadow:
-        0 0 10px
-        rgba(0, 255, 174, 0.15);
+  text-shadow:
+    0 0 10px
+    rgba(0, 255, 174, 0.2);
 }
 
 
-/* ===========================================================
-   DOCK
-=========================================================== */
+/* =========================================================
+   SYSTEM DOCK
+   ========================================================= */
 
 .system-main .dock {
-    width: 100%;
+  width: 100%;
 
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+
+  margin-bottom: var(--spacing-md);
 }
 
 
-/* ===========================================================
-   STATUS ANIMATION
-=========================================================== */
+/* =========================================================
+   ANIMATION KEYFRAMES
+   ========================================================= */
 
-@keyframes statusPulse {
 
-    0%,
-    100% {
-        opacity: 1;
+/* -----------------------------------------
+   FADE IN
+   ----------------------------------------- */
 
-        box-shadow:
-            0 0 8px var(--green);
-    }
+@keyframes fade-in {
 
-    50% {
-        opacity: 0.45;
+  from {
+    opacity: 0;
 
-        box-shadow:
-            0 0 3px var(--green);
-    }
+    transform:
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
 }
 
 
-/* ===========================================================
+/* -----------------------------------------
+   FADE IN LEFT
+   ----------------------------------------- */
+
+@keyframes fade-in-left {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateX(-15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateX(0);
+  }
+
+}
+
+
+/* -----------------------------------------
+   FADE IN RIGHT
+   ----------------------------------------- */
+
+@keyframes fade-in-right {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateX(15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateX(0);
+  }
+
+}
+
+
+/* -----------------------------------------
+   FADE IN UP
+   ----------------------------------------- */
+
+@keyframes fade-in-up {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+/* -----------------------------------------
+   SCALE IN
+   ----------------------------------------- */
+
+@keyframes scale-in {
+
+  from {
+    opacity: 0;
+
+    transform:
+      scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      scale(1);
+  }
+
+}
+
+
+/* -----------------------------------------
+   SLIDE UP
+   ----------------------------------------- */
+
+@keyframes slide-up {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+/* -----------------------------------------
+   CYAN GLOW
+   ----------------------------------------- */
+
+@keyframes cyan-glow {
+
+  0%,
+  100% {
+
+    box-shadow:
+      0 0 10px
+      rgba(0, 229, 255, 0.1);
+
+  }
+
+  50% {
+
+    box-shadow:
+      0 0 25px
+      rgba(0, 229, 255, 0.25);
+
+  }
+
+}
+
+
+/* -----------------------------------------
+   DATA FLICKER
+   ----------------------------------------- */
+
+@keyframes data-flicker {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  96% {
+    opacity: 1;
+  }
+
+  97% {
+    opacity: 0.65;
+  }
+
+  98% {
+    opacity: 1;
+  }
+
+}
+
+
+/* -----------------------------------------
+   SYSTEM STATUS PULSE
+   ----------------------------------------- */
+
+@keyframes system-status-pulse {
+
+  0%,
+  100% {
+
+    opacity: 1;
+
+    box-shadow:
+      0 0 8px
+      rgba(0, 255, 174, 0.8);
+
+  }
+
+  50% {
+
+    opacity: 0.5;
+
+    box-shadow:
+      0 0 3px
+      rgba(0, 255, 174, 0.3);
+
+  }
+
+}
+
+
+/* =========================================================
+   ANIMATION UTILITIES
+   ========================================================= */
+
+.animate-fade {
+  animation:
+    fade-in
+    0.5s
+    ease
+    both;
+}
+
+
+.animate-scale {
+  animation:
+    scale-in
+    0.5s
+    ease
+    both;
+}
+
+
+.animate-slide-up {
+  animation:
+    slide-up
+    0.5s
+    ease
+    both;
+}
+
+
+.animate-glow {
+  animation:
+    cyan-glow
+    2.5s
+    ease-in-out
+    infinite;
+}
+
+
+/* =========================================================
    TABLET
-=========================================================== */
+   ========================================================= */
 
 @media (max-width: 1100px) {
 
-    .system-main {
-        padding: var(--spacing-lg);
-    }
+  .system-main {
+    width:
+      calc(100% - var(--sidebar-width));
+
+    margin-left:
+      var(--sidebar-width);
+
+    padding:
+      var(--spacing-lg);
+  }
 
 
-    .resource-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
+  .resource-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+  }
 
 
-    .network-card {
-        align-items: flex-start;
+  .network-card {
 
-        flex-direction: column;
-    }
+    align-items: flex-start;
+
+    flex-direction: column;
+
+  }
 
 
-    .network-stats {
-        width: 100%;
-    }
+  .network-stats {
+
+    width: 100%;
+
+  }
 
 }
 
 
-/* ===========================================================
+/* =========================================================
    MOBILE
-=========================================================== */
+   ========================================================= */
 
 @media (max-width: 700px) {
 
-    /*
-       The mobile sidebar/dock behavior is handled
-       by the existing global responsive CSS.
-    */
+  /*
+     IMPORTANT:
+     On mobile the shared sidebar becomes
+     the bottom navigation bar.
+  */
 
-    .system-main {
-        width: 100%;
+  .system-main {
 
-        margin-left: 0;
+    width: 100%;
 
-        padding:
-            var(--spacing-lg)
-            var(--spacing-md);
+    margin-left: 0;
 
-        padding-bottom: 110px;
-    }
+    padding:
+      var(--spacing-lg)
+      var(--spacing-md);
 
+    padding-bottom: 110px;
 
-    .system-header {
-        align-items: flex-start;
-
-        flex-direction: column;
-
-        margin-bottom: var(--spacing-lg);
-    }
+  }
 
 
-    .system-status {
-        align-self: flex-start;
-    }
+  .system-header {
+
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    margin-bottom:
+      var(--spacing-lg);
+
+  }
 
 
-    .system-header h1 {
-        font-size: var(--font-size-xl);
-    }
+  .system-header h1 {
+
+    font-size:
+      var(--font-size-xl);
+
+  }
 
 
-    .resource-grid {
-        grid-template-columns: 1fr;
-    }
+  .system-status {
+
+    align-self:
+      flex-start;
+
+  }
 
 
-    .network-stats {
-        width: 100%;
+  .resource-grid {
 
-        grid-template-columns: 1fr;
-    }
+    grid-template-columns:
+      1fr;
 
-
-    .network-stats div {
-        padding-left: 0;
-
-        padding-bottom: var(--spacing-sm);
-
-        border-left: none;
-
-        border-bottom:
-            1px solid
-            var(--border-light);
-    }
+  }
 
 
-    .network-stats div:last-child {
-        padding-bottom: 0;
+  .network-stats {
 
-        border-bottom: none;
-    }
+    width: 100%;
+
+    grid-template-columns:
+      1fr;
+
+  }
 
 
-    .info-row {
-        min-height: 54px;
+  .network-stats div {
 
-        padding: var(--spacing-md);
-    }
+    padding-left: 0;
+
+    padding-bottom:
+      var(--spacing-sm);
+
+    border-left: none;
+
+    border-bottom:
+      1px solid
+      var(--border-light);
+
+  }
+
+
+  .network-stats div:last-child {
+
+    padding-bottom: 0;
+
+    border-bottom: none;
+
+  }
+
+
+  .info-row {
+
+    min-height: 54px;
+
+    padding:
+      var(--spacing-md);
+
+  }
 
 }
 
 
-/* ===========================================================
+/* =========================================================
    SMALL PHONES
-=========================================================== */
+   ========================================================= */
 
 @media (max-width: 420px) {
 
-    .system-main {
-        width: 100%;
+  .system-main {
 
-        margin-left: 0;
+    width: 100%;
 
-        padding:
-            var(--spacing-md)
-            var(--spacing-sm);
+    margin-left: 0;
 
-        padding-bottom: 110px;
-    }
+    padding:
+      var(--spacing-md)
+      var(--spacing-sm);
 
+    padding-bottom: 110px;
 
-    .resource-card {
-        padding: var(--spacing-md);
-    }
+  }
 
 
-    .resource-icon {
-        width: 42px;
-        height: 42px;
-    }
+  .resource-card {
+
+    padding:
+      var(--spacing-md);
+
+  }
 
 
-    .resource-content strong {
-        font-size: var(--font-size-md);
-    }
+  .resource-icon {
+
+    width: 42px;
+
+    height: 42px;
+
+  }
 
 
-    .network-card {
-        padding: var(--spacing-md);
-    }
+  .resource-content strong {
+
+    font-size:
+      var(--font-size-md);
+
+  }
 
 
-    .info-row {
-        align-items: flex-start;
+  .network-card {
 
-        flex-direction: column;
+    padding:
+      var(--spacing-md);
 
-        gap: var(--spacing-xs);
-    }
+  }
 
 
-    .info-row strong {
-        text-align: left;
-    }
+  .info-row {
+
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+
+    gap:
+      var(--spacing-xs);
+
+  }
+
+
+  .info-row strong {
+
+    text-align:
+      left;
+
+  }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+
+  }
 
 }

@@ -2,15 +2,16 @@
    ORBIT AI — SIDEBAR
    ========================================= */
 
+
 /* =========================================
    SIDEBAR FOUNDATION
    ========================================= */
 
 .sidebar {
   position: fixed;
+
   top: 0;
   left: 0;
-  
 
   display: flex;
   flex-direction: column;
@@ -18,7 +19,9 @@
   width: var(--sidebar-width);
   height: 100vh;
 
-  padding: var(--spacing-xl) var(--spacing-md);
+  padding:
+    var(--spacing-xl)
+    var(--spacing-md);
 
   background:
     linear-gradient(
@@ -27,7 +30,8 @@
       rgba(5, 8, 22, 0.98)
     );
 
-  border-right: 1px solid var(--border);
+  border-right:
+    1px solid var(--border);
 
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -38,6 +42,13 @@
   z-index: var(--z-sidebar);
 
   overflow: hidden;
+
+  /*
+   * Sidebar default font
+   * Used by elements that do not
+   * have their own typography role.
+   */
+  font-family: var(--font-body);
 }
 
 
@@ -107,14 +118,17 @@
 
   margin-bottom: var(--spacing-xl);
 
-  border: 1px solid var(--border);
+  border:
+    1px solid var(--border);
 
   border-radius: var(--radius-md);
 
-  background: rgba(255, 255, 255, 0.025);
+  background:
+    rgba(255, 255, 255, 0.025);
 
   box-shadow:
-    inset 0 0 20px rgba(0, 229, 255, 0.025);
+    inset 0 0 20px
+    rgba(0, 229, 255, 0.025);
 }
 
 
@@ -135,20 +149,36 @@
 }
 
 
+/* =========================================
+   LOGO TITLE
+   Orbitron
+   ========================================= */
+
 .logo h1 {
   position: relative;
 
   color: var(--text);
 
+  font-family: var(--font-display);
+
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-heavy);
+
+  font-weight: var(--font-weight-bold);
 
   letter-spacing: 0.12em;
 
+  line-height: 1.2;
+
   text-shadow:
-    0 0 12px rgba(0, 229, 255, 0.25);
+    0 0 12px
+    rgba(0, 229, 255, 0.25);
 }
 
+
+/* =========================================
+   LOGO VERSION
+   Rajdhani
+   ========================================= */
 
 .logo span {
   display: block;
@@ -157,7 +187,11 @@
 
   color: var(--muted);
 
+  font-family: var(--font-tech);
+
   font-size: var(--font-size-xs);
+
+  font-weight: var(--font-weight-medium);
 
   letter-spacing: 0.15em;
 
@@ -180,8 +214,15 @@
   overflow-y: auto;
 
   padding-right: 3px;
+
+  font-family: var(--font-secondary);
 }
 
+
+/* =========================================
+   NAVIGATION LINKS
+   Space Grotesk
+   ========================================= */
 
 .nav-menu a {
   position: relative;
@@ -191,17 +232,23 @@
 
   min-height: 48px;
 
-  padding: 0 var(--spacing-md);
+  padding:
+    0 var(--spacing-md);
 
   gap: 14px;
 
   color: var(--muted);
 
-  border: 1px solid transparent;
+  border:
+    1px solid transparent;
 
   border-radius: var(--radius-md);
 
+  font-family: var(--font-secondary);
+
   font-size: var(--font-size-sm);
+
+  font-weight: var(--font-weight-medium);
 
   letter-spacing: 0.05em;
 
@@ -239,7 +286,8 @@
       transparent
     );
 
-  transition: left var(--transition-slow);
+  transition:
+    left var(--transition-slow);
 
   pointer-events: none;
 }
@@ -253,6 +301,7 @@
 
 /* =========================================
    NAVIGATION ICON
+   Font Awesome
    ========================================= */
 
 .nav-menu a i {
@@ -270,8 +319,6 @@
     color var(--transition-normal),
     text-shadow var(--transition-normal);
 }
-
-
 /* =========================================
    NAVIGATION HOVER
    ========================================= */
@@ -279,14 +326,17 @@
 .nav-menu a:hover {
   color: var(--text);
 
-  background: rgba(0, 229, 255, 0.04);
+  background:
+    rgba(0, 229, 255, 0.04);
 
-  border-color: rgba(0, 229, 255, 0.12);
+  border-color:
+    rgba(0, 229, 255, 0.12);
 
   transform: translateX(3px);
 
   box-shadow:
-    inset 3px 0 0 rgba(0, 229, 255, 0.25);
+    inset 3px 0 0
+    rgba(0, 229, 255, 0.25);
 }
 
 
@@ -294,7 +344,8 @@
   color: var(--cyan);
 
   text-shadow:
-    0 0 10px rgba(0, 229, 255, 0.5);
+    0 0 10px
+    rgba(0, 229, 255, 0.5);
 }
 
 
@@ -317,7 +368,8 @@
 
   box-shadow:
     inset 3px 0 0 var(--cyan),
-    0 0 20px rgba(0, 229, 255, 0.04);
+    0 0 20px
+    rgba(0, 229, 255, 0.04);
 }
 
 
@@ -325,7 +377,8 @@
   color: var(--cyan);
 
   text-shadow:
-    0 0 12px rgba(0, 229, 255, 0.65);
+    0 0 12px
+    rgba(0, 229, 255, 0.65);
 }
 
 
@@ -349,7 +402,8 @@
 
   box-shadow:
     0 0 8px var(--cyan),
-    0 0 16px rgba(0, 229, 255, 0.5);
+    0 0 16px
+    rgba(0, 229, 255, 0.5);
 }
 
 
@@ -364,12 +418,14 @@
 
   padding-top: var(--spacing-lg);
 
-  border-top: 1px solid var(--border);
+  border-top:
+    1px solid var(--border);
 }
 
 
 /* =========================================
    POWER BUTTON
+   Inter
    ========================================= */
 
 .power-btn {
@@ -387,9 +443,13 @@
   background:
     rgba(255, 77, 109, 0.04);
 
-  border: 1px solid rgba(255, 77, 109, 0.15);
+  border:
+    1px solid
+    rgba(255, 77, 109, 0.15);
 
   border-radius: var(--radius-md);
+
+  font-family: var(--font-body);
 
   transition:
     color var(--transition-normal),
@@ -410,7 +470,8 @@
     rgba(255, 77, 109, 0.4);
 
   box-shadow:
-    0 0 20px rgba(255, 77, 109, 0.15);
+    0 0 20px
+    rgba(255, 77, 109, 0.15);
 
   transform: translateY(-2px);
 }
@@ -452,20 +513,25 @@
       var(--spacing-sm);
   }
 
+
   .logo {
     padding: var(--spacing-sm);
 
     text-align: center;
   }
 
+
   .logo h1 {
     font-size: 0.8rem;
+
     letter-spacing: 0.08em;
   }
+
 
   .logo span {
     display: none;
   }
+
 
   .nav-menu a {
     justify-content: center;
@@ -475,21 +541,26 @@
     min-height: 46px;
   }
 
+
   .nav-menu a span {
     display: none;
   }
+
 
   .nav-menu a i {
     width: auto;
   }
 
+
   .nav-menu a.active::after {
     right: 4px;
   }
 
+
   .sidebar-footer {
     justify-content: center;
   }
+
 }
 
 
@@ -513,7 +584,9 @@
     flex-direction: row;
 
     border-right: 0;
-    border-top: 1px solid var(--border);
+
+    border-top:
+      1px solid var(--border);
 
     background:
       rgba(5, 8, 22, 0.96);
@@ -522,6 +595,7 @@
     -webkit-backdrop-filter: blur(20px);
   }
 
+
   .sidebar::before,
   .sidebar::after,
   .logo,
@@ -529,8 +603,10 @@
     display: none;
   }
 
+
   .nav-menu {
     display: flex;
+
     flex-direction: row;
 
     width: 100%;
@@ -539,7 +615,10 @@
     gap: 4px;
 
     overflow: hidden;
+
+    font-family: var(--font-secondary);
   }
+
 
   .nav-menu a {
     flex: 1;
@@ -547,15 +626,21 @@
     min-height: 100%;
 
     border-radius: var(--radius-sm);
+
+    font-family: var(--font-secondary);
   }
+
 
   .nav-menu a.active {
     box-shadow:
       inset 0 2px 0 var(--cyan),
-      0 0 15px rgba(0, 229, 255, 0.04);
+      0 0 15px
+      rgba(0, 229, 255, 0.04);
   }
+
 
   .nav-menu a.active::after {
     display: none;
   }
+
 }

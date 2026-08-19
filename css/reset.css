@@ -1,27 +1,33 @@
 @import url("./variables.css");
 
-/* =========================================
+/* =========================================================
    ORBIT AI — GLOBAL RESET
-   ========================================= */
+   ========================================================= */
 
-/* Box sizing */
+
+/* =========================================================
+   BOX SIZING
+   ========================================================= */
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+
   margin: 0;
   padding: 0;
 }
 
 
-/* =========================================
+/* =========================================================
    DOCUMENT
-   ========================================= */
+   ========================================================= */
 
 html {
   font-size: 16px;
+
   scroll-behavior: smooth;
+
   -webkit-text-size-adjust: 100%;
 }
 
@@ -29,56 +35,157 @@ html {
 body {
   min-height: 100vh;
 
-  font-family: var(--font-primary);
-  font-weight: var(--font-weight-regular);
+  /*
+   * DEFAULT FONT
+   * Inter is the main readable font.
+   */
+
+  font-family: var(--font-body);
+
+  font-weight: var(--font-weight-normal);
+
   color: var(--text);
 
   background: var(--bg);
 
   text-rendering: optimizeLegibility;
+
   -webkit-font-smoothing: antialiased;
+
   -moz-osx-font-smoothing: grayscale;
 
   overflow-x: hidden;
 }
 
 
-/* =========================================
-   HEADINGS
-   ========================================= */
+/* =========================================================
+   TYPOGRAPHY SYSTEM
+   ========================================================= */
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font: inherit;
+
+/* -------------------------------
+   DISPLAY / MAIN HEADINGS
+   Orbitron
+-------------------------------- */
+
+h1 {
+  font-family: var(--font-display);
+
+  font-weight: var(--font-weight-bold);
+
+  line-height: 1.2;
 }
 
 
-/* =========================================
-   TEXT
-   ========================================= */
+h2 {
+  font-family: var(--font-display);
+
+  font-weight: var(--font-weight-semibold);
+
+  line-height: 1.25;
+}
+
+
+/* -------------------------------
+   SECONDARY HEADINGS
+   Space Grotesk
+-------------------------------- */
+
+h3,
+h4 {
+  font-family: var(--font-secondary);
+
+  font-weight: var(--font-weight-semibold);
+
+  line-height: 1.3;
+}
+
+
+/* -------------------------------
+   SMALL HEADINGS / TECH LABELS
+   Rajdhani
+-------------------------------- */
+
+h5,
+h6 {
+  font-family: var(--font-tech);
+
+  font-weight: var(--font-weight-semibold);
+
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   BODY TEXT
+   ========================================================= */
 
 p {
+  font-family: var(--font-body);
+
+  font-weight: var(--font-weight-normal);
+
   line-height: 1.6;
 }
 
 
-/* =========================================
-   LINKS
-   ========================================= */
+/* =========================================================
+   TECHNICAL UI ELEMENTS
+   ========================================================= */
 
-a {
-  color: inherit;
-  text-decoration: none;
+[data-font="tech"],
+.tech-text,
+.system-data,
+.system-value,
+.metric-value,
+.status-value {
+  font-family: var(--font-tech);
 }
 
 
-/* =========================================
+/* =========================================================
+   DISPLAY ELEMENTS
+   ========================================================= */
+
+[data-font="display"] {
+  font-family: var(--font-display);
+}
+
+
+/* =========================================================
+   SECONDARY UI ELEMENTS
+   ========================================================= */
+
+[data-font="secondary"] {
+  font-family: var(--font-secondary);
+}
+
+
+/* =========================================================
+   BODY UI ELEMENTS
+   ========================================================= */
+
+[data-font="body"] {
+  font-family: var(--font-body);
+}
+
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+a {
+  color: inherit;
+
+  text-decoration: none;
+
+  font-family: inherit;
+}
+
+
+/* =========================================================
    LISTS
-   ========================================= */
+   ========================================================= */
 
 ul,
 ol {
@@ -86,22 +193,27 @@ ol {
 }
 
 
-/* =========================================
+/* =========================================================
    BUTTONS & FORM ELEMENTS
-   ========================================= */
+   ========================================================= */
 
 button,
 input,
 textarea,
 select {
-  font: inherit;
+  font-family: var(--font-body);
+
+  font-weight: var(--font-weight-normal);
+
   color: inherit;
 }
 
 
 button {
   border: 0;
+
   background: none;
+
   cursor: pointer;
 }
 
@@ -110,7 +222,10 @@ input,
 textarea,
 select {
   border: 0;
+
   outline: none;
+
+  background: transparent;
 }
 
 
@@ -119,9 +234,9 @@ textarea {
 }
 
 
-/* =========================================
+/* =========================================================
    MEDIA
-   ========================================= */
+   ========================================================= */
 
 img,
 picture,
@@ -129,6 +244,7 @@ video,
 canvas,
 svg {
   display: block;
+
   max-width: 100%;
 }
 
@@ -138,32 +254,48 @@ img {
 }
 
 
-/* =========================================
+/* =========================================================
    TABLES
-   ========================================= */
+   ========================================================= */
 
 table {
   border-collapse: collapse;
+
   border-spacing: 0;
 }
 
 
-/* =========================================
+/* =========================================================
+   CODE / TECHNICAL CONTENT
+   ========================================================= */
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-tech);
+}
+
+
+/* =========================================================
    SELECTION
-   ========================================= */
+   ========================================================= */
 
 ::selection {
-  background: rgba(0, 229, 255, 0.2);
+  background:
+    rgba(0, 229, 255, 0.2);
+
   color: var(--text);
 }
 
 
-/* =========================================
+/* =========================================================
    SCROLLBAR
-   ========================================= */
+   ========================================================= */
 
 ::-webkit-scrollbar {
   width: 6px;
+
   height: 6px;
 }
 
@@ -174,44 +306,58 @@ table {
 
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 229, 255, 0.25);
+  background:
+    rgba(0, 229, 255, 0.25);
+
   border-radius: var(--radius-full);
 }
 
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 229, 255, 0.5);
+  background:
+    rgba(0, 229, 255, 0.5);
 }
 
 
-/* =========================================
+/* =========================================================
    ACCESSIBILITY
-   ========================================= */
+   ========================================================= */
 
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--cyan);
+  outline:
+    2px solid var(--cyan);
+
   outline-offset: 3px;
 }
 
 
-/* =========================================
+/* =========================================================
    REDUCED MOTION
-   ========================================= */
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
+
   html {
     scroll-behavior: auto;
   }
 
+
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
   }
+
 }

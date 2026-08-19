@@ -3,7 +3,6 @@
    ========================================= */
 
 :root {
-
   /* ===============================
      BACKGROUND
      =============================== */
@@ -16,7 +15,6 @@
 
   --border: rgba(255, 255, 255, 0.12);
   --border-light: rgba(255, 255, 255, 0.06);
-
 
   /* ===============================
      ORBIT COLORS
@@ -31,7 +29,6 @@
 
   --red: rgba(236, 14, 14, 0.89);
 
-
   /* ===============================
      TEXT
      =============================== */
@@ -41,45 +38,27 @@
   --muted: #8ea4c7;
   --text-dim: #5d708f;
 
-
   /* ===============================
      GRADIENTS
      =============================== */
 
-  --gradient-primary:
-    linear-gradient(
-      135deg,
-      var(--cyan),
-      var(--blue)
-    );
+  --gradient-primary: linear-gradient(135deg, var(--cyan), var(--blue));
 
-  --gradient-ai:
-    linear-gradient(
-      135deg,
-      var(--blue),
-      var(--purple)
-    );
-
+  --gradient-ai: linear-gradient(135deg, var(--blue), var(--purple));
 
   /* ===============================
      GLOW
      =============================== */
 
-  --shadow:
-    0 0 25px rgba(0, 229, 255, 0.25);
+  --shadow: 0 0 25px rgba(0, 229, 255, 0.25);
 
-  --shadow-soft:
-    0 10px 35px rgba(0, 0, 0, 0.25);
+  --shadow-soft: 0 10px 35px rgba(0, 0, 0, 0.25);
 
-  --glow-cyan:
-    0 0 20px rgba(0, 229, 255, 0.25);
+  --glow-cyan: 0 0 20px rgba(0, 229, 255, 0.25);
 
-  --glow-blue:
-    0 0 20px rgba(0, 140, 255, 0.25);
+  --glow-blue: 0 0 20px rgba(0, 140, 255, 0.25);
 
-  --glow-purple:
-    0 0 20px rgba(123, 92, 255, 0.25);
-
+  --glow-purple: 0 0 20px rgba(123, 92, 255, 0.25);
 
   /* ===============================
      SPACING
@@ -92,7 +71,6 @@
   --spacing-xl: 32px;
   --spacing-2xl: 48px;
 
-
   /* ===============================
      BORDER RADIUS
      =============================== */
@@ -103,14 +81,29 @@
   --radius-xl: 24px;
   --radius-full: 999px;
 
+  /* =========================================================
+   TYPOGRAPHY
+========================================================= */
 
-  /* ===============================
-     TYPOGRAPHY
-     =============================== */
+  --font-display: "Orbitron", sans-serif;
 
-  --font-family:
-    "Orbitron",
-    sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  --font-tech: "Rajdhani", sans-serif;
+
+  --font-secondary: "Space Grotesk", sans-serif;
+
+  /* Default application font */
+
+  --font-family: var(--font-body);
+
+  --font-display: "Orbitron", sans-serif;
+
+  --font-body: "Inter", sans-serif;
+
+  --font-tech: "Rajdhani", sans-serif;
+
+  --font-secondary: "Space Grotesk", sans-serif;
 
   --font-size-xs: 0.7rem;
   --font-size-sm: 0.8rem;
@@ -125,14 +118,12 @@
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
 
-
   /* ===============================
      LAYOUT
      =============================== */
 
   --sidebar-width: 240px;
   --header-height: 76px;
-
 
   /* ===============================
      TRANSITIONS
@@ -141,7 +132,6 @@
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.6s ease;
-
 
   /* ===============================
      Z-INDEX
