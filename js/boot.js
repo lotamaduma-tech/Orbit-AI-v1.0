@@ -1,100 +1,350 @@
-// ==========================================
-// ORBIT AI BOOT SYSTEM
-// ==========================================
+/* =========================================================
+   ORBIT AI
+   BOOT SEQUENCE
+   ========================================================= */
 
-const bootMessages = [
-    "Initializing Orbit Kernel...",
-    "Loading Neural Engine...",
-    "Encrypting Memory Core...",
-    "Connecting Voice Recognition...",
-    "Establishing Secure Connection...",
-    "Activating AI Modules...",
-    "Enabling GPU Acceleration...",
-    "Running System Diagnostics...",
-    "Launching Dashboard..."
-];
+document.addEventListener("DOMContentLoaded", () => {
 
-// ==========================================
-// ELEMENTS
-// ==========================================
+  const bootScreen = document.getElementById("boot-screen");
 
-const bootText = document.getElementById("boot-text");
-const loadingFill = document.getElementById("loading-fill");
-const bootState = document.getElementById("boot-state");
-const coreText = document.querySelector(".boot-center span");
-const bootScreen = document.getElementById("boot-screen");
+  if (!bootScreen) {
+    console.warn("Orbit AI Boot: #boot-screen not found.");
+    return;
+  }
 
-const indicators = [
-    document.getElementById("status1"),
-    document.getElementById("status2"),
-    document.getElementById("status3"),
-    document.getElementById("status4"),
-    document.getElementById("status5"),
-    document.getElementById("status6"),
-    document.getElementById("status7"),
-    document.getElementById("status8"),
-    document.getElementById("status9")
-];
 
-const coreStates = [
-    "BOOT",
-    "INIT",
-    "SYNC",
-    "SCAN",
-    "LINK",
-    "LOAD",
-    "READY",
-    "AI",
-    "ONLINE"
-];
+  /* =======================================================
+     BOOT INTERFACE
+     ======================================================= */
 
-let step = 0;
+  bootScreen.innerHTML = `
 
-// ==========================================
-// START BOOT
-// ==========================================
+    <div class="boot-container">
 
-const bootInterval = setInterval(() => {
+      <!-- ORBIT LOGO -->
 
-    bootText.textContent = bootMessages[step];
+      <div class="boot-logo">
 
-    const progress = ((step + 1) / bootMessages.length) * 100;
-    loadingFill.style.width = progress + "%";
+        <div class="boot-orbit">
 
-    coreText.textContent = coreStates[step];
+          <div class="boot-orbit-ring ring-one"></div>
 
-    indicators[step].classList.add("active");
+          <div class="boot-orbit-ring ring-two"></div>
 
-    indicators[step].innerHTML =
-        "✓ " +
-        indicators[step].textContent.replace("○ ", "");
+          <div class="boot-orbit-ring ring-three"></div>
 
-    step++;
+          <div class="boot-core">
 
-    // ==========================================
-    // FINISH BOOT
-    // ==========================================
+            <span>O</span>
 
-    if (step >= bootMessages.length) {
+          </div>
 
-        clearInterval(bootInterval);
+        </div>
 
-        bootState.textContent = "STATUS : ONLINE";
-        bootText.textContent = "Orbit AI Ready";
-        coreText.textContent = "AI";
+        <h1>ORBIT AI</h1>
 
-        setTimeout(() => {
+        <p>INTELLIGENT SYSTEM INTERFACE</p>
 
-            bootScreen.style.opacity = "0";
-            bootScreen.style.visibility = "hidden";
+      </div>
 
-            setTimeout(() => {
 
-                window.location.href = "index.html";
+      <!-- SYSTEM STATUS -->
 
-            }, 1000);
+      <div class="boot-status">
 
-        }, 1200);
+        <div class="boot-status-row">
+
+          <span>CORE SYSTEM</span>
+
+          <span
+            id="boot-core-status"
+            class="boot-value"
+          >
+            WAITING
+          </span>
+
+        </div>
+
+
+        <div class="boot-status-row">
+
+          <span>MEMORY</span>
+
+          <span
+            id="boot-memory-status"
+            class="boot-value"
+          >
+            WAITING
+          </span>
+
+        </div>
+
+
+        <div class="boot-status-row">
+
+          <span>NETWORK</span>
+
+          <span
+            id="boot-network-status"
+            class="boot-value"
+          >
+            WAITING
+          </span>
+
+        </div>
+
+
+        <div class="boot-status-row">
+
+          <span>INTERFACE</span>
+
+          <span
+            id="boot-interface-status"
+            class="boot-value"
+          >
+            WAITING
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- CURRENT OPERATION -->
+
+      <div class="boot-message">
+
+        <span class="boot-prefix">
+          >
+        </span>
+
+        <span id="boot-message">
+          INITIALIZING ORBIT AI...
+        </span>
+
+      </div>
+
+
+      <!-- PROGRESS -->
+
+      <div class="boot-progress">
+
+        <div
+          id="boot-progress-fill"
+          class="boot-progress-fill"
+        ></div>
+
+      </div>
+
+
+      <div class="boot-progress-info">
+
+        <span>SYSTEM INITIALIZATION</span>
+
+        <span id="boot-percentage">
+          0%
+        </span>
+
+      </div>
+
+
+      <!-- FINAL STATUS -->
+
+      <div
+        id="boot-ready"
+        class="boot-ready"
+      >
+        SYSTEM READY
+      </div>
+
+    </div>
+
+  `;
+
+
+  /* =======================================================
+     ELEMENTS
+     ======================================================= */
+
+  const progressFill =
+    document.getElementById("boot-progress-fill");
+
+  const percentage =
+    document.getElementById("boot-percentage");
+
+  const message =
+    document.getElementById("boot-message");
+
+  const ready =
+    document.getElementById("boot-ready");
+
+  const coreStatus =
+    document.getElementById("boot-core-status");
+
+  const memoryStatus =
+    document.getElementById("boot-memory-status");
+
+  const networkStatus =
+    document.getElementById("boot-network-status");
+
+  const interfaceStatus =
+    document.getElementById("boot-interface-status");
+
+
+  /* =======================================================
+     BOOT STEPS
+     ======================================================= */
+
+  const bootSteps = [
+
+    {
+      progress: 15,
+
+      message: "INITIALIZING CORE SYSTEM...",
+
+      element: coreStatus
+    },
+
+    {
+      progress: 35,
+
+      message: "CHECKING MEMORY...",
+
+      element: memoryStatus
+    },
+
+    {
+      progress: 55,
+
+      message: "CHECKING NETWORK...",
+
+      element: networkStatus
+    },
+
+    {
+      progress: 75,
+
+      message: "LOADING INTERFACE...",
+
+      element: interfaceStatus
+    },
+
+    {
+      progress: 90,
+
+      message: "LOADING ORBIT MODULES...",
+
+      element: null
+    },
+
+    {
+      progress: 100,
+
+      message: "ORBIT AI INITIALIZATION COMPLETE.",
+
+      element: null
     }
 
-}, 800);
+  ];
+
+
+  /* =======================================================
+     DELAY
+     ======================================================= */
+
+  const delay = (milliseconds) => {
+
+    return new Promise(resolve => {
+
+      setTimeout(resolve, milliseconds);
+
+    });
+
+  };
+
+
+  /* =======================================================
+     UPDATE PROGRESS
+     ======================================================= */
+
+  function updateProgress(value) {
+
+    progressFill.style.width = `${value}%`;
+
+    percentage.textContent = `${value}%`;
+
+  }
+
+
+  /* =======================================================
+     MARK STEP COMPLETE
+     ======================================================= */
+
+  function completeStep(element) {
+
+    if (!element) return;
+
+    element.textContent = "ONLINE";
+
+    element.classList.add("complete");
+
+  }
+
+
+  /* =======================================================
+     SYSTEM CHECKS
+     ======================================================= */
+
+  async function runBootSequence() {
+
+    for (const step of bootSteps) {
+
+      message.textContent = step.message;
+
+      updateProgress(step.progress);
+
+      await delay(450);
+
+      completeStep(step.element);
+
+    }
+
+
+    /* =====================================================
+       FINAL STATE
+       ===================================================== */
+
+    message.textContent =
+      "ALL SYSTEMS OPERATIONAL.";
+
+    ready.classList.add("show");
+
+    await delay(900);
+
+
+    /* =====================================================
+       FADE OUT
+       ===================================================== */
+
+    bootScreen.classList.add("boot-complete");
+
+
+    await delay(900);
+
+
+    /* =====================================================
+       REMOVE BOOT SCREEN
+       ===================================================== */
+
+    bootScreen.remove();
+
+  }
+
+
+  /* =======================================================
+     START BOOT
+     ======================================================= */
+
+  runBootSequence();
+
+});

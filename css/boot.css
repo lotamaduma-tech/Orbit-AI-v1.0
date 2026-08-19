@@ -1,517 +1,676 @@
-/* ==========================================
-   RESET
-========================================== */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-html{
-    scroll-behavior:smooth;
-}
-
-body{
-    font-family:"Orbitron",sans-serif;
-    overflow:hidden;
-    background:#020814;
-    color:#fff;
-}
-
-/* ==========================================
+/* =========================================================
+   ORBIT AI
    BOOT SCREEN
-========================================== */
+   CINEMATIC SYSTEM INITIALIZATION
+   ========================================================= */
 
-#boot-screen{
+/* =========================================================
+   BOOT SCREEN
+   ========================================================= */
 
-    position:fixed;
-    inset:0;
+#boot-screen {
+  position: fixed;
 
-    display:flex;
-    justify-content:center;
-    align-items:center;
+  inset: 0;
 
-    overflow:hidden;
+  width: 100%;
+  height: 100vh;
 
-    opacity:1;
-    visibility:visible;
+  display: flex;
 
-    transition:
-        opacity 1s ease,
-        visibility 1s ease;
-        
-    background:
-        radial-gradient(circle at center,
-            rgba(0,229,255,.08),
-            transparent 45%),
+  align-items: center;
+  justify-content: center;
 
-        linear-gradient(
-            180deg,
-            #01040b,
-            #04101d 45%,
-            #020814 100%
-        );
+  overflow: hidden;
 
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 140, 255, 0.1) 0%,
+    rgba(5, 8, 22, 0.98) 45%,
+    var(--bg) 100%
+  );
+
+  color: var(--text);
+
+  font-family: var(--font-family);
+
+  z-index: 99999;
+
+  opacity: 1;
+
+  visibility: visible;
+
+  transition:
+    opacity 0.9s ease,
+    visibility 0.9s ease;
 }
 
-/* ==========================================
-   GRID BACKGROUND
-========================================== */
+/* =========================================================
+   AMBIENT BACKGROUND
+   ========================================================= */
 
-.grid{
+#boot-screen::before {
+  content: "";
 
-    position:absolute;
-    inset:0;
+  position: absolute;
 
-    background-image:
+  top: 50%;
+  left: 50%;
 
-        linear-gradient(
-            rgba(0,229,255,.05) 1px,
-            transparent 1px
-        ),
+  width: 650px;
+  height: 650px;
 
-        linear-gradient(
-            90deg,
-            rgba(0,229,255,.05) 1px,
-            transparent 1px
-        );
+  transform: translate(-50%, -50%);
 
-    background-size:45px 45px;
+  border-radius: 50%;
 
-    opacity:.4;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.08), transparent 68%);
 
-    animation:gridMove 18s linear infinite;
+  filter: blur(20px);
 
+  pointer-events: none;
 }
 
-/* ==========================================
-   GLOW
-========================================== */
+/* =========================================================
+   GRID EFFECT
+   ========================================================= */
 
-.glow{
+#boot-screen::after {
+  content: "";
 
-    position:absolute;
+  position: absolute;
 
-    width:700px;
-    height:700px;
+  inset: 0;
 
-    border-radius:50%;
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.025) 1px, transparent 1px);
 
-    background:
-        radial-gradient(
-            rgba(0,229,255,.18),
-            transparent 70%
-        );
+  background-size: 45px 45px;
 
-    filter:blur(35px);
+  mask-image: radial-gradient(circle at center, black 0%, transparent 75%);
 
-    animation:glowMove 8s ease-in-out infinite;
-
+  pointer-events: none;
 }
 
-/* ==========================================
-   CONTAINER
-========================================== */
+/* =========================================================
+   BOOT CONTAINER
+   ========================================================= */
 
-.boot-container{
+.boot-container {
+  position: relative;
 
-    position:relative;
+  z-index: 2;
 
-    width:560px;
-    max-width:92%;
+  width: min(520px, 88vw);
 
-    padding:45px;
+  display: flex;
 
-    border-radius:25px;
+  flex-direction: column;
 
-    background:rgba(6,18,35,.72);
+  align-items: center;
 
-    backdrop-filter:blur(18px);
+  text-align: center;
 
-    border:1px solid rgba(0,229,255,.15);
-
-    box-shadow:
-
-        0 0 35px rgba(0,229,255,.12),
-
-        inset 0 0 20px rgba(255,255,255,.02);
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    z-index:5;
-
+  animation: boot-container-in 0.8s ease both;
 }
 
-/* ==========================================
-   LOGO
-========================================== */
+/* =========================================================
+   BOOT LOGO
+   ========================================================= */
 
-.boot-logo{
+.boot-logo {
+  display: flex;
 
-    text-align:center;
+  flex-direction: column;
 
-    margin-bottom:25px;
+  align-items: center;
 
+  margin-bottom: var(--spacing-xl);
 }
 
-.boot-logo h1{
+/* =========================================================
+   ORBIT CORE
+   ========================================================= */
 
-    color:#00e5ff;
+.boot-orbit {
+  position: relative;
 
-    font-size:42px;
+  width: 190px;
+  height: 190px;
 
-    letter-spacing:6px;
+  display: flex;
 
-    text-shadow:
+  align-items: center;
+  justify-content: center;
 
-        0 0 15px #00e5ff,
-
-        0 0 35px rgba(0,229,255,.5);
-
+  margin-bottom: var(--spacing-lg);
 }
 
-.boot-logo p{
+/* =========================================================
+   ORBIT RINGS
+   ========================================================= */
 
-    margin-top:8px;
+.boot-orbit-ring {
+  position: absolute;
 
-    color:#7aa6c8;
+  border-radius: 50%;
 
-    font-size:14px;
+  border: 1px solid rgba(0, 229, 255, 0.35);
 
-    letter-spacing:3px;
-
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.08);
 }
 
-/* ==========================================
-   VERSION
-========================================== */
+.ring-one {
+  width: 185px;
+  height: 185px;
 
-.version{
+  border-top-color: var(--cyan);
 
-    margin-top:25px;
+  border-bottom-color: rgba(0, 229, 255, 0.08);
 
-    color:#8ea9bf;
-
-    font-size:14px;
-
-    letter-spacing:3px;
-
+  animation: boot-spin 8s linear infinite;
 }
 
-/* ==========================================
-   AI CORE
-========================================== */
+.ring-two {
+  width: 145px;
+  height: 145px;
 
-.boot-core{
+  border-left-color: var(--blue);
 
-    position:relative;
+  border-right-color: rgba(0, 140, 255, 0.08);
 
-    width:260px;
-    height:260px;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    margin:35px 0;
-
+  animation: boot-spin-reverse 5s linear infinite;
 }
 
-/* ==========================================
-   CORE CENTER
-========================================== */
+.ring-three {
+  width: 108px;
+  height: 108px;
 
-.boot-center{
+  border-top-color: var(--purple);
 
-    position:absolute;
+  border-bottom-color: rgba(123, 92, 255, 0.08);
 
-    width:120px;
-    height:120px;
-
-    border-radius:50%;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    background:rgba(5,25,45,.95);
-
-    border:2px solid #00e5ff;
-
-    color:#00e5ff;
-
-    font-size:28px;
-    font-weight:700;
-    letter-spacing:4px;
-
-    box-shadow:
-
-        0 0 20px rgba(0,229,255,.45),
-
-        inset 0 0 25px rgba(0,229,255,.25);
-
-    z-index:10;
-
+  animation: boot-spin 4s linear infinite;
 }
 
-/* ==========================================
-   RINGS
-========================================== */
+/* =========================================================
+   BOOT CORE
+   ========================================================= */
 
-.boot-ring{
+.boot-core {
+  position: relative;
 
-    position:absolute;
+  width: 72px;
+  height: 72px;
 
-    border-radius:50%;
+  display: flex;
 
-    border:2px solid rgba(0,229,255,.35);
+  align-items: center;
+  justify-content: center;
 
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(0, 229, 255, 0.18),
+    rgba(0, 140, 255, 0.05) 60%,
+    transparent 100%
+  );
+
+  border: 1px solid var(--cyan);
+
+  box-shadow:
+    0 0 20px rgba(0, 229, 255, 0.35),
+    inset 0 0 20px rgba(0, 229, 255, 0.15);
+
+  animation: boot-core-pulse 2s ease-in-out infinite;
 }
 
-.ring1{
+.boot-core::before {
+  content: "";
 
-    width:250px;
-    height:250px;
+  position: absolute;
 
-    animation:rotateClockwise 10s linear infinite;
+  width: 10px;
+  height: 10px;
 
+  border-radius: 50%;
+
+  background: var(--cyan);
+
+  box-shadow:
+    0 0 12px var(--cyan),
+    0 0 25px rgba(0, 229, 255, 0.8);
 }
 
-.ring2{
+.boot-core span {
+  position: relative;
 
-    width:200px;
-    height:200px;
+  z-index: 2;
 
-    border-style:dashed;
+  color: var(--text);
 
-    animation:rotateCounter 8s linear infinite;
+  font-family: "Orbitron", sans-serif;
 
+  font-size: var(--font-size-lg);
+
+  font-weight: var(--font-weight-bold);
+
+  letter-spacing: 2px;
+
+  opacity: 0.9;
 }
 
-.ring3{
+/* =========================================================
+   LOGO TEXT
+   ========================================================= */
 
-    width:150px;
-    height:150px;
+.boot-logo h1 {
+  margin: 0;
 
-    border-style:dotted;
+  color: var(--text);
 
-    animation:rotateClockwise 6s linear infinite;
+  font-family: "Orbitron", sans-serif;
 
+  font-size: clamp(1.7rem, 5vw, 2.5rem);
+
+  font-weight: var(--font-weight-extrabold);
+
+  letter-spacing: 0.28em;
+
+  text-indent: 0.28em;
+
+  text-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
 }
 
-.ring4{
+.boot-logo p {
+  margin-top: var(--spacing-sm);
 
-    width:90px;
-    height:90px;
+  color: var(--muted);
 
-    border:1px solid rgba(0,229,255,.5);
+  font-family: "Rajdhani", sans-serif;
 
-    animation:pulseRing 2s ease infinite;
+  font-size: var(--font-size-xs);
 
+  font-weight: var(--font-weight-medium);
+
+  letter-spacing: 0.22em;
 }
 
-/* ==========================================
-   SCANNER
-========================================== */
+/* =========================================================
+   BOOT STATUS
+   ========================================================= */
 
-.scanner{
+.boot-status {
+  width: 100%;
 
-    position:absolute;
+  display: flex;
 
-    width:250px;
-    height:250px;
+  flex-direction: column;
 
-    border-radius:50%;
+  gap: 7px;
 
-    overflow:hidden;
+  padding: var(--spacing-md);
 
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-md);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  box-shadow: inset 0 0 25px rgba(0, 229, 255, 0.02);
+
+  backdrop-filter: blur(10px);
+
+  -webkit-backdrop-filter: blur(10px);
 }
 
-.scanner::before{
+/* =========================================================
+   STATUS ROW
+   ========================================================= */
 
-    content:"";
+.boot-status-row {
+  display: flex;
 
-    position:absolute;
+  align-items: center;
 
-    left:0;
+  justify-content: space-between;
 
-    width:100%;
-    height:3px;
+  gap: var(--spacing-md);
 
-    background:#00e5ff;
+  padding: 7px 10px;
 
-    box-shadow:0 0 20px #00e5ff;
+  color: var(--text-dim);
 
-    animation:scannerMove 3s linear infinite;
+  font-family: "Rajdhani", sans-serif;
 
+  font-size: var(--font-size-xs);
+
+  letter-spacing: 0.12em;
+
+  text-align: left;
 }
 
-/* ==========================================
-   CORE GLOW
-========================================== */
+.boot-value {
+  color: var(--text-dim);
 
-.boot-core::before{
+  font-family: "Orbitron", sans-serif;
 
-    content:"";
+  font-size: 0.62rem;
 
-    position:absolute;
+  letter-spacing: 0.12em;
 
-    width:340px;
-    height:340px;
-
-    border-radius:50%;
-
-    background:
-
-        radial-gradient(
-
-            rgba(0,229,255,.18),
-
-            transparent 70%
-
-        );
-
-    filter:blur(30px);
-
-    animation:pulseGlow 3s ease infinite;
-
+  transition:
+    color var(--transition-normal),
+    text-shadow var(--transition-normal);
 }
 
-/* ==========================================
+.boot-value.complete {
+  color: var(--green);
+
+  text-shadow: 0 0 10px rgba(0, 255, 174, 0.45);
+}
+
+/* =========================================================
+   BOOT MESSAGE
+   ========================================================= */
+
+.boot-message {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: var(--spacing-lg);
+
+  color: var(--cyan);
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: var(--font-size-xs);
+
+  letter-spacing: 0.08em;
+
+  text-align: left;
+}
+
+.boot-prefix {
+  color: var(--blue);
+
+  font-family: "Orbitron", sans-serif;
+
+  font-weight: var(--font-weight-bold);
+
+  text-shadow: 0 0 10px rgba(0, 140, 255, 0.6);
+}
+
+/* =========================================================
+   PROGRESS BAR
+   ========================================================= */
+
+.boot-progress {
+  width: 100%;
+
+  height: 5px;
+
+  margin-top: var(--spacing-sm);
+
+  overflow: hidden;
+
+  border-radius: var(--radius-full);
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.boot-progress-fill {
+  width: 0%;
+
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: var(--gradient-primary);
+
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.65);
+
+  transition: width 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* =========================================================
+   PROGRESS INFORMATION
+   ========================================================= */
+
+.boot-progress-info {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-top: var(--spacing-sm);
+
+  color: var(--text-dim);
+
+  font-family: "Rajdhani", sans-serif;
+
+  font-size: 0.65rem;
+
+  letter-spacing: 0.12em;
+}
+
+#boot-percentage {
+  color: var(--cyan);
+
+  font-family: "Orbitron", sans-serif;
+
+  font-size: 0.65rem;
+}
+
+/* =========================================================
+   SYSTEM READY
+   ========================================================= */
+
+.boot-ready {
+  margin-top: var(--spacing-xl);
+
+  color: var(--green);
+
+  font-family: "Orbitron", sans-serif;
+
+  font-size: var(--font-size-sm);
+
+  font-weight: var(--font-weight-bold);
+
+  letter-spacing: 0.25em;
+
+  text-shadow: 0 0 12px rgba(0, 255, 174, 0.7);
+
+  opacity: 0;
+
+  transform: translateY(8px);
+
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+.boot-ready.show {
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+/* =========================================================
+   BOOT COMPLETE
+   ========================================================= */
+
+#boot-screen.boot-complete {
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+}
+
+/* =========================================================
    ANIMATIONS
-========================================== */
+   ========================================================= */
 
-@keyframes rotateClockwise{
+@keyframes boot-spin {
+  from {
+    transform: rotate(0deg);
+  }
 
-    from{
-
-        transform:rotate(0deg);
-
-    }
-
-    to{
-
-        transform:rotate(360deg);
-
-    }
-
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes rotateCounter{
+@keyframes boot-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
 
-    from{
-
-        transform:rotate(360deg);
-
-    }
-
-    to{
-
-        transform:rotate(0deg);
-
-    }
-
+  to {
+    transform: rotate(0deg);
+  }
 }
 
-@keyframes pulseGlow{
+@keyframes boot-core-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 15px rgba(0, 229, 255, 0.25),
+      inset 0 0 15px rgba(0, 229, 255, 0.1);
+  }
 
-    0%,100%{
-
-        transform:scale(.9);
-
-        opacity:.4;
-
-    }
-
-    50%{
-
-        transform:scale(1.08);
-
-        opacity:1;
-
-    }
-
+  50% {
+    box-shadow:
+      0 0 35px rgba(0, 229, 255, 0.55),
+      inset 0 0 25px rgba(0, 229, 255, 0.25);
+  }
 }
 
-@keyframes pulseRing{
+@keyframes boot-container-in {
+  from {
+    opacity: 0;
 
-    0%,100%{
+    transform: translateY(12px) scale(0.98);
+  }
 
-        transform:scale(1);
+  to {
+    opacity: 1;
 
-        opacity:1;
-
-    }
-
-    50%{
-
-        transform:scale(1.15);
-
-        opacity:.35;
-
-    }
-
+    transform: translateY(0) scale(1);
+  }
 }
 
-@keyframes scannerMove{
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
-    0%{
+@media (max-width: 600px) {
+  #boot-screen {
+    padding: var(--spacing-md);
+  }
 
-        top:0;
+  .boot-container {
+    width: 100%;
 
-    }
+    max-width: 430px;
+  }
 
-    100%{
+  .boot-orbit {
+    width: 155px;
+    height: 155px;
+  }
 
-        top:100%;
+  .ring-one {
+    width: 150px;
+    height: 150px;
+  }
 
-    }
+  .ring-two {
+    width: 120px;
+    height: 120px;
+  }
 
+  .ring-three {
+    width: 90px;
+    height: 90px;
+  }
+
+  .boot-core {
+    width: 60px;
+    height: 60px;
+  }
+
+  .boot-logo h1 {
+    font-size: 1.5rem;
+  }
+
+  .boot-status {
+    padding: var(--spacing-sm);
+  }
 }
 
-/* ==========================================
-   ACTIVE STATUS
-========================================== */
+@media (max-width: 380px) {
+  .boot-orbit {
+    width: 135px;
+    height: 135px;
+  }
 
-.status-item{
+  .ring-one {
+    width: 130px;
+    height: 130px;
+  }
 
-    color:#7d8ea5;
+  .ring-two {
+    width: 105px;
+    height: 105px;
+  }
 
-    padding:10px 15px;
+  .ring-three {
+    width: 78px;
+    height: 78px;
+  }
 
-    border-left:3px solid #1d3348;
+  .boot-core {
+    width: 52px;
+    height: 52px;
+  }
 
-    transition:.4s;
+  .boot-logo h1 {
+    font-size: 1.3rem;
+  }
 
+  .boot-status-row {
+    padding: 6px 7px;
+
+    font-size: 0.62rem;
+  }
 }
 
-.status-item.active{
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
 
-    color:#00e5ff;
+@media (prefers-reduced-motion: reduce) {
+  #boot-screen *,
+  #boot-screen::before,
+  #boot-screen::after {
+    animation-duration: 0.01ms !important;
 
-    border-left-color:#00e5ff;
+    animation-iteration-count: 1 !important;
 
-    background:rgba(0,229,255,.08);
-
-    box-shadow:0 0 12px rgba(0,229,255,.18);
-
-}
-
-.boot-footer{
-
-    margin-top:25px;
-
-    color:#00e5ff;
-
-    font-size:14px;
-
-    letter-spacing:3px;
-
-    text-transform:uppercase;
-
+    transition-duration: 0.01ms !important;
+  }
 }
