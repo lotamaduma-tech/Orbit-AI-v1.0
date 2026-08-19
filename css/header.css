@@ -1,0 +1,302 @@
+/* =========================================
+   ORBIT AI — GLOBAL HEADER
+   ========================================= */
+
+/* =========================================
+   HEADER FOUNDATION
+   ========================================= */
+
+.header {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+
+  width: 100%;
+  min-height: var(--header-height);
+
+  padding: 0 var(--spacing-xl);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(12, 18, 36, 0.72),
+      rgba(5, 8, 22, 0.45)
+    );
+
+  border-bottom: 1px solid var(--border);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  z-index: var(--z-header);
+}
+
+
+/* =========================================
+   HEADER TECHNICAL LINE
+   ========================================= */
+
+.header::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: -1px;
+  left: 0;
+
+  width: 100%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(0, 229, 255, 0.35),
+      transparent
+    );
+
+  opacity: 0.7;
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   HEADER LEFT
+   ========================================= */
+
+.header-left {
+  display: flex;
+  align-items: center;
+
+  min-width: 0;
+}
+
+
+/* =========================================
+   DATE
+   ========================================= */
+
+.date {
+  position: relative;
+
+  color: var(--muted);
+
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+
+  letter-spacing: 0.12em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+.date::before {
+  content: "";
+
+  display: inline-block;
+
+  width: 6px;
+  height: 6px;
+
+  margin-right: 8px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--cyan);
+
+  box-shadow:
+    0 0 8px var(--cyan);
+}
+
+
+/* =========================================
+   HEADER CENTER
+   ========================================= */
+
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =========================================
+   TIME
+   ========================================= */
+
+.time {
+  color: var(--text);
+
+  font-size: clamp(
+    1.25rem,
+    2vw,
+    1.8rem
+  );
+
+  font-weight: var(--font-weight-semibold);
+
+  letter-spacing: 0.12em;
+
+  line-height: 1;
+
+  text-shadow:
+    0 0 15px rgba(0, 229, 255, 0.18);
+}
+
+
+/* =========================================
+   HEADER RIGHT
+   ========================================= */
+
+.header-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  min-width: 0;
+}
+
+
+/* =========================================
+   GREETING
+   ========================================= */
+
+.greeting {
+  display: flex;
+  align-items: center;
+
+  color: var(--text-secondary);
+
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+
+  letter-spacing: 0.05em;
+
+  white-space: nowrap;
+}
+
+
+.greeting::before {
+  content: "//";
+
+  margin-right: 8px;
+
+  color: var(--cyan);
+
+  opacity: 0.7;
+}
+
+
+/* =========================================
+   HEADER HOVER / ACTIVE LIGHT
+   ========================================= */
+
+.header-center::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  width: 180px;
+  height: 1px;
+
+  transform: translateX(-50%);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--cyan),
+      transparent
+    );
+
+  opacity: 0.35;
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 900px) {
+
+  .header {
+    min-height: 70px;
+
+    padding:
+      0
+      var(--spacing-lg);
+  }
+
+  .date {
+    font-size: 0.65rem;
+  }
+
+  .greeting {
+    font-size: 0.7rem;
+  }
+
+  .time {
+    font-size: 1.2rem;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  .header {
+    grid-template-columns: 1fr auto;
+
+    min-height: 64px;
+
+    padding:
+      0
+      var(--spacing-md);
+  }
+
+  .header-left {
+    order: 1;
+  }
+
+  .header-center {
+    order: 2;
+
+    justify-content: flex-end;
+  }
+
+  .header-right {
+    display: none;
+  }
+
+  .date {
+    font-size: 0.58rem;
+
+    letter-spacing: 0.08em;
+  }
+
+  .date::before {
+    width: 5px;
+    height: 5px;
+
+    margin-right: 5px;
+  }
+
+  .time {
+    font-size: 1rem;
+
+    letter-spacing: 0.08em;
+  }
+}

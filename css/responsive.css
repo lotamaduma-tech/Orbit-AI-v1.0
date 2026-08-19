@@ -1,0 +1,319 @@
+/* =========================================
+   ORBIT AI — GLOBAL RESPONSIVE SYSTEM
+   ========================================= */
+
+
+/* =========================================
+   LARGE DESKTOP
+   ========================================= */
+
+@media (max-width: 1400px) {
+
+  .app-container {
+    --sidebar-width: 220px;
+  }
+
+  .main-content {
+    min-width: 0;
+  }
+
+}
+
+
+/* =========================================
+   DESKTOP / TABLET
+   ========================================= */
+
+@media (max-width: 1200px) {
+
+  .sidebar {
+    width: 210px;
+  }
+
+  .main-content {
+    margin-left: 210px;
+  }
+
+  .main-grid {
+    gap: var(--spacing-md);
+  }
+
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 1000px) {
+
+  .sidebar {
+    width: 75px;
+  }
+
+  .main-content {
+    margin-left: 75px;
+  }
+
+  .sidebar .logo h1 {
+    font-size: 0;
+
+    text-align: center;
+  }
+
+  .sidebar .logo h1::after {
+    content: "O";
+
+    font-size: 1.3rem;
+
+    color: var(--cyan);
+
+    text-shadow:
+      0 0 12px rgba(0, 229, 255, 0.45);
+  }
+
+  .sidebar .logo span {
+    display: none;
+  }
+
+  .nav-menu a {
+    justify-content: center;
+
+    padding:
+      var(--spacing-md)
+      0;
+  }
+
+  .nav-menu a span {
+    display: none;
+  }
+
+  .nav-menu a i {
+    margin: 0;
+  }
+
+  .power-btn {
+    margin-inline: auto;
+  }
+
+}
+
+
+/* =========================================
+   SMALL TABLET
+   ========================================= */
+
+@media (max-width: 800px) {
+
+  .sidebar {
+    position: fixed;
+
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 64px;
+
+    z-index: var(--z-sidebar);
+  }
+
+  .sidebar .logo {
+    display: none;
+  }
+
+  .nav-menu {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    gap: 4px;
+  }
+
+  .nav-menu a {
+    flex: 1;
+
+    height: 100%;
+
+    padding: 0;
+
+    justify-content: center;
+
+    border-radius: 0;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+
+    padding-bottom: 64px;
+  }
+
+  .dock {
+    display: none;
+  }
+
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  html {
+    font-size: 15px;
+  }
+
+  .main-content {
+    width: 100%;
+  }
+
+  .main-grid {
+    width: 100%;
+
+    padding:
+      var(--spacing-sm);
+  }
+
+  .card {
+    width: 100%;
+  }
+
+  .header {
+    min-height: 60px;
+  }
+
+}
+
+
+/* =========================================
+   SMALL MOBILE
+   ========================================= */
+
+@media (max-width: 480px) {
+
+  .nav-menu {
+    gap: 0;
+  }
+
+  .nav-menu a {
+    font-size: 0.7rem;
+  }
+
+  .nav-menu a i {
+    font-size: 0.9rem;
+  }
+
+  .main-grid {
+    padding: 8px;
+  }
+
+  .header {
+    padding:
+      0
+      10px;
+  }
+
+  .date {
+    max-width: 160px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+  }
+
+}
+
+
+/* =========================================
+   VERY SMALL PHONES
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  .nav-menu a i {
+    font-size: 0.82rem;
+  }
+
+  .main-grid {
+    padding: 6px;
+  }
+
+  .card {
+    border-radius: var(--radius-md);
+  }
+
+}
+
+
+/* =========================================
+   LANDSCAPE PHONES
+   ========================================= */
+
+@media (
+  max-width: 900px
+) and (
+  orientation: landscape
+) {
+
+  .sidebar {
+    height: 56px;
+  }
+
+  .main-content {
+    padding-bottom: 56px;
+  }
+
+  .main-grid {
+    min-height: auto;
+  }
+
+}
+
+
+/* =========================================
+   TOUCH DEVICES
+   ========================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+  .card:hover {
+    transform: none;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+
+  #send-btn:hover {
+    transform: none;
+  }
+
+  .icon-btn:hover {
+    box-shadow: none;
+  }
+
+}
+
+
+/* =========================================
+   ACCESSIBILITY
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+
+}

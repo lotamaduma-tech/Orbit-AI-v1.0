@@ -1,0 +1,561 @@
+/* =========================================
+   ORBIT AI — SIDEBAR
+   ========================================= */
+
+/* =========================================
+   SIDEBAR FOUNDATION
+   ========================================= */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  
+
+  display: flex;
+  flex-direction: column;
+
+  width: var(--sidebar-width);
+  height: 100vh;
+
+  padding: var(--spacing-xl) var(--spacing-md);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(12, 18, 36, 0.96),
+      rgba(5, 8, 22, 0.98)
+    );
+
+  border-right: 1px solid var(--border);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  box-shadow:
+    10px 0 40px rgba(0, 0, 0, 0.25);
+
+  z-index: var(--z-sidebar);
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   SIDEBAR AMBIENT GLOW
+   ========================================= */
+
+.sidebar::before {
+  content: "";
+
+  position: absolute;
+
+  top: -120px;
+  left: -120px;
+
+  width: 300px;
+  height: 300px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0, 229, 255, 0.09),
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   SIDEBAR TECHNICAL LINE
+   ========================================= */
+
+.sidebar::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: 1px;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgba(0, 229, 255, 0.4),
+      transparent
+    );
+
+  opacity: 0.5;
+
+  pointer-events: none;
+}
+
+
+/* =========================================
+   LOGO
+   ========================================= */
+
+.logo {
+  position: relative;
+
+  padding: var(--spacing-md);
+
+  margin-bottom: var(--spacing-xl);
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-md);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  box-shadow:
+    inset 0 0 20px rgba(0, 229, 255, 0.025);
+}
+
+
+.logo::before {
+  content: "";
+
+  position: absolute;
+
+  top: -1px;
+  left: 20px;
+
+  width: 35px;
+  height: 1px;
+
+  background: var(--cyan);
+
+  box-shadow: var(--shadow);
+}
+
+
+.logo h1 {
+  position: relative;
+
+  color: var(--text);
+
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-heavy);
+
+  letter-spacing: 0.12em;
+
+  text-shadow:
+    0 0 12px rgba(0, 229, 255, 0.25);
+}
+
+
+.logo span {
+  display: block;
+
+  margin-top: 6px;
+
+  color: var(--muted);
+
+  font-size: var(--font-size-xs);
+
+  letter-spacing: 0.15em;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================
+   NAVIGATION
+   ========================================= */
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  flex: 1;
+
+  overflow-y: auto;
+
+  padding-right: 3px;
+}
+
+
+.nav-menu a {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 48px;
+
+  padding: 0 var(--spacing-md);
+
+  gap: 14px;
+
+  color: var(--muted);
+
+  border: 1px solid transparent;
+
+  border-radius: var(--radius-md);
+
+  font-size: var(--font-size-sm);
+
+  letter-spacing: 0.05em;
+
+  transition:
+    color var(--transition-normal),
+    background var(--transition-normal),
+    border-color var(--transition-normal),
+    transform var(--transition-normal),
+    box-shadow var(--transition-normal);
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   NAVIGATION SCAN LINE
+   ========================================= */
+
+.nav-menu a::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -100%;
+
+  width: 100%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(0, 229, 255, 0.06),
+      transparent
+    );
+
+  transition: left var(--transition-slow);
+
+  pointer-events: none;
+}
+
+
+.nav-menu a:hover::before,
+.nav-menu a.active::before {
+  left: 100%;
+}
+
+
+/* =========================================
+   NAVIGATION ICON
+   ========================================= */
+
+.nav-menu a i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+
+  color: var(--muted);
+
+  font-size: 0.9rem;
+
+  transition:
+    color var(--transition-normal),
+    text-shadow var(--transition-normal);
+}
+
+
+/* =========================================
+   NAVIGATION HOVER
+   ========================================= */
+
+.nav-menu a:hover {
+  color: var(--text);
+
+  background: rgba(0, 229, 255, 0.04);
+
+  border-color: rgba(0, 229, 255, 0.12);
+
+  transform: translateX(3px);
+
+  box-shadow:
+    inset 3px 0 0 rgba(0, 229, 255, 0.25);
+}
+
+
+.nav-menu a:hover i {
+  color: var(--cyan);
+
+  text-shadow:
+    0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+
+/* =========================================
+   ACTIVE NAVIGATION
+   ========================================= */
+
+.nav-menu a.active {
+  color: var(--text);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 229, 255, 0.1),
+      rgba(0, 229, 255, 0.025)
+    );
+
+  border-color:
+    rgba(0, 229, 255, 0.2);
+
+  box-shadow:
+    inset 3px 0 0 var(--cyan),
+    0 0 20px rgba(0, 229, 255, 0.04);
+}
+
+
+.nav-menu a.active i {
+  color: var(--cyan);
+
+  text-shadow:
+    0 0 12px rgba(0, 229, 255, 0.65);
+}
+
+
+/* =========================================
+   ACTIVE INDICATOR
+   ========================================= */
+
+.nav-menu a.active::after {
+  content: "";
+
+  position: absolute;
+
+  right: 10px;
+
+  width: 5px;
+  height: 5px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--cyan);
+
+  box-shadow:
+    0 0 8px var(--cyan),
+    0 0 16px rgba(0, 229, 255, 0.5);
+}
+
+
+/* =========================================
+   SIDEBAR FOOTER
+   ========================================= */
+
+.sidebar-footer {
+  display: flex;
+
+  justify-content: flex-start;
+
+  padding-top: var(--spacing-lg);
+
+  border-top: 1px solid var(--border);
+}
+
+
+/* =========================================
+   POWER BUTTON
+   ========================================= */
+
+.power-btn {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  color: var(--danger);
+
+  background:
+    rgba(255, 77, 109, 0.04);
+
+  border: 1px solid rgba(255, 77, 109, 0.15);
+
+  border-radius: var(--radius-md);
+
+  transition:
+    color var(--transition-normal),
+    background var(--transition-normal),
+    border-color var(--transition-normal),
+    box-shadow var(--transition-normal),
+    transform var(--transition-normal);
+}
+
+
+.power-btn:hover {
+  color: var(--text);
+
+  background:
+    rgba(255, 77, 109, 0.1);
+
+  border-color:
+    rgba(255, 77, 109, 0.4);
+
+  box-shadow:
+    0 0 20px rgba(255, 77, 109, 0.15);
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================
+   SIDEBAR SCROLLBAR
+   ========================================= */
+
+.nav-menu::-webkit-scrollbar {
+  width: 3px;
+}
+
+
+.nav-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.nav-menu::-webkit-scrollbar-thumb {
+  background:
+    rgba(0, 229, 255, 0.2);
+
+  border-radius: var(--radius-full);
+}
+
+
+/* =========================================
+   SIDEBAR RESPONSIVE
+   ========================================= */
+
+@media (max-width: 900px) {
+
+  .sidebar {
+    width: 72px;
+
+    padding:
+      var(--spacing-lg)
+      var(--spacing-sm);
+  }
+
+  .logo {
+    padding: var(--spacing-sm);
+
+    text-align: center;
+  }
+
+  .logo h1 {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+  }
+
+  .logo span {
+    display: none;
+  }
+
+  .nav-menu a {
+    justify-content: center;
+
+    padding: 0;
+
+    min-height: 46px;
+  }
+
+  .nav-menu a span {
+    display: none;
+  }
+
+  .nav-menu a i {
+    width: auto;
+  }
+
+  .nav-menu a.active::after {
+    right: 4px;
+  }
+
+  .sidebar-footer {
+    justify-content: center;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  .sidebar {
+    position: fixed;
+
+    top: auto;
+    bottom: 0;
+
+    width: 100%;
+    height: 64px;
+
+    padding: 0 8px;
+
+    flex-direction: row;
+
+    border-right: 0;
+    border-top: 1px solid var(--border);
+
+    background:
+      rgba(5, 8, 22, 0.96);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .sidebar::before,
+  .sidebar::after,
+  .logo,
+  .sidebar-footer {
+    display: none;
+  }
+
+  .nav-menu {
+    display: flex;
+    flex-direction: row;
+
+    width: 100%;
+    height: 100%;
+
+    gap: 4px;
+
+    overflow: hidden;
+  }
+
+  .nav-menu a {
+    flex: 1;
+
+    min-height: 100%;
+
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-menu a.active {
+    box-shadow:
+      inset 0 2px 0 var(--cyan),
+      0 0 15px rgba(0, 229, 255, 0.04);
+  }
+
+  .nav-menu a.active::after {
+    display: none;
+  }
+}

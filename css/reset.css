@@ -1,0 +1,217 @@
+@import url("./variables.css");
+
+/* =========================================
+   ORBIT AI — GLOBAL RESET
+   ========================================= */
+
+/* Box sizing */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* =========================================
+   DOCUMENT
+   ========================================= */
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+
+body {
+  min-height: 100vh;
+
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  color: var(--text);
+
+  background: var(--bg);
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  overflow-x: hidden;
+}
+
+
+/* =========================================
+   HEADINGS
+   ========================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font: inherit;
+}
+
+
+/* =========================================
+   TEXT
+   ========================================= */
+
+p {
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   LINKS
+   ========================================= */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* =========================================
+   LISTS
+   ========================================= */
+
+ul,
+ol {
+  list-style: none;
+}
+
+
+/* =========================================
+   BUTTONS & FORM ELEMENTS
+   ========================================= */
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+
+button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+
+input,
+textarea,
+select {
+  border: 0;
+  outline: none;
+}
+
+
+textarea {
+  resize: vertical;
+}
+
+
+/* =========================================
+   MEDIA
+   ========================================= */
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+
+img {
+  height: auto;
+}
+
+
+/* =========================================
+   TABLES
+   ========================================= */
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+
+/* =========================================
+   SELECTION
+   ========================================= */
+
+::selection {
+  background: rgba(0, 229, 255, 0.2);
+  color: var(--text);
+}
+
+
+/* =========================================
+   SCROLLBAR
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 229, 255, 0.25);
+  border-radius: var(--radius-full);
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.5);
+}
+
+
+/* =========================================
+   ACCESSIBILITY
+   ========================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+
+/* =========================================
+   REDUCED MOTION
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

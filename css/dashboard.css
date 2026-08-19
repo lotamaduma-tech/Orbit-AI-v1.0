@@ -1,0 +1,389 @@
+/* =========================================
+   ORBIT AI — DASHBOARD
+   ========================================= */
+
+/* =========================================
+   MAIN DASHBOARD GRID
+   ========================================= */
+
+.main-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(210px, 0.75fr)
+    minmax(420px, 1.8fr)
+    minmax(210px, 0.75fr);
+
+  gap: var(--spacing-lg);
+
+  width: 100%;
+
+  flex: 1;
+
+  min-height: 0;
+
+  padding: var(--spacing-lg);
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   DASHBOARD PANELS
+   ========================================= */
+
+.left-panel,
+.center-panel,
+.right-panel {
+  min-width: 0;
+  min-height: 0;
+}
+
+
+/* =========================================
+   LEFT PANEL
+   ========================================= */
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--spacing-lg);
+
+  overflow-y: auto;
+
+  padding-right: 3px;
+}
+
+
+/* =========================================
+   RIGHT PANEL
+   ========================================= */
+
+.right-panel {
+  display: flex;
+  flex-direction: column;
+
+  gap: var(--spacing-lg);
+
+  overflow-y: auto;
+
+  padding-right: 3px;
+}
+
+
+/* =========================================
+   CENTER PANEL
+   ========================================= */
+
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-height: 0;
+
+  gap: var(--spacing-md);
+
+  overflow: hidden;
+}
+
+
+/* =========================================
+   SYSTEM STATUS CARD
+   ========================================= */
+
+.status-card {
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   STORAGE CARD
+   ========================================= */
+
+.left-panel .card:nth-child(2) {
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   QUICK NOTES
+   ========================================= */
+
+.left-panel .card:last-child {
+  flex: 1;
+
+  min-height: 180px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+.left-panel textarea {
+  flex: 1;
+
+  min-height: 100px;
+
+  background:
+    rgba(5, 8, 22, 0.45);
+}
+
+
+/* =========================================
+   RIGHT PANEL CARDS
+   ========================================= */
+
+.right-panel .card {
+  flex-shrink: 0;
+}
+
+
+.right-panel .card:nth-child(2) {
+  text-align: left;
+}
+
+
+.right-panel .card:nth-child(2) h2 {
+  margin-bottom: 4px;
+
+  color: var(--cyan);
+
+  font-size: clamp(
+    1.6rem,
+    3vw,
+    2.3rem
+  );
+
+  text-shadow:
+    0 0 18px rgba(0, 229, 255, 0.25);
+}
+
+
+/* =========================================
+   WEATHER STATUS
+   ========================================= */
+
+.right-panel .card:nth-child(2) p {
+  color: var(--green);
+}
+
+
+/* =========================================
+   NOW PLAYING
+   ========================================= */
+
+.right-panel .card:last-child {
+  position: relative;
+}
+
+
+.right-panel .card:last-child::after {
+  content: "IDLE";
+
+  position: absolute;
+
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+
+  color: var(--text-dim);
+
+  font-size: 0.55rem;
+
+  letter-spacing: 0.12em;
+
+  opacity: 0.7;
+}
+
+
+/* =========================================
+   DASHBOARD SCROLLBARS
+   ========================================= */
+
+.left-panel::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+
+.left-panel::-webkit-scrollbar-track,
+.right-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.left-panel::-webkit-scrollbar-thumb,
+.right-panel::-webkit-scrollbar-thumb {
+  background:
+    rgba(0, 229, 255, 0.15);
+
+  border-radius: var(--radius-full);
+}
+
+
+/* =========================================
+   DESKTOP LARGE
+   ========================================= */
+
+@media (min-width: 1400px) {
+
+  .main-grid {
+    grid-template-columns:
+      minmax(240px, 0.8fr)
+      minmax(520px, 1.8fr)
+      minmax(240px, 0.8fr);
+
+    gap: var(--spacing-xl);
+
+    padding: var(--spacing-xl);
+  }
+
+}
+
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 1200px) {
+
+  .main-grid {
+    grid-template-columns:
+      minmax(180px, 0.65fr)
+      minmax(360px, 1.7fr)
+      minmax(180px, 0.65fr);
+
+    gap: var(--spacing-md);
+
+    padding: var(--spacing-md);
+  }
+
+}
+
+
+/* =========================================
+   SMALL TABLET
+   ========================================= */
+
+@media (max-width: 1000px) {
+
+  .main-grid {
+    grid-template-columns:
+      minmax(160px, 0.6fr)
+      minmax(320px, 1.6fr)
+      minmax(160px, 0.6fr);
+
+    gap: var(--spacing-sm);
+  }
+
+  .card {
+    padding: var(--spacing-md);
+  }
+
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 760px) {
+
+  .main-grid {
+    display: flex;
+    flex-direction: column;
+
+    gap: var(--spacing-md);
+
+    padding: var(--spacing-md);
+
+    overflow-y: auto;
+  }
+
+  .left-panel,
+  .center-panel,
+  .right-panel {
+    width: 100%;
+
+    overflow: visible;
+  }
+
+
+  /* AI CORE COMES FIRST */
+
+  .center-panel {
+    order: 1;
+  }
+
+  .left-panel {
+    order: 2;
+  }
+
+  .right-panel {
+    order: 3;
+  }
+
+
+  .left-panel,
+  .right-panel {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: var(--spacing-md);
+  }
+
+
+  .left-panel .card:last-child {
+    min-height: 180px;
+  }
+
+}
+
+
+/* =========================================
+   SMALL MOBILE
+   ========================================= */
+
+@media (max-width: 520px) {
+
+  .main-grid {
+    padding: var(--spacing-sm);
+  }
+
+
+  .left-panel,
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+
+    gap: var(--spacing-sm);
+  }
+
+
+  .left-panel .card:last-child {
+    min-height: 160px;
+  }
+
+}
+
+
+/* =========================================
+   VERY SMALL SCREENS
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  .main-grid {
+    gap: 10px;
+
+    padding: 8px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+}

@@ -1,0 +1,524 @@
+/* =========================================
+   ORBIT AI — GLOBAL ANIMATIONS
+   ========================================= */
+
+
+/* =========================================
+   CORE BREATHING
+   ========================================= */
+
+@keyframes core-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes core-ring-breathe {
+
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+/* =========================================
+   OUTER FIELD
+   ========================================= */
+
+@keyframes outer-field {
+  0% {
+    transform:
+      translate(-50%, -50%)
+      scale(1)
+      rotate(0deg);
+
+    opacity: 0.55;
+  }
+
+  50% {
+    transform:
+      translate(-50%, -50%)
+      scale(1.025)
+      rotate(180deg);
+
+    opacity: 0.75;
+  }
+
+  100% {
+    transform:
+      translate(-50%, -50%)
+      scale(1)
+      rotate(360deg);
+
+    opacity: 0.55;
+  }
+}
+
+
+/* =========================================
+   CLOCKWISE ORBIT
+   ========================================= */
+
+@keyframes orbit-clockwise {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================
+   COUNTER-CLOCKWISE ORBIT
+   ========================================= */
+
+@keyframes orbit-counter {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+
+/* =========================================
+   CORE RING
+   ========================================= */
+
+@keyframes core-ring-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================
+   SCANNER
+   ========================================= */
+
+@keyframes scanner-spin {
+  from {
+    transform:
+      translateX(-50%)
+      rotate(0deg);
+  }
+
+  to {
+    transform:
+      translateX(-50%)
+      rotate(360deg);
+  }
+}
+
+
+/* =========================================
+   VOICE VISUALIZER
+   ========================================= */
+
+@keyframes voice-wave {
+  0%,
+  100% {
+    height: 7px;
+
+    opacity: 0.45;
+  }
+
+  50% {
+    height: 25px;
+
+    opacity: 1;
+  }
+}
+
+
+/* =========================================
+   GLOW PULSE
+   ========================================= */
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+
+    filter:
+      drop-shadow(
+        0 0 5px rgba(0, 229, 255, 0.2)
+      );
+  }
+
+  50% {
+    opacity: 1;
+
+    filter:
+      drop-shadow(
+        0 0 15px rgba(0, 229, 255, 0.55)
+      );
+  }
+}
+
+
+/* =========================================
+   STATUS PULSE
+   ========================================= */
+
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+
+    transform: scale(1);
+  }
+}
+
+
+/* =========================================
+   SCAN LINE
+   ========================================= */
+
+@keyframes scan-line {
+  0% {
+    transform:
+      translateY(-100%);
+  }
+
+  100% {
+    transform:
+      translateY(100%);
+  }
+}
+
+
+/* =========================================
+   FADE IN
+   ========================================= */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+
+/* =========================================
+   FADE IN LEFT
+   ========================================= */
+
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+
+    transform:
+      translateX(-15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateX(0);
+  }
+}
+
+
+/* =========================================
+   FADE IN RIGHT
+   ========================================= */
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+
+    transform:
+      translateX(15px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateX(0);
+  }
+}
+
+
+/* =========================================
+   SCALE IN
+   ========================================= */
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+
+    transform:
+      scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      scale(1);
+  }
+}
+
+
+/* =========================================
+   SLIDE UP
+   ========================================= */
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+}
+
+
+/* =========================================
+   CYAN GLOW
+   ========================================= */
+
+@keyframes cyan-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 10px rgba(0, 229, 255, 0.1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 25px rgba(0, 229, 255, 0.25);
+  }
+}
+
+
+/* =========================================
+   SYSTEM DATA FLICKER
+   ========================================= */
+
+@keyframes data-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  96% {
+    opacity: 1;
+  }
+
+  97% {
+    opacity: 0.65;
+  }
+
+  98% {
+    opacity: 1;
+  }
+}
+
+
+/* =========================================
+   NAV ACTIVE PULSE
+   ========================================= */
+
+.nav-menu a.active i {
+  animation:
+    glow-pulse 3s ease-in-out infinite;
+}
+
+
+/* =========================================
+   ONLINE STATUS
+   ========================================= */
+
+.online::before {
+  animation:
+    status-pulse 2s ease-in-out infinite;
+}
+
+
+/* =========================================
+   AI CORE STARTUP
+   ========================================= */
+
+.ai-core {
+  animation:
+    scale-in 0.9s
+    cubic-bezier(0.22, 0.61, 0.36, 1)
+    both;
+}
+
+
+/* =========================================
+   DASHBOARD ENTRANCE
+   ========================================= */
+
+.left-panel {
+  animation:
+    fade-in-left 0.7s
+    ease
+    0.15s
+    both;
+}
+
+
+.center-panel {
+  animation:
+    fade-in 0.8s
+    ease
+    0.1s
+    both;
+}
+
+
+.right-panel {
+  animation:
+    fade-in-right 0.7s
+    ease
+    0.2s
+    both;
+}
+
+
+/* =========================================
+   CHAT MESSAGE ENTRANCE
+   ========================================= */
+
+.message {
+  animation:
+    fade-in 0.35s
+    ease
+    both;
+}
+
+
+/* =========================================
+   OPTIONAL ANIMATION UTILITIES
+   ========================================= */
+
+.animate-fade {
+  animation:
+    fade-in 0.5s ease both;
+}
+
+
+.animate-scale {
+  animation:
+    scale-in 0.5s ease both;
+}
+
+
+.animate-slide-up {
+  animation:
+    slide-up 0.5s ease both;
+}
+
+
+.animate-glow {
+  animation:
+    cyan-glow 2.5s ease-in-out infinite;
+}
+
+
+/* =========================================
+   STAGGERED CARD ENTRANCE
+   ========================================= */
+
+.left-panel .card:nth-child(1) {
+  animation:
+    fade-in-left 0.6s ease 0.2s both;
+}
+
+
+.left-panel .card:nth-child(2) {
+  animation:
+    fade-in-left 0.6s ease 0.3s both;
+}
+
+
+.left-panel .card:nth-child(3) {
+  animation:
+    fade-in-left 0.6s ease 0.4s both;
+}
+
+
+.right-panel .card:nth-child(1) {
+  animation:
+    fade-in-right 0.6s ease 0.2s both;
+}
+
+
+.right-panel .card:nth-child(2) {
+  animation:
+    fade-in-right 0.6s ease 0.3s both;
+}
+
+
+.right-panel .card:nth-child(3) {
+  animation:
+    fade-in-right 0.6s ease 0.4s both;
+}
+
+
+/* =========================================
+   REDUCED MOTION
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+  }
+
+}

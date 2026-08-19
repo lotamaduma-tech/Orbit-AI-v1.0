@@ -1,0 +1,517 @@
+/* ==========================================
+   RESET
+========================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:"Orbitron",sans-serif;
+    overflow:hidden;
+    background:#020814;
+    color:#fff;
+}
+
+/* ==========================================
+   BOOT SCREEN
+========================================== */
+
+#boot-screen{
+
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    overflow:hidden;
+
+    opacity:1;
+    visibility:visible;
+
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
+        
+    background:
+        radial-gradient(circle at center,
+            rgba(0,229,255,.08),
+            transparent 45%),
+
+        linear-gradient(
+            180deg,
+            #01040b,
+            #04101d 45%,
+            #020814 100%
+        );
+
+}
+
+/* ==========================================
+   GRID BACKGROUND
+========================================== */
+
+.grid{
+
+    position:absolute;
+    inset:0;
+
+    background-image:
+
+        linear-gradient(
+            rgba(0,229,255,.05) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(0,229,255,.05) 1px,
+            transparent 1px
+        );
+
+    background-size:45px 45px;
+
+    opacity:.4;
+
+    animation:gridMove 18s linear infinite;
+
+}
+
+/* ==========================================
+   GLOW
+========================================== */
+
+.glow{
+
+    position:absolute;
+
+    width:700px;
+    height:700px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            rgba(0,229,255,.18),
+            transparent 70%
+        );
+
+    filter:blur(35px);
+
+    animation:glowMove 8s ease-in-out infinite;
+
+}
+
+/* ==========================================
+   CONTAINER
+========================================== */
+
+.boot-container{
+
+    position:relative;
+
+    width:560px;
+    max-width:92%;
+
+    padding:45px;
+
+    border-radius:25px;
+
+    background:rgba(6,18,35,.72);
+
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(0,229,255,.15);
+
+    box-shadow:
+
+        0 0 35px rgba(0,229,255,.12),
+
+        inset 0 0 20px rgba(255,255,255,.02);
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    z-index:5;
+
+}
+
+/* ==========================================
+   LOGO
+========================================== */
+
+.boot-logo{
+
+    text-align:center;
+
+    margin-bottom:25px;
+
+}
+
+.boot-logo h1{
+
+    color:#00e5ff;
+
+    font-size:42px;
+
+    letter-spacing:6px;
+
+    text-shadow:
+
+        0 0 15px #00e5ff,
+
+        0 0 35px rgba(0,229,255,.5);
+
+}
+
+.boot-logo p{
+
+    margin-top:8px;
+
+    color:#7aa6c8;
+
+    font-size:14px;
+
+    letter-spacing:3px;
+
+}
+
+/* ==========================================
+   VERSION
+========================================== */
+
+.version{
+
+    margin-top:25px;
+
+    color:#8ea9bf;
+
+    font-size:14px;
+
+    letter-spacing:3px;
+
+}
+
+/* ==========================================
+   AI CORE
+========================================== */
+
+.boot-core{
+
+    position:relative;
+
+    width:260px;
+    height:260px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    margin:35px 0;
+
+}
+
+/* ==========================================
+   CORE CENTER
+========================================== */
+
+.boot-center{
+
+    position:absolute;
+
+    width:120px;
+    height:120px;
+
+    border-radius:50%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(5,25,45,.95);
+
+    border:2px solid #00e5ff;
+
+    color:#00e5ff;
+
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:4px;
+
+    box-shadow:
+
+        0 0 20px rgba(0,229,255,.45),
+
+        inset 0 0 25px rgba(0,229,255,.25);
+
+    z-index:10;
+
+}
+
+/* ==========================================
+   RINGS
+========================================== */
+
+.boot-ring{
+
+    position:absolute;
+
+    border-radius:50%;
+
+    border:2px solid rgba(0,229,255,.35);
+
+}
+
+.ring1{
+
+    width:250px;
+    height:250px;
+
+    animation:rotateClockwise 10s linear infinite;
+
+}
+
+.ring2{
+
+    width:200px;
+    height:200px;
+
+    border-style:dashed;
+
+    animation:rotateCounter 8s linear infinite;
+
+}
+
+.ring3{
+
+    width:150px;
+    height:150px;
+
+    border-style:dotted;
+
+    animation:rotateClockwise 6s linear infinite;
+
+}
+
+.ring4{
+
+    width:90px;
+    height:90px;
+
+    border:1px solid rgba(0,229,255,.5);
+
+    animation:pulseRing 2s ease infinite;
+
+}
+
+/* ==========================================
+   SCANNER
+========================================== */
+
+.scanner{
+
+    position:absolute;
+
+    width:250px;
+    height:250px;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+}
+
+.scanner::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    width:100%;
+    height:3px;
+
+    background:#00e5ff;
+
+    box-shadow:0 0 20px #00e5ff;
+
+    animation:scannerMove 3s linear infinite;
+
+}
+
+/* ==========================================
+   CORE GLOW
+========================================== */
+
+.boot-core::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:340px;
+    height:340px;
+
+    border-radius:50%;
+
+    background:
+
+        radial-gradient(
+
+            rgba(0,229,255,.18),
+
+            transparent 70%
+
+        );
+
+    filter:blur(30px);
+
+    animation:pulseGlow 3s ease infinite;
+
+}
+
+/* ==========================================
+   ANIMATIONS
+========================================== */
+
+@keyframes rotateClockwise{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+@keyframes rotateCounter{
+
+    from{
+
+        transform:rotate(360deg);
+
+    }
+
+    to{
+
+        transform:rotate(0deg);
+
+    }
+
+}
+
+@keyframes pulseGlow{
+
+    0%,100%{
+
+        transform:scale(.9);
+
+        opacity:.4;
+
+    }
+
+    50%{
+
+        transform:scale(1.08);
+
+        opacity:1;
+
+    }
+
+}
+
+@keyframes pulseRing{
+
+    0%,100%{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+    50%{
+
+        transform:scale(1.15);
+
+        opacity:.35;
+
+    }
+
+}
+
+@keyframes scannerMove{
+
+    0%{
+
+        top:0;
+
+    }
+
+    100%{
+
+        top:100%;
+
+    }
+
+}
+
+/* ==========================================
+   ACTIVE STATUS
+========================================== */
+
+.status-item{
+
+    color:#7d8ea5;
+
+    padding:10px 15px;
+
+    border-left:3px solid #1d3348;
+
+    transition:.4s;
+
+}
+
+.status-item.active{
+
+    color:#00e5ff;
+
+    border-left-color:#00e5ff;
+
+    background:rgba(0,229,255,.08);
+
+    box-shadow:0 0 12px rgba(0,229,255,.18);
+
+}
+
+.boot-footer{
+
+    margin-top:25px;
+
+    color:#00e5ff;
+
+    font-size:14px;
+
+    letter-spacing:3px;
+
+    text-transform:uppercase;
+
+}

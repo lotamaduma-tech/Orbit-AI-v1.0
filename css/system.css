@@ -1,0 +1,242 @@
+/* ==========================================
+   SYSTEM PAGE
+========================================== */
+
+.page-title{
+    font-size:32px;
+    color:var(--cyan);
+    letter-spacing:2px;
+    text-shadow:0 0 12px var(--cyan);
+}
+
+/* ==========================
+SYSTEM GRID
+========================== */
+
+.system-grid{
+    display:grid;
+    grid-template-columns:280px 1fr 280px;
+    gap:25px;
+    margin-top:25px;
+}
+
+.left-panel,
+.center-panel,
+.right-panel{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* ==========================
+CARDS
+========================== */
+
+.system-grid .card{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:20px;
+    backdrop-filter:blur(15px);
+    transition:.3s;
+}
+
+.system-grid .card:hover{
+    transform:translateY(-5px);
+    border-color:var(--cyan);
+    box-shadow:0 0 18px rgba(0,229,255,.25);
+}
+
+.system-grid h2,
+.system-grid h3{
+    color:var(--cyan);
+    margin-bottom:18px;
+}
+
+/* ==========================
+PROGRESS BARS
+========================== */
+
+.progress-bar{
+    width:100%;
+    height:12px;
+    background:rgba(255,255,255,.08);
+    border-radius:20px;
+    overflow:hidden;
+    margin:18px 0;
+}
+
+.progress{
+    height:100%;
+    border-radius:20px;
+    transition:width .6s ease;
+}
+
+.cpu-progress{
+    width:0%;
+    background:#00e5ff;
+    box-shadow:0 0 12px #00e5ff;
+}
+
+.memory-progress{
+    width:0%;
+    background:#7b5cff;
+    box-shadow:0 0 12px #7b5cff;
+}
+
+.storage-progress{
+    width:48%;
+    background:#00ff99;
+    box-shadow:0 0 12px #00ff99;
+}
+
+/* ==========================
+VALUES
+========================== */
+
+#cpu-value,
+#memory-value{
+    font-size:18px;
+    color:#fff;
+    font-weight:bold;
+}
+
+/* ==========================
+STATUS LIST
+========================== */
+
+.status-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.status-list p{
+    padding:12px;
+    border-radius:10px;
+    background:rgba(255,255,255,.04);
+    border-left:3px solid var(--cyan);
+    color:#d9e8ff;
+}
+
+.status-list i{
+    color:#00ff99;
+    margin-right:10px;
+}
+
+/* ==========================
+BUTTONS
+========================== */
+
+.action-buttons{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+    margin-top:20px;
+}
+
+.action-buttons button{
+    height:48px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    background:rgba(0,229,255,.15);
+    color:var(--cyan);
+    font-family:'Orbitron',sans-serif;
+    transition:.3s;
+}
+
+.action-buttons button:hover{
+    background:var(--cyan);
+    color:#000;
+    transform:translateY(-4px);
+    box-shadow:0 0 20px var(--cyan);
+}
+
+/* ==========================
+SYSTEM LOG
+========================== */
+
+.system-log{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    max-height:280px;
+    overflow-y:auto;
+}
+
+.system-log::-webkit-scrollbar{
+    width:6px;
+}
+
+.system-log::-webkit-scrollbar-thumb{
+    background:var(--cyan);
+    border-radius:20px;
+}
+
+.system-log p{
+    padding:12px;
+    background:rgba(255,255,255,.04);
+    border-left:3px solid var(--cyan);
+    border-radius:10px;
+    color:#d9e8ff;
+}
+
+/* ==========================
+NETWORK
+========================== */
+
+.right-panel p{
+    margin:12px 0;
+    color:#d9e8ff;
+}
+
+.online{
+    color:#00ff99;
+    font-weight:bold;
+}
+
+/* ==========================
+FLOATING EFFECT
+========================== */
+
+.system-grid .card{
+    animation:floatCard 6s ease-in-out infinite;
+}
+
+@keyframes floatCard{
+
+    0%,100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-4px);
+    }
+
+}
+
+/* ==========================
+RESPONSIVE
+========================== */
+
+@media(max-width:1100px){
+
+    .system-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:700px){
+
+    .page-title{
+        font-size:24px;
+        text-align:center;
+    }
+
+    .action-buttons{
+        grid-template-columns:1fr;
+    }
+
+}
