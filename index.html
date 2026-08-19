@@ -275,12 +275,36 @@
             </div>
 
             <!-- Weather -->
-            <div class="card">
-              <h3>Weather</h3>
-
-              <h2>28°C</h2>
-
-              <p>Sunny</p>
+            <div class="card weather-card">
+                <div class="weather-header">
+                    <h3>Weather</h3>
+            
+                    <i id="weather-icon" class="fa-solid fa-cloud"></i>
+                </div>
+            
+                <div class="weather-main">
+                    <h2 id="weather-temperature">--°C</h2>
+            
+                    <p id="weather-condition">Checking weather...</p>
+                </div>
+            
+                <div class="weather-details">
+            
+                    <div>
+                        <span>Humidity</span>
+                        <strong id="weather-humidity">--%</strong>
+                    </div>
+            
+                    <div>
+                        <span>Wind</span>
+                        <strong id="weather-wind">-- km/h</strong>
+                    </div>
+            
+                </div>
+            
+                <small id="weather-location">
+                    Detecting location...
+                </small>
             </div>
 
             <!-- Music -->
@@ -333,6 +357,7 @@
     =================================== -->
 
     <script src="config.js"></script>
+    <script src="js/shared.js"></script>
     <script src="js/script.js"></script>
   </body>
 </html>
