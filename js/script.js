@@ -1,619 +1,843 @@
 /* ===========================================================
-   ORBIT AI — SHARED.JS
-   System + Weather
+   ORBIT AI — DASHBOARD SCRIPT
+
+   Clock + Greeting + AI Chat + Session Conversation Memory
+
+   IMPORTANT:
+   - Conversation disappears when the page is refreshed.
+   - Conversation remains available while the page is open.
 =========================================================== */
 
 "use strict";
 
 
 /* ===========================================================
-   SYSTEM MONITOR
+   LIVE CLOCK
 =========================================================== */
 
-window.OrbitSystem = {
+const timeEl =
+    document.getElementById("time");
 
-    storage: null,
-    network: null,
-    device: null,
+const dateEl =
+    document.getElementById("date");
 
-    init() {
-
-        this.updateStorage();
-        this.updateNetwork();
-        this.updateDevice();
-
-        setInterval(() => {
-            this.updateStorage();
-        }, 10000);
-
-        setInterval(() => {
-            this.updateNetwork();
-        }, 5000);
-
-        window.addEventListener("online", () => {
-            this.updateNetwork();
-        });
-
-        window.addEventListener("offline", () => {
-            this.updateNetwork();
-        });
-
-    },
+const greetingEl =
+    document.getElementById("greeting");
 
 
-    async updateStorage() {
+function updateClock() {
+
+    const now = new Date();
+
+    const hours =
+        now.getHours();
+
+    const minutes =
+        String(
+            now.getMinutes()
+        ).padStart(2, "0");
+
+    const seconds =
+        String(
+            now.getSeconds()
+        ).padStart(2, "0");
+
+
+    const period =
+        hours >= 12
+            ? "PM"
+            : "AM";
+
+
+    const displayHour =
+        hours % 12 || 12;
+
+
+    /* TIME */
+
+    if (timeEl) {
+
+        timeEl.textContent =
+            `${ displayHour }:${ minutes }:${ seconds } ${ period } `;
+
+    }
+
+
+    /* DATE */
+
+    if (dateEl) {
+
+        dateEl.textContent =
+            now.toLocaleDateString(
+                "en-US",
+                {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                }
+            );
+
+    }
+
+
+    /* GREETING */
+
+    if (greetingEl) {
+
+        let greeting =
+            "Good Evening";
+
 
         if (
-            !navigator.storage ||
-            !navigator.storage.estimate
+            hours >= 5 &&
+            hours < 12
         ) {
-            return;
-        }
 
-        try {
-
-            const data =
-                await navigator.storage.estimate();
-
-            this.storage = {
-
-                used: data.usage || 0,
-
-                quota: data.quota || 0
-
-            };
-
-            window.dispatchEvent(
-                new CustomEvent(
-                    "orbit:storageUpdate",
-                    {
-                        detail: this.storage
-                    }
-                )
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Storage check failed:",
-                error
-            );
+            greeting =
+                "Good Morning";
 
         }
 
-    },
+
+        else if (
+            hours >= 12 &&
+            hours < 17
+        ) {
+
+            greeting =
+                "Good Afternoon";
+
+        }
 
 
-    updateNetwork() {
-
-        const connection =
-            navigator.connection ||
-            navigator.mozConnection ||
-            navigator.webkitConnection;
-
-        this.network = {
-
-            online: navigator.onLine,
-
-            type:
-                connection?.effectiveType ||
-                "Unknown",
-
-            speed:
-                connection?.downlink ||
-                null,
-
-            latency:
-                connection?.rtt ||
-                null
-
-        };
-
-        window.dispatchEvent(
-            new CustomEvent(
-                "orbit:networkUpdate",
-                {
-                    detail: this.network
-                }
-            )
-        );
-
-    },
-
-
-    updateDevice() {
-
-        this.device = {
-
-            platform:
-                navigator.platform ||
-                "Unknown",
-
-            language:
-                navigator.language ||
-                "Unknown"
-
-        };
+        greetingEl.textContent =
+            `${ greeting }, Kingsley`;
 
     }
 
-};
+}
+
+
+updateClock();
+
+
+setInterval(
+    updateClock,
+    1000
+);
 
 
 /* ===========================================================
-   WEATHER
+   ORBIT AI CHAT ELEMENTS
 =========================================================== */
 
-window.OrbitWeather = {
-
-    data: null,
-
-
-    async init() {
-
-        console.log(
-            "Orbit Weather: Starting..."
-        );
+const chatWindow =
+    document.getElementById(
+        "chat-window"
+    );
 
 
-        if (!navigator.geolocation) {
+const commandInput =
+    document.getElementById(
+        "command-input"
+    );
 
-            this.showError(
-                "Location is not supported"
+
+const sendButton =
+    document.getElementById(
+        "send-btn"
+    );
+
+
+/* ===========================================================
+   SESSION CONVERSATION MEMORY
+=========================================================== */
+
+/*
+    IMPORTANT:
+
+    We are NOT using localStorage here.
+
+    That means:
+
+    Refresh page
+        ↓
+    conversationHistory resets
+        ↓
+    Previous messages disappear.
+
+    While the page remains open,
+    Orbit can still use the conversation history.
+*/
+
+let conversationHistory = [];
+
+
+/* ===========================================================
+   PERSONAL MEMORY
+=========================================================== */
+
+/*
+    Personal memory is separate from conversation memory.
+
+    This can later be used for things like:
+
+    name
+    preferences
+    favorite things
+    etc.
+
+    It is currently empty until we intentionally
+    teach Orbit how to save personal information.
+*/
+
+const PERSONAL_MEMORY_KEY =
+    "orbit-personal-memory";
+
+
+let personalMemory = {};
+
+
+/* ===========================================================
+   LOAD PERSONAL MEMORY
+=========================================================== */
+
+function loadPersonalMemory() {
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                PERSONAL_MEMORY_KEY
             );
 
-            return;
-        }
+
+        if (saved) {
+
+            const parsed =
+                JSON.parse(saved);
 
 
-        navigator.geolocation.getCurrentPosition(
+            if (
+                parsed &&
+                typeof parsed === "object"
+            ) {
 
-            async (position) => {
-
-                const latitude =
-                    position.coords.latitude;
-
-                const longitude =
-                    position.coords.longitude;
-
-
-                console.log(
-                    "Orbit Weather: Location found",
-                    latitude,
-                    longitude
-                );
-
-
-                await this.getWeather(
-                    latitude,
-                    longitude
-                );
-
-            },
-
-
-            (error) => {
-
-                console.error(
-                    "Orbit Weather: Location error",
-                    error
-                );
-
-
-                this.showError(
-                    "Location permission required"
-                );
-
-            },
-
-            {
-                enableHighAccuracy: false,
-
-                timeout: 15000,
-
-                maximumAge: 300000
+                personalMemory =
+                    parsed;
 
             }
 
-        );
-
-    },
-
-
-    async getWeather(
-        latitude,
-        longitude
-    ) {
-
-        try {
-
-            const url =
-                "https://api.open-meteo.com/v1/forecast" +
-                `?latitude=${latitude}` +
-                `&longitude=${longitude}` +
-                "&current=" +
-                "temperature_2m," +
-                "relative_humidity_2m," +
-                "weather_code," +
-                "wind_speed_10m" +
-                "&timezone=auto";
-
-
-            console.log(
-                "Orbit Weather: Requesting weather..."
-            );
-
-
-            const response =
-                await fetch(url);
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    `Weather API error: ${response.status}`
-                );
-
-            }
-
-
-            const result =
-                await response.json();
-
-
-            const current =
-                result.current;
-
-
-            this.data = {
-
-                temperature:
-                    current.temperature_2m,
-
-                humidity:
-                    current.relative_humidity_2m,
-
-                windSpeed:
-                    current.wind_speed_10m,
-
-                weatherCode:
-                    current.weather_code
-
-            };
-
-
-            console.log(
-                "Orbit Weather:",
-                this.data
-            );
-
-
-            window.dispatchEvent(
-                new CustomEvent(
-                    "orbit:weatherUpdate",
-                    {
-                        detail: this.data
-                    }
-                )
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Orbit Weather failed:",
-                error
-            );
-
-
-            this.showError(
-                "Weather unavailable"
-            );
-
         }
 
-    },
+    }
+
+    catch (error) {
+
+        console.error(
+            "Orbit personal memory could not be loaded:",
+            error
+        );
+
+        personalMemory = {};
+
+    }
+
+}
 
 
-    showError(message) {
+/* ===========================================================
+   SAVE PERSONAL MEMORY
+=========================================================== */
 
-        window.dispatchEvent(
-            new CustomEvent(
-                "orbit:weatherError",
-                {
-                    detail: message
-                }
+function savePersonalMemory() {
+
+    try {
+
+        localStorage.setItem(
+            PERSONAL_MEMORY_KEY,
+            JSON.stringify(
+                personalMemory
             )
         );
 
     }
 
-};
+    catch (error) {
+
+        console.error(
+            "Orbit personal memory could not be saved:",
+            error
+        );
+
+    }
+
+}
 
 
 /* ===========================================================
-   START EVERYTHING
+   REMEMBER PERSONAL FACT
+=========================================================== */
+
+function rememberPersonalFact(
+    key,
+    value
+) {
+
+    if (
+        !key ||
+        !value
+    ) {
+
+        return;
+
+    }
+
+
+    personalMemory[key] =
+        value;
+
+
+    savePersonalMemory();
+
+}
+
+
+/* ===========================================================
+   GET PERSONAL FACT
+=========================================================== */
+
+function getPersonalFact(key) {
+
+    return (
+        personalMemory[key] ||
+        null
+    );
+
+}
+
+
+/* ===========================================================
+   REMEMBER CONVERSATION MESSAGE
+=========================================================== */
+
+function rememberMessage(
+    role,
+    content
+) {
+
+    if (
+        !role ||
+        !content
+    ) {
+
+        return;
+
+    }
+
+
+    conversationHistory.push({
+
+        role: role,
+
+        content: content
+
+    });
+
+
+    /*
+        Keep the conversation from becoming
+        unnecessarily large.
+
+        20 messages = approximately 10 exchanges.
+    */
+
+    if (
+        conversationHistory.length > 20
+    ) {
+
+        conversationHistory =
+            conversationHistory.slice(-20);
+
+    }
+
+}
+
+
+/* ===========================================================
+   ADD MESSAGE TO CHAT WINDOW
+=========================================================== */
+
+function addMessage(
+    text,
+    sender
+) {
+
+    if (!chatWindow) {
+
+        return;
+
+    }
+
+
+    const message =
+        document.createElement(
+            "div"
+        );
+
+
+    message.className =
+        `message ${ sender } `;
+
+
+    message.textContent =
+        text;
+
+
+    chatWindow.appendChild(
+        message
+    );
+
+
+    chatWindow.scrollTop =
+        chatWindow.scrollHeight;
+
+}
+
+
+/* ===========================================================
+   INITIAL CHAT SCREEN
+=========================================================== */
+
+function initializeChat() {
+
+    if (!chatWindow) {
+
+        return;
+
+    }
+
+
+    /*
+        Always clear the chat when the page loads.
+
+        This guarantees that old conversation
+        messages do not survive a refresh.
+    */
+
+    chatWindow.innerHTML = "";
+
+
+    /*
+        Show Orbit's starting message.
+
+        This message is NOT saved into
+        conversationHistory.
+    */
+
+    addMessage(
+        "Orbit AI Online. How can I assist you?",
+        "orbit"
+    );
+
+}
+
+
+/* ===========================================================
+   TYPING INDICATOR
+=========================================================== */
+
+function showTyping() {
+
+    if (!chatWindow) {
+
+        return;
+
+    }
+
+
+    /*
+        Prevent duplicate typing indicators.
+    */
+
+    const existingTyping =
+        document.getElementById(
+            "orbit-typing"
+        );
+
+
+    if (existingTyping) {
+
+        return;
+
+    }
+
+
+    const typing =
+        document.createElement(
+            "div"
+        );
+
+
+    typing.className =
+        "message orbit typing-message";
+
+
+    typing.id =
+        "orbit-typing";
+
+
+    typing.innerHTML = `
+    <span>Orbit is thinking</span>
+        <span class="typing-dots">...</span>
+`;
+
+
+    chatWindow.appendChild(
+        typing
+    );
+
+
+    chatWindow.scrollTop =
+        chatWindow.scrollHeight;
+
+}
+
+
+/* ===========================================================
+   HIDE TYPING INDICATOR
+=========================================================== */
+
+function hideTyping() {
+
+    const typing =
+        document.getElementById(
+            "orbit-typing"
+        );
+
+
+    if (typing) {
+
+        typing.remove();
+
+    }
+
+}
+
+
+/* ===========================================================
+   SEND MESSAGE TO BACKEND
+=========================================================== */
+
+async function sendMessage() {
+
+    if (!commandInput) {
+
+        return;
+
+    }
+
+
+    const message =
+        commandInput.value.trim();
+
+
+    /*
+        Don't send empty messages.
+    */
+
+    if (!message) {
+
+        return;
+
+    }
+
+
+    /*
+        Display user's message.
+    */
+
+    addMessage(
+        message,
+        "user"
+    );
+
+
+    /*
+        Add user message to
+        temporary conversation memory.
+    */
+
+    rememberMessage(
+        "user",
+        message
+    );
+
+
+    /*
+        Clear input.
+    */
+
+    commandInput.value = "";
+
+
+    /*
+        Disable controls.
+    */
+
+    if (sendButton) {
+
+        sendButton.disabled =
+            true;
+
+    }
+
+
+    commandInput.disabled =
+        true;
+
+
+    /*
+        Show typing indicator.
+    */
+
+    showTyping();
+
+
+    try {
+
+        /* ===================================================
+           SEND REQUEST TO ORBIT BACKEND
+        =================================================== */
+
+        const response =
+            await fetch(
+                "http://localhost:5000/api/chat",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            message:
+                                message,
+
+                            history:
+                                conversationHistory
+
+                        })
+
+                }
+            );
+
+
+        /* ===================================================
+           CHECK SERVER RESPONSE
+        =================================================== */
+
+        if (!response.ok) {
+
+            let errorMessage =
+                `Server returned ${ response.status } `;
+
+
+            try {
+
+                const errorData =
+                    await response.json();
+
+
+                if (errorData?.error) {
+
+                    errorMessage =
+                        errorData.error;
+
+                }
+
+            }
+
+            catch (parseError) {
+
+                console.warn(
+                    "Could not parse server error:",
+                    parseError
+                );
+
+            }
+
+
+            throw new Error(
+                errorMessage
+            );
+
+        }
+
+
+        /* ===================================================
+           READ JSON RESPONSE
+        =================================================== */
+
+        const data =
+            await response.json();
+
+
+        /*
+            Remove typing indicator.
+        */
+
+        hideTyping();
+
+
+        /* ===================================================
+           DISPLAY ORBIT RESPONSE
+        =================================================== */
+
+        if (
+            data &&
+            data.reply
+        ) {
+
+            addMessage(
+                data.reply,
+                "orbit"
+            );
+
+
+            /*
+                Save Orbit's response
+                to temporary memory.
+            */
+
+            rememberMessage(
+                "assistant",
+                data.reply
+            );
+
+        }
+
+        else {
+
+            addMessage(
+                "Orbit received the message but returned an empty response.",
+                "orbit"
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Orbit AI request failed:",
+            error
+        );
+
+
+        hideTyping();
+
+
+        addMessage(
+            `Orbit could not respond: ${ error.message } `,
+            "orbit"
+        );
+
+    }
+
+
+    /* ===================================================
+       RE-ENABLE CONTROLS
+    =================================================== */
+
+    if (sendButton) {
+
+        sendButton.disabled =
+            false;
+
+    }
+
+
+    commandInput.disabled =
+        false;
+
+
+    commandInput.focus();
+
+}
+
+
+/* ===========================================================
+   SEND BUTTON
+=========================================================== */
+
+if (sendButton) {
+
+    sendButton.addEventListener(
+        "click",
+        sendMessage
+    );
+
+}
+
+
+/* ===========================================================
+   ENTER KEY
+=========================================================== */
+
+if (commandInput) {
+
+    commandInput.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ===========================================================
+   INITIALIZE ORBIT
 =========================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        console.log(
-            "Orbit shared system starting..."
-        );
+        /*
+            Load persistent personal memory.
+        */
 
+        loadPersonalMemory();
 
-        OrbitSystem.init();
 
-        OrbitWeather.init();
+        /*
+            Start a completely fresh
+            conversation every time
+            the page loads.
+        */
 
-    }
-);
+        conversationHistory = [];
 
-/* ===========================================================
-   ORBIT AI — DASHBOARD WEATHER
-=========================================================== */
 
-window.addEventListener(
-    "orbit:weatherUpdate",
-    (event) => {
-
-        const weather =
-            event.detail;
-
-
-        const temperature =
-            document.getElementById(
-                "weather-temperature"
-            );
-
-
-        const condition =
-            document.getElementById(
-                "weather-condition"
-            );
-
-
-        const humidity =
-            document.getElementById(
-                "weather-humidity"
-            );
-
-
-        const wind =
-            document.getElementById(
-                "weather-wind"
-            );
-
-
-        const location =
-            document.getElementById(
-                "weather-location"
-            );
-
-
-        const icon =
-            document.getElementById(
-                "weather-icon"
-            );
-
-
-        if (temperature) {
-
-            temperature.textContent =
-                `${Math.round(
-                    weather.temperature
-                )}°C`;
-
-        }
-
-
-        if (condition) {
-
-            condition.textContent =
-                getWeatherCondition(
-                    weather.weatherCode
-                );
-
-        }
-
-
-        if (humidity) {
-
-            humidity.textContent =
-                `${weather.humidity}%`;
-
-        }
-
-
-        if (wind) {
-
-            wind.textContent =
-                `${weather.windSpeed} km/h`;
-
-        }
-
-
-        if (location) {
-
-            location.textContent =
-                "Current location";
-
-        }
-
-
-        if (icon) {
-
-            icon.className =
-                `fa-solid ${
-                    getWeatherIcon(
-                        weather.weatherCode
-                    )
-                }`;
-
-        }
-
-    }
-);
-
-
-/* ===========================================================
-   WEATHER CONDITION
-=========================================================== */
-
-function getWeatherCondition(code) {
-
-    if (code === 0) {
-        return "Clear Sky";
-    }
-
-    if (
-        code === 1 ||
-        code === 2
-    ) {
-        return "Partly Cloudy";
-    }
-
-    if (code === 3) {
-        return "Cloudy";
-    }
-
-    if (
-        code >= 45 &&
-        code <= 48
-    ) {
-        return "Foggy";
-    }
-
-    if (
-        code >= 51 &&
-        code <= 67
-    ) {
-        return "Rain";
-    }
-
-    if (
-        code >= 71 &&
-        code <= 77
-    ) {
-        return "Snow";
-    }
-
-    if (
-        code >= 80 &&
-        code <= 82
-    ) {
-        return "Rain Showers";
-    }
-
-    if (
-        code >= 95 &&
-        code <= 99
-    ) {
-        return "Thunderstorm";
-    }
-
-    return "Unknown";
-
-}
-
-
-/* ===========================================================
-   WEATHER ICON
-=========================================================== */
-
-function getWeatherIcon(code) {
-
-    if (code === 0) {
-        return "fa-sun";
-    }
-
-    if (
-        code === 1 ||
-        code === 2
-    ) {
-        return "fa-cloud-sun";
-    }
-
-    if (code === 3) {
-        return "fa-cloud";
-    }
-
-    if (
-        code >= 45 &&
-        code <= 48
-    ) {
-        return "fa-smog";
-    }
-
-    if (
-        code >= 51 &&
-        code <= 67
-    ) {
-        return "fa-cloud-rain";
-    }
-
-    if (
-        code >= 71 &&
-        code <= 77
-    ) {
-        return "fa-snowflake";
-    }
-
-    if (
-        code >= 80 &&
-        code <= 82
-    ) {
-        return "fa-cloud-showers-heavy";
-    }
-
-    if (
-        code >= 95 &&
-        code <= 99
-    ) {
-        return "fa-bolt";
-    }
-
-    return "fa-cloud";
-
-}
-
-
-/* ===========================================================
-   WEATHER ERROR
-=========================================================== */
-
-window.addEventListener(
-    "orbit:weatherError",
-    (event) => {
-
-        const condition =
-            document.getElementById(
-                "weather-condition"
-            );
-
-
-        const location =
-            document.getElementById(
-                "weather-location"
-            );
-
-
-        if (condition) {
-
-            condition.textContent =
-                event.detail;
-
-        }
-
-
-        if (location) {
-
-            location.textContent =
-                "Unable to detect location";
-
-        }
+        initializeChat();
 
     }
 );

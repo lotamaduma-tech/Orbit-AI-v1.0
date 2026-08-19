@@ -1,520 +1,147 @@
-// ========================================
-// ORBIT AI LIVE CLOCK
-// ========================================
-
-const timeEl = document.getElementById("time");
-const dateEl = document.getElementById("date");
-const greetingEl = document.getElementById("greeting");
-
-function updateClock() {
-
-    const now = new Date();
-
-    let hours = now.getHours();
-    let minutes = String(now.getMinutes()).padStart(2, "0");
-    let seconds = String(now.getSeconds()).padStart(2, "0");
-
-    const period = hours >= 12 ? "PM" : "AM";
-    const displayHour = hours % 12 || 12;
-
-    if (timeEl) {
-        timeEl.textContent =
-            `${displayHour}:${minutes}:${seconds} ${period}`;
-    }
-
-    if (dateEl) {
-        dateEl.textContent =
-            now.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            });
-    }
-
-    if (greetingEl) {
-
-        let greeting = "Good Evening";
-
-        if (hours >= 5 && hours < 12) {
-
-            greeting = "Good Morning";
-
-        } else if (hours >= 12 && hours < 17) {
-
-            greeting = "Good Afternoon";
-
-        }
-
-        greetingEl.textContent = `${greeting}, Kingsley`;
-
-    }
-
-}
-
-updateClock();
-
-setInterval(updateClock, 1000);
-
-// ========================================
-// CHAT
-// ========================================
-
-const chat = document.getElementById("chat-window");
-
-function addMessage(text, sender) {
-
-    if (!chat) return;
-
-    const div = document.createElement("div");
-
-    div.className = `message ${sender}`;
-
-    div.innerText = text;
-
-    chat.appendChild(div);
-
-    chat.scrollTop = chat.scrollHeight;
-
-}
-
-// Initial message
-
-addMessage("Orbit AI Online.", "orbit");
-
 /* ===========================================================
-   ORBIT AI
-   SHARED SYSTEM MONITOR
+   ORBIT AI — SHARED.JS
+   System + Weather
 =========================================================== */
 
-(function () {
-
-    "use strict";
+"use strict";
 
 
-    /* =======================================================
-       ORBIT SYSTEM OBJECT
-    ======================================================= */
+/* ===========================================================
+   SYSTEM MONITOR
+=========================================================== */
 
-    window.OrbitSystem = {
+window.OrbitSystem = {
 
-        storage: null,
-        network: null,
-        device: null,
+    storage: null,
+    network: null,
+    device: null,
 
-        /* ===================================================
-           INITIALIZE
-        =================================================== */
+    init() {
 
-        init() {
+        this.updateStorage();
+        this.updateNetwork();
+        this.updateDevice();
 
+        setInterval(() => {
             this.updateStorage();
+        }, 10000);
+
+        setInterval(() => {
             this.updateNetwork();
-            this.updateDevice();
+        }, 5000);
 
-            /*
-                Refresh information periodically.
-                Storage information doesn't need to be
-                checked every second.
-            */
+        window.addEventListener("online", () => {
+            this.updateNetwork();
+        });
 
-            setInterval(() => {
-                this.updateStorage();
-            }, 10000);
+        window.addEventListener("offline", () => {
+            this.updateNetwork();
+        });
 
+    },
 
-            /*
-                Network information can change quickly.
-            */
 
-            setInterval(() => {
-                this.updateNetwork();
-            }, 5000);
+    async updateStorage() {
 
+        if (
+            !navigator.storage ||
+            !navigator.storage.estimate
+        ) {
+            return;
+        }
 
-            /*
-                Listen for browser network changes.
-            */
+        try {
 
-            window.addEventListener(
-                "online",
-                () => this.updateNetwork()
-            );
+            const data =
+                await navigator.storage.estimate();
 
+            this.storage = {
 
-            window.addEventListener(
-                "offline",
-                () => this.updateNetwork()
-            );
+                used: data.usage || 0,
 
-
-            /*
-                Connection information changes.
-            */
-
-            if (
-                navigator.connection ||
-                navigator.mozConnection ||
-                navigator.webkitConnection
-            ) {
-
-                const connection =
-                    navigator.connection ||
-                    navigator.mozConnection ||
-                    navigator.webkitConnection;
-
-                connection.addEventListener(
-                    "change",
-                    () => this.updateNetwork()
-                );
-            }
-
-        },
-
-
-        /* ===================================================
-           STORAGE
-        =================================================== */
-
-        async updateStorage() {
-
-            if (!navigator.storage ||
-                !navigator.storage.estimate) {
-
-                this.storage = {
-                    supported: false
-                };
-
-                return;
-            }
-
-
-            try {
-
-                const estimate =
-                    await navigator.storage.estimate();
-
-
-                const usage =
-                    estimate.usage || 0;
-
-
-                const quota =
-                    estimate.quota || 0;
-
-
-                const usedMB =
-                    usage / (1024 * 1024);
-
-
-                const quotaGB =
-                    quota / (1024 * 1024 * 1024);
-
-
-                const usedGB =
-                    usage / (1024 * 1024 * 1024);
-
-
-                const percentage =
-                    quota > 0
-                        ? (usage / quota) * 100
-                        : 0;
-
-
-                this.storage = {
-
-                    supported: true,
-
-                    usedBytes: usage,
-
-                    quotaBytes: quota,
-
-                    usedMB: usedMB,
-
-                    usedGB: usedGB,
-
-                    quotaGB: quotaGB,
-
-                    percentage: percentage
-
-                };
-
-
-                this.dispatch(
-                    "storageUpdate",
-                    this.storage
-                );
-
-            } catch (error) {
-
-                console.warn(
-                    "Orbit: Unable to read storage information.",
-                    error
-                );
-
-            }
-
-        },
-
-
-        /* ===================================================
-           NETWORK
-        =================================================== */
-
-        updateNetwork() {
-
-            const online =
-                navigator.onLine;
-
-
-            const connection =
-                navigator.connection ||
-                navigator.mozConnection ||
-                navigator.webkitConnection;
-
-
-            let networkType =
-                "Unknown";
-
-
-            let downlink =
-                null;
-
-
-            let effectiveType =
-                null;
-
-
-            let rtt =
-                null;
-
-
-            if (connection) {
-
-                networkType =
-                    connection.type ||
-                    "Unknown";
-
-
-                downlink =
-                    connection.downlink ||
-                    null;
-
-
-                effectiveType =
-                    connection.effectiveType ||
-                    null;
-
-
-                rtt =
-                    connection.rtt ||
-                    null;
-
-            }
-
-
-            this.network = {
-
-                online: online,
-
-                type: networkType,
-
-                downlink: downlink,
-
-                effectiveType: effectiveType,
-
-                rtt: rtt
+                quota: data.quota || 0
 
             };
-
-
-            this.dispatch(
-                "networkUpdate",
-                this.network
-            );
-
-        },
-
-
-        /* ===================================================
-           DEVICE INFORMATION
-        =================================================== */
-
-        updateDevice() {
-
-            this.device = {
-
-                platform:
-                    navigator.platform ||
-                    "Unknown",
-
-                language:
-                    navigator.language ||
-                    "Unknown",
-
-                cookies:
-                    navigator.cookieEnabled,
-
-                online:
-                    navigator.onLine,
-
-                userAgent:
-                    navigator.userAgent
-
-            };
-
-
-            this.dispatch(
-                "deviceUpdate",
-                this.device
-            );
-
-        },
-
-
-        /* ===================================================
-           FORMAT STORAGE
-        =================================================== */
-
-        formatStorage(bytes) {
-
-            if (!bytes || bytes <= 0) {
-                return "0 MB";
-            }
-
-
-            const GB =
-                1024 * 1024 * 1024;
-
-
-            const MB =
-                1024 * 1024;
-
-
-            if (bytes >= GB) {
-
-                return (
-                    (bytes / GB).toFixed(2)
-                    + " GB"
-                );
-
-            }
-
-
-            return (
-                (bytes / MB).toFixed(1)
-                + " MB"
-            );
-
-        },
-
-
-        /* ===================================================
-           GET NETWORK QUALITY
-        =================================================== */
-
-        getNetworkQuality() {
-
-            if (!navigator.onLine) {
-                return "Offline";
-            }
-
-
-            const connection =
-                navigator.connection ||
-                navigator.mozConnection ||
-                navigator.webkitConnection;
-
-
-            if (!connection) {
-                return "Connected";
-            }
-
-
-            switch (connection.effectiveType) {
-
-                case "slow-2g":
-                    return "Very Poor";
-
-                case "2g":
-                    return "Poor";
-
-                case "3g":
-                    return "Moderate";
-
-                case "4g":
-                    return "Good";
-
-                default:
-                    return "Connected";
-
-            }
-
-        },
-
-
-        /* ===================================================
-           STATUS
-        =================================================== */
-
-        getSystemStatus() {
-
-            if (!navigator.onLine) {
-
-                return {
-                    status: "Offline",
-                    className: "offline"
-                };
-
-            }
-
-
-            return {
-                status: "Operational",
-                className: "online"
-            };
-
-        },
-
-
-        /* ===================================================
-           EVENT SYSTEM
-        =================================================== */
-
-        dispatch(eventName, data) {
 
             window.dispatchEvent(
                 new CustomEvent(
-                    `orbit:${eventName}`,
+                    "orbit:storageUpdate",
                     {
-                        detail: data
+                        detail: this.storage
                     }
                 )
             );
 
-        }
+        } catch (error) {
 
-    };
-
-
-    /* =======================================================
-       START ORBIT SYSTEM
-    ======================================================= */
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
-
-            window.OrbitSystem.init();
+            console.error(
+                "Storage check failed:",
+                error
+            );
 
         }
-    );
+
+    },
 
 
-})();
+    updateNetwork() {
+
+        const connection =
+            navigator.connection ||
+            navigator.mozConnection ||
+            navigator.webkitConnection;
+
+        this.network = {
+
+            online: navigator.onLine,
+
+            type:
+                connection?.effectiveType ||
+                "Unknown",
+
+            speed:
+                connection?.downlink ||
+                null,
+
+            latency:
+                connection?.rtt ||
+                null
+
+        };
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "orbit:networkUpdate",
+                {
+                    detail: this.network
+                }
+            )
+        );
+
+    },
+
+
+    updateDevice() {
+
+        this.device = {
+
+            platform:
+                navigator.platform ||
+                "Unknown",
+
+            language:
+                navigator.language ||
+                "Unknown"
+
+        };
+
+    }
+
+};
+
 
 /* ===========================================================
-   ORBIT WEATHER
+   WEATHER
 =========================================================== */
 
 window.OrbitWeather = {
@@ -524,77 +151,97 @@ window.OrbitWeather = {
 
     async init() {
 
-        try {
+        console.log(
+            "Orbit Weather: Starting..."
+        );
 
-            if (!navigator.geolocation) {
 
-                console.warn(
-                    "Geolocation is not supported by this browser."
+        if (!navigator.geolocation) {
+
+            this.showError(
+                "Location is not supported"
+            );
+
+            return;
+        }
+
+
+        navigator.geolocation.getCurrentPosition(
+
+            async (position) => {
+
+                const latitude =
+                    position.coords.latitude;
+
+                const longitude =
+                    position.coords.longitude;
+
+
+                console.log(
+                    "Orbit Weather: Location found",
+                    latitude,
+                    longitude
                 );
 
-                return;
+
+                await this.getWeather(
+                    latitude,
+                    longitude
+                );
+
+            },
+
+
+            (error) => {
+
+                console.error(
+                    "Orbit Weather: Location error",
+                    error
+                );
+
+
+                this.showError(
+                    "Location permission required"
+                );
+
+            },
+
+            {
+                enableHighAccuracy: false,
+
+                timeout: 15000,
+
+                maximumAge: 300000
+
             }
 
-
-            navigator.geolocation.getCurrentPosition(
-
-                async (position) => {
-
-                    const latitude =
-                        position.coords.latitude;
-
-                    const longitude =
-                        position.coords.longitude;
-
-
-                    await this.getWeather(
-                        latitude,
-                        longitude
-                    );
-
-                },
-
-                (error) => {
-
-                    console.warn(
-                        "Unable to get location:",
-                        error.message
-                    );
-
-                },
-
-                {
-                    enableHighAccuracy: false,
-
-                    timeout: 10000,
-
-                    maximumAge: 300000
-                }
-
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Orbit Weather Error:",
-                error
-            );
-
-        }
+        );
 
     },
 
 
-    async getWeather(latitude, longitude) {
+    async getWeather(
+        latitude,
+        longitude
+    ) {
 
         try {
 
             const url =
-                `https://api.open-meteo.com/v1/forecast` +
+                "https://api.open-meteo.com/v1/forecast" +
                 `?latitude=${latitude}` +
                 `&longitude=${longitude}` +
-                `&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m` +
-                `&timezone=auto`;
+                "&current=" +
+                "temperature_2m," +
+                "relative_humidity_2m," +
+                "weather_code," +
+                "wind_speed_10m" +
+                "&timezone=auto";
+
+
+            console.log(
+                "Orbit Weather: Requesting weather..."
+            );
 
 
             const response =
@@ -604,7 +251,7 @@ window.OrbitWeather = {
             if (!response.ok) {
 
                 throw new Error(
-                    "Weather request failed."
+                    `Weather API error: ${response.status}`
                 );
 
             }
@@ -630,39 +277,37 @@ window.OrbitWeather = {
                     current.wind_speed_10m,
 
                 weatherCode:
-                    current.weather_code,
-
-                condition:
-                    this.getCondition(
-                        current.weather_code
-                    ),
-
-                latitude:
-                    latitude,
-
-                longitude:
-                    longitude
+                    current.weather_code
 
             };
 
 
-            window.dispatchEvent(
+            console.log(
+                "Orbit Weather:",
+                this.data
+            );
 
+
+            window.dispatchEvent(
                 new CustomEvent(
                     "orbit:weatherUpdate",
                     {
                         detail: this.data
                     }
                 )
-
             );
 
 
         } catch (error) {
 
             console.error(
-                "Orbit Weather Error:",
+                "Orbit Weather failed:",
                 error
+            );
+
+
+            this.showError(
+                "Weather unavailable"
             );
 
         }
@@ -670,68 +315,305 @@ window.OrbitWeather = {
     },
 
 
-    getCondition(code) {
+    showError(message) {
 
-        if (code === 0) {
-            return "Clear Sky";
-        }
-
-        if (
-            code === 1 ||
-            code === 2
-        ) {
-            return "Partly Cloudy";
-        }
-
-        if (code === 3) {
-            return "Cloudy";
-        }
-
-        if (
-            code >= 45 &&
-            code <= 48
-        ) {
-            return "Foggy";
-        }
-
-        if (
-            code >= 51 &&
-            code <= 67
-        ) {
-            return "Rain";
-        }
-
-        if (
-            code >= 71 &&
-            code <= 77
-        ) {
-            return "Snow";
-        }
-
-        if (
-            code >= 80 &&
-            code <= 82
-        ) {
-            return "Rain Showers";
-        }
-
-        if (
-            code >= 95 &&
-            code <= 99
-        ) {
-            return "Thunderstorm";
-        }
-
-        return "Unknown";
+        window.dispatchEvent(
+            new CustomEvent(
+                "orbit:weatherError",
+                {
+                    detail: message
+                }
+            )
+        );
 
     }
 
 };
 
-document.addEventListener("DOMContentLoaded", () => {
 
-    window.OrbitSystem.init();
+/* ===========================================================
+   START EVERYTHING
+=========================================================== */
 
-    window.OrbitWeather.init();
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-});
+        console.log(
+            "Orbit shared system starting..."
+        );
+
+
+        OrbitSystem.init();
+
+        OrbitWeather.init();
+
+    }
+);
+
+/* ===========================================================
+   ORBIT AI — DASHBOARD WEATHER
+=========================================================== */
+
+window.addEventListener(
+    "orbit:weatherUpdate",
+    (event) => {
+
+        const weather =
+            event.detail;
+
+
+        const temperature =
+            document.getElementById(
+                "weather-temperature"
+            );
+
+
+        const condition =
+            document.getElementById(
+                "weather-condition"
+            );
+
+
+        const humidity =
+            document.getElementById(
+                "weather-humidity"
+            );
+
+
+        const wind =
+            document.getElementById(
+                "weather-wind"
+            );
+
+
+        const location =
+            document.getElementById(
+                "weather-location"
+            );
+
+
+        const icon =
+            document.getElementById(
+                "weather-icon"
+            );
+
+
+        if (temperature) {
+
+            temperature.textContent =
+                `${Math.round(
+                    weather.temperature
+                )}°C`;
+
+        }
+
+
+        if (condition) {
+
+            condition.textContent =
+                getWeatherCondition(
+                    weather.weatherCode
+                );
+
+        }
+
+
+        if (humidity) {
+
+            humidity.textContent =
+                `${weather.humidity}%`;
+
+        }
+
+
+        if (wind) {
+
+            wind.textContent =
+                `${weather.windSpeed} km/h`;
+
+        }
+
+
+        if (location) {
+
+            location.textContent =
+                "Current location";
+
+        }
+
+
+        if (icon) {
+
+            icon.className =
+                `fa-solid ${
+                    getWeatherIcon(
+                        weather.weatherCode
+                    )
+                }`;
+
+        }
+
+    }
+);
+
+
+/* ===========================================================
+   WEATHER CONDITION
+=========================================================== */
+
+function getWeatherCondition(code) {
+
+    if (code === 0) {
+        return "Clear Sky";
+    }
+
+    if (
+        code === 1 ||
+        code === 2
+    ) {
+        return "Partly Cloudy";
+    }
+
+    if (code === 3) {
+        return "Cloudy";
+    }
+
+    if (
+        code >= 45 &&
+        code <= 48
+    ) {
+        return "Foggy";
+    }
+
+    if (
+        code >= 51 &&
+        code <= 67
+    ) {
+        return "Rain";
+    }
+
+    if (
+        code >= 71 &&
+        code <= 77
+    ) {
+        return "Snow";
+    }
+
+    if (
+        code >= 80 &&
+        code <= 82
+    ) {
+        return "Rain Showers";
+    }
+
+    if (
+        code >= 95 &&
+        code <= 99
+    ) {
+        return "Thunderstorm";
+    }
+
+    return "Unknown";
+
+}
+
+
+/* ===========================================================
+   WEATHER ICON
+=========================================================== */
+
+function getWeatherIcon(code) {
+
+    if (code === 0) {
+        return "fa-sun";
+    }
+
+    if (
+        code === 1 ||
+        code === 2
+    ) {
+        return "fa-cloud-sun";
+    }
+
+    if (code === 3) {
+        return "fa-cloud";
+    }
+
+    if (
+        code >= 45 &&
+        code <= 48
+    ) {
+        return "fa-smog";
+    }
+
+    if (
+        code >= 51 &&
+        code <= 67
+    ) {
+        return "fa-cloud-rain";
+    }
+
+    if (
+        code >= 71 &&
+        code <= 77
+    ) {
+        return "fa-snowflake";
+    }
+
+    if (
+        code >= 80 &&
+        code <= 82
+    ) {
+        return "fa-cloud-showers-heavy";
+    }
+
+    if (
+        code >= 95 &&
+        code <= 99
+    ) {
+        return "fa-bolt";
+    }
+
+    return "fa-cloud";
+
+}
+
+
+/* ===========================================================
+   WEATHER ERROR
+=========================================================== */
+
+window.addEventListener(
+    "orbit:weatherError",
+    (event) => {
+
+        const condition =
+            document.getElementById(
+                "weather-condition"
+            );
+
+
+        const location =
+            document.getElementById(
+                "weather-location"
+            );
+
+
+        if (condition) {
+
+            condition.textContent =
+                event.detail;
+
+        }
+
+
+        if (location) {
+
+            location.textContent =
+                "Unable to detect location";
+
+        }
+
+    }
+);
