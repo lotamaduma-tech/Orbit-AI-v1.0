@@ -4,77 +4,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orbit AI | System</title>
 
+    <title>Orbit AI — System</title>
 
     <!-- Google Font -->
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-     <!-- Font Awesome -->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-      <!-- CSS -->
-       <link rel="stylesheet" href="css/style.css">
-       <link rel="stylesheet" href="css/system.css">
-       <link rel="stylesheet"  href="style.css">
-       <link rel="stylesheet" href="css/reset.css">
-       <link rel="stylesheet" href="css/variables.css">
-       <link rel="stylesheet" href="css/layout.css">
-       <link rel="stylesheet" href="css/sidebar.css">
-       <link rel="stylesheet" href="css/header.css">
-       <link rel="stylesheet" href="css/dashboard.css">
-       <link rel="stylesheet" href="css/ai-core.css">
-       <link rel="stylesheet" href="css/components.css">
-       <link rel="stylesheet" href="css/animations.css">
-       <link rel="stylesheet" href="css/responsive.css">
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/footer.css">
+
+    <!-- System CSS -->
+    <link rel="stylesheet" href="css/system.css">
+
 </head>
 
 <body>
-    
-    <div class="app-container">
-        <!-- ===========================
-         SIDEBAR
-         =========================== -->
-         <aside class="sidebar">
+
+    <!-- =====================================================
+         APP CONTAINER
+    ====================================================== -->
+
+    <div class="system-page">
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="sidebar">
+
             <div class="logo">
                 <h1>ORBIT AI</h1>
                 <span>Version 2.0</span>
             </div>
-            
+
+
             <nav class="nav-menu">
-                <a href="index.html"><i class="fa-solid fa-house"></i>
+
+                <a href="index.html">
+                    <i class="fa-solid fa-house"></i>
                     <span>Dashboard</span>
                 </a>
-                
+
                 <a href="system.html" class="active">
                     <i class="fa-solid fa-microchip"></i>
                     <span>System</span>
                 </a>
-                
+
                 <a href="files.html">
                     <i class="fa-solid fa-folder"></i>
                     <span>Files</span>
                 </a>
-                
+
                 <a href="assistant.html">
                     <i class="fa-solid fa-comments"></i>
                     <span>Assistant</span>
                 </a>
-                
+
                 <a href="weather.html">
                     <i class="fa-solid fa-cloud"></i>
                     <span>Weather</span>
                 </a>
-                
+
                 <a href="calendar.html">
                     <i class="fa-solid fa-calendar"></i>
                     <span>Calendar</span>
                 </a>
-                
+
                 <a href="music.html">
                     <i class="fa-solid fa-music"></i>
                     <span>Music</span>
@@ -84,121 +91,373 @@
                     <i class="fa-solid fa-gear"></i>
                     <span>Settings</span>
                 </a>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <button class="power-btn" aria-label="Open-menu" ><i class="fa-solid fa-power-off"></i></button>
-            </div>
-        </aside>
-        
-        <!-- ===========================  MAIN CONTENT  =========================== -->
-         <main class="main-content">
 
-            <header class="header">
-                <div id="date" class="date"></div>
-                <h1 class="page-title">System Control Center</h1>
-                <div id="time" class="time"></div>
+            </nav>
+
+
+            <div class="sidebar-footer">
+
+                <button class="power-btn" type="button" aria-label="Power Off">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- =================================================
+             MAIN CONTENT
+        ================================================== -->
+
+        <main class="system-main">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <header class="system-header">
+
+                <div>
+                    <span class="page-label">
+                        ORBIT / SYSTEM
+                    </span>
+
+                    <h1>System</h1>
+
+                    <p>
+                        Monitor your system status and resources.
+                    </p>
+                </div>
+
+
+                <div class="system-status">
+
+                    <span class="status-indicator"></span>
+
+                    <span>System Operational</span>
+
+                </div>
+
             </header>
-            
-        <!-- ===========================  SYSTEM GRID  =========================== -->
-         <section class="system-grid">
-            <!-- LEFT PANEL -->
-             <div class="left-panel">
-                <div class="card">
-                    <h3>CPU Usage</h3>
-                    <div class="progress-bar">
-                        <div class="progress cpu-progress"></div>
-                        <p id="cpu-value">0%</p>
+
+
+
+            <!-- =================================================
+                 SYSTEM OVERVIEW
+            ================================================== -->
+
+            <section class="system-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span>OVERVIEW</span>
+                        <h2>System Resources</h2>
                     </div>
+
                 </div>
-                
-                <div class="card">
-                    <h3>Memory Usage</h3>
-                    <div class="progress-bar">
-                        <div class="progress memory-progress"></div>
-                        <p id="memory-value">0%</p>
+
+
+                <div class="resource-grid">
+
+
+                    <!-- CPU -->
+
+                    <article class="resource-card">
+
+                        <div class="resource-icon">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+
+                        <div class="resource-content">
+
+                            <span>CPU</span>
+
+                            <strong id="cpu-value">
+                                24%
+                            </strong>
+
+                            <p>Normal usage</p>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- MEMORY -->
+
+                    <article class="resource-card">
+
+                        <div class="resource-icon">
+                            <i class="fa-solid fa-memory"></i>
+                        </div>
+
+                        <div class="resource-content">
+
+                            <span>Memory</span>
+
+                            <strong id="memory-value">
+                                48%
+                            </strong>
+
+                            <p>Normal usage</p>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- STORAGE -->
+
+                    <article class="resource-card">
+
+                        <div class="resource-icon">
+                            <i class="fa-solid fa-hard-drive"></i>
+                        </div>
+
+                        <div class="resource-content">
+
+                            <span>Storage</span>
+
+                            <strong>
+                                248 GB
+                            </strong>
+
+                            <p>of 512 GB used</p>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- NETWORK -->
+
+                    <article class="resource-card">
+
+                        <div class="resource-icon">
+                            <i class="fa-solid fa-wifi"></i>
+                        </div>
+
+                        <div class="resource-content">
+
+                            <span>Network</span>
+
+                            <strong>
+                                Online
+                            </strong>
+
+                            <p>Connection stable</p>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 NETWORK
+            ================================================== -->
+
+            <section class="system-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span>CONNECTION</span>
+                        <h2>Network</h2>
                     </div>
+
+                    <span class="connection-status">
+                        <i class="fa-solid fa-circle"></i>
+                        Online
+                    </span>
+
                 </div>
-                
-                <div class="card">
-                    <h3>Storage</h3>
-                    <div class="progress-bar">
-                        <div class="progress storage-progress"></div>
-                        <p>248 GB / 512 GB</p>
+
+
+                <div class="network-card">
+
+                    <div class="network-main">
+
+                        <div class="network-icon">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+
+                        <div>
+                            <strong>Network Connected</strong>
+
+                            <p>
+                                Your connection is currently stable.
+                            </p>
+                        </div>
+
                     </div>
-                </div>
-            </div>
-            
-            <!-- CENTER PANEL -->
-             <div class="center-panel">
-                <div class="card">
-                    <h2>AI Modules</h2>
-                    <div class="status-list">
-                        
-                        <p><i class="fa-solid fa-circle-check"></i> AI Core Online</p>
-                        
-                        <p><i class="fa-solid fa-circle-check"></i> Voice Engine</p>
-                        
-                        <p><i class="fa-solid fa-circle-check"></i> Neural Engine</p>
-                        
-                        <p><i class="fa-solid fa-circle-check"></i> Memory Stable</p>
-                        
-                        <p><i class="fa-solid fa-circle-check"></i> Security Active</p>
-                        
-                        <p><i class="fa-solid fa-circle-check"></i> Internet Connected</p>
+
+
+                    <div class="network-stats">
+
+                        <div>
+                            <span>DOWNLOAD</span>
+                            <strong>42.8 Mbps</strong>
+                        </div>
+
+                        <div>
+                            <span>UPLOAD</span>
+                            <strong>18.4 Mbps</strong>
+                        </div>
+
+                        <div>
+                            <span>LATENCY</span>
+                            <strong>24 ms</strong>
+                        </div>
+
                     </div>
+
                 </div>
-                
-                <div class="card">
-                    <h2>Quick Actions</h2>
-                    <div class="action-buttons">
-                        <button id="restart-btn">Restart AI</button>
-                        
-                        <button id="diagnostics-btn">Run Diagnostics</button>
-                        
-                        <button id="cache-btn">Clear Cache</button>
-                        
-                        <button id="update-btn">Update System</button>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 SYSTEM INFORMATION
+            ================================================== -->
+
+            <section class="system-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <span>INFORMATION</span>
+                        <h2>System Information</h2>
                     </div>
+
                 </div>
-            </div>
-            
-            <!-- RIGHT PANEL -->
-             <div class="right-panel">
-                <div class="card">
-                    <h3>Activity Log</h3>
-                    <div class="system-log">
-                        
-                        <p>10:10 • Orbit AI Started</p>
-                        
-                        <p>10:11 • Voice Engine Loaded</p>
-                        
-                        <p>10:12 • Neural Engine Online</p>
-                        
-                        <p>10:13 • Security Check Passed</p>
-                        
-                        <p>10:14 • Dashboard Ready</p>
+
+
+                <div class="info-card">
+
+
+                    <div class="info-row">
+
+                        <span>Operating System</span>
+
+                        <strong>
+                            Orbit OS
+                        </strong>
+
                     </div>
+
+
+                    <div class="info-row">
+
+                        <span>Orbit AI Version</span>
+
+                        <strong>
+                            Version 2.0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <span>System Status</span>
+
+                        <strong class="online-text">
+                            Operational
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <span>Network Status</span>
+
+                        <strong class="online-text">
+                            Connected
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <span>AI Core</span>
+
+                        <strong class="online-text">
+                            Ready
+                        </strong>
+
+                    </div>
+
                 </div>
-                
-                <div class="card">
-                    <h3>Network Status</h3>
-                    <p>Status : <span class="online">Online</span></p>
-                    
-                    <p>Latency : 24 ms</p>
-                    
-                    <p>Download : 82 Mbps</p>
-                    
-                    <p>Upload : 18 Mbps</p>
-                </div>
-            </div>
-        </section>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 BOTTOM DOCK
+            ================================================== -->
+
+            <footer class="dock">
+
+                <button class="dock-btn" type="button" aria-label="Dashboard">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+
+
+                <button class="dock-btn active" type="button" aria-label="System">
+                    <i class="fa-solid fa-microchip"></i>
+                </button>
+
+
+                <button class="dock-btn" type="button" aria-label="Files">
+                    <i class="fa-solid fa-folder"></i>
+                </button>
+
+
+                <button class="dock-btn" type="button" aria-label="Assistant">
+                    <i class="fa-solid fa-comments"></i>
+                </button>
+
+
+                <button class="dock-btn" type="button" aria-label="Weather">
+                    <i class="fa-solid fa-globe"></i>
+                </button>
+
+
+                <button class="dock-btn" type="button" aria-label="Music">
+                    <i class="fa-solid fa-music"></i>
+                </button>
+
+
+                <button class="dock-btn" type="button" aria-label="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+
+            </footer>
+
         </main>
+
     </div>
-    
+
+
     <!-- JavaScript -->
-     <script src="config.js"></script>
-     <script src="js/script.js"></script>
-     <script src="js/system.js"></script>
+    <script src="js/system.js"></script>
+
 </body>
+
 </html>
