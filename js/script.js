@@ -1,9 +1,12 @@
 /* ===========================================================
    ORBIT AI — DASHBOARD SCRIPT
+
    Clock + Greeting + AI Chat + Persistent User Memory
+   + Formatted AI Responses
 =========================================================== */
 
 "use strict";
+
 
 /* ===========================================================
    LIVE CLOCK
@@ -14,6 +17,7 @@ const dateEl = document.getElementById("date");
 const greetingEl = document.getElementById("greeting");
 
 function updateClock() {
+
     const now = new Date();
 
     const hours = now.getHours();
@@ -30,14 +34,21 @@ function updateClock() {
     const displayHour =
         hours % 12 || 12;
 
+
     /* TIME */
+
     if (timeEl) {
+
         timeEl.textContent =
             `${displayHour}:${minutes}:${seconds} ${period}`;
+
     }
 
+
     /* DATE */
+
     if (dateEl) {
+
         dateEl.textContent =
             now.toLocaleDateString(
                 "en-US",
@@ -48,21 +59,31 @@ function updateClock() {
                     day: "numeric"
                 }
             );
+
     }
 
+
     /* GREETING */
+
     if (greetingEl) {
+
         let greeting = "Good Evening";
 
         if (hours >= 5 && hours < 12) {
+
             greeting = "Good Morning";
+
         } else if (hours >= 12 && hours < 17) {
+
             greeting = "Good Afternoon";
+
         }
 
         greetingEl.textContent =
             `${greeting}, Kingsley`;
+
     }
+
 }
 
 updateClock();
@@ -97,13 +118,15 @@ const API_URL =
 
 /* ===========================================================
    CONVERSATION HISTORY
-   -----------------------------------------------------------
+
    IMPORTANT:
+
    This is ONLY kept while the page is open.
 
    It is NOT saved to localStorage.
 
    Therefore:
+
    Refresh = new conversation.
 =========================================================== */
 
@@ -112,16 +135,6 @@ let conversationHistory = [];
 
 /* ===========================================================
    USER MEMORY
-   -----------------------------------------------------------
-   User details are stored separately from chat history.
-
-   Example:
-   - Name
-   - School
-   - Course
-   - Goals
-   - Preferences
-   - Important details
 =========================================================== */
 
 const USER_MEMORY_KEY =
@@ -135,28 +148,38 @@ let userMemory = [];
 =========================================================== */
 
 function loadUserMemory() {
+
     try {
+
         const savedMemory =
             localStorage.getItem(
                 USER_MEMORY_KEY
             );
 
         if (savedMemory) {
+
             const parsed =
                 JSON.parse(savedMemory);
 
             if (Array.isArray(parsed)) {
+
                 userMemory = parsed;
+
             }
+
         }
+
     } catch (error) {
+
         console.error(
             "Orbit user memory could not be loaded:",
             error
         );
 
         userMemory = [];
+
     }
+
 }
 
 
@@ -165,17 +188,23 @@ function loadUserMemory() {
 =========================================================== */
 
 function saveUserMemory() {
+
     try {
+
         localStorage.setItem(
             USER_MEMORY_KEY,
             JSON.stringify(userMemory)
         );
+
     } catch (error) {
+
         console.error(
             "Orbit user memory could not be saved:",
             error
         );
+
     }
+
 }
 
 
@@ -184,6 +213,7 @@ function saveUserMemory() {
 =========================================================== */
 
 function rememberUserDetail(detail) {
+
     if (!detail) return;
 
     const cleanDetail =
@@ -191,9 +221,8 @@ function rememberUserDetail(detail) {
 
     if (!cleanDetail) return;
 
-    /*
-       Prevent duplicate memories.
-    */
+
+    /* Prevent duplicate memories */
 
     const alreadyExists =
         userMemory.some(
@@ -204,31 +233,32 @@ function rememberUserDetail(detail) {
 
     if (alreadyExists) return;
 
+
     userMemory.push(
         cleanDetail
     );
 
-    /*
-       Prevent unlimited memory growth.
-    */
+
+    /* Prevent unlimited memory growth */
 
     if (userMemory.length > 50) {
+
         userMemory =
             userMemory.slice(-50);
+
     }
 
     saveUserMemory();
+
 }
 
 
 /* ===========================================================
    AUTOMATIC USER DETAIL DETECTION
-   -----------------------------------------------------------
-   Orbit looks for common statements containing personal
-   details and stores them separately from the conversation.
 =========================================================== */
 
 function detectUserMemory(message) {
+
     const text =
         message.trim();
 
@@ -243,9 +273,11 @@ function detectUserMemory(message) {
         );
 
     if (nameMatch) {
+
         rememberUserDetail(
             `The user's name is ${nameMatch[1].trim()}.`
         );
+
     }
 
 
@@ -257,9 +289,11 @@ function detectUserMemory(message) {
         );
 
     if (ageMatch) {
+
         rememberUserDetail(
             `The user is ${ageMatch[1]} years old.`
         );
+
     }
 
 
@@ -271,9 +305,11 @@ function detectUserMemory(message) {
         );
 
     if (schoolMatch) {
+
         rememberUserDetail(
             `The user's school is ${schoolMatch[1].trim()}.`
         );
+
     }
 
 
@@ -285,9 +321,11 @@ function detectUserMemory(message) {
         );
 
     if (courseMatch) {
+
         rememberUserDetail(
             `The user studies ${courseMatch[1].trim()}.`
         );
+
     }
 
 
@@ -299,9 +337,11 @@ function detectUserMemory(message) {
         );
 
     if (locationMatch) {
+
         rememberUserDetail(
             `The user is from ${locationMatch[1].trim()}.`
         );
+
     }
 
 
@@ -313,9 +353,11 @@ function detectUserMemory(message) {
         );
 
     if (goalMatch) {
+
         rememberUserDetail(
             `The user's goal is ${goalMatch[1].trim()}.`
         );
+
     }
 
 
@@ -327,10 +369,13 @@ function detectUserMemory(message) {
         );
 
     if (likeMatch) {
+
         rememberUserDetail(
             `The user likes ${likeMatch[1].trim()}.`
         );
+
     }
+
 }
 
 
@@ -339,14 +384,237 @@ function detectUserMemory(message) {
 =========================================================== */
 
 function getMemoryContext() {
+
     if (
         !userMemory ||
         userMemory.length === 0
     ) {
+
         return "";
+
     }
 
     return userMemory.join("\n");
+
+}
+
+
+/* ===========================================================
+   ORBIT RESPONSE FORMATTER
+   -----------------------------------------------------------
+   Converts common Markdown from the AI into clean HTML.
+
+   Examples:
+
+   **Hello**       → bold
+   *Hello*         → italic
+   `code`          → inline code
+   # Heading      → heading
+   - Item         → bullet
+   1. Item        → numbered list
+
+   HTML is escaped first for safety.
+=========================================================== */
+
+function formatOrbitResponse(text) {
+
+    if (!text) return "";
+
+
+    let formatted =
+        String(text);
+
+
+    /* =======================================================
+       ESCAPE HTML
+    ======================================================= */
+
+    formatted =
+        formatted
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+
+    /* =======================================================
+       CODE BLOCKS
+       ```code```
+    ======================================================= */
+
+    const codeBlocks = [];
+
+    formatted =
+        formatted.replace(
+            /```([\s\S]*?)```/g,
+            (match, code) => {
+
+                const index =
+                    codeBlocks.length;
+
+                codeBlocks.push(
+                    `<pre class="orbit-code-block"><code>${code.trim()}</code></pre>`
+                );
+
+                return `___ORBIT_CODE_BLOCK_${index}___`;
+
+            }
+        );
+
+
+    /* =======================================================
+       INLINE CODE
+       `code`
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /`([^`\n]+)`/g,
+            "<code>$1</code>"
+        );
+
+
+    /* =======================================================
+       BOLD
+       **text**
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+    /* =======================================================
+       ITALIC
+       *text*
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /(?<!\*)\*([^*\n]+)\*(?!\*)/g,
+            "<em>$1</em>"
+        );
+
+
+    /* =======================================================
+       HEADINGS
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /^### (.*?)$/gm,
+            "<h4>$1</h4>"
+        );
+
+    formatted =
+        formatted.replace(
+            /^## (.*?)$/gm,
+            "<h3>$1</h3>"
+        );
+
+    formatted =
+        formatted.replace(
+            /^# (.*?)$/gm,
+            "<h2>$1</h2>"
+        );
+
+
+    /* =======================================================
+       NUMBERED LISTS
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /^\d+\.\s+(.*?)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /* =======================================================
+       BULLET LISTS
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /^[•\-]\s+(.*?)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /* =======================================================
+       GROUP LIST ITEMS
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /((?:<li>.*?<\/li>\s*)+)/g,
+            "<ul>$1</ul>"
+        );
+
+
+    /* =======================================================
+       LINE BREAKS
+    ======================================================= */
+
+    formatted =
+        formatted.replace(
+            /\n/g,
+            "<br>"
+        );
+
+
+    /* =======================================================
+       CLEAN UP BREAKS AROUND BLOCK ELEMENTS
+    ======================================================= */
+
+    formatted =
+        formatted
+            .replace(
+                /<br>\s*<ul>/g,
+                "<ul>"
+            )
+            .replace(
+                /<\/ul>\s*<br>/g,
+                "</ul>"
+            )
+            .replace(
+                /<br>\s*<h([2-4])>/g,
+                "<h$1>"
+            )
+            .replace(
+                /<\/h([2-4])><br>/g,
+                "</h$1>"
+            )
+            .replace(
+                /<br>\s*<pre/g,
+                "<pre"
+            )
+            .replace(
+                /<\/pre><br>/g,
+                "</pre>"
+            );
+
+
+    /* =======================================================
+       RESTORE CODE BLOCKS
+    ======================================================= */
+
+    codeBlocks.forEach(
+        (block, index) => {
+
+            formatted =
+                formatted.replace(
+                    `___ORBIT_CODE_BLOCK_${index}___`,
+                    block
+                );
+
+        }
+    );
+
+
+    return formatted;
+
 }
 
 
@@ -358,25 +626,57 @@ function addMessage(
     text,
     sender
 ) {
+
     if (!chatWindow) return;
+
 
     const message =
         document.createElement(
             "div"
         );
 
+
     message.className =
         `message ${sender}`;
 
-    message.textContent =
-        text;
+
+    /*
+       USER MESSAGES
+       ----------------------------
+       Keep user messages as plain
+       text.
+    */
+
+    if (sender === "user") {
+
+        message.textContent =
+            text;
+
+    }
+
+
+    /*
+       ORBIT MESSAGES
+       ----------------------------
+       Render Markdown formatting.
+    */
+
+    else {
+
+        message.innerHTML =
+            formatOrbitResponse(text);
+
+    }
+
 
     chatWindow.appendChild(
         message
     );
 
+
     chatWindow.scrollTop =
         chatWindow.scrollHeight;
+
 }
 
 
@@ -385,37 +685,47 @@ function addMessage(
 =========================================================== */
 
 function showTyping() {
+
     if (!chatWindow) return;
+
 
     const existingTyping =
         document.getElementById(
             "orbit-typing"
         );
 
+
     if (existingTyping) return;
+
 
     const typing =
         document.createElement(
             "div"
         );
 
+
     typing.className =
         "message orbit typing-message";
 
+
     typing.id =
         "orbit-typing";
+
 
     typing.innerHTML = `
         <span>Orbit is thinking</span>
         <span class="typing-dots">...</span>
     `;
 
+
     chatWindow.appendChild(
         typing
     );
 
+
     chatWindow.scrollTop =
         chatWindow.scrollHeight;
+
 }
 
 
@@ -424,14 +734,19 @@ function showTyping() {
 =========================================================== */
 
 function hideTyping() {
+
     const typing =
         document.getElementById(
             "orbit-typing"
         );
 
+
     if (typing) {
+
         typing.remove();
+
     }
+
 }
 
 
@@ -440,31 +755,27 @@ function hideTyping() {
 =========================================================== */
 
 async function sendMessage() {
+
     if (!commandInput) return;
+
 
     const message =
         commandInput.value.trim();
 
-    /*
-       Don't send empty messages.
-    */
+
+    /* Don't send empty messages */
 
     if (!message) return;
 
 
-    /*
-       Detect any useful user information
-       before sending the message.
-    */
+    /* Detect useful user information */
 
     detectUserMemory(
         message
     );
 
 
-    /*
-       Display user message immediately.
-    */
+    /* Display user message */
 
     addMessage(
         message,
@@ -472,55 +783,51 @@ async function sendMessage() {
     );
 
 
-    /*
-       Keep conversation in memory
-       ONLY for the current page session.
-
-       It will disappear when the page
-       is refreshed.
-    */
+    /* Temporary conversation history */
 
     conversationHistory.push({
-        role: "user",
-        content: message
+
+        role:
+            "user",
+
+        content:
+            message
+
     });
 
 
-    /*
-       Keep the temporary conversation
-       from becoming too large.
-    */
+    /* Keep temporary conversation manageable */
 
     if (
         conversationHistory.length >
         40
     ) {
+
         conversationHistory =
             conversationHistory.slice(-40);
+
     }
 
 
-    /*
-       Clear input.
-    */
+    /* Clear input */
 
     commandInput.value = "";
 
 
-    /*
-       Disable controls.
-    */
+    /* Disable controls */
 
     if (sendButton) {
-        sendButton.disabled = true;
+
+        sendButton.disabled =
+            true;
+
     }
 
-    commandInput.disabled = true;
+    commandInput.disabled =
+        true;
 
 
-    /*
-       Show typing indicator.
-    */
+    /* Show typing indicator */
 
     showTyping();
 
@@ -535,79 +842,79 @@ async function sendMessage() {
             await fetch(
                 API_URL,
                 {
-                    method: "POST",
+
+                    method:
+                        "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
                         JSON.stringify({
+
                             message:
                                 message,
-
-                            /*
-                               Temporary conversation
-                               history.
-
-                               This is NOT saved after
-                               refresh.
-                            */
 
                             history:
                                 conversationHistory,
 
-                            /*
-                               Persistent user memory.
-
-                               This remains available
-                               after refresh.
-                            */
-
                             memory:
                                 getMemoryContext()
+
                         })
+
                 }
             );
 
 
-        /*
-           Check HTTP response.
-        */
+        /* ===================================================
+           CHECK HTTP RESPONSE
+        =================================================== */
 
         if (!response.ok) {
 
             let errorMessage =
                 `Server returned ${response.status}`;
 
+
             try {
 
                 const errorData =
                     await response.json();
 
+
                 if (
                     errorData?.error
                 ) {
+
                     errorMessage =
                         errorData.error;
+
                 }
 
             } catch (_) {
+
                 /*
                    Ignore JSON parsing errors.
                 */
+
             }
+
 
             throw new Error(
                 errorMessage
             );
+
         }
 
 
-        /*
-           Convert response to JSON.
-        */
+        /* ===================================================
+           CONVERT RESPONSE TO JSON
+        =================================================== */
 
         const data =
             await response.json();
@@ -631,51 +938,69 @@ async function sendMessage() {
             /*
                Save Orbit's response ONLY
                in temporary conversation history.
-
-               It is NOT saved to localStorage.
             */
 
             conversationHistory.push({
-                role: "assistant",
-                content: data.reply
+
+                role:
+                    "assistant",
+
+                content:
+                    data.reply
+
             });
 
-        } else {
+        }
+
+        else {
 
             addMessage(
                 "I received an empty response from the AI.",
                 "orbit"
             );
+
         }
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Orbit AI request failed:",
             error
         );
 
+
         hideTyping();
+
 
         addMessage(
             `Orbit connection error: ${error.message}`,
             "orbit"
         );
+
     }
 
 
-    /*
-       Re-enable controls.
-    */
+    /* =======================================================
+       RE-ENABLE CONTROLS
+    ======================================================= */
 
     if (sendButton) {
-        sendButton.disabled = false;
+
+        sendButton.disabled =
+            false;
+
     }
 
-    commandInput.disabled = false;
+
+    commandInput.disabled =
+        false;
+
 
     commandInput.focus();
+
 }
 
 
@@ -689,6 +1014,7 @@ if (sendButton) {
         "click",
         sendMessage
     );
+
 }
 
 
@@ -710,9 +1036,12 @@ if (commandInput) {
                 event.preventDefault();
 
                 sendMessage();
+
             }
+
         }
     );
+
 }
 
 
@@ -726,19 +1055,18 @@ document.addEventListener(
 
         /*
            Load ONLY persistent user memory.
-
-           We intentionally DO NOT load conversation
-           history from localStorage.
         */
 
         loadUserMemory();
 
 
         /*
-           Start every page load with a fresh chat.
+           Start every page load with
+           a fresh conversation.
         */
 
-        conversationHistory = [];
+        conversationHistory =
+            [];
 
 
         /*
@@ -747,12 +1075,15 @@ document.addEventListener(
 
         if (chatWindow) {
 
-            chatWindow.innerHTML = "";
+            chatWindow.innerHTML =
+                "";
 
             addMessage(
                 "Orbit AI Online. How can I assist you?",
                 "orbit"
             );
+
         }
+
     }
 );
