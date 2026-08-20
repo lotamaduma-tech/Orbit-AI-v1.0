@@ -2,218 +2,300 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Orbit AI</title>
+  <meta name="description" content="Orbit AI — A professional AI assistant and productivity dashboard." />
+
+  <title>Orbit AI — Dashboard</title>
+
 
   <!-- ===================================
-    GOOGLE FONTS
-    =================================== -->
+       GOOGLE FONTS
+       =================================== -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
 
+
   <!-- ===================================
-    FONT AWESOME
-    =================================== -->
+       FONT AWESOME
+       =================================== -->
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
+
   <!-- ===================================
-    CORE CSS
-    =================================== -->
+       CORE CSS
+       =================================== -->
 
   <link rel="stylesheet" href="css/reset.css" />
   <link rel="stylesheet" href="css/variables.css" />
 
-  <!-- ===================================
-    BOOT SCREEN
-    =================================== -->
-
-  <link rel="stylesheet" href="css/boot.css" />
 
   <!-- ===================================
-    LAYOUT
-    =================================== -->
+       LAYOUT
+       =================================== -->
 
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/sidebar.css" />
   <link rel="stylesheet" href="css/header.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
-  <link rel="stylesheet" href="css/ai-core.css" />
   <link rel="stylesheet" href="css/animations.css" />
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="css/footer.css" />
 
+
   <!-- ===================================
-    FINAL GLOBAL OVERRIDES
-    =================================== -->
+       FINAL GLOBAL OVERRIDES
+       =================================== -->
 
   <link rel="stylesheet" href="style.css" />
+
 </head>
+
 
 <body>
 
-  <!-- ===================================
-    ORBIT AI BOOT SCREEN
-    =================================== -->
-
-  <div id="boot-screen"></div>
-
 
   <!-- ===================================
-    APP CONTAINER
-    =================================== -->
+       APP CONTAINER
+       =================================== -->
 
   <div class="app-container">
 
+
     <!-- ===================================
-      SIDEBAR
-      =================================== -->
+         SIDEBAR
+         =================================== -->
 
     <aside class="sidebar">
 
+
+      <!-- BRAND -->
+
       <div class="logo">
-        <h1>ORBIT AI</h1>
-        <span>Version 2.0</span>
+
+        <h1>ORBIT</h1>
+
+        <span>AI Assistant</span>
+
       </div>
 
 
+      <!-- NAVIGATION -->
+
       <nav class="nav-menu">
 
+
         <a href="dashboard.html" class="active">
+
           <i class="fa-solid fa-house"></i>
+
           <span>Dashboard</span>
+
         </a>
+
 
         <a href="system.html">
-          <i class="fa-solid fa-microchip"></i>
-          <span>System</span>
+
+          <i class="fa-solid fa-chart-line"></i>
+
+          <span>Overview</span>
+
         </a>
+
 
         <a href="files.html">
+
           <i class="fa-solid fa-folder"></i>
+
           <span>Files</span>
+
         </a>
+
 
         <a href="assistant.html">
+
           <i class="fa-solid fa-comments"></i>
+
           <span>Assistant</span>
+
         </a>
+
 
         <a href="weather.html">
-          <i class="fa-solid fa-cloud"></i>
+
+          <i class="fa-solid fa-cloud-sun"></i>
+
           <span>Weather</span>
+
         </a>
+
 
         <a href="calendar.html">
-          <i class="fa-solid fa-calendar"></i>
+
+          <i class="fa-solid fa-calendar-days"></i>
+
           <span>Calendar</span>
+
         </a>
+
 
         <a href="music.html">
+
           <i class="fa-solid fa-music"></i>
+
           <span>Music</span>
+
         </a>
 
+
         <a href="settings.html">
+
           <i class="fa-solid fa-gear"></i>
+
           <span>Settings</span>
+
         </a>
+
 
       </nav>
 
 
+      <!-- SIDEBAR FOOTER -->
+
       <div class="sidebar-footer">
 
-        <button class="power-btn" aria-label="Power Off">
+        <button class="power-btn" type="button" aria-label="Power Off">
+
           <i class="fa-solid fa-power-off"></i>
+
         </button>
 
       </div>
 
+
     </aside>
 
 
+
     <!-- ===================================
-      MAIN CONTENT
-      =================================== -->
+         MAIN CONTENT
+         =================================== -->
 
     <main class="main-content">
 
 
       <!-- ===================================
-        HEADER
-        =================================== -->
+           HEADER
+           =================================== -->
 
       <header class="header">
 
+
+        <!-- DATE -->
+
         <div class="header-left">
+
           <div id="date" class="date"></div>
+
         </div>
 
+
+        <!-- TIME -->
 
         <div class="header-center">
+
           <h1 id="time" class="time"></h1>
+
         </div>
 
+
+        <!-- GREETING -->
 
         <div class="header-right">
+
           <div id="greeting" class="greeting"></div>
+
         </div>
+
 
       </header>
 
 
+
       <!-- ===================================
-        MAIN GRID
-        =================================== -->
+           DASHBOARD CONTENT
+           =================================== -->
 
       <section class="main-grid">
 
 
-        <!-- ===================================
-          LEFT PANEL
-          =================================== -->
+        <!-- =================================
+             LEFT PANEL
+             ================================= -->
 
         <div class="left-panel">
 
-          <!-- System Status -->
+
+          <!-- SYSTEM STATUS -->
 
           <div class="card status-card">
 
             <h3>System Status</h3>
 
+
             <div class="status-item">
+
               <span>CPU</span>
-              <span id="cpu-status">24%</span>
+
+              <span id="cpu-status">
+                24%
+              </span>
+
             </div>
 
+
             <div class="status-item">
+
               <span>Memory</span>
-              <span id="memory-status">48%</span>
+
+              <span id="memory-status">
+                48%
+              </span>
+
             </div>
 
+
             <div class="status-item">
+
               <span>Network</span>
-              <span class="online">Online</span>
+
+              <span class="online">
+                Online
+              </span>
+
             </div>
+
 
           </div>
 
 
-          <!-- Storage -->
+
+          <!-- STORAGE -->
 
           <div class="card">
 
             <h3>Storage</h3>
+
 
             <div class="progress-bar">
 
@@ -221,130 +303,154 @@
 
             </div>
 
-            <p>248 GB / 512 GB</p>
+
+            <p>
+              248 GB / 512 GB
+            </p>
+
 
           </div>
 
 
-          <!-- Quick Notes -->
+
+          <!-- QUICK NOTES -->
 
           <div class="cards">
 
             <h3>Quick Notes</h3>
 
-            <textarea placeholder="Write something..."></textarea>
+
+            <textarea placeholder="Write something..." aria-label="Quick notes"></textarea>
+
 
           </div>
+
 
         </div>
 
 
-        <!-- ===================================
-          CENTER PANEL
-          =================================== -->
+
+        <!-- =================================
+             CENTER PANEL
+             ================================= -->
 
         <div class="center-panel">
 
 
-          <!-- AI CORE -->
+          <!-- AI ASSISTANT HEADER -->
 
-          <div class="ai-core">
+          <div class="assistant-heading">
 
-            <div class="scanner"></div>
+            <div>
 
-
-            <svg class="ai-svg" viewBox="0 0 500 500">
-
-              <circle class="orbit-ring" cx="250" cy="250" r="210" fill="none" />
-
-              <circle class="orbit-ring2" cx="250" cy="250" r="170" fill="none" />
-
-              <circle class="orbit-ring3" cx="250" cy="250" r="130" fill="none" />
-
-              <circle class="orbit-core-ring" cx="250" cy="250" r="90" fill="none" />
-
-            </svg>
-
-
-            <div class="core-center">
-
-              <h2 id="ai-title">
+              <span class="assistant-label">
                 ORBIT AI
-              </h2>
+              </span>
 
-              <p id="ai-status">
-                READY
-              </p>
+              <h2>
+                How can I help?
+              </h2>
 
             </div>
 
-          </div>
 
+            <span class="badge badge-online">
+              Online
+            </span>
 
-          <!-- Voice Visualizer -->
-
-          <div class="voice-wave">
-
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
 
           </div>
 
 
-          <!-- Chat Window -->
+
+          <!-- CHAT WINDOW -->
 
           <div class="chat-window" id="chat-window"></div>
-    
 
-          <!-- Command Box -->
+
+
+          <!-- COMMAND BOX -->
 
           <div class="command-box">
 
-            <input type="text" id="command-input" placeholder="Ask Orbit AI anything..." autocomplete="off" />
+
+            <input type="text" id="command-input" placeholder="Ask Orbit anything..." autocomplete="off"
+              aria-label="Ask Orbit AI" />
+
 
             <button id="send-btn" type="button" aria-label="Send message">
-              <i class="fa-solid fa-paper-plane"></i>
+
+              <i class="fa-solid fa-arrow-up"></i>
+
             </button>
 
+
           </div>
+
+
+          <!-- INPUT HINT -->
+
+          <p class="command-hint">
+            Orbit can help you plan, research, write and organize.
+          </p>
+
 
         </div>
 
 
-        <!-- ===================================
-          RIGHT PANEL
-          =================================== -->
+
+        <!-- =================================
+             RIGHT PANEL
+             ================================= -->
 
         <div class="right-panel">
 
 
-          <!-- AI Assistant -->
+          <!-- AI STATUS -->
 
           <div class="card">
 
-            <h3>AI Assistant</h3>
+            <h3>Assistant</h3>
 
-            <p>Status: Active</p>
 
-            <p>Response Time: 0.3s</p>
+            <div class="status-item">
+
+              <span>Status</span>
+
+              <span class="online">
+                Active
+              </span>
+
+            </div>
+
+
+            <div class="status-item">
+
+              <span>Response</span>
+
+              <span>
+                0.3s
+              </span>
+
+            </div>
+
 
           </div>
 
 
-          <!-- Weather -->
+
+          <!-- WEATHER -->
 
           <div class="card weather-card">
+
 
             <div class="weather-header">
 
               <h3>Weather</h3>
 
+
               <i id="weather-icon" class="fa-solid fa-cloud"></i>
+
 
             </div>
 
@@ -355,6 +461,7 @@
                 --°C
               </h2>
 
+
               <p id="weather-condition">
                 Checking weather...
               </p>
@@ -364,22 +471,34 @@
 
             <div class="weather-details">
 
+
               <div>
-                <span>Humidity</span>
+
+                <span>
+                  Humidity
+                </span>
+
 
                 <strong id="weather-humidity">
                   --%
                 </strong>
+
               </div>
 
 
               <div>
-                <span>Wind</span>
+
+                <span>
+                  Wind
+                </span>
+
 
                 <strong id="weather-wind">
                   -- km/h
                 </strong>
+
               </div>
+
 
             </div>
 
@@ -388,85 +507,109 @@
               Detecting location...
             </small>
 
+
           </div>
 
 
-          <!-- Music -->
+
+          <!-- MUSIC -->
 
           <div class="card">
 
             <h3>Now Playing</h3>
 
-            <p>No music playing</p>
+
+            <p>
+              No music playing
+            </p>
+
 
           </div>
 
+
         </div>
+
 
       </section>
 
 
+
       <!-- ===================================
-        BOTTOM DOCK
-        =================================== -->
+           MOBILE DOCK
+           =================================== -->
 
       <footer class="dock">
 
+
         <button class="dock-btn active" type="button" aria-label="Dashboard">
+
           <i class="fa-solid fa-house"></i>
+
         </button>
 
 
         <button class="dock-btn" type="button" aria-label="Files">
+
           <i class="fa-solid fa-folder"></i>
+
         </button>
 
 
-        <button class="dock-btn" type="button" aria-label="System">
-          <i class="fa-solid fa-microchip"></i>
+        <button class="dock-btn" type="button" aria-label="Overview">
+
+          <i class="fa-solid fa-chart-line"></i>
+
         </button>
 
 
         <button class="dock-btn" type="button" aria-label="Assistant">
+
           <i class="fa-solid fa-comments"></i>
+
         </button>
 
 
         <button class="dock-btn" type="button" aria-label="Weather">
-          <i class="fa-solid fa-globe"></i>
+
+          <i class="fa-solid fa-cloud-sun"></i>
+
         </button>
 
 
         <button class="dock-btn" type="button" aria-label="Music">
+
           <i class="fa-solid fa-music"></i>
+
         </button>
 
 
         <button class="dock-btn" type="button" aria-label="Settings">
+
           <i class="fa-solid fa-gear"></i>
+
         </button>
+
 
       </footer>
 
+
     </main>
+
 
   </div>
 
 
+
   <!-- ===================================
-    JAVASCRIPT
-    =================================== -->
+       JAVASCRIPT
+       =================================== -->
 
   <script src="config.js"></script>
 
-  <!-- Boot MUST load before the main application -->
-  <script src="js/boot.js"></script>
-
-  <!-- Shared system functionality -->
   <script src="js/shared.js"></script>
 
-  <!-- Main dashboard functionality -->
   <script src="js/script.js"></script>
+
 
 </body>
 

@@ -15,8 +15,8 @@
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.055),
-      rgba(255, 255, 255, 0.018)
+      var(--cream-glass-strong),
+      var(--cream-glass)
     );
 
   border: 1px solid var(--border);
@@ -25,7 +25,7 @@
 
   box-shadow:
     var(--shadow-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    inset 0 1px 0 var(--cream-glass);
 
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -55,12 +55,11 @@
   width: 45px;
   height: 1px;
 
-  background: var(--cyan);
+  background: var(--olive);
 
-  box-shadow:
-    0 0 10px rgba(0, 229, 255, 0.35);
+  box-shadow: var(--glow-olive);
 
-  opacity: 0.55;
+  opacity: 0.7;
 }
 
 
@@ -69,19 +68,18 @@
    ========================================= */
 
 .card:hover {
-  border-color:
-    rgba(0, 229, 255, 0.2);
+  border-color: var(--border-accent);
 
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.07),
-      rgba(255, 255, 255, 0.025)
+      var(--cream-glass-hover),
+      var(--cream-glass)
     );
 
   box-shadow:
     var(--shadow-soft),
-    0 0 25px rgba(0, 229, 255, 0.035);
+    var(--glow-olive-soft);
 }
 
 
@@ -95,6 +93,7 @@
   color: var(--text);
 
   font-size: var(--font-size-sm);
+
   font-weight: var(--font-weight-semibold);
 
   letter-spacing: 0.08em;
@@ -107,10 +106,10 @@
   color: var(--text);
 
   font-size: var(--font-size-xl);
+
   font-weight: var(--font-weight-bold);
 
-  text-shadow:
-    0 0 12px rgba(0, 229, 255, 0.12);
+  text-shadow: var(--text-glow);
 }
 
 
@@ -129,12 +128,15 @@
 
 .status-item {
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
 
   min-height: 36px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom:
+    1px solid var(--border-light);
 
   color: var(--muted);
 
@@ -154,11 +156,15 @@
 }
 
 
+/* =========================================
+   ONLINE STATUS
+   ========================================= */
+
 .online {
-  color: var(--green) !important;
+  color: var(--olive-light) !important;
 
   text-shadow:
-    0 0 10px rgba(0, 255, 174, 0.35);
+    var(--olive-status-glow);
 }
 
 
@@ -178,10 +184,10 @@
 
   border-radius: var(--radius-full);
 
-  background: var(--green);
+  background: var(--olive-light);
 
   box-shadow:
-    0 0 8px var(--green);
+    0 0 8px var(--olive-light);
 }
 
 
@@ -195,12 +201,16 @@
   width: 100%;
   height: 6px;
 
-  margin: var(--spacing-md) 0 var(--spacing-sm);
+  margin:
+    var(--spacing-md)
+    0
+    var(--spacing-sm);
 
   background:
-    rgba(255, 255, 255, 0.06);
+    var(--cream-glass);
 
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border:
+    1px solid var(--border-light);
 
   border-radius: var(--radius-full);
 
@@ -212,20 +222,19 @@
   position: relative;
 
   height: 100%;
-
   width: 50%;
 
   background:
     linear-gradient(
       90deg,
-      var(--blue),
-      var(--cyan)
+      var(--olive-dark),
+      var(--olive)
     );
 
   border-radius: inherit;
 
   box-shadow:
-    0 0 12px rgba(0, 229, 255, 0.45);
+    var(--olive-progress-glow);
 
   transition:
     width var(--transition-slow);
@@ -247,7 +256,7 @@
     linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.45)
+      var(--cream-highlight)
     );
 
   opacity: 0.5;
@@ -266,9 +275,10 @@ select {
   color: var(--text);
 
   background:
-    rgba(255, 255, 255, 0.035);
+    var(--cream-glass);
 
-  border: 1px solid var(--border);
+  border:
+    1px solid var(--border);
 
   border-radius: var(--radius-md);
 
@@ -293,10 +303,16 @@ textarea {
   min-height: 110px;
 
   padding: var(--spacing-md);
+
   height: 6vh;
 
   line-height: 1.6;
 }
+
+
+/* =========================================
+   QUICK NOTES CARDS
+   ========================================= */
 
 .cards {
   position: relative;
@@ -306,8 +322,8 @@ textarea {
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.055),
-      rgba(255, 255, 255, 0.018)
+      var(--cream-glass-strong),
+      var(--cream-glass)
     );
 
   border: 1px solid var(--border);
@@ -316,7 +332,7 @@ textarea {
 
   box-shadow:
     var(--shadow-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    inset 0 1px 0 var(--cream-glass);
 
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -332,7 +348,7 @@ textarea {
 
 
 /* =========================================
-   CARD TOP TECHNICAL LINE
+   CARDS TECHNICAL LINE
    ========================================= */
 
 .cards::before {
@@ -346,51 +362,68 @@ textarea {
   width: 45px;
   height: 1px;
 
-  background: var(--cyan);
+  background: var(--olive);
 
   box-shadow:
-    0 0 10px rgba(0, 229, 255, 0.35);
+    var(--glow-olive);
 
-  opacity: 0.55;
+  opacity: 0.7;
 }
 
 
 /* =========================================
-   CARD HOVER
+   CARDS HOVER
    ========================================= */
 
 .cards:hover {
-  border-color:
-    rgba(0, 229, 255, 0.2);
+  border-color: var(--border-accent);
 
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.07),
-      rgba(255, 255, 255, 0.025)
+      var(--cream-glass-hover),
+      var(--cream-glass)
     );
 
   box-shadow:
     var(--shadow-soft),
-    0 0 25px rgba(0, 229, 255, 0.035);
+    var(--glow-olive-soft);
 }
 
-/* Quick Notes Card Container */
+
+/* =========================================
+   QUICK NOTES CARD
+   ========================================= */
+
 .cards:has(textarea) {
   display: flex;
+
   flex-direction: column;
 }
 
-/* Textarea styling */
+
+/* =========================================
+   TEXTAREA
+   ========================================= */
+
 .cards textarea {
   width: 100%;
-  height: 100%;       /* Tells the textarea to expand completely */
-  min-height: 150px;  /* Safety fallback minimum height */
-  flex: 1;            /* Fills remaining vertical space */
-  resize: none;       /* Prevents manual resize breaking the card frame */
+
+  height: 100%;
+
+  min-height: 150px;
+
+  flex: 1;
+
+  resize: none;
+
   box-sizing: border-box;
 }
 
+
+/* =========================================
+   PLACEHOLDER
+   ========================================= */
 
 input::placeholder,
 textarea::placeholder {
@@ -400,25 +433,33 @@ textarea::placeholder {
 }
 
 
+/* =========================================
+   INPUT HOVER
+   ========================================= */
+
 input:hover,
 textarea:hover,
 select:hover {
-  border-color:
-    rgba(0, 229, 255, 0.2);
+  border-color: var(--border-accent);
 }
 
+
+/* =========================================
+   INPUT FOCUS
+   ========================================= */
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color:
-    rgba(0, 229, 255, 0.5);
+  border-color: var(--olive);
 
   background:
-    rgba(0, 229, 255, 0.025);
+    var(--olive-input-bg);
 
   box-shadow:
-    0 0 20px rgba(0, 229, 255, 0.06);
+    var(--glow-olive-soft);
+
+  outline: none;
 }
 
 
@@ -428,6 +469,7 @@ select:focus {
 
 .command-box {
   display: flex;
+
   align-items: center;
 
   width: 100%;
@@ -435,14 +477,15 @@ select:focus {
   padding: 5px;
 
   background:
-    rgba(5, 8, 22, 0.7);
+    var(--olive-command-bg);
 
-  border: 1px solid var(--border);
+  border:
+    1px solid var(--border);
 
   border-radius: var(--radius-lg);
 
   box-shadow:
-    0 0 25px rgba(0, 0, 0, 0.25);
+    var(--shadow-soft);
 
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
@@ -454,10 +497,10 @@ select:focus {
 
 
 .command-box:focus-within {
-  border-color: none ;
+  border-color: var(--olive);
 
   box-shadow:
-    0 0 25px rgba(0, 229, 255, 0.08);
+    var(--glow-olive-soft);
 }
 
 
@@ -465,6 +508,7 @@ select:focus {
   flex: 1;
 
   min-width: 0;
+
   min-height: 48px;
 
   padding:
@@ -496,7 +540,9 @@ select:focus {
   position: relative;
 
   display: inline-flex;
+
   align-items: center;
+
   justify-content: center;
 
   min-height: 42px;
@@ -510,13 +556,15 @@ select:focus {
   color: var(--text);
 
   background:
-    rgba(0, 229, 255, 0.05);
+    var(--olive-button-bg);
 
-  border: 1px solid rgba(0, 229, 255, 0.15);
+  border:
+    1px solid var(--border-accent);
 
   border-radius: var(--radius-md);
 
   font-size: var(--font-size-xs);
+
   font-weight: var(--font-weight-semibold);
 
   letter-spacing: 0.05em;
@@ -532,13 +580,13 @@ select:focus {
 
 .btn:hover {
   background:
-    rgba(0, 229, 255, 0.1);
+    var(--olive-button-hover);
 
   border-color:
-    rgba(0, 229, 255, 0.35);
+    var(--olive);
 
   box-shadow:
-    var(--glow-cyan);
+    var(--glow-olive-soft);
 
   transform: translateY(-2px);
 }
@@ -554,7 +602,7 @@ select:focus {
    ========================================= */
 
 .btn-primary {
-  color: #00141a;
+  color: var(--bg);
 
   background:
     var(--gradient-primary);
@@ -562,15 +610,15 @@ select:focus {
   border-color: transparent;
 
   box-shadow:
-    0 0 20px rgba(0, 229, 255, 0.15);
+    var(--glow-olive);
 }
 
 
 .btn-primary:hover {
-  color: #00141a;
+  color: var(--cream);
 
   box-shadow:
-    var(--glow-cyan);
+    var(--glow-olive);
 }
 
 
@@ -580,7 +628,9 @@ select:focus {
 
 .icon-btn {
   display: inline-flex;
+
   align-items: center;
+
   justify-content: center;
 
   width: 42px;
@@ -589,9 +639,10 @@ select:focus {
   color: var(--muted);
 
   background:
-    rgba(255, 255, 255, 0.035);
+    var(--cream-glass);
 
-  border: 1px solid var(--border);
+  border:
+    1px solid var(--border);
 
   border-radius: var(--radius-md);
 
@@ -604,16 +655,16 @@ select:focus {
 
 
 .icon-btn:hover {
-  color: var(--cyan);
+  color: var(--cream);
 
   background:
-    rgba(0, 229, 255, 0.06);
+    var(--olive-button-bg);
 
   border-color:
-    rgba(0, 229, 255, 0.3);
+    var(--olive);
 
   box-shadow:
-    var(--glow-cyan);
+    var(--glow-olive-soft);
 }
 
 
@@ -623,7 +674,9 @@ select:focus {
 
 #send-btn {
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
   flex-shrink: 0;
@@ -639,7 +692,7 @@ select:focus {
   border-radius: var(--radius-md);
 
   box-shadow:
-    0 0 15px rgba(0, 229, 255, 0.18);
+    var(--glow-olive);
 
   transition:
     transform var(--transition-normal),
@@ -649,7 +702,7 @@ select:focus {
 
 #send-btn:hover {
   box-shadow:
-    var(--glow-cyan);
+    var(--glow-olive);
 
   transform: translateY(-2px);
 }
@@ -666,6 +719,7 @@ select:focus {
 
 .chat-window {
   display: flex;
+
   flex-direction: column;
 
   gap: var(--spacing-sm);
@@ -675,9 +729,10 @@ select:focus {
   padding: var(--spacing-md);
 
   background:
-    rgba(5, 8, 22, 0.45);
+    var(--olive-chat-bg);
 
-  border: 1px solid var(--border);
+  border:
+    1px solid var(--border);
 
   border-radius: var(--radius-lg);
 
@@ -700,9 +755,10 @@ select:focus {
   color: var(--text-secondary);
 
   background:
-    rgba(255, 255, 255, 0.035);
+    var(--cream-glass);
 
-  border: 1px solid var(--border);
+  border:
+    1px solid var(--border);
 
   border-radius: var(--radius-md);
 
@@ -719,16 +775,16 @@ select:focus {
 .message.orbit {
   align-self: flex-start;
 
-  color: var(--cyan);
+  color: var(--cream);
 
   background:
-    rgba(0, 229, 255, 0.045);
+    var(--olive-message-bg);
 
   border-color:
-    rgba(0, 229, 255, 0.12);
+    var(--border-accent);
 
   box-shadow:
-    inset 2px 0 0 rgba(0, 229, 255, 0.4);
+    inset 2px 0 0 var(--olive);
 }
 
 
@@ -742,13 +798,13 @@ select:focus {
   color: var(--text);
 
   background:
-    rgba(123, 92, 255, 0.06);
+    var(--cream-glass-strong);
 
   border-color:
-    rgba(123, 92, 255, 0.15);
+    var(--cream-border);
 
   box-shadow:
-    inset -2px 0 0 rgba(123, 92, 255, 0.4);
+    inset -2px 0 0 var(--cream);
 }
 
 
@@ -758,6 +814,7 @@ select:focus {
 
 .badge {
   display: inline-flex;
+
   align-items: center;
 
   min-height: 24px;
@@ -766,12 +823,13 @@ select:focus {
     0
     9px;
 
-  color: var(--cyan);
+  color: var(--cream);
 
   background:
-    rgba(0, 229, 255, 0.06);
+    var(--olive-button-bg);
 
-  border: 1px solid rgba(0, 229, 255, 0.15);
+  border:
+    1px solid var(--border-accent);
 
   border-radius: var(--radius-full);
 
@@ -788,13 +846,13 @@ select:focus {
    ========================================= */
 
 .badge-online {
-  color: var(--green);
+  color: var(--olive-light);
 
   background:
-    rgba(0, 255, 174, 0.05);
+    var(--olive-button-bg);
 
   border-color:
-    rgba(0, 255, 174, 0.15);
+    var(--border-accent);
 }
 
 
@@ -802,10 +860,10 @@ select:focus {
   color: var(--danger);
 
   background:
-    rgba(255, 77, 109, 0.05);
+    var(--danger-bg);
 
   border-color:
-    rgba(255, 77, 109, 0.15);
+    var(--danger-border);
 }
 
 
@@ -821,13 +879,16 @@ select:focus {
     border-radius: var(--radius-md);
   }
 
+
   .message {
     max-width: 90%;
   }
 
+
   .command-box {
     border-radius: var(--radius-md);
   }
+
 
   .command-box input {
     min-height: 44px;
@@ -836,6 +897,7 @@ select:focus {
 
     font-size: 0.75rem;
   }
+
 
   #send-btn {
     width: 40px;

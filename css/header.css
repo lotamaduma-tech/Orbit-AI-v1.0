@@ -1,6 +1,8 @@
 /* =========================================
-   ORBIT AI — GLOBAL HEADER
+   ORBIT AI — PROFESSIONAL GLOBAL HEADER
+   DARK OLIVE + CREAM
    ========================================= */
+
 
 /* =========================================
    HEADER FOUNDATION
@@ -8,7 +10,6 @@
 
 .header {
   position: relative;
-
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -21,43 +22,44 @@
   background:
     linear-gradient(
       180deg,
-      rgba(12, 18, 36, 0.72),
-      rgba(5, 8, 22, 0.45)
+      rgba(24, 29, 18, 0.94),
+      rgba(17, 21, 13, 0.88)
     );
 
   border-bottom: 1px solid var(--border);
 
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 
   z-index: var(--z-header);
+
+  transition:
+    background var(--transition-normal),
+    border-color var(--transition-normal);
 }
 
 
 /* =========================================
-   HEADER TECHNICAL LINE
+   SUBTLE OLIVE ACCENT LINE
    ========================================= */
 
 .header::after {
   content: "";
 
   position: absolute;
-
   bottom: -1px;
-  left: 0;
+  left: 50%;
 
-  width: 100%;
+  width: 120px;
   height: 1px;
 
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(0, 229, 255, 0.35),
-      transparent
-    );
+  transform: translateX(-50%);
 
-  opacity: 0.7;
+  background: var(--olive);
+
+  box-shadow: var(--glow-olive-soft);
+
+  opacity: 0.75;
 
   pointer-events: none;
 }
@@ -82,35 +84,42 @@
 .date {
   position: relative;
 
+  display: flex;
+  align-items: center;
+
   color: var(--muted);
 
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
 
-  letter-spacing: 0.12em;
-
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 
   white-space: nowrap;
 }
 
 
+/* =========================================
+   DATE STATUS DOT
+   ========================================= */
+
 .date::before {
   content: "";
-
-  display: inline-block;
 
   width: 6px;
   height: 6px;
 
-  margin-right: 8px;
+  margin-right: 9px;
 
   border-radius: var(--radius-full);
 
-  background: var(--cyan);
+  background: var(--olive);
 
   box-shadow:
-    0 0 8px var(--cyan);
+    0 0 0 3px rgba(85, 107, 47, 0.08),
+    0 0 10px rgba(85, 107, 47, 0.35);
+
+  flex-shrink: 0;
 }
 
 
@@ -119,6 +128,8 @@
    ========================================= */
 
 .header-center {
+  position: relative;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,22 +141,49 @@
    ========================================= */
 
 .time {
-  color: var(--text);
+  color: var(--cream);
+
+  font-family: var(--font-body);
 
   font-size: clamp(
-    1.25rem,
+    1.15rem,
     2vw,
-    1.8rem
+    1.55rem
   );
 
   font-weight: var(--font-weight-semibold);
 
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
 
   line-height: 1;
 
   text-shadow:
-    0 0 15px rgba(0, 229, 255, 0.18);
+    0 0 14px rgba(255, 253, 208, 0.08);
+}
+
+
+/* =========================================
+   SMALL OLIVE TIME ACCENT
+   ========================================= */
+
+.header-center::before {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: -12px;
+
+  width: 28px;
+  height: 2px;
+
+  transform: translateX(-50%);
+
+  background: var(--olive);
+
+  border-radius: var(--radius-full);
+
+  opacity: 0.75;
 }
 
 
@@ -155,8 +193,8 @@
 
 .header-right {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: flex-end;
 
   min-width: 0;
 }
@@ -175,51 +213,58 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
 
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
 
   white-space: nowrap;
 }
 
 
+/* =========================================
+   GREETING OLIVE ACCENT
+   ========================================= */
+
 .greeting::before {
-  content: "//";
+  content: "";
 
-  margin-right: 8px;
+  width: 7px;
+  height: 7px;
 
-  color: var(--cyan);
+  margin-right: 9px;
+
+  border-radius: var(--radius-full);
+
+  background: var(--olive);
+
+  box-shadow:
+    0 0 0 3px rgba(85, 107, 47, 0.08),
+    0 0 9px rgba(85, 107, 47, 0.35);
+}
+
+
+/* =========================================
+   OPTIONAL HEADER DIVIDER
+   ========================================= */
+
+.header-left::after {
+  content: "";
+
+  width: 1px;
+  height: 22px;
+
+  margin-left: 18px;
+
+  background: var(--border-light);
 
   opacity: 0.7;
 }
 
 
 /* =========================================
-   HEADER HOVER / ACTIVE LIGHT
+   HEADER HOVER
    ========================================= */
 
-.header-center::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  left: 50%;
-
-  width: 180px;
-  height: 1px;
-
-  transform: translateX(-50%);
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      var(--cyan),
-      transparent
-    );
-
-  opacity: 0.35;
-
-  pointer-events: none;
+.header:hover {
+  border-bottom-color: var(--border-accent);
 }
 
 
@@ -248,6 +293,10 @@
   .time {
     font-size: 1.2rem;
   }
+
+  .header-left::after {
+    margin-left: 14px;
+  }
 }
 
 
@@ -267,9 +316,15 @@
       var(--spacing-md);
   }
 
+
+  /* LEFT */
+
   .header-left {
     order: 1;
   }
+
+
+  /* CENTER */
 
   .header-center {
     order: 2;
@@ -277,26 +332,81 @@
     justify-content: flex-end;
   }
 
+
+  /* HIDE GREETING */
+
   .header-right {
     display: none;
   }
 
+
+  /* DATE */
+
   .date {
     font-size: 0.58rem;
 
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
   }
 
   .date::before {
     width: 5px;
     height: 5px;
 
-    margin-right: 5px;
+    margin-right: 6px;
   }
+
+
+  /* DIVIDER */
+
+  .header-left::after {
+    display: none;
+  }
+
+
+  /* TIME */
 
   .time {
     font-size: 1rem;
 
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
+  }
+
+
+  /* TIME ACCENT */
+
+  .header-center::before {
+    bottom: -9px;
+
+    width: 20px;
+    height: 1px;
+  }
+
+
+  /* HEADER ACCENT */
+
+  .header::after {
+    width: 70px;
+  }
+}
+
+
+/* =========================================
+   VERY SMALL SCREENS
+   ========================================= */
+
+@media (max-width: 380px) {
+
+  .header {
+    padding:
+      0
+      12px;
+  }
+
+  .date {
+    font-size: 0.52rem;
+  }
+
+  .time {
+    font-size: 0.9rem;
   }
 }

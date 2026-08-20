@@ -1,6 +1,8 @@
 /* =========================================
    ORBIT AI — DASHBOARD
+   PROFESSIONAL OLIVE + CREAM
    ========================================= */
+
 
 /* =========================================
    MAIN DASHBOARD GRID
@@ -17,9 +19,7 @@
   gap: var(--spacing-lg);
 
   width: 100%;
-
   flex: 1;
-
   min-height: 0;
 
   padding: var(--spacing-lg);
@@ -73,10 +73,12 @@
 
 
 /* =========================================
-   CENTER PANEL
+   CENTER AI WORKSPACE
    ========================================= */
 
 .center-panel {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -86,6 +88,83 @@
   gap: var(--spacing-md);
 
   overflow: hidden;
+
+  padding:
+    var(--spacing-sm)
+    var(--spacing-md);
+}
+
+
+/* =========================================
+   CENTER WORKSPACE AMBIENT LIGHT
+   ========================================= */
+
+.center-panel::before {
+  content: "";
+
+  position: absolute;
+
+  top: 8%;
+  left: 50%;
+
+  width: 420px;
+  height: 300px;
+
+  transform: translateX(-50%);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(85, 107, 47, 0.10),
+      transparent 68%
+    );
+
+  filter: blur(30px);
+
+  pointer-events: none;
+
+  z-index: 0;
+}
+
+
+/* =========================================
+   CENTER CONTENT ABOVE AMBIENCE
+   ========================================= */
+
+.center-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* =========================================
+   AI TITLE AREA
+   ========================================= */
+
+.center-panel::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  width: 80px;
+  height: 2px;
+
+  transform: translateX(-50%);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      var(--olive-light),
+      transparent
+    );
+
+  opacity: 0.75;
+
+  pointer-events: none;
 }
 
 
@@ -121,13 +200,36 @@
 }
 
 
+/* =========================================
+   QUICK NOTES TEXTAREA
+   ========================================= */
+
 .left-panel textarea {
   flex: 1;
 
   min-height: 100px;
 
   background:
-    rgba(5, 8, 22, 0.45);
+    rgba(15, 20, 10, 0.55);
+
+  border-color:
+    rgba(85, 107, 47, 0.20);
+}
+
+
+/* =========================================
+   QUICK NOTES FOCUS
+   ========================================= */
+
+.left-panel textarea:focus {
+  border-color: var(--olive-light);
+
+  background:
+    rgba(20, 27, 13, 0.75);
+
+  box-shadow:
+    0 0 0 2px rgba(85, 107, 47, 0.08),
+    0 0 18px rgba(85, 107, 47, 0.14);
 }
 
 
@@ -140,6 +242,10 @@
 }
 
 
+/* =========================================
+   WEATHER CARD
+   ========================================= */
+
 .right-panel .card:nth-child(2) {
   text-align: left;
 }
@@ -148,25 +254,74 @@
 .right-panel .card:nth-child(2) h2 {
   margin-bottom: 4px;
 
-  color: var(--cyan);
+  color: var(--cream);
 
-  font-size: clamp(
-    1.6rem,
-    3vw,
-    2.3rem
-  );
+  font-size:
+    clamp(
+      1.6rem,
+      3vw,
+      2.3rem
+    );
 
   text-shadow:
-    0 0 18px rgba(0, 229, 255, 0.25);
+    0 0 18px
+    var(--olive-glow-color);
+}
+
+
+.right-panel .card:nth-child(2) p {
+  color: var(--olive-light);
 }
 
 
 /* =========================================
-   WEATHER STATUS
+   WEATHER ICON
    ========================================= */
 
-.right-panel .card:nth-child(2) p {
-  color: var(--green);
+.weather-card i {
+  color: var(--olive-light);
+
+  text-shadow:
+    0 0 12px
+    rgba(85, 107, 47, 0.35);
+
+  transition:
+    color var(--transition-normal),
+    transform var(--transition-normal),
+    text-shadow var(--transition-normal);
+}
+
+
+.weather-card:hover i {
+  color: var(--cream);
+
+  transform: translateY(-2px);
+
+  text-shadow:
+    0 0 16px
+    rgba(85, 107, 47, 0.55);
+}
+
+
+/* =========================================
+   ASSISTANT STATUS
+   ========================================= */
+
+.right-panel .card:first-child p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding:
+    9px 0;
+
+  border-bottom:
+    1px solid var(--border-light);
+}
+
+
+.right-panel .card:first-child p:last-child {
+  border-bottom: 0;
 }
 
 
@@ -216,14 +371,40 @@
 .left-panel::-webkit-scrollbar-thumb,
 .right-panel::-webkit-scrollbar-thumb {
   background:
-    rgba(0, 229, 255, 0.15);
+    var(--olive-scrollbar);
 
-  border-radius: var(--radius-full);
+  border-radius:
+    var(--radius-full);
+
+  transition:
+    background var(--transition-normal);
+}
+
+
+.left-panel::-webkit-scrollbar-thumb:hover,
+.right-panel::-webkit-scrollbar-thumb:hover {
+  background:
+    var(--olive-light);
 }
 
 
 /* =========================================
-   DESKTOP LARGE
+   CENTER WORKSPACE — DESKTOP
+   ========================================= */
+
+@media (min-width: 1001px) {
+
+  .center-panel {
+    padding:
+      var(--spacing-md)
+      var(--spacing-lg);
+  }
+
+}
+
+
+/* =========================================
+   LARGE DESKTOP
    ========================================= */
 
 @media (min-width: 1400px) {
@@ -277,6 +458,7 @@
     gap: var(--spacing-sm);
   }
 
+
   .card {
     padding: var(--spacing-md);
   }
@@ -292,6 +474,7 @@
 
   .main-grid {
     display: flex;
+
     flex-direction: column;
 
     gap: var(--spacing-md);
@@ -300,6 +483,7 @@
 
     overflow-y: auto;
   }
+
 
   .left-panel,
   .center-panel,
@@ -310,20 +494,32 @@
   }
 
 
-  /* AI CORE COMES FIRST */
+  /* ===============================
+     CHAT COMES FIRST
+     =============================== */
 
   .center-panel {
     order: 1;
+
+    padding:
+      var(--spacing-sm)
+      0;
   }
+
 
   .left-panel {
     order: 2;
   }
 
+
   .right-panel {
     order: 3;
   }
 
+
+  /* ===============================
+     MOBILE SIDE CARDS
+     =============================== */
 
   .left-panel,
   .right-panel {
@@ -338,6 +534,18 @@
 
   .left-panel .card:last-child {
     min-height: 180px;
+  }
+
+
+  /* ===============================
+     CENTER AMBIENCE
+     =============================== */
+
+  .center-panel::before {
+    width: 300px;
+    height: 220px;
+
+    opacity: 0.7;
   }
 
 }
@@ -357,6 +565,7 @@
   .left-panel,
   .right-panel {
     display: flex;
+
     flex-direction: column;
 
     gap: var(--spacing-sm);
@@ -365,6 +574,13 @@
 
   .left-panel .card:last-child {
     min-height: 160px;
+  }
+
+
+  .center-panel {
+    gap: var(--spacing-sm);
+
+    padding: 0;
   }
 
 }
@@ -381,6 +597,7 @@
 
     padding: 8px;
   }
+
 
   .card {
     padding: 12px;

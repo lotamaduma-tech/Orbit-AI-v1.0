@@ -1,181 +1,7 @@
 /* =========================================
    ORBIT AI — GLOBAL ANIMATIONS
+   SUBTLE OLIVE + CREAM
    ========================================= */
-
-
-/* =========================================
-   CORE BREATHING
-   ========================================= */
-
-@keyframes core-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.9;
-  }
-
-  50% {
-    transform: scale(1.04);
-    opacity: 1;
-  }
-}
-
-@keyframes core-ring-breathe {
-
-  0%,
-  100% {
-    transform: scale(0.96);
-    opacity: 0.4;
-  }
-
-  50% {
-    transform: scale(1.04);
-    opacity: 1;
-  }
-}
-
-/* =========================================
-   OUTER FIELD
-   ========================================= */
-
-@keyframes outer-field {
-  0% {
-    transform:
-      translate(-50%, -50%)
-      scale(1)
-      rotate(0deg);
-
-    opacity: 0.55;
-  }
-
-  50% {
-    transform:
-      translate(-50%, -50%)
-      scale(1.025)
-      rotate(180deg);
-
-    opacity: 0.75;
-  }
-
-  100% {
-    transform:
-      translate(-50%, -50%)
-      scale(1)
-      rotate(360deg);
-
-    opacity: 0.55;
-  }
-}
-
-
-/* =========================================
-   CLOCKWISE ORBIT
-   ========================================= */
-
-@keyframes orbit-clockwise {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-/* =========================================
-   COUNTER-CLOCKWISE ORBIT
-   ========================================= */
-
-@keyframes orbit-counter {
-  from {
-    transform: rotate(360deg);
-  }
-
-  to {
-    transform: rotate(0deg);
-  }
-}
-
-
-/* =========================================
-   CORE RING
-   ========================================= */
-
-@keyframes core-ring-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-/* =========================================
-   SCANNER
-   ========================================= */
-
-@keyframes scanner-spin {
-  from {
-    transform:
-      translateX(-50%)
-      rotate(0deg);
-  }
-
-  to {
-    transform:
-      translateX(-50%)
-      rotate(360deg);
-  }
-}
-
-
-/* =========================================
-   VOICE VISUALIZER
-   ========================================= */
-
-@keyframes voice-wave {
-  0%,
-  100% {
-    height: 7px;
-
-    opacity: 0.45;
-  }
-
-  50% {
-    height: 25px;
-
-    opacity: 1;
-  }
-}
-
-
-/* =========================================
-   GLOW PULSE
-   ========================================= */
-
-@keyframes glow-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-
-    filter:
-      drop-shadow(
-        0 0 5px rgba(0, 229, 255, 0.2)
-      );
-  }
-
-  50% {
-    opacity: 1;
-
-    filter:
-      drop-shadow(
-        0 0 15px rgba(0, 229, 255, 0.55)
-      );
-  }
-}
 
 
 /* =========================================
@@ -183,35 +9,36 @@
    ========================================= */
 
 @keyframes status-pulse {
+
   0%,
   100% {
     opacity: 0.5;
-
     transform: scale(0.9);
   }
 
   50% {
     opacity: 1;
-
     transform: scale(1);
   }
+
 }
 
 
 /* =========================================
-   SCAN LINE
+   OLIVE GLOW
    ========================================= */
 
-@keyframes scan-line {
-  0% {
-    transform:
-      translateY(-100%);
+@keyframes olive-glow {
+
+  0%,
+  100% {
+    box-shadow: var(--glow-olive-soft);
   }
 
-  100% {
-    transform:
-      translateY(100%);
+  50% {
+    box-shadow: var(--glow-olive);
   }
+
 }
 
 
@@ -220,19 +47,17 @@
    ========================================= */
 
 @keyframes fade-in {
+
   from {
     opacity: 0;
-
-    transform:
-      translateY(8px);
+    transform: translateY(8px);
   }
 
   to {
     opacity: 1;
-
-    transform:
-      translateY(0);
+    transform: translateY(0);
   }
+
 }
 
 
@@ -241,19 +66,17 @@
    ========================================= */
 
 @keyframes fade-in-left {
+
   from {
     opacity: 0;
-
-    transform:
-      translateX(-15px);
+    transform: translateX(-15px);
   }
 
   to {
     opacity: 1;
-
-    transform:
-      translateX(0);
+    transform: translateX(0);
   }
+
 }
 
 
@@ -262,19 +85,17 @@
    ========================================= */
 
 @keyframes fade-in-right {
+
   from {
     opacity: 0;
-
-    transform:
-      translateX(15px);
+    transform: translateX(15px);
   }
 
   to {
     opacity: 1;
-
-    transform:
-      translateX(0);
+    transform: translateX(0);
   }
+
 }
 
 
@@ -283,19 +104,17 @@
    ========================================= */
 
 @keyframes scale-in {
+
   from {
     opacity: 0;
-
-    transform:
-      scale(0.94);
+    transform: scale(0.94);
   }
 
   to {
     opacity: 1;
-
-    transform:
-      scale(1);
+    transform: scale(1);
   }
+
 }
 
 
@@ -304,37 +123,17 @@
    ========================================= */
 
 @keyframes slide-up {
+
   from {
     opacity: 0;
-
-    transform:
-      translateY(20px);
+    transform: translateY(20px);
   }
 
   to {
     opacity: 1;
-
-    transform:
-      translateY(0);
-  }
-}
-
-
-/* =========================================
-   CYAN GLOW
-   ========================================= */
-
-@keyframes cyan-glow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 10px rgba(0, 229, 255, 0.1);
+    transform: translateY(0);
   }
 
-  50% {
-    box-shadow:
-      0 0 25px rgba(0, 229, 255, 0.25);
-  }
 }
 
 
@@ -343,6 +142,7 @@
    ========================================= */
 
 @keyframes data-flicker {
+
   0%,
   100% {
     opacity: 1;
@@ -359,16 +159,20 @@
   98% {
     opacity: 1;
   }
+
 }
 
 
 /* =========================================
-   NAV ACTIVE PULSE
+   NAV ACTIVE ACCENT
    ========================================= */
 
 .nav-menu a.active i {
   animation:
-    glow-pulse 3s ease-in-out infinite;
+    olive-glow
+    3s
+    ease-in-out
+    infinite;
 }
 
 
@@ -378,19 +182,10 @@
 
 .online::before {
   animation:
-    status-pulse 2s ease-in-out infinite;
-}
-
-
-/* =========================================
-   AI CORE STARTUP
-   ========================================= */
-
-.ai-core {
-  animation:
-    scale-in 0.9s
-    cubic-bezier(0.22, 0.61, 0.36, 1)
-    both;
+    status-pulse
+    2s
+    ease-in-out
+    infinite;
 }
 
 
@@ -400,7 +195,8 @@
 
 .left-panel {
   animation:
-    fade-in-left 0.7s
+    fade-in-left
+    0.7s
     ease
     0.15s
     both;
@@ -409,7 +205,8 @@
 
 .center-panel {
   animation:
-    fade-in 0.8s
+    fade-in
+    0.8s
     ease
     0.1s
     both;
@@ -418,7 +215,8 @@
 
 .right-panel {
   animation:
-    fade-in-right 0.7s
+    fade-in-right
+    0.7s
     ease
     0.2s
     both;
@@ -431,7 +229,8 @@
 
 .message {
   animation:
-    fade-in 0.35s
+    fade-in
+    0.35s
     ease
     both;
 }
@@ -443,25 +242,37 @@
 
 .animate-fade {
   animation:
-    fade-in 0.5s ease both;
+    fade-in
+    0.5s
+    ease
+    both;
 }
 
 
 .animate-scale {
   animation:
-    scale-in 0.5s ease both;
+    scale-in
+    0.5s
+    ease
+    both;
 }
 
 
 .animate-slide-up {
   animation:
-    slide-up 0.5s ease both;
+    slide-up
+    0.5s
+    ease
+    both;
 }
 
 
 .animate-glow {
   animation:
-    cyan-glow 2.5s ease-in-out infinite;
+    olive-glow
+    2.5s
+    ease-in-out
+    infinite;
 }
 
 
@@ -471,37 +282,61 @@
 
 .left-panel .card:nth-child(1) {
   animation:
-    fade-in-left 0.6s ease 0.2s both;
+    fade-in-left
+    0.6s
+    ease
+    0.2s
+    both;
 }
 
 
 .left-panel .card:nth-child(2) {
   animation:
-    fade-in-left 0.6s ease 0.3s both;
+    fade-in-left
+    0.6s
+    ease
+    0.3s
+    both;
 }
 
 
 .left-panel .card:nth-child(3) {
   animation:
-    fade-in-left 0.6s ease 0.4s both;
+    fade-in-left
+    0.6s
+    ease
+    0.4s
+    both;
 }
 
 
 .right-panel .card:nth-child(1) {
   animation:
-    fade-in-right 0.6s ease 0.2s both;
+    fade-in-right
+    0.6s
+    ease
+    0.2s
+    both;
 }
 
 
 .right-panel .card:nth-child(2) {
   animation:
-    fade-in-right 0.6s ease 0.3s both;
+    fade-in-right
+    0.6s
+    ease
+    0.3s
+    both;
 }
 
 
 .right-panel .card:nth-child(3) {
   animation:
-    fade-in-right 0.6s ease 0.4s both;
+    fade-in-right
+    0.6s
+    ease
+    0.4s
+    both;
 }
 
 
@@ -515,9 +350,7 @@
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
-
     animation-iteration-count: 1 !important;
-
     transition-duration: 0.01ms !important;
   }
 

@@ -9,7 +9,6 @@
 
 .sidebar {
   position: fixed;
-
   top: 0;
   left: 0;
 
@@ -26,8 +25,8 @@
   background:
     linear-gradient(
       180deg,
-      rgba(12, 18, 36, 0.96),
-      rgba(5, 8, 22, 0.98)
+      var(--bg2),
+      var(--bg)
     );
 
   border-right:
@@ -37,23 +36,17 @@
   -webkit-backdrop-filter: blur(20px);
 
   box-shadow:
-    10px 0 40px rgba(0, 0, 0, 0.25);
+    var(--shadow-soft);
 
   z-index: var(--z-sidebar);
-
   overflow: hidden;
 
-  /*
-   * Sidebar default font
-   * Used by elements that do not
-   * have their own typography role.
-   */
   font-family: var(--font-body);
 }
 
 
 /* =========================================
-   SIDEBAR AMBIENT GLOW
+   SIDEBAR AMBIENT OLIVE GLOW
    ========================================= */
 
 .sidebar::before {
@@ -70,7 +63,7 @@
   background:
     radial-gradient(
       circle,
-      rgba(0, 229, 255, 0.09),
+      var(--olive-glow-color),
       transparent 70%
     );
 
@@ -79,7 +72,7 @@
 
 
 /* =========================================
-   SIDEBAR TECHNICAL LINE
+   SIDEBAR ACCENT LINE
    ========================================= */
 
 .sidebar::after {
@@ -97,11 +90,11 @@
     linear-gradient(
       to bottom,
       transparent,
-      rgba(0, 229, 255, 0.4),
+      var(--olive),
       transparent
     );
 
-  opacity: 0.5;
+  opacity: 0.35;
 
   pointer-events: none;
 }
@@ -115,7 +108,6 @@
   position: relative;
 
   padding: var(--spacing-md);
-
   margin-bottom: var(--spacing-xl);
 
   border:
@@ -124,13 +116,21 @@
   border-radius: var(--radius-md);
 
   background:
-    rgba(255, 255, 255, 0.025);
+    var(--cream-glass);
 
   box-shadow:
-    inset 0 0 20px
-    rgba(0, 229, 255, 0.025);
+    inset 0 0 20px var(--cream-glass);
+
+  transition:
+    border-color var(--transition-normal),
+    background var(--transition-normal),
+    box-shadow var(--transition-normal);
 }
 
+
+/* =========================================
+   LOGO ACCENT
+   ========================================= */
 
 .logo::before {
   content: "";
@@ -143,41 +143,37 @@
   width: 35px;
   height: 1px;
 
-  background: var(--cyan);
+  background: var(--olive);
 
-  box-shadow: var(--shadow);
+  box-shadow:
+    var(--glow-olive);
 }
 
 
 /* =========================================
    LOGO TITLE
-   Orbitron
    ========================================= */
 
 .logo h1 {
   position: relative;
 
-  color: var(--text);
+  color: var(--cream);
 
   font-family: var(--font-display);
 
   font-size: var(--font-size-xl);
-
   font-weight: var(--font-weight-bold);
 
   letter-spacing: 0.12em;
-
   line-height: 1.2;
 
   text-shadow:
-    0 0 12px
-    rgba(0, 229, 255, 0.25);
+    var(--text-glow);
 }
 
 
 /* =========================================
    LOGO VERSION
-   Rajdhani
    ========================================= */
 
 .logo span {
@@ -190,7 +186,6 @@
   font-family: var(--font-tech);
 
   font-size: var(--font-size-xs);
-
   font-weight: var(--font-weight-medium);
 
   letter-spacing: 0.15em;
@@ -221,7 +216,6 @@
 
 /* =========================================
    NAVIGATION LINKS
-   Space Grotesk
    ========================================= */
 
 .nav-menu a {
@@ -247,7 +241,6 @@
   font-family: var(--font-secondary);
 
   font-size: var(--font-size-sm);
-
   font-weight: var(--font-weight-medium);
 
   letter-spacing: 0.05em;
@@ -264,7 +257,7 @@
 
 
 /* =========================================
-   NAVIGATION SCAN LINE
+   SUBTLE NAV HOVER EFFECT
    ========================================= */
 
 .nav-menu a::before {
@@ -282,7 +275,7 @@
     linear-gradient(
       90deg,
       transparent,
-      rgba(0, 229, 255, 0.06),
+      var(--olive-button-bg),
       transparent
     );
 
@@ -301,7 +294,6 @@
 
 /* =========================================
    NAVIGATION ICON
-   Font Awesome
    ========================================= */
 
 .nav-menu a i {
@@ -319,33 +311,34 @@
     color var(--transition-normal),
     text-shadow var(--transition-normal);
 }
+
+
 /* =========================================
    NAVIGATION HOVER
    ========================================= */
 
 .nav-menu a:hover {
-  color: var(--text);
+  color: var(--cream);
 
   background:
-    rgba(0, 229, 255, 0.04);
+    var(--olive-button-bg);
 
   border-color:
-    rgba(0, 229, 255, 0.12);
+    var(--border-accent);
 
-  transform: translateX(3px);
+  transform:
+    translateX(3px);
 
   box-shadow:
-    inset 3px 0 0
-    rgba(0, 229, 255, 0.25);
+    inset 3px 0 0 var(--olive);
 }
 
 
 .nav-menu a:hover i {
-  color: var(--cyan);
+  color: var(--olive-light);
 
   text-shadow:
-    0 0 10px
-    rgba(0, 229, 255, 0.5);
+    var(--olive-status-glow);
 }
 
 
@@ -354,31 +347,29 @@
    ========================================= */
 
 .nav-menu a.active {
-  color: var(--text);
+  color: var(--cream);
 
   background:
     linear-gradient(
       90deg,
-      rgba(0, 229, 255, 0.1),
-      rgba(0, 229, 255, 0.025)
+      var(--olive-button-bg),
+      var(--cream-glass)
     );
 
   border-color:
-    rgba(0, 229, 255, 0.2);
+    var(--border-accent);
 
   box-shadow:
-    inset 3px 0 0 var(--cyan),
-    0 0 20px
-    rgba(0, 229, 255, 0.04);
+    inset 3px 0 0 var(--olive),
+    var(--glow-olive-soft);
 }
 
 
 .nav-menu a.active i {
-  color: var(--cyan);
+  color: var(--olive-light);
 
   text-shadow:
-    0 0 12px
-    rgba(0, 229, 255, 0.65);
+    var(--olive-status-glow);
 }
 
 
@@ -398,12 +389,10 @@
 
   border-radius: var(--radius-full);
 
-  background: var(--cyan);
+  background: var(--olive-light);
 
   box-shadow:
-    0 0 8px var(--cyan),
-    0 0 16px
-    rgba(0, 229, 255, 0.5);
+    var(--olive-status-glow);
 }
 
 
@@ -425,7 +414,6 @@
 
 /* =========================================
    POWER BUTTON
-   Inter
    ========================================= */
 
 .power-btn {
@@ -441,11 +429,10 @@
   color: var(--danger);
 
   background:
-    rgba(255, 77, 109, 0.04);
+    var(--danger-bg);
 
   border:
-    1px solid
-    rgba(255, 77, 109, 0.15);
+    1px solid var(--danger-border);
 
   border-radius: var(--radius-md);
 
@@ -461,19 +448,19 @@
 
 
 .power-btn:hover {
-  color: var(--text);
+  color: var(--cream);
 
   background:
-    rgba(255, 77, 109, 0.1);
+    var(--danger-bg);
 
   border-color:
-    rgba(255, 77, 109, 0.4);
+    var(--danger);
 
   box-shadow:
-    0 0 20px
-    rgba(255, 77, 109, 0.15);
+    var(--shadow-soft);
 
-  transform: translateY(-2px);
+  transform:
+    translateY(-2px);
 }
 
 
@@ -493,9 +480,10 @@
 
 .nav-menu::-webkit-scrollbar-thumb {
   background:
-    rgba(0, 229, 255, 0.2);
+    var(--olive-scrollbar);
 
-  border-radius: var(--radius-full);
+  border-radius:
+    var(--radius-full);
 }
 
 
@@ -560,7 +548,6 @@
   .sidebar-footer {
     justify-content: center;
   }
-
 }
 
 
@@ -589,7 +576,7 @@
       1px solid var(--border);
 
     background:
-      rgba(5, 8, 22, 0.96);
+      var(--bg2);
 
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -606,7 +593,6 @@
 
   .nav-menu {
     display: flex;
-
     flex-direction: row;
 
     width: 100%;
@@ -633,14 +619,12 @@
 
   .nav-menu a.active {
     box-shadow:
-      inset 0 2px 0 var(--cyan),
-      0 0 15px
-      rgba(0, 229, 255, 0.04);
+      inset 0 2px 0 var(--olive),
+      var(--glow-olive-soft);
   }
 
 
   .nav-menu a.active::after {
     display: none;
   }
-
 }
