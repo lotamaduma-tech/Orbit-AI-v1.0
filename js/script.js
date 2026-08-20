@@ -1,11 +1,6 @@
 /* ===========================================================
    ORBIT AI — DASHBOARD SCRIPT
-
-   Clock + Greeting + AI Chat + Session Conversation Memory
-
-   IMPORTANT:
-   - Conversation disappears when the page is refreshed.
-   - Conversation remains available while the page is open.
+   Clock + Greeting + AI Chat + Conversation Memory
 =========================================================== */
 
 "use strict";
@@ -15,39 +10,25 @@
    LIVE CLOCK
 =========================================================== */
 
-const timeEl =
-    document.getElementById("time");
-
-const dateEl =
-    document.getElementById("date");
-
-const greetingEl =
-    document.getElementById("greeting");
+const timeEl = document.getElementById("time");
+const dateEl = document.getElementById("date");
+const greetingEl = document.getElementById("greeting");
 
 
 function updateClock() {
 
     const now = new Date();
 
-    const hours =
-        now.getHours();
+    const hours = now.getHours();
 
     const minutes =
-        String(
-            now.getMinutes()
-        ).padStart(2, "0");
+        String(now.getMinutes()).padStart(2, "0");
 
     const seconds =
-        String(
-            now.getSeconds()
-        ).padStart(2, "0");
-
+        String(now.getSeconds()).padStart(2, "0");
 
     const period =
-        hours >= 12
-            ? "PM"
-            : "AM";
-
+        hours >= 12 ? "PM" : "AM";
 
     const displayHour =
         hours % 12 || 12;
@@ -58,7 +39,7 @@ function updateClock() {
     if (timeEl) {
 
         timeEl.textContent =
-            `${ displayHour }:${ minutes }:${ seconds } ${ period } `;
+            `${displayHour}:${minutes}:${seconds} ${period}`;
 
     }
 
@@ -85,34 +66,22 @@ function updateClock() {
 
     if (greetingEl) {
 
-        let greeting =
-            "Good Evening";
+        let greeting = "Good Evening";
 
 
-        if (
-            hours >= 5 &&
-            hours < 12
-        ) {
+        if (hours >= 5 && hours < 12) {
 
-            greeting =
-                "Good Morning";
+            greeting = "Good Morning";
 
-        }
+        } else if (hours >= 12 && hours < 17) {
 
-
-        else if (
-            hours >= 12 &&
-            hours < 17
-        ) {
-
-            greeting =
-                "Good Afternoon";
+            greeting = "Good Afternoon";
 
         }
 
 
         greetingEl.textContent =
-            `${ greeting }, Kingsley`;
+            `${greeting}, Kingsley`;
 
     }
 
@@ -121,7 +90,6 @@ function updateClock() {
 
 updateClock();
 
-
 setInterval(
     updateClock,
     1000
@@ -129,118 +97,68 @@ setInterval(
 
 
 /* ===========================================================
-   ORBIT AI CHAT ELEMENTS
+   ORBIT AI CHAT
 =========================================================== */
 
 const chatWindow =
-    document.getElementById(
-        "chat-window"
-    );
-
+    document.getElementById("chat-window");
 
 const commandInput =
-    document.getElementById(
-        "command-input"
-    );
-
+    document.getElementById("command-input");
 
 const sendButton =
-    document.getElementById(
-        "send-btn"
-    );
+    document.getElementById("send-btn");
 
 
 /* ===========================================================
-   SESSION CONVERSATION MEMORY
+   CONVERSATION MEMORY
 =========================================================== */
 
-/*
-    IMPORTANT:
-
-    We are NOT using localStorage here.
-
-    That means:
-
-    Refresh page
-        ↓
-    conversationHistory resets
-        ↓
-    Previous messages disappear.
-
-    While the page remains open,
-    Orbit can still use the conversation history.
-*/
+const MEMORY_KEY =
+    "orbit-conversation";
 
 let conversationHistory = [];
 
 
 /* ===========================================================
-   PERSONAL MEMORY
+   LOAD CONVERSATION
 =========================================================== */
 
-/*
-    Personal memory is separate from conversation memory.
-
-    This can later be used for things like:
-
-    name
-    preferences
-    favorite things
-    etc.
-
-    It is currently empty until we intentionally
-    teach Orbit how to save personal information.
-*/
-
-const PERSONAL_MEMORY_KEY =
-    "orbit-personal-memory";
-
-
-let personalMemory = {};
-
-
-/* ===========================================================
-   LOAD PERSONAL MEMORY
-=========================================================== */
-
-function loadPersonalMemory() {
+function loadConversation() {
 
     try {
 
-        const saved =
+        const savedConversation =
             localStorage.getItem(
-                PERSONAL_MEMORY_KEY
+                MEMORY_KEY
             );
 
 
-        if (saved) {
+        if (savedConversation) {
 
             const parsed =
-                JSON.parse(saved);
+                JSON.parse(
+                    savedConversation
+                );
 
 
-            if (
-                parsed &&
-                typeof parsed === "object"
-            ) {
+            if (Array.isArray(parsed)) {
 
-                personalMemory =
+                conversationHistory =
                     parsed;
 
             }
 
         }
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Orbit personal memory could not be loaded:",
+            "Orbit memory could not be loaded:",
             error
         );
 
-        personalMemory = {};
+        conversationHistory = [];
 
     }
 
@@ -248,26 +166,24 @@ function loadPersonalMemory() {
 
 
 /* ===========================================================
-   SAVE PERSONAL MEMORY
+   SAVE CONVERSATION
 =========================================================== */
 
-function savePersonalMemory() {
+function saveConversation() {
 
     try {
 
         localStorage.setItem(
-            PERSONAL_MEMORY_KEY,
+            MEMORY_KEY,
             JSON.stringify(
-                personalMemory
+                conversationHistory
             )
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Orbit personal memory could not be saved:",
+            "Orbit memory could not be saved:",
             error
         );
 
@@ -277,65 +193,13 @@ function savePersonalMemory() {
 
 
 /* ===========================================================
-   REMEMBER PERSONAL FACT
-=========================================================== */
-
-function rememberPersonalFact(
-    key,
-    value
-) {
-
-    if (
-        !key ||
-        !value
-    ) {
-
-        return;
-
-    }
-
-
-    personalMemory[key] =
-        value;
-
-
-    savePersonalMemory();
-
-}
-
-
-/* ===========================================================
-   GET PERSONAL FACT
-=========================================================== */
-
-function getPersonalFact(key) {
-
-    return (
-        personalMemory[key] ||
-        null
-    );
-
-}
-
-
-/* ===========================================================
-   REMEMBER CONVERSATION MESSAGE
+   ADD TO CONVERSATION HISTORY
 =========================================================== */
 
 function rememberMessage(
     role,
     content
 ) {
-
-    if (
-        !role ||
-        !content
-    ) {
-
-        return;
-
-    }
-
 
     conversationHistory.push({
 
@@ -347,26 +211,28 @@ function rememberMessage(
 
 
     /*
-        Keep the conversation from becoming
-        unnecessarily large.
-
-        20 messages = approximately 10 exchanges.
+       Keep the browser memory from
+       becoming unnecessarily large.
     */
 
     if (
-        conversationHistory.length > 20
+        conversationHistory.length >
+        40
     ) {
 
         conversationHistory =
-            conversationHistory.slice(-20);
+            conversationHistory.slice(-40);
 
     }
+
+
+    saveConversation();
 
 }
 
 
 /* ===========================================================
-   ADD MESSAGE TO CHAT WINDOW
+   ADD MESSAGE TO UI
 =========================================================== */
 
 function addMessage(
@@ -374,11 +240,7 @@ function addMessage(
     sender
 ) {
 
-    if (!chatWindow) {
-
-        return;
-
-    }
+    if (!chatWindow) return;
 
 
     const message =
@@ -388,7 +250,7 @@ function addMessage(
 
 
     message.className =
-        `message ${ sender } `;
+        `message ${sender}`;
 
 
     message.textContent =
@@ -407,38 +269,58 @@ function addMessage(
 
 
 /* ===========================================================
-   INITIAL CHAT SCREEN
+   RESTORE CONVERSATION TO UI
 =========================================================== */
 
-function initializeChat() {
+function restoreConversation() {
 
-    if (!chatWindow) {
+    if (!chatWindow) return;
+
+
+    chatWindow.innerHTML = "";
+
+
+    if (
+        conversationHistory.length === 0
+    ) {
+
+        addMessage(
+            "Orbit AI Online. How can I assist you?",
+            "orbit"
+        );
 
         return;
 
     }
 
 
-    /*
-        Always clear the chat when the page loads.
+    conversationHistory.forEach(
+        (message) => {
 
-        This guarantees that old conversation
-        messages do not survive a refresh.
-    */
+            if (
+                message.role === "user"
+            ) {
 
-    chatWindow.innerHTML = "";
+                addMessage(
+                    message.content,
+                    "user"
+                );
+
+            }
 
 
-    /*
-        Show Orbit's starting message.
+            if (
+                message.role === "assistant"
+            ) {
 
-        This message is NOT saved into
-        conversationHistory.
-    */
+                addMessage(
+                    message.content,
+                    "orbit"
+                );
 
-    addMessage(
-        "Orbit AI Online. How can I assist you?",
-        "orbit"
+            }
+
+        }
     );
 
 }
@@ -450,16 +332,8 @@ function initializeChat() {
 
 function showTyping() {
 
-    if (!chatWindow) {
+    if (!chatWindow) return;
 
-        return;
-
-    }
-
-
-    /*
-        Prevent duplicate typing indicators.
-    */
 
     const existingTyping =
         document.getElementById(
@@ -467,11 +341,7 @@ function showTyping() {
         );
 
 
-    if (existingTyping) {
-
-        return;
-
-    }
+    if (existingTyping) return;
 
 
     const typing =
@@ -489,9 +359,9 @@ function showTyping() {
 
 
     typing.innerHTML = `
-    <span>Orbit is thinking</span>
+        <span>Orbit is thinking</span>
         <span class="typing-dots">...</span>
-`;
+    `;
 
 
     chatWindow.appendChild(
@@ -532,11 +402,7 @@ function hideTyping() {
 
 async function sendMessage() {
 
-    if (!commandInput) {
-
-        return;
-
-    }
+    if (!commandInput) return;
 
 
     const message =
@@ -544,18 +410,14 @@ async function sendMessage() {
 
 
     /*
-        Don't send empty messages.
+       Don't send empty messages.
     */
 
-    if (!message) {
-
-        return;
-
-    }
+    if (!message) return;
 
 
     /*
-        Display user's message.
+       Display user message immediately.
     */
 
     addMessage(
@@ -565,8 +427,7 @@ async function sendMessage() {
 
 
     /*
-        Add user message to
-        temporary conversation memory.
+       Add user message to conversation.
     */
 
     rememberMessage(
@@ -576,30 +437,29 @@ async function sendMessage() {
 
 
     /*
-        Clear input.
+       Clear input.
     */
 
     commandInput.value = "";
 
 
     /*
-        Disable controls.
+       Disable controls while Orbit
+       is generating a response.
     */
 
     if (sendButton) {
 
-        sendButton.disabled =
-            true;
+        sendButton.disabled = true;
 
     }
 
 
-    commandInput.disabled =
-        true;
+    commandInput.disabled = true;
 
 
     /*
-        Show typing indicator.
+       Show typing indicator.
     */
 
     showTyping();
@@ -608,12 +468,17 @@ async function sendMessage() {
     try {
 
         /* ===================================================
-           SEND REQUEST TO ORBIT BACKEND
+           SEND MESSAGE TO ORBIT BACKEND
+
+           IMPORTANT:
+           This uses the laptop's local network IP
+           instead of localhost so the phone can reach
+           the backend.
         =================================================== */
 
         const response =
             await fetch(
-                "http://localhost:5000/api/chat",
+                "http://10.38.117.95:5000/api/chat",
                 {
                     method: "POST",
 
@@ -637,14 +502,14 @@ async function sendMessage() {
             );
 
 
-        /* ===================================================
-           CHECK SERVER RESPONSE
-        =================================================== */
+        /*
+           Check HTTP response.
+        */
 
         if (!response.ok) {
 
             let errorMessage =
-                `Server returned ${ response.status } `;
+                `Server returned ${response.status}`;
 
 
             try {
@@ -653,21 +518,20 @@ async function sendMessage() {
                     await response.json();
 
 
-                if (errorData?.error) {
+                if (
+                    errorData?.error
+                ) {
 
                     errorMessage =
                         errorData.error;
 
                 }
 
-            }
+            } catch (_) {
 
-            catch (parseError) {
-
-                console.warn(
-                    "Could not parse server error:",
-                    parseError
-                );
+                /*
+                   Ignore JSON parsing errors.
+                */
 
             }
 
@@ -679,29 +543,22 @@ async function sendMessage() {
         }
 
 
-        /* ===================================================
-           READ JSON RESPONSE
-        =================================================== */
+        /*
+           Convert response to JSON.
+        */
 
         const data =
             await response.json();
 
 
-        /*
-            Remove typing indicator.
-        */
-
         hideTyping();
 
 
         /* ===================================================
-           DISPLAY ORBIT RESPONSE
+           ORBIT RESPONSE
         =================================================== */
 
-        if (
-            data &&
-            data.reply
-        ) {
+        if (data.reply) {
 
             addMessage(
                 data.reply,
@@ -710,8 +567,8 @@ async function sendMessage() {
 
 
             /*
-                Save Orbit's response
-                to temporary memory.
+               Save Orbit's response
+               to conversation memory.
             */
 
             rememberMessage(
@@ -719,20 +576,17 @@ async function sendMessage() {
                 data.reply
             );
 
-        }
-
-        else {
+        } else {
 
             addMessage(
-                "Orbit received the message but returned an empty response.",
+                "I received an empty response from the AI.",
                 "orbit"
             );
 
         }
 
-    }
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Orbit AI request failed:",
@@ -744,28 +598,25 @@ async function sendMessage() {
 
 
         addMessage(
-            `Orbit could not respond: ${ error.message } `,
+            `Orbit connection error: ${error.message}`,
             "orbit"
         );
 
     }
 
 
-    /* ===================================================
-       RE-ENABLE CONTROLS
-    =================================================== */
+    /*
+       Re-enable controls.
+    */
 
     if (sendButton) {
 
-        sendButton.disabled =
-            false;
+        sendButton.disabled = false;
 
     }
 
 
-    commandInput.disabled =
-        false;
-
+    commandInput.disabled = false;
 
     commandInput.focus();
 
@@ -814,30 +665,16 @@ if (commandInput) {
 
 
 /* ===========================================================
-   INITIALIZE ORBIT
+   INITIALIZE CHAT
 =========================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        /*
-            Load persistent personal memory.
-        */
+        loadConversation();
 
-        loadPersonalMemory();
-
-
-        /*
-            Start a completely fresh
-            conversation every time
-            the page loads.
-        */
-
-        conversationHistory = [];
-
-
-        initializeChat();
+        restoreConversation();
 
     }
 );
