@@ -1,10 +1,9 @@
 /* ===========================================================
    ORBIT AI — DASHBOARD SCRIPT
-   Clock + Greeting + AI Chat + Conversation Memory
+   Clock + Greeting + AI Chat + Persistent User Memory
 =========================================================== */
 
 "use strict";
-
 
 /* ===========================================================
    LIVE CLOCK
@@ -14,9 +13,7 @@ const timeEl = document.getElementById("time");
 const dateEl = document.getElementById("date");
 const greetingEl = document.getElementById("greeting");
 
-
 function updateClock() {
-
     const now = new Date();
 
     const hours = now.getHours();
@@ -33,21 +30,14 @@ function updateClock() {
     const displayHour =
         hours % 12 || 12;
 
-
     /* TIME */
-
     if (timeEl) {
-
         timeEl.textContent =
             `${displayHour}:${minutes}:${seconds} ${period}`;
-
     }
 
-
     /* DATE */
-
     if (dateEl) {
-
         dateEl.textContent =
             now.toLocaleDateString(
                 "en-US",
@@ -58,35 +48,22 @@ function updateClock() {
                     day: "numeric"
                 }
             );
-
     }
 
-
     /* GREETING */
-
     if (greetingEl) {
-
         let greeting = "Good Evening";
 
-
         if (hours >= 5 && hours < 12) {
-
             greeting = "Good Morning";
-
         } else if (hours >= 12 && hours < 17) {
-
             greeting = "Good Afternoon";
-
         }
-
 
         greetingEl.textContent =
             `${greeting}, Kingsley`;
-
     }
-
 }
-
 
 updateClock();
 
@@ -111,123 +88,265 @@ const sendButton =
 
 
 /* ===========================================================
-   CONVERSATION MEMORY
+   BACKEND
 =========================================================== */
 
-const MEMORY_KEY =
-    "orbit-conversation";
+const API_URL =
+    "https://orbit-ai-v1-0.onrender.com/api/chat";
+
+
+/* ===========================================================
+   CONVERSATION HISTORY
+   -----------------------------------------------------------
+   IMPORTANT:
+   This is ONLY kept while the page is open.
+
+   It is NOT saved to localStorage.
+
+   Therefore:
+   Refresh = new conversation.
+=========================================================== */
 
 let conversationHistory = [];
 
 
 /* ===========================================================
-   LOAD CONVERSATION
+   USER MEMORY
+   -----------------------------------------------------------
+   User details are stored separately from chat history.
+
+   Example:
+   - Name
+   - School
+   - Course
+   - Goals
+   - Preferences
+   - Important details
 =========================================================== */
 
-function loadConversation() {
+const USER_MEMORY_KEY =
+    "orbit-user-memory";
 
+let userMemory = [];
+
+
+/* ===========================================================
+   LOAD USER MEMORY
+=========================================================== */
+
+function loadUserMemory() {
     try {
-
-        const savedConversation =
+        const savedMemory =
             localStorage.getItem(
-                MEMORY_KEY
+                USER_MEMORY_KEY
             );
 
-
-        if (savedConversation) {
-
+        if (savedMemory) {
             const parsed =
-                JSON.parse(
-                    savedConversation
-                );
-
+                JSON.parse(savedMemory);
 
             if (Array.isArray(parsed)) {
-
-                conversationHistory =
-                    parsed;
-
+                userMemory = parsed;
             }
-
         }
-
     } catch (error) {
-
         console.error(
-            "Orbit memory could not be loaded:",
+            "Orbit user memory could not be loaded:",
             error
         );
 
-        conversationHistory = [];
-
+        userMemory = [];
     }
-
 }
 
 
 /* ===========================================================
-   SAVE CONVERSATION
+   SAVE USER MEMORY
 =========================================================== */
 
-function saveConversation() {
-
+function saveUserMemory() {
     try {
-
         localStorage.setItem(
-            MEMORY_KEY,
-            JSON.stringify(
-                conversationHistory
-            )
+            USER_MEMORY_KEY,
+            JSON.stringify(userMemory)
         );
-
     } catch (error) {
-
         console.error(
-            "Orbit memory could not be saved:",
+            "Orbit user memory could not be saved:",
             error
         );
-
     }
-
 }
 
 
 /* ===========================================================
-   ADD TO CONVERSATION HISTORY
+   ADD USER MEMORY
 =========================================================== */
 
-function rememberMessage(
-    role,
-    content
-) {
+function rememberUserDetail(detail) {
+    if (!detail) return;
 
-    conversationHistory.push({
+    const cleanDetail =
+        detail.trim();
 
-        role: role,
-
-        content: content
-
-    });
-
+    if (!cleanDetail) return;
 
     /*
-       Keep the browser memory from
-       becoming unnecessarily large.
+       Prevent duplicate memories.
     */
 
-    if (
-        conversationHistory.length >
-        40
-    ) {
+    const alreadyExists =
+        userMemory.some(
+            item =>
+                item.toLowerCase() ===
+                cleanDetail.toLowerCase()
+        );
 
-        conversationHistory =
-            conversationHistory.slice(-40);
+    if (alreadyExists) return;
 
+    userMemory.push(
+        cleanDetail
+    );
+
+    /*
+       Prevent unlimited memory growth.
+    */
+
+    if (userMemory.length > 50) {
+        userMemory =
+            userMemory.slice(-50);
+    }
+
+    saveUserMemory();
+}
+
+
+/* ===========================================================
+   AUTOMATIC USER DETAIL DETECTION
+   -----------------------------------------------------------
+   Orbit looks for common statements containing personal
+   details and stores them separately from the conversation.
+=========================================================== */
+
+function detectUserMemory(message) {
+    const text =
+        message.trim();
+
+    if (!text) return;
+
+
+    /* NAME */
+
+    const nameMatch =
+        text.match(
+            /(?:my name is|call me|you can call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})/i
+        );
+
+    if (nameMatch) {
+        rememberUserDetail(
+            `The user's name is ${nameMatch[1].trim()}.`
+        );
     }
 
 
-    saveConversation();
+    /* AGE */
 
+    const ageMatch =
+        text.match(
+            /(?:i am|i'm|im)\s+(\d{1,3})\s*(?:years old)?/i
+        );
+
+    if (ageMatch) {
+        rememberUserDetail(
+            `The user is ${ageMatch[1]} years old.`
+        );
+    }
+
+
+    /* SCHOOL / UNIVERSITY */
+
+    const schoolMatch =
+        text.match(
+            /(?:i study at|i attend|my school is|i go to)\s+(.+)/i
+        );
+
+    if (schoolMatch) {
+        rememberUserDetail(
+            `The user's school is ${schoolMatch[1].trim()}.`
+        );
+    }
+
+
+    /* COURSE */
+
+    const courseMatch =
+        text.match(
+            /(?:i study|my course is|i'm studying|i am studying)\s+(.+)/i
+        );
+
+    if (courseMatch) {
+        rememberUserDetail(
+            `The user studies ${courseMatch[1].trim()}.`
+        );
+    }
+
+
+    /* LOCATION */
+
+    const locationMatch =
+        text.match(
+            /(?:i live in|i'm from|i am from|i live at)\s+(.+)/i
+        );
+
+    if (locationMatch) {
+        rememberUserDetail(
+            `The user is from ${locationMatch[1].trim()}.`
+        );
+    }
+
+
+    /* GOAL */
+
+    const goalMatch =
+        text.match(
+            /(?:my goal is|i want to|i plan to)\s+(.+)/i
+        );
+
+    if (goalMatch) {
+        rememberUserDetail(
+            `The user's goal is ${goalMatch[1].trim()}.`
+        );
+    }
+
+
+    /* LIKES */
+
+    const likeMatch =
+        text.match(
+            /(?:i like|i love|i enjoy)\s+(.+)/i
+        );
+
+    if (likeMatch) {
+        rememberUserDetail(
+            `The user likes ${likeMatch[1].trim()}.`
+        );
+    }
+}
+
+
+/* ===========================================================
+   GET MEMORY FOR ORBIT
+=========================================================== */
+
+function getMemoryContext() {
+    if (
+        !userMemory ||
+        userMemory.length === 0
+    ) {
+        return "";
+    }
+
+    return userMemory.join("\n");
 }
 
 
@@ -239,90 +358,25 @@ function addMessage(
     text,
     sender
 ) {
-
     if (!chatWindow) return;
-
 
     const message =
         document.createElement(
             "div"
         );
 
-
     message.className =
         `message ${sender}`;
 
-
     message.textContent =
         text;
-
 
     chatWindow.appendChild(
         message
     );
 
-
     chatWindow.scrollTop =
         chatWindow.scrollHeight;
-
-}
-
-
-/* ===========================================================
-   RESTORE CONVERSATION TO UI
-=========================================================== */
-
-function restoreConversation() {
-
-    if (!chatWindow) return;
-
-
-    chatWindow.innerHTML = "";
-
-
-    if (
-        conversationHistory.length === 0
-    ) {
-
-        addMessage(
-            "Orbit AI Online. How can I assist you?",
-            "orbit"
-        );
-
-        return;
-
-    }
-
-
-    conversationHistory.forEach(
-        (message) => {
-
-            if (
-                message.role === "user"
-            ) {
-
-                addMessage(
-                    message.content,
-                    "user"
-                );
-
-            }
-
-
-            if (
-                message.role === "assistant"
-            ) {
-
-                addMessage(
-                    message.content,
-                    "orbit"
-                );
-
-            }
-
-        }
-    );
-
 }
 
 
@@ -331,47 +385,37 @@ function restoreConversation() {
 =========================================================== */
 
 function showTyping() {
-
     if (!chatWindow) return;
-
 
     const existingTyping =
         document.getElementById(
             "orbit-typing"
         );
 
-
     if (existingTyping) return;
-
 
     const typing =
         document.createElement(
             "div"
         );
 
-
     typing.className =
         "message orbit typing-message";
 
-
     typing.id =
         "orbit-typing";
-
 
     typing.innerHTML = `
         <span>Orbit is thinking</span>
         <span class="typing-dots">...</span>
     `;
 
-
     chatWindow.appendChild(
         typing
     );
 
-
     chatWindow.scrollTop =
         chatWindow.scrollHeight;
-
 }
 
 
@@ -380,19 +424,14 @@ function showTyping() {
 =========================================================== */
 
 function hideTyping() {
-
     const typing =
         document.getElementById(
             "orbit-typing"
         );
 
-
     if (typing) {
-
         typing.remove();
-
     }
-
 }
 
 
@@ -401,19 +440,26 @@ function hideTyping() {
 =========================================================== */
 
 async function sendMessage() {
-
     if (!commandInput) return;
-
 
     const message =
         commandInput.value.trim();
-
 
     /*
        Don't send empty messages.
     */
 
     if (!message) return;
+
+
+    /*
+       Detect any useful user information
+       before sending the message.
+    */
+
+    detectUserMemory(
+        message
+    );
 
 
     /*
@@ -427,13 +473,31 @@ async function sendMessage() {
 
 
     /*
-       Add user message to conversation.
+       Keep conversation in memory
+       ONLY for the current page session.
+
+       It will disappear when the page
+       is refreshed.
     */
 
-    rememberMessage(
-        "user",
-        message
-    );
+    conversationHistory.push({
+        role: "user",
+        content: message
+    });
+
+
+    /*
+       Keep the temporary conversation
+       from becoming too large.
+    */
+
+    if (
+        conversationHistory.length >
+        40
+    ) {
+        conversationHistory =
+            conversationHistory.slice(-40);
+    }
 
 
     /*
@@ -444,16 +508,12 @@ async function sendMessage() {
 
 
     /*
-       Disable controls while Orbit
-       is generating a response.
+       Disable controls.
     */
 
     if (sendButton) {
-
         sendButton.disabled = true;
-
     }
-
 
     commandInput.disabled = true;
 
@@ -468,17 +528,12 @@ async function sendMessage() {
     try {
 
         /* ===================================================
-           SEND MESSAGE TO ORBIT BACKEND
-
-           IMPORTANT:
-           This uses the laptop's local network IP
-           instead of localhost so the phone can reach
-           the backend.
+           SEND MESSAGE TO LIVE RENDER BACKEND
         =================================================== */
 
         const response =
             await fetch(
-                "http://10.38.117.95:5000/api/chat",
+                API_URL,
                 {
                     method: "POST",
 
@@ -489,15 +544,30 @@ async function sendMessage() {
 
                     body:
                         JSON.stringify({
-
                             message:
                                 message,
 
+                            /*
+                               Temporary conversation
+                               history.
+
+                               This is NOT saved after
+                               refresh.
+                            */
+
                             history:
-                                conversationHistory
+                                conversationHistory,
 
+                            /*
+                               Persistent user memory.
+
+                               This remains available
+                               after refresh.
+                            */
+
+                            memory:
+                                getMemoryContext()
                         })
-
                 }
             );
 
@@ -511,35 +581,27 @@ async function sendMessage() {
             let errorMessage =
                 `Server returned ${response.status}`;
 
-
             try {
 
                 const errorData =
                     await response.json();
 
-
                 if (
                     errorData?.error
                 ) {
-
                     errorMessage =
                         errorData.error;
-
                 }
 
             } catch (_) {
-
                 /*
                    Ignore JSON parsing errors.
                 */
-
             }
-
 
             throw new Error(
                 errorMessage
             );
-
         }
 
 
@@ -567,14 +629,16 @@ async function sendMessage() {
 
 
             /*
-               Save Orbit's response
-               to conversation memory.
+               Save Orbit's response ONLY
+               in temporary conversation history.
+
+               It is NOT saved to localStorage.
             */
 
-            rememberMessage(
-                "assistant",
-                data.reply
-            );
+            conversationHistory.push({
+                role: "assistant",
+                content: data.reply
+            });
 
         } else {
 
@@ -582,7 +646,6 @@ async function sendMessage() {
                 "I received an empty response from the AI.",
                 "orbit"
             );
-
         }
 
 
@@ -593,15 +656,12 @@ async function sendMessage() {
             error
         );
 
-
         hideTyping();
-
 
         addMessage(
             `Orbit connection error: ${error.message}`,
             "orbit"
         );
-
     }
 
 
@@ -610,16 +670,12 @@ async function sendMessage() {
     */
 
     if (sendButton) {
-
         sendButton.disabled = false;
-
     }
-
 
     commandInput.disabled = false;
 
     commandInput.focus();
-
 }
 
 
@@ -633,7 +689,6 @@ if (sendButton) {
         "click",
         sendMessage
     );
-
 }
 
 
@@ -655,12 +710,9 @@ if (commandInput) {
                 event.preventDefault();
 
                 sendMessage();
-
             }
-
         }
     );
-
 }
 
 
@@ -672,9 +724,35 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        loadConversation();
+        /*
+           Load ONLY persistent user memory.
 
-        restoreConversation();
+           We intentionally DO NOT load conversation
+           history from localStorage.
+        */
 
+        loadUserMemory();
+
+
+        /*
+           Start every page load with a fresh chat.
+        */
+
+        conversationHistory = [];
+
+
+        /*
+           Show fresh Orbit welcome message.
+        */
+
+        if (chatWindow) {
+
+            chatWindow.innerHTML = "";
+
+            addMessage(
+                "Orbit AI Online. How can I assist you?",
+                "orbit"
+            );
+        }
     }
 );

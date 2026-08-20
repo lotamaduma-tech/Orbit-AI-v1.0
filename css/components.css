@@ -454,8 +454,7 @@ select:focus {
 
 
 .command-box:focus-within {
-  border-color:
-    rgba(0, 229, 255, 0.4);
+  border-color: none ;
 
   box-shadow:
     0 0 25px rgba(0, 229, 255, 0.08);
