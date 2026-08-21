@@ -1,183 +1,217 @@
-/* =========================================================
-   ORBIT AI
-   NAVIGATION SYSTEM
-   ========================================================= */
+/* ===========================================================
+   ORBIT AI — NAVIGATION.JS
+   Global Navigation System
+   =========================================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    /* =====================================================
-       ELEMENTS
-       ===================================================== */
-
-    const navToggle = document.getElementById("navToggle");
-    const navClose = document.getElementById("navClose");
-    const navDrawer = document.getElementById("orbitNav");
-    const navOverlay = document.getElementById("navOverlay");
+"use strict";
 
 
+/* ===========================================================
+   ELEMENTS
+   =========================================================== */
 
-    /* =====================================================
-       SAFETY CHECK
-       ===================================================== */
+const menuToggle =
+    document.getElementById("menu-toggle");
 
-    if (
-        !navToggle ||
-        !navClose ||
-        !navDrawer ||
-        !navOverlay
-    ) {
-        console.warn(
-            "Orbit AI navigation elements were not found."
-        );
+const menuClose =
+    document.getElementById("menu-close");
 
-        return;
+const navigationPanel =
+    document.getElementById("navigation-panel");
+
+const navigationOverlay =
+    document.getElementById("navigation-overlay");
+
+const navigationLinks =
+    document.querySelectorAll(
+        ".navigation-links a"
+    );
+
+
+/* ===========================================================
+   OPEN NAVIGATION
+   =========================================================== */
+
+function openNavigation() {
+
+    if (!navigationPanel) return;
+
+    navigationPanel.classList.add("open");
+
+    if (navigationOverlay) {
+        navigationOverlay.classList.add("active");
     }
 
+    document.body.classList.add(
+        "navigation-open"
+    );
 
 
-    /* =====================================================
-       OPEN NAVIGATION
-       ===================================================== */
+    /* Accessibility */
 
-    function openNavigation() {
+    if (menuToggle) {
 
-        navDrawer.classList.add("open");
-
-        navOverlay.classList.add("active");
-
-        document.body.classList.add("nav-open");
-
-        navToggle.setAttribute(
+        menuToggle.setAttribute(
             "aria-expanded",
             "true"
         );
 
-        navDrawer.setAttribute(
-            "aria-hidden",
+    }
+
+    if (menuToggle) {
+
+        menuToggle.setAttribute(
+            "aria-label",
+            "Close navigation"
+        );
+
+    }
+
+
+    /* Focus close button */
+
+    if (menuClose) {
+
+        setTimeout(() => {
+
+            menuClose.focus();
+
+        }, 150);
+
+    }
+
+}
+
+
+/* ===========================================================
+   CLOSE NAVIGATION
+   =========================================================== */
+
+function closeNavigation() {
+
+    if (!navigationPanel) return;
+
+    navigationPanel.classList.remove("open");
+
+    if (navigationOverlay) {
+
+        navigationOverlay.classList.remove(
+            "active"
+        );
+
+    }
+
+    document.body.classList.remove(
+        "navigation-open"
+    );
+
+
+    /* Accessibility */
+
+    if (menuToggle) {
+
+        menuToggle.setAttribute(
+            "aria-expanded",
             "false"
         );
 
     }
 
+    if (menuToggle) {
 
-
-    /* =====================================================
-       CLOSE NAVIGATION
-       ===================================================== */
-
-    function closeNavigation() {
-
-        navDrawer.classList.remove("open");
-
-        navOverlay.classList.remove("active");
-
-        document.body.classList.remove("nav-open");
-
-        navToggle.setAttribute(
-            "aria-expanded",
-            "false"
-        );
-
-        navDrawer.setAttribute(
-            "aria-hidden",
-            "true"
+        menuToggle.setAttribute(
+            "aria-label",
+            "Open navigation"
         );
 
     }
 
 
+    /* Return focus */
 
-    /* =====================================================
-       TOGGLE NAVIGATION
-       ===================================================== */
+    if (menuToggle) {
 
-    function toggleNavigation() {
-
-        const isOpen =
-            navDrawer.classList.contains("open");
-
-        if (isOpen) {
-
-            closeNavigation();
-
-        } else {
-
-            openNavigation();
-
-        }
+        menuToggle.focus();
 
     }
 
+}
 
 
-    /* =====================================================
-       TOGGLE BUTTON
-       ===================================================== */
+/* ===========================================================
+   TOGGLE NAVIGATION
+   =========================================================== */
 
-    navToggle.addEventListener(
+function toggleNavigation() {
+
+    if (!navigationPanel) return;
+
+    const isOpen =
+        navigationPanel.classList.contains(
+            "open"
+        );
+
+    if (isOpen) {
+
+        closeNavigation();
+
+    } else {
+
+        openNavigation();
+
+    }
+
+}
+
+
+/* ===========================================================
+   MENU TOGGLE BUTTON
+   =========================================================== */
+
+if (menuToggle) {
+
+    menuToggle.addEventListener(
         "click",
         toggleNavigation
     );
 
+}
 
 
-    /* =====================================================
-       CLOSE BUTTON
-       ===================================================== */
+/* ===========================================================
+   CLOSE BUTTON
+   =========================================================== */
 
-    navClose.addEventListener(
+if (menuClose) {
+
+    menuClose.addEventListener(
         "click",
         closeNavigation
     );
 
+}
 
 
-    /* =====================================================
-       OVERLAY CLICK
-       ===================================================== */
+/* ===========================================================
+   OVERLAY CLICK
+   =========================================================== */
 
-    navOverlay.addEventListener(
+if (navigationOverlay) {
+
+    navigationOverlay.addEventListener(
         "click",
         closeNavigation
     );
 
+}
 
 
-    /* =====================================================
-       ESCAPE KEY
-       ===================================================== */
+/* ===========================================================
+   NAVIGATION LINKS
+   =========================================================== */
 
-    document.addEventListener(
-        "keydown",
-        (event) => {
-
-            if (
-                event.key === "Escape" &&
-                navDrawer.classList.contains("open")
-            ) {
-
-                closeNavigation();
-
-                navToggle.focus();
-
-            }
-
-        }
-    );
-
-
-
-    /* =====================================================
-       CLOSE AFTER NAVIGATION
-       ===================================================== */
-
-    const navLinks =
-        navDrawer.querySelectorAll(
-            ".nav-menu a"
-        );
-
-
-    navLinks.forEach((link) => {
+navigationLinks.forEach(
+    (link) => {
 
         link.addEventListener(
             "click",
@@ -188,13 +222,58 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         );
 
-    });
+    }
+);
 
 
+/* ===========================================================
+   ESCAPE KEY
+   =========================================================== */
 
-    /* =====================================================
-       AUTOMATIC ACTIVE PAGE
-       ===================================================== */
+document.addEventListener(
+    "keydown",
+    (event) => {
+
+        if (
+            event.key === "Escape" &&
+            navigationPanel?.classList.contains(
+                "open"
+            )
+        ) {
+
+            closeNavigation();
+
+        }
+
+    }
+);
+
+
+/* ===========================================================
+   PREVENT BACKGROUND SCROLL
+   =========================================================== */
+
+const navigationStyle =
+    document.createElement("style");
+
+navigationStyle.textContent = `
+
+    body.navigation-open {
+        overflow: hidden;
+    }
+
+`;
+
+document.head.appendChild(
+    navigationStyle
+);
+
+
+/* ===========================================================
+   CURRENT PAGE DETECTION
+   =========================================================== */
+
+function setActiveNavigationLink() {
 
     const currentPage =
         window.location.pathname
@@ -203,83 +282,99 @@ document.addEventListener("DOMContentLoaded", () => {
             .toLowerCase();
 
 
-    navLinks.forEach((link) => {
+    navigationLinks.forEach(
+        (link) => {
 
-        const linkPage =
-            link
-                .getAttribute("href")
-                .split("/")
-                .pop()
-                .toLowerCase();
-
-
-        link.classList.remove("active");
-
-        link.removeAttribute(
-            "aria-current"
-        );
+            const linkPage =
+                link
+                    .getAttribute("href")
+                    ?.split("/")
+                    .pop()
+                    .toLowerCase();
 
 
-        if (
-            linkPage === currentPage ||
-            (
-                currentPage === "" &&
-                linkPage === "index.html"
-            )
-        ) {
-
-            link.classList.add("active");
-
-            link.setAttribute(
-                "aria-current",
-                "page"
+            link.classList.remove(
+                "active"
             );
 
-        }
 
-    });
+            if (
+                linkPage === currentPage ||
+                (
+                    currentPage === "" &&
+                    linkPage === "index.html"
+                )
+            ) {
 
+                link.classList.add(
+                    "active"
+                );
 
-
-    /* =====================================================
-       POWER BUTTON
-       ===================================================== */
-
-    const powerButton =
-        document.querySelector(".power-btn");
-
-
-    if (powerButton) {
-
-        powerButton.addEventListener(
-            "click",
-            () => {
-
-                /*
-                 * We are intentionally not shutting
-                 * down the browser or system.
-                 *
-                 * This button can later be connected
-                 * to Orbit's application state.
-                 */
-
-                closeNavigation();
-
-                console.log(
-                    "Orbit AI power control activated."
+                link.setAttribute(
+                    "aria-current",
+                    "page"
                 );
 
             }
-        );
 
-    }
+            else {
+
+                link.removeAttribute(
+                    "aria-current"
+                );
+
+            }
+
+        }
+    );
+
+}
 
 
+/* ===========================================================
+   INITIALIZE NAVIGATION
+   =========================================================== */
 
-    /* =====================================================
-       INITIAL STATE
-       ===================================================== */
+function initializeNavigation() {
 
-    closeNavigation();
+    setActiveNavigationLink();
 
-});
+}
+
+
+/* ===========================================================
+   DOM READY
+   =========================================================== */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeNavigation
+    );
+
+}
+
+else {
+
+    initializeNavigation();
+
+}
+
+
+/* ===========================================================
+   GLOBAL ORBIT NAVIGATION API
+   =========================================================== */
+
+window.OrbitNavigation = {
+
+    open: openNavigation,
+
+    close: closeNavigation,
+
+    toggle: toggleNavigation
+
+};

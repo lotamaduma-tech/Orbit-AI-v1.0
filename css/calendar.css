@@ -1,0 +1,1403 @@
+/* =========================================================
+   ORBIT AI — CALENDAR
+   Clean Professional Calendar Design
+   ========================================================= */
+
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
+
+.calendar-main {
+  width: 100%;
+  max-width: 1400px;
+
+  margin: 0 auto;
+
+  padding: 48px 32px 80px;
+
+  color: var(--text);
+}
+
+/* =========================================================
+   PAGE INTRO
+   ========================================================= */
+
+.calendar-intro {
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 30px;
+
+  margin-bottom: 32px;
+}
+
+.calendar-intro > div {
+  max-width: 700px;
+}
+
+.calendar-intro .eyebrow {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: var(--olive);
+
+  font-size: 0.75rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+}
+
+.calendar-intro h1 {
+  margin: 0 0 10px;
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: clamp(2rem, 4vw, 3rem);
+
+  line-height: 1.1;
+
+  color: var(--cream);
+}
+
+.calendar-intro p {
+  margin: 0;
+
+  max-width: 600px;
+
+  color: var(--text-muted);
+
+  font-size: 0.95rem;
+
+  line-height: 1.7;
+}
+
+/* =========================================================
+   ADD EVENT BUTTON
+   ========================================================= */
+
+.add-event-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 9px;
+
+  flex-shrink: 0;
+
+  padding: 12px 18px;
+
+  border: 1px solid var(--olive);
+
+  border-radius: 10px;
+
+  background: var(--olive);
+
+  color: var(--cream);
+
+  font: inherit;
+
+  font-size: 0.9rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.add-event-button:hover {
+  background: var(--olive-light);
+
+  border-color: var(--olive-light);
+
+  transform: translateY(-2px);
+}
+
+.add-event-button:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   CALENDAR LAYOUT
+   ========================================================= */
+
+.calendar-layout {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(300px, 0.8fr);
+
+  gap: 24px;
+
+  align-items: start;
+}
+
+/* =========================================================
+   CALENDAR CARD
+   ========================================================= */
+
+.calendar-card {
+  position: relative;
+
+  padding: 24px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  background: var(--card);
+
+  box-shadow: var(--shadow-soft);
+}
+
+/* =========================================================
+   CALENDAR HEADER
+   ========================================================= */
+
+.calendar-header {
+  display: grid;
+
+  grid-template-columns: 42px 1fr 42px;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.calendar-title {
+  text-align: center;
+}
+
+.calendar-title h2 {
+  margin: 0;
+
+  color: var(--cream);
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: 1.4rem;
+
+  font-weight: 600;
+}
+
+.calendar-title span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: var(--text-muted);
+
+  font-size: 0.85rem;
+}
+
+/* =========================================================
+   CALENDAR NAVIGATION BUTTONS
+   ========================================================= */
+
+.calendar-nav-button {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 42px;
+
+  height: 42px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 9px;
+
+  background: var(--bg2);
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.calendar-nav-button:hover {
+  background: var(--card-hover);
+
+  border-color: var(--olive);
+
+  color: var(--olive-light);
+}
+
+/* =========================================================
+   TODAY BUTTON
+   ========================================================= */
+
+.today-button {
+  display: block;
+
+  margin: 0 auto 22px;
+
+  padding: 7px 15px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  font: inherit;
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.today-button:hover {
+  border-color: var(--olive);
+
+  background: var(--card-hover);
+
+  color: var(--olive-light);
+}
+
+/* =========================================================
+   WEEK DAYS
+   ========================================================= */
+
+.calendar-weekdays {
+  display: grid;
+
+  grid-template-columns: repeat(7, 1fr);
+
+  margin-bottom: 8px;
+}
+
+.calendar-weekdays span {
+  padding: 8px 4px;
+
+  color: var(--text-muted);
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+
+  text-align: center;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+}
+
+/* =========================================================
+   CALENDAR GRID
+   ========================================================= */
+
+.calendar-grid {
+  display: grid;
+
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+
+  gap: 5px;
+}
+
+/* =========================================================
+   CALENDAR DAY
+
+   JavaScript-generated day elements should use:
+   .calendar-day
+   ========================================================= */
+
+.calendar-day {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 72px;
+
+  padding: 8px;
+
+  border: 1px solid transparent;
+
+  border-radius: 9px;
+
+  background: var(--bg2);
+
+  color: var(--text);
+
+  font-size: 0.88rem;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.calendar-day:hover {
+  border-color: var(--olive);
+
+  background: var(--card-hover);
+
+  color: var(--cream);
+}
+
+/* =========================================================
+   DAYS FROM PREVIOUS / NEXT MONTH
+   ========================================================= */
+
+.calendar-day.other-month {
+  background: transparent;
+
+  color: var(--text-muted);
+
+  opacity: 0.35;
+}
+
+.calendar-day.other-month:hover {
+  border-color: transparent;
+
+  background: var(--bg2);
+}
+
+/* =========================================================
+   TODAY
+   ========================================================= */
+
+.calendar-day.today {
+  border-color: var(--olive);
+
+  color: var(--cream);
+
+  font-weight: 700;
+}
+
+.calendar-day.today::before {
+  content: "";
+
+  position: absolute;
+
+  top: 6px;
+
+  left: 50%;
+
+  width: 5px;
+
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: var(--olive);
+
+  transform: translateX(-50%);
+}
+
+/* =========================================================
+   SELECTED DAY
+   ========================================================= */
+
+.calendar-day.selected {
+  background: var(--olive);
+
+  border-color: var(--olive);
+
+  color: var(--cream);
+}
+
+.calendar-day.selected::before {
+  background: var(--cream);
+}
+
+/* =========================================================
+   EVENT MARKER
+   ========================================================= */
+
+.calendar-day.has-event::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: 7px;
+
+  left: 50%;
+
+  width: 5px;
+
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: var(--olive-light);
+
+  transform: translateX(-50%);
+}
+
+.calendar-day.selected.has-event::after {
+  background: var(--cream);
+}
+
+/* =========================================================
+   EVENTS PANEL
+   ========================================================= */
+
+.events-panel {
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 100%;
+
+  padding: 24px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  background: var(--card);
+
+  box-shadow: var(--shadow-soft);
+}
+
+/* =========================================================
+   EVENTS PANEL HEADER
+   ========================================================= */
+
+.events-panel-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.events-panel-header .eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--olive);
+
+  font-size: 0.7rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+.events-panel-header h2 {
+  margin: 0;
+
+  color: var(--cream);
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: 1.15rem;
+
+  font-weight: 600;
+}
+
+/* =========================================================
+   EVENT COUNT
+   ========================================================= */
+
+.event-count {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 30px;
+
+  height: 30px;
+
+  padding: 0 8px;
+
+  border-radius: 50%;
+
+  background: var(--bg2);
+
+  color: var(--olive-light);
+
+  font-size: 0.78rem;
+
+  font-weight: 700;
+}
+
+/* =========================================================
+   EVENT LIST
+   ========================================================= */
+
+.event-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+  flex: 1;
+
+  padding: 18px 0;
+}
+
+/* =========================================================
+   EVENT ITEM
+
+   JavaScript-generated event elements should use:
+   .event-item
+   ========================================================= */
+
+.event-item {
+  position: relative;
+
+  padding: 14px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 10px;
+
+  background: var(--bg2);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.event-item:hover {
+  border-color: var(--olive);
+
+  background: var(--card-hover);
+}
+
+.event-item h3 {
+  margin: 0 0 6px;
+
+  color: var(--cream);
+
+  font-size: 0.9rem;
+
+  font-weight: 600;
+}
+
+.event-item p {
+  margin: 4px 0;
+
+  color: var(--text-muted);
+
+  font-size: 0.78rem;
+
+  line-height: 1.5;
+}
+
+.event-item i {
+  width: 16px;
+
+  margin-right: 5px;
+
+  color: var(--olive-light);
+}
+
+/* =========================================================
+   EVENT ACTIONS
+   ========================================================= */
+
+.event-actions {
+  display: flex;
+
+  gap: 6px;
+
+  margin-top: 12px;
+}
+
+.event-actions button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 30px;
+
+  height: 30px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.event-actions button:hover {
+  border-color: var(--olive);
+
+  background: var(--card-hover);
+
+  color: var(--olive-light);
+}
+
+/* =========================================================
+   EMPTY EVENTS
+   ========================================================= */
+
+.empty-events {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 180px;
+
+  padding: 20px;
+
+  text-align: center;
+}
+
+.empty-events-icon {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 48px;
+
+  height: 48px;
+
+  margin-bottom: 12px;
+
+  border-radius: 12px;
+
+  background: var(--bg2);
+
+  color: var(--text-muted);
+
+  font-size: 1.1rem;
+}
+
+.empty-events h3 {
+  margin: 0 0 6px;
+
+  color: var(--cream);
+
+  font-size: 0.9rem;
+}
+
+.empty-events p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 0.78rem;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   PANEL ADD EVENT
+   ========================================================= */
+
+.panel-add-event {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  width: 100%;
+
+  padding: 11px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 9px;
+
+  background: var(--bg2);
+
+  color: var(--text);
+
+  font: inherit;
+
+  font-size: 0.82rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.panel-add-event:hover {
+  border-color: var(--olive);
+
+  background: var(--card-hover);
+
+  color: var(--olive-light);
+}
+
+/* =========================================================
+   UPCOMING EVENTS
+   ========================================================= */
+
+.upcoming-section {
+  margin-top: 32px;
+}
+
+.section-heading {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 16px;
+}
+
+.section-heading .eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--olive);
+
+  font-size: 0.7rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+.section-heading h2 {
+  margin: 0;
+
+  color: var(--cream);
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: 1.3rem;
+
+  font-weight: 600;
+}
+
+.upcoming-events {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+}
+
+/* =========================================================
+   UPCOMING EVENT ITEM
+
+   JavaScript-generated items can use:
+   .upcoming-event
+   ========================================================= */
+
+.upcoming-event {
+  padding: 18px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  background: var(--card);
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.upcoming-event:hover {
+  border-color: var(--olive);
+
+  background: var(--card-hover);
+
+  transform: translateY(-2px);
+}
+
+.upcoming-event-date {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: var(--olive-light);
+
+  font-size: 0.72rem;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+}
+
+.upcoming-event h3 {
+  margin: 0 0 7px;
+
+  color: var(--cream);
+
+  font-size: 0.95rem;
+}
+
+.upcoming-event p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 0.78rem;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   EMPTY UPCOMING
+   ========================================================= */
+
+.empty-upcoming {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  grid-column: 1 / -1;
+
+  padding: 25px;
+
+  border: 1px dashed var(--border);
+
+  border-radius: 12px;
+
+  color: var(--text-muted);
+
+  font-size: 0.85rem;
+}
+
+.empty-upcoming i {
+  color: var(--olive);
+
+  font-size: 1rem;
+}
+
+.empty-upcoming p {
+  margin: 0;
+}
+
+/* =========================================================
+   EVENT MODAL
+   ========================================================= */
+
+.event-modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: none;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+}
+.event-modal.open {
+  display: flex;
+}
+
+.event-modal.active {
+  display: flex;
+}
+
+/* =========================================================
+   MODAL OVERLAY
+   ========================================================= */
+
+.event-modal-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.7);
+
+  backdrop-filter: blur(3px);
+}
+
+/* =========================================================
+   MODAL CONTENT
+   ========================================================= */
+
+.event-modal-content {
+  position: relative;
+
+  z-index: 1;
+
+  width: 100%;
+
+  max-width: 520px;
+
+  max-height: calc(100vh - 40px);
+
+  overflow-y: auto;
+
+  padding: 26px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 16px;
+
+  background: var(--card);
+
+  box-shadow: var(--shadow-soft);
+}
+
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
+.event-modal-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 24px;
+}
+
+.event-modal-header .eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: var(--olive);
+
+  font-size: 0.7rem;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+}
+
+.event-modal-header h2 {
+  margin: 0;
+
+  color: var(--cream);
+
+  font-family: "Space Grotesk", sans-serif;
+
+  font-size: 1.35rem;
+}
+
+/* =========================================================
+   MODAL CLOSE
+   ========================================================= */
+
+.modal-close {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 36px;
+
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  background: var(--bg2);
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.modal-close:hover {
+  border-color: var(--olive);
+
+  background: var(--card-hover);
+
+  color: var(--cream);
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+#event-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+.form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.form-group label {
+  color: var(--text);
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+
+  padding: 11px 12px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background: var(--bg2);
+
+  color: var(--cream);
+
+  font: inherit;
+
+  font-size: 0.85rem;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-muted);
+
+  opacity: 0.7;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--olive);
+
+  box-shadow: 0 0 0 3px rgba(85, 107, 47, 0.15);
+}
+
+.form-group textarea {
+  resize: vertical;
+
+  min-height: 90px;
+}
+
+/* =========================================================
+   FORM ROW
+   ========================================================= */
+
+.form-row {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 14px;
+}
+
+/* =========================================================
+   FORM ACTIONS
+   ========================================================= */
+
+.event-form-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 5px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid var(--border);
+}
+
+.cancel-event-button,
+.save-event-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 10px 16px;
+
+  border-radius: 8px;
+
+  font: inherit;
+
+  font-size: 0.82rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.cancel-event-button {
+  border: 1px solid var(--border);
+
+  background: transparent;
+
+  color: var(--text-muted);
+}
+
+.cancel-event-button:hover {
+  background: var(--bg2);
+
+  color: var(--cream);
+}
+
+.save-event-button {
+  border: 1px solid var(--olive);
+
+  background: var(--olive);
+
+  color: var(--cream);
+}
+
+.save-event-button:hover {
+  background: var(--olive-light);
+
+  border-color: var(--olive-light);
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .events-panel {
+    min-height: auto;
+  }
+
+  .event-list {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .empty-events {
+    grid-column: 1 / -1;
+  }
+
+  .upcoming-events {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .calendar-main {
+    padding: 30px 16px 90px;
+  }
+
+  .calendar-intro {
+    align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 18px;
+  }
+
+  .add-event-button {
+    width: 100%;
+  }
+
+  .calendar-card {
+    padding: 16px;
+  }
+
+  .calendar-day {
+    min-height: 52px;
+
+    padding: 5px;
+
+    border-radius: 7px;
+
+    font-size: 0.78rem;
+  }
+
+  .calendar-weekdays span {
+    font-size: 0.62rem;
+
+    padding: 6px 2px;
+  }
+
+  .calendar-grid {
+    gap: 3px;
+  }
+
+  .events-panel {
+    padding: 18px;
+  }
+
+  .event-list {
+    grid-template-columns: 1fr;
+  }
+
+  .upcoming-events {
+    grid-template-columns: 1fr;
+  }
+
+  .event-modal {
+    padding: 12px;
+  }
+
+  .event-modal-content {
+    padding: 20px;
+
+    max-height: calc(100vh - 24px);
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .event-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .cancel-event-button,
+  .save-event-button {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .calendar-title h2 {
+    font-size: 1.15rem;
+  }
+
+  .calendar-title span {
+    font-size: 0.75rem;
+  }
+
+  .calendar-header {
+    grid-template-columns: 36px 1fr 36px;
+  }
+
+  .calendar-nav-button {
+    width: 36px;
+
+    height: 36px;
+  }
+
+  .calendar-day {
+    min-height: 44px;
+
+    font-size: 0.72rem;
+  }
+
+  .calendar-day.today::before {
+    top: 4px;
+
+    width: 4px;
+
+    height: 4px;
+  }
+
+  .calendar-day.has-event::after {
+    bottom: 4px;
+
+    width: 4px;
+
+    height: 4px;
+  }
+}

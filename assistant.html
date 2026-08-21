@@ -13,11 +13,12 @@
     <title>Orbit AI — Assistant</title>
 
 
-    <!-- =====================================================
+    <!-- =========================================
          GOOGLE FONTS
-         ===================================================== -->
+         ========================================= -->
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link
@@ -25,47 +26,23 @@
         rel="stylesheet">
 
 
-    <!-- =====================================================
+    <!-- =========================================
          FONT AWESOME
-         ===================================================== -->
+         ========================================= -->
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
 
-    <!-- =====================================================
-         CORE CSS
-         ===================================================== -->
+    <!-- =========================================
+         ORBIT AI CSS
+         ========================================= -->
 
     <link rel="stylesheet" href="css/reset.css">
+
     <link rel="stylesheet" href="css/variables.css">
 
-
-    <!-- =====================================================
-         SHARED LAYOUT
-         ===================================================== -->
-
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/sidebar.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/footer.css">
-
-
-    <!-- =====================================================
-         ASSISTANT PAGE
-         ===================================================== -->
-
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/assistant.css">
-    <link rel="stylesheet" href="css/assistantCommandArea.css">
-
-
-    <!-- =====================================================
-         GLOBAL OVERRIDES
-         ===================================================== -->
-
-    <link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -73,201 +50,369 @@
 <body>
 
 
-    <div class="app-container">
+    <!-- =========================================
+         APPLICATION HEADER
+         ========================================= -->
+
+    <header class="app-header">
+
+        <a href="index.html" class="brand" aria-label="Orbit AI Home">
+
+            <strong>ORBIT</strong>
+
+            <span>AI</span>
+
+        </a>
 
 
-        <!-- =====================================================
-         SIDEBAR
-         ===================================================== -->
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"
+            aria-controls="navigation-panel">
 
-        <aside class="sidebar">
+            <i class="fa-solid fa-bars"></i>
 
+        </button>
 
-            <!-- BRAND -->
-
-            <div class="logo">
-
-                <h1>ORBIT</h1>
-
-                <span>AI Assistant</span>
-
-            </div>
+    </header>
 
 
-            <!-- NAVIGATION -->
 
-            <nav class="nav-menu">
+    <!-- =========================================
+         NAVIGATION PANEL
+         ========================================= -->
 
-                <a href="index.html">
-
-                    <i class="fa-solid fa-house"></i>
-
-                    <span>Dashboard</span>
-
-                </a>
+    <nav class="navigation-panel" id="navigation-panel" aria-label="Main navigation">
 
 
-                <a href="system.html">
+        <!-- NAVIGATION HEADER -->
 
-                    <i class="fa-solid fa-chart-line"></i>
+        <div class="navigation-header">
 
-                    <span>Overview</span>
+            <div>
 
-                </a>
+                <span>ORBIT AI</span>
 
-
-                <a href="files.html">
-
-                    <i class="fa-solid fa-folder"></i>
-
-                    <span>Files</span>
-
-                </a>
-
-
-                <a href="assistant.html" class="active">
-
-                    <i class="fa-solid fa-comments"></i>
-
-                    <span>Assistant</span>
-
-                </a>
-
-
-                <a href="weather.html">
-
-                    <i class="fa-solid fa-cloud-sun"></i>
-
-                    <span>Weather</span>
-
-                </a>
-
-
-                <a href="calendar.html">
-
-                    <i class="fa-solid fa-calendar-days"></i>
-
-                    <span>Calendar</span>
-
-                </a>
-
-
-                <a href="music.html">
-
-                    <i class="fa-solid fa-music"></i>
-
-                    <span>Music</span>
-
-                </a>
-
-
-                <a href="settings.html">
-
-                    <i class="fa-solid fa-gear"></i>
-
-                    <span>Settings</span>
-
-                </a>
-
-            </nav>
-
-
-            <!-- SIDEBAR FOOTER -->
-
-            <div class="sidebar-footer">
-
-                <button class="power-btn" type="button" aria-label="Power Off">
-
-                    <i class="fa-solid fa-power-off"></i>
-
-                </button>
+                <small>
+                    Navigate
+                </small>
 
             </div>
 
-        </aside>
+
+            <button class="menu-close" id="menu-close" type="button" aria-label="Close navigation">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
 
 
 
-        <!-- =====================================================
-         MAIN CONTENT
-         ===================================================== -->
+        <!-- NAVIGATION LINKS -->
 
-        <main class="main-content assistant-main">
+        <div class="navigation-links">
 
 
-            <!-- =================================================
-             HEADER
-             ================================================= -->
+            <a href="index.html">
 
-            <header class="header">
+                <i class="fa-solid fa-house"></i>
 
+                <span>
+                    Home
+                </span>
 
-                <div class="header-left">
-
-                    <div id="date" class="date"></div>
-
-                </div>
+            </a>
 
 
-                <div class="header-center">
+            <a href="assistant.html" class="active" aria-current="page">
 
-                    <h1 id="time" class="time"></h1>
+                <i class="fa-solid fa-comments"></i>
 
-                </div>
+                <span>
+                    Assistant
+                </span>
 
-
-                <div class="header-right">
-
-                    <div id="greeting" class="greeting"></div>
-
-                </div>
-
-            </header>
+            </a>
 
 
+            <a href="system.html">
 
-            <!-- =================================================
-             ASSISTANT CONTENT
-             ================================================= -->
+                <i class="fa-solid fa-chart-line"></i>
 
-            <section class="assistant-page">
+                <span>
+                    Overview
+                </span>
+
+            </a>
 
 
-                <!-- =================================================
+            <a href="files.html">
+
+                <i class="fa-solid fa-folder"></i>
+
+                <span>
+                    Files
+                </span>
+
+            </a>
+
+
+            <a href="weather.html">
+
+                <i class="fa-solid fa-cloud-sun"></i>
+
+                <span>
+                    Weather
+                </span>
+
+            </a>
+
+
+            <a href="calendar.html">
+
+                <i class="fa-solid fa-calendar-days"></i>
+
+                <span>
+                    Calendar
+                </span>
+
+            </a>
+
+
+            <a href="music.html">
+
+                <i class="fa-solid fa-music"></i>
+
+                <span>
+                    Music
+                </span>
+
+            </a>
+
+
+            <a href="settings.html">
+
+                <i class="fa-solid fa-gear"></i>
+
+                <span>
+                    Settings
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <!-- NAVIGATION FOOTER -->
+
+        <div class="navigation-footer">
+
+            <span>
+                Orbit AI
+            </span>
+
+            <small>
+                Personal AI workspace
+            </small>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- =========================================
+         NAVIGATION OVERLAY
+         ========================================= -->
+
+    <div class="navigation-overlay" id="navigation-overlay"></div>
+
+
+
+    <!-- =========================================
+         MAIN APPLICATION
+         ========================================= -->
+
+    <main class="main-content assistant-main">
+
+
+        <!-- =========================================
+             ASSISTANT PAGE
+             ========================================= -->
+
+        <section class="assistant-page">
+
+
+            <!-- =====================================
                  PAGE INTRO
-                 ================================================= -->
+                 ===================================== -->
 
-                <div class="assistant-intro">
+            <div class="assistant-intro">
 
 
-                    <div class="assistant-intro-content">
+                <div class="assistant-intro-content">
 
-                        <span class="assistant-label">
-                            ORBIT AI
-                        </span>
+                    <span class="eyebrow">
+                        ORBIT AI
+                    </span>
 
-                        <h1>
-                            Your intelligent assistant.
-                        </h1>
 
-                        <p>
-                            Ask questions, plan projects,
-                            organize your ideas, research topics,
-                            or create something new.
-                        </p>
+                    <h1>
+                        Your AI assistant.
+                    </h1>
+
+
+                    <p>
+                        Ask questions, plan your day,
+                        organize ideas, write content,
+                        or get help solving problems.
+                    </p>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="assistant-online">
+
+                    <span class="status-dot"></span>
+
+                    <span>
+                        Online
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =====================================
+                 ASSISTANT WORKSPACE
+                 ===================================== -->
+
+            <section class="assistant-workspace">
+
+
+                <!-- =================================
+                     CHAT CONTAINER
+                     ================================= -->
+
+                <div class="assistant-chat">
+
+
+                    <!-- CHAT HEADER -->
+
+                    <header class="chat-header">
+
+
+                        <div class="chat-identity">
+
+
+                            <div class="chat-avatar">
+
+                                <i class="fa-solid fa-sparkles"></i>
+
+                            </div>
+
+
+                            <div class="chat-identity-text">
+
+                                <strong>
+                                    Orbit
+                                </strong>
+
+                                <span>
+                                    AI Assistant
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- CHAT ACTIONS -->
+
+                        <div class="chat-actions">
+
+
+                            <button id="clear-chat-btn" type="button" aria-label="Clear conversation"
+                                title="Clear conversation">
+
+                                <i class="fa-solid fa-trash"></i>
+
+                            </button>
+
+
+                            <button id="new-chat-btn" type="button" aria-label="New conversation"
+                                title="New conversation">
+
+                                <i class="fa-solid fa-plus"></i>
+
+                            </button>
+
+                        </div>
+
+                    </header>
+
+
+
+                    <!-- =================================
+                         CHAT WINDOW
+                         ================================= -->
+
+                    <div class="assistant-chat-window" id="chat-window" aria-live="polite"
+                        aria-label="Orbit AI conversation">
+
+                        <!--
+                            Messages are inserted
+                            by orbit-ai.js / assistant.js
+                        -->
 
                     </div>
 
 
-                    <!-- ONLINE STATUS -->
 
-                    <div class="assistant-online">
+                    <!-- =================================
+                         INPUT AREA
+                         ================================= -->
 
-                        <span class="status-dot"></span>
+                    <div class="assistant-input-area">
 
-                        <span>
-                            System Online
-                        </span>
+
+                        <div class="assistant-input-box">
+
+
+                            <textarea id="command-input" rows="1" placeholder="Ask Orbit anything..." autocomplete="off"
+                                aria-label="Ask Orbit AI"></textarea>
+
+
+                            <button id="send-btn" type="button" aria-label="Send message" title="Send message">
+
+                                <i class="fa-solid fa-arrow-up"></i>
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="assistant-input-footer">
+
+                            <span>
+
+                                <i class="fa-solid fa-shield-halved"></i>
+
+                                Orbit AI is ready
+
+                            </span>
+
+
+                            <span>
+                                Enter to send
+                            </span>
+
+                        </div>
 
                     </div>
 
@@ -275,543 +420,370 @@
 
 
 
-                <!-- =================================================
-                 ASSISTANT GRID
-                 ================================================= -->
+                <!-- =================================
+                     ASSISTANT INFORMATION
+                     ================================= -->
 
-                <div class="assistant-layout">
-
-
-                    <!-- =================================================
-                     CHAT AREA
-                     ================================================= -->
-
-                    <section class="assistant-chat">
+                <aside class="assistant-panel">
 
 
-                        <!-- CHAT HEADER -->
+                    <!-- =================================
+                         STATUS CARD
+                         ================================= -->
 
-                        <div class="chat-header">
-
-
-                            <div class="chat-identity">
-
-                                <div class="chat-avatar">
-
-                                    <i class="fa-solid fa-atom"></i>
-
-                                </div>
+                    <div class="assistant-card">
 
 
-                                <div class="chat-identity-text">
+                        <div class="assistant-card-header">
 
-                                    <strong>
-                                        Orbit
-                                    </strong>
+                            <div>
 
-                                    <span>
-                                        AI Assistant
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="chat-actions">
-
-
-                                <button id="clear-chat-btn" type="button" aria-label="Clear conversation"
-                                    title="Clear conversation">
-
-                                    <i class="fa-solid fa-trash"></i>
-
-                                </button>
-
-
-                                <button id="new-chat-btn" type="button" aria-label="New conversation"
-                                    title="New conversation">
-
-                                    <i class="fa-solid fa-plus"></i>
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-
-
-                        <!-- CHAT WINDOW -->
-
-                        <div class="assistant-chat-window" id="chat-window" aria-live="polite">
-
-                            <!-- JavaScript renders messages here -->
-
-                        </div>
-
-
-
-                        <!-- COMMAND AREA -->
-
-                        <div class="assistant-input-area">
-
-
-                            <div class="assistant-input-box">
-
-
-                                <textarea id="command-input" rows="1" placeholder="Ask Orbit anything..."
-                                    autocomplete="off" aria-label="Ask Orbit AI"></textarea>
-
-
-                                <button id="send-btn" type="button" aria-label="Send message" title="Send message">
-
-                                    <i class="fa-solid fa-arrow-up"></i>
-
-                                </button>
-
-                            </div>
-
-
-                            <div class="assistant-input-footer">
-
-                                <span>
-
-                                    <i class="fa-solid fa-shield-halved"></i>
-
-                                    Orbit AI is ready
-
+                                <span class="card-label">
+                                    STATUS
                                 </span>
 
+                                <h3>
+                                    Assistant
+                                </h3>
+
+                            </div>
+
+
+                            <div class="card-icon">
+
+                                <i class="fa-solid fa-circle-check"></i>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="assistant-status-list">
+
+
+                            <div class="assistant-status-item">
 
                                 <span>
-                                    Enter to send
+                                    Status
                                 </span>
 
-                            </div>
-
-                        </div>
-
-                    </section>
-
-
-
-                    <!-- =================================================
-                     RIGHT PANEL
-                     ================================================= -->
-
-                    <aside class="assistant-panel">
-
-
-                        <!-- =================================================
-                         AI STATUS
-                         ================================================= -->
-
-                        <div class="assistant-card">
-
-
-                            <div class="assistant-card-header">
-
-                                <div>
-
-                                    <span class="card-label">
-                                        SYSTEM
-                                    </span>
-
-                                    <h3>
-                                        Assistant Status
-                                    </h3>
-
-                                </div>
-
-
-                                <i class="fa-solid fa-microchip"></i>
+                                <strong class="online">
+                                    Online
+                                </strong>
 
                             </div>
 
 
-                            <div class="assistant-status-list">
+                            <div class="assistant-status-item">
+
+                                <span>
+                                    Connection
+                                </span>
+
+                                <strong>
+                                    Connected
+                                </strong>
+
+                            </div>
 
 
-                                <div class="assistant-status-item">
+                            <div class="assistant-status-item">
 
-                                    <span>
-                                        Status
-                                    </span>
+                                <span>
+                                    Response
+                                </span>
 
-                                    <strong class="online">
-                                        Online
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="assistant-status-item">
-
-                                    <span>
-                                        Connection
-                                    </span>
-
-                                    <strong>
-                                        Connected
-                                    </strong>
-
-                                </div>
-
-
-                                <div class="assistant-status-item">
-
-                                    <span>
-                                        Response
-                                    </span>
-
-                                    <strong id="response-time">
-                                        Ready
-                                    </strong>
-
-                                </div>
+                                <strong id="response-time">
+                                    Ready
+                                </strong>
 
                             </div>
 
                         </div>
 
+                    </div>
 
 
-                        <!-- =================================================
+
+                    <!-- =================================
                          QUICK ACTIONS
-                         ================================================= -->
+                         ================================= -->
 
-                        <div class="assistant-card">
+                    <div class="assistant-card">
 
 
-                            <div class="assistant-card-header">
+                        <div class="assistant-card-header">
 
-                                <div>
+                            <div>
 
-                                    <span class="card-label">
-                                        COMMANDS
-                                    </span>
+                                <span class="card-label">
+                                    QUICK ACTIONS
+                                </span>
 
-                                    <h3>
-                                        Quick Actions
-                                    </h3>
+                                <h3>
+                                    Get started
+                                </h3>
 
-                                </div>
+                            </div>
 
+
+                            <div class="card-icon">
 
                                 <i class="fa-solid fa-bolt"></i>
 
                             </div>
 
-
-
-                            <div class="quick-actions">
-
-
-                                <button class="quick-action" type="button" data-command="Help me plan my day.">
-
-                                    <span class="quick-action-icon">
-
-                                        <i class="fa-solid fa-calendar-check"></i>
-
-                                    </span>
-
-
-                                    <span class="quick-action-text">
-
-                                        <strong>
-                                            Plan my day
-                                        </strong>
-
-                                        <small>
-                                            Build a productive schedule
-                                        </small>
-
-                                    </span>
-
-
-                                    <i class="fa-solid fa-arrow-right"></i>
-
-                                </button>
-
-
-
-                                <button class="quick-action" type="button" data-command="Help me organize my tasks.">
-
-                                    <span class="quick-action-icon">
-
-                                        <i class="fa-solid fa-list-check"></i>
-
-                                    </span>
-
-
-                                    <span class="quick-action-text">
-
-                                        <strong>
-                                            Organize tasks
-                                        </strong>
-
-                                        <small>
-                                            Sort and prioritize tasks
-                                        </small>
-
-                                    </span>
-
-
-                                    <i class="fa-solid fa-arrow-right"></i>
-
-                                </button>
-
-
-
-                                <button class="quick-action" type="button" data-command="Help me brainstorm ideas.">
-
-                                    <span class="quick-action-icon">
-
-                                        <i class="fa-solid fa-lightbulb"></i>
-
-                                    </span>
-
-
-                                    <span class="quick-action-text">
-
-                                        <strong>
-                                            Brainstorm
-                                        </strong>
-
-                                        <small>
-                                            Generate new ideas
-                                        </small>
-
-                                    </span>
-
-
-                                    <i class="fa-solid fa-arrow-right"></i>
-
-                                </button>
-
-
-
-                                <button class="quick-action" type="button" data-command="Help me write something.">
-
-                                    <span class="quick-action-icon">
-
-                                        <i class="fa-solid fa-pen"></i>
-
-                                    </span>
-
-
-                                    <span class="quick-action-text">
-
-                                        <strong>
-                                            Help me write
-                                        </strong>
-
-                                        <small>
-                                            Create or improve content
-                                        </small>
-
-                                    </span>
-
-
-                                    <i class="fa-solid fa-arrow-right"></i>
-
-                                </button>
-
-                            </div>
-
                         </div>
 
 
 
-                        <!-- =================================================
+                        <div class="quick-actions">
+
+
+                            <button class="quick-action" type="button" data-command="Help me plan my day.">
+
+                                <span class="quick-action-icon">
+
+                                    <i class="fa-solid fa-calendar-check"></i>
+
+                                </span>
+
+
+                                <span class="quick-action-text">
+
+                                    <strong>
+                                        Plan my day
+                                    </strong>
+
+                                    <small>
+                                        Create a simple schedule
+                                    </small>
+
+                                </span>
+
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                            </button>
+
+
+
+                            <button class="quick-action" type="button" data-command="Help me organize my tasks.">
+
+                                <span class="quick-action-icon">
+
+                                    <i class="fa-solid fa-list-check"></i>
+
+                                </span>
+
+
+                                <span class="quick-action-text">
+
+                                    <strong>
+                                        Organize tasks
+                                    </strong>
+
+                                    <small>
+                                        Sort and prioritize tasks
+                                    </small>
+
+                                </span>
+
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                            </button>
+
+
+
+                            <button class="quick-action" type="button" data-command="Help me brainstorm ideas.">
+
+                                <span class="quick-action-icon">
+
+                                    <i class="fa-solid fa-lightbulb"></i>
+
+                                </span>
+
+
+                                <span class="quick-action-text">
+
+                                    <strong>
+                                        Brainstorm
+                                    </strong>
+
+                                    <small>
+                                        Generate useful ideas
+                                    </small>
+
+                                </span>
+
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                            </button>
+
+
+
+                            <button class="quick-action" type="button" data-command="Help me write something.">
+
+                                <span class="quick-action-icon">
+
+                                    <i class="fa-solid fa-pen"></i>
+
+                                </span>
+
+
+                                <span class="quick-action-text">
+
+                                    <strong>
+                                        Help me write
+                                    </strong>
+
+                                    <small>
+                                        Create or improve content
+                                    </small>
+
+                                </span>
+
+
+                                <i class="fa-solid fa-arrow-right"></i>
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================
                          CAPABILITIES
-                         ================================================= -->
+                         ================================= -->
 
-                        <div class="assistant-card">
-
-
-                            <div class="assistant-card-header">
-
-                                <div>
-
-                                    <span class="card-label">
-                                        CAPABILITIES
-                                    </span>
-
-                                    <h3>
-                                        What I Can Do
-                                    </h3>
-
-                                </div>
+                    <div class="assistant-card">
 
 
-                                <i class="fa-solid fa-brain"></i>
+                        <div class="assistant-card-header">
+
+                            <div>
+
+                                <span class="card-label">
+                                    CAPABILITIES
+                                </span>
+
+                                <h3>
+                                    What Orbit can do
+                                </h3>
 
                             </div>
 
 
-                            <ul class="capability-list">
+                            <div class="card-icon">
 
+                                <i class="fa-solid fa-sparkles"></i>
 
-                                <li>
-
-                                    <i class="fa-solid fa-check"></i>
-
-                                    <span>
-                                        Answer questions
-                                    </span>
-
-                                </li>
-
-
-                                <li>
-
-                                    <i class="fa-solid fa-check"></i>
-
-                                    <span>
-                                        Plan projects
-                                    </span>
-
-                                </li>
-
-
-                                <li>
-
-                                    <i class="fa-solid fa-check"></i>
-
-                                    <span>
-                                        Research topics
-                                    </span>
-
-                                </li>
-
-
-                                <li>
-
-                                    <i class="fa-solid fa-check"></i>
-
-                                    <span>
-                                        Write and edit
-                                    </span>
-
-                                </li>
-
-
-                                <li>
-
-                                    <i class="fa-solid fa-check"></i>
-
-                                    <span>
-                                        Organize information
-                                    </span>
-
-                                </li>
-
-
-                                <li>
-
-                                    <i class="fa-solid fa-check"></i>
-
-                                    <span>
-                                        Brainstorm ideas
-                                    </span>
-
-                                </li>
-
-                            </ul>
+                            </div>
 
                         </div>
 
-                    </aside>
 
-                </div>
+                        <ul class="capability-list">
+
+
+                            <li>
+
+                                <i class="fa-solid fa-check"></i>
+
+                                <span>
+                                    Answer questions
+                                </span>
+
+                            </li>
+
+
+                            <li>
+
+                                <i class="fa-solid fa-check"></i>
+
+                                <span>
+                                    Plan projects
+                                </span>
+
+                            </li>
+
+
+                            <li>
+
+                                <i class="fa-solid fa-check"></i>
+
+                                <span>
+                                    Research topics
+                                </span>
+
+                            </li>
+
+
+                            <li>
+
+                                <i class="fa-solid fa-check"></i>
+
+                                <span>
+                                    Write and edit
+                                </span>
+
+                            </li>
+
+
+                            <li>
+
+                                <i class="fa-solid fa-check"></i>
+
+                                <span>
+                                    Organize information
+                                </span>
+
+                            </li>
+
+
+                            <li>
+
+                                <i class="fa-solid fa-check"></i>
+
+                                <span>
+                                    Brainstorm ideas
+                                </span>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </aside>
 
             </section>
 
+        </section>
 
-
-            <!-- =================================================
-             MOBILE DOCK
-             ================================================= -->
-
-            <footer class="dock">
-
-
-                <button class="dock-btn" type="button" aria-label="Dashboard"
-                    onclick="window.location.href='index.html'">
-
-                    <i class="fa-solid fa-house"></i>
-
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Files" onclick="window.location.href='files.html'">
-
-                    <i class="fa-solid fa-folder"></i>
-
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Overview"
-                    onclick="window.location.href='system.html'">
-
-                    <i class="fa-solid fa-chart-line"></i>
-
-                </button>
-
-
-                <button class="dock-btn active" type="button" aria-label="Assistant">
-
-                    <i class="fa-solid fa-comments"></i>
-
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Weather"
-                    onclick="window.location.href='weather.html'">
-
-                    <i class="fa-solid fa-cloud-sun"></i>
-
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Music" onclick="window.location.href='music.html'">
-
-                    <i class="fa-solid fa-music"></i>
-
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Settings"
-                    onclick="window.location.href='settings.html'">
-
-                    <i class="fa-solid fa-gear"></i>
-
-                </button>
-
-            </footer>
-
-        </main>
-
-    </div>
+    </main>
 
 
 
-    <!-- =========================================================
-     JAVASCRIPT
-     ========================================================= -->
-
-    <!-- IMPORTANT:
-     config.js is inside the js folder
--->
+    <!-- =========================================
+         JAVASCRIPT
+         ========================================= -->
 
     <script src="js/config.js"></script>
-    <script src="js/script.js"></script>
+
+    <script src="js/theme.js"></script>
 
     <script src="js/shared.js"></script>
 
+    <script src="js/orbit-ai.js"></script>
+
     <script src="js/assistant.js"></script>
+
+    <script src="js/navigation.js"></script>
 
 
 </body>

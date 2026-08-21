@@ -2,546 +2,550 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+        content="Orbit AI Files — Upload, manage and organize your files.">
 
     <title>Orbit AI — Files</title>
 
-    <!-- ===================================
-    GOOGLE FONTS
-    =================================== -->
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- =====================================================
+         GOOGLE FONTS
+    ====================================================== -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-        rel="stylesheet" />
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
 
-    <!-- ===================================
-    FONT AWESOME
-    =================================== -->
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
 
-    <!-- ===================================
-    CSS
-    =================================== -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <link rel="stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" href="css/variables.css" />
-    <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/sidebar.css" />
-    <link rel="stylesheet" href="css/header.css" />
-    <link rel="stylesheet" href="css/components.css" />
-    <link rel="stylesheet" href="css/animations.css" />
-    <link rel="stylesheet" href="css/responsive.css" />
-    <link rel="stylesheet" href="css/footer.css" />
 
-    <!-- Files Page CSS -->
-    <link rel="stylesheet" href="css/files.css" />
+    <!-- =====================================================
+         CORE CSS
+    ====================================================== -->
+
+    <link rel="stylesheet" href="css/reset.css">
+
+    <link rel="stylesheet" href="css/variables.css">
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="css/files.css">
     <link rel="stylesheet" href="css/FilesUpload.css">
 
-    <!-- Global Overrides -->
-    <link rel="stylesheet" href="style.css" />
 </head>
 
 
 <body>
 
-    <!-- ===================================
-    BOOT SCREEN
-    =================================== -->
 
-    <div id="boot-screen"></div>
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
+    <header class="app-header">
 
-    <!-- ===================================
-    APP CONTAINER
-    =================================== -->
+        <a
+            href="index.html"
+            class="brand"
+            aria-label="Orbit AI Home">
 
-    <div class="app-container">
+            <strong>ORBIT</strong>
 
+            <span>AI</span>
 
-        <!-- ===================================
-        SIDEBAR
-        =================================== -->
-
-        <aside class="sidebar">
-
-            <div class="logo">
-                <h1>ORBIT AI</h1>
-                <span>Version 2.0</span>
-            </div>
+        </a>
 
 
-            <nav class="nav-menu">
+        <button
+            class="menu-toggle"
+            id="menu-toggle"
+            type="button"
+            aria-label="Open navigation"
+            aria-expanded="false"
+            aria-controls="navigation-panel">
 
-                <a href="index.html">
-                    <i class="fa-solid fa-house"></i>
-                    <span>Dashboard</span>
-                </a>
+            <i class="fa-solid fa-bars"></i>
 
-                <a href="system.html">
-                    <i class="fa-solid fa-microchip"></i>
-                    <span>System</span>
-                </a>
+        </button>
 
-                <a href="files.html" class="active">
-                    <i class="fa-solid fa-folder"></i>
-                    <span>Files</span>
-                </a>
-
-                <a href="assistant.html">
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Assistant</span>
-                </a>
-
-                <a href="weather.html">
-                    <i class="fa-solid fa-cloud"></i>
-                    <span>Weather</span>
-                </a>
-
-                <a href="calendar.html">
-                    <i class="fa-solid fa-calendar"></i>
-                    <span>Calendar</span>
-                </a>
-
-                <a href="music.html">
-                    <i class="fa-solid fa-music"></i>
-                    <span>Music</span>
-                </a>
-
-                <a href="settings.html">
-                    <i class="fa-solid fa-gear"></i>
-                    <span>Settings</span>
-                </a>
-
-            </nav>
+    </header>
 
 
-            <div class="sidebar-footer">
 
-                <button class="power-btn" type="button" aria-label="Power Off">
-                    <i class="fa-solid fa-power-off"></i>
-                </button>
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <nav
+        class="navigation-panel"
+        id="navigation-panel"
+        aria-label="Main navigation">
+
+
+        <div class="navigation-header">
+
+            <div>
+
+                <span>ORBIT AI</span>
+
+                <small>
+                    Navigate
+                </small>
 
             </div>
 
-        </aside>
 
+            <button
+                class="menu-close"
+                id="menu-close"
+                type="button"
+                aria-label="Close navigation">
 
-        <!-- ===================================
-        MAIN CONTENT
-        =================================== -->
+                <i class="fa-solid fa-xmark"></i>
 
-        <main class="main-content files-main">
+            </button>
 
+        </div>
 
-            <!-- ===================================
-            FILES HEADER
-            =================================== -->
 
-            <header class="files-header">
 
-                <div class="files-title">
+        <div class="navigation-links">
 
-                    <span class="page-label">
-                        ORBIT FILE SYSTEM
-                    </span>
 
-                    <h1>Files</h1>
+            <a href="index.html">
 
-                    <p>
-                        Manage and explore your selected files.
-                    </p>
+                <i class="fa-solid fa-house"></i>
 
-                </div>
+                <span>
+                    Home
+                </span>
 
+            </a>
 
-                <!-- ===================================
-                FILE ACTIONS
-                =================================== -->
 
-                <div class="files-actions">
+            <a href="assistant.html">
 
-                    <!-- UPLOAD FILES -->
+                <i class="fa-solid fa-comments"></i>
 
-                    <button id="upload-files-btn" class="files-btn primary" type="button">
+                <span>
+                    Assistant
+                </span>
 
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
+            </a>
 
-                        <span>
-                            Upload Files
-                        </span>
 
-                    </button>
+            <a href="system.html">
 
+                <i class="fa-solid fa-chart-line"></i>
 
-                    <!-- SCAN FILES -->
+                <span>
+                    Overview
+                </span>
 
-                    <button id="scan-files-btn" class="files-btn" type="button">
+            </a>
 
-                        <i class="fa-solid fa-folder-open"></i>
 
-                        <span>
-                            Scan Files
-                        </span>
+            <a
+                href="files.html"
+                class="active"
+                aria-current="page">
 
-                    </button>
+                <i class="fa-solid fa-folder"></i>
 
+                <span>
+                    Files
+                </span>
 
-                    <!-- REFRESH -->
+            </a>
 
-                    <button id="refresh-files-btn" class="files-btn" type="button" aria-label="Refresh files"
-                        title="Refresh files">
 
-                        <i class="fa-solid fa-rotate"></i>
+            <a href="weather.html">
 
-                    </button>
+                <i class="fa-solid fa-cloud-sun"></i>
 
-                </div>
+                <span>
+                    Weather
+                </span>
 
-            </header>
+            </a>
 
 
-            <!-- ===================================
-            HIDDEN FILE INPUT
-            =================================== -->
+            <a href="calendar.html">
 
-            <input type="file" id="file-input" multiple hidden />
+                <i class="fa-solid fa-calendar-days"></i>
 
+                <span>
+                    Calendar
+                </span>
 
-            <!-- ===================================
-            FILE STATISTICS
-            =================================== -->
+            </a>
 
-            <section class="files-section">
 
-                <div class="file-stats-grid">
+            <a href="music.html">
 
+                <i class="fa-solid fa-music"></i>
 
-                    <!-- TOTAL FILES -->
+                <span>
+                    Music
+                </span>
 
-                    <div class="file-stat-card">
+            </a>
 
-                        <div class="file-stat-icon">
-                            <i class="fa-solid fa-file"></i>
-                        </div>
 
-                        <div class="file-stat-content">
+            <a href="settings.html">
 
-                            <span>
-                                TOTAL FILES
-                            </span>
+                <i class="fa-solid fa-gear"></i>
 
-                            <strong id="total-files">
-                                0
-                            </strong>
+                <span>
+                    Settings
+                </span>
 
-                        </div>
+            </a>
 
-                    </div>
+        </div>
 
+    </nav>
 
-                    <!-- TOTAL SIZE -->
 
-                    <div class="file-stat-card">
 
-                        <div class="file-stat-icon">
-                            <i class="fa-solid fa-database"></i>
-                        </div>
+    <!-- NAVIGATION OVERLAY -->
 
-                        <div class="file-stat-content">
-
-                            <span>
-                                TOTAL SIZE
-                            </span>
-
-                            <strong id="total-size">
-                                0 B
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- DOCUMENTS -->
-
-                    <div class="file-stat-card">
-
-                        <div class="file-stat-icon">
-                            <i class="fa-solid fa-file-lines"></i>
-                        </div>
-
-                        <div class="file-stat-content">
-
-                            <span>
-                                DOCUMENTS
-                            </span>
-
-                            <strong id="document-count">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- IMAGES -->
-
-                    <div class="file-stat-card">
-
-                        <div class="file-stat-icon">
-                            <i class="fa-solid fa-image"></i>
-                        </div>
-
-                        <div class="file-stat-content">
-
-                            <span>
-                                IMAGES
-                            </span>
-
-                            <strong id="image-count">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- ===================================
-            FILE CONTROLS
-            =================================== -->
-
-            <section class="files-section">
-
-                <div class="file-controls">
-
-
-                    <!-- SEARCH -->
-
-                    <div class="file-search">
-
-                        <i class="fa-solid fa-magnifying-glass"></i>
-
-                        <input type="search" id="file-search" placeholder="Search files..." autocomplete="off" />
-
-                    </div>
-
-
-                    <!-- FILTER -->
-
-                    <div class="file-filter">
-
-                        <i class="fa-solid fa-filter"></i>
-
-                        <select id="file-filter">
-
-                            <option value="all">
-                                All Files
-                            </option>
-
-                            <option value="document">
-                                Documents
-                            </option>
-
-                            <option value="image">
-                                Images
-                            </option>
-
-                            <option value="video">
-                                Videos
-                            </option>
-
-                            <option value="audio">
-                                Audio
-                            </option>
-
-                            <option value="code">
-                                Code
-                            </option>
-
-                            <option value="archive">
-                                Archives
-                            </option>
-
-                            <option value="other">
-                                Other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- ===================================
-            FILE LIST
-            =================================== -->
-
-            <section class="files-section">
-
-                <div class="files-panel">
-
-
-                    <!-- PANEL HEADER -->
-
-                    <div class="files-panel-header">
-
-                        <div>
-
-                            <span class="section-label">
-                                FILE DIRECTORY
-                            </span>
-
-                            <h2>
-                                Selected Files
-                            </h2>
-
-                        </div>
-
-
-                        <span id="file-count-label" class="file-count-label">
-                            0 files
-                        </span>
-
-                    </div>
-
-
-                    <!-- FILE LIST -->
-
-                    <div id="file-list" class="file-list">
-
-                        <!-- EMPTY STATE -->
-
-                        <div id="empty-files" class="empty-files">
-
-                            <div class="empty-files-icon">
-
-                                <i class="fa-solid fa-folder-open"></i>
-
-                            </div>
-
-                            <h3>
-                                No Files Loaded
-                            </h3>
-
-                            <p>
-                                Select files from your device
-                                to display them here.
-                            </p>
-
-
-                            <!-- SELECT FILES BUTTON -->
-
-                            <button id="empty-scan-btn" class="files-btn primary" type="button">
-
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-
-                                Select Files
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- ===================================
-            FILE SYSTEM NOTICE
-            =================================== -->
-
-            <section class="files-notice">
-
-                <i class="fa-solid fa-shield-halved"></i>
-
-                <div>
-
-                    <strong>
-                        Browser File Access
-                    </strong>
-
-                    <p>
-                        Orbit AI only receives information about
-                        files you explicitly select. Your device
-                        files are not automatically scanned.
-                    </p>
-
-                </div>
-
-            </section>
-
-
-            <!-- ===================================
-            BOTTOM DOCK
-            =================================== -->
-
-            <footer class="dock">
-
-                <button class="dock-btn" type="button" aria-label="Dashboard">
-                    <i class="fa-solid fa-house"></i>
-                </button>
-
-
-                <button class="dock-btn active" type="button" aria-label="Files">
-                    <i class="fa-solid fa-folder"></i>
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="System">
-                    <i class="fa-solid fa-microchip"></i>
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Assistant">
-                    <i class="fa-solid fa-comments"></i>
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Weather">
-                    <i class="fa-solid fa-globe"></i>
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Music">
-                    <i class="fa-solid fa-music"></i>
-                </button>
-
-
-                <button class="dock-btn" type="button" aria-label="Settings">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-
-            </footer>
-
-        </main>
-
+    <div
+        class="navigation-overlay"
+        id="navigation-overlay">
     </div>
 
 
-    <!-- ===================================
-    JAVASCRIPT
-    =================================== -->
 
-    <script src="config.js"></script>
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
+
+    <main class="files-main">
+
+
+        <!-- =================================================
+             PAGE INTRO
+        ================================================== -->
+
+        <section class="files-intro">
+
+            <div>
+
+                <span class="eyebrow">
+                    ORBIT AI / FILES
+                </span>
+
+                <h1>
+                    Your Files
+                </h1>
+
+                <p>
+                    Upload, view and manage the files
+                    you use with Orbit AI.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             STORAGE SUMMARY
+        ================================================== -->
+
+        <section
+            class="storage-summary"
+            aria-label="Storage summary">
+
+
+            <!-- STORAGE USED -->
+
+            <div class="storage-card">
+
+                <div class="storage-icon">
+
+                    <i class="fa-solid fa-hard-drive"></i>
+
+                </div>
+
+
+                <div class="storage-content">
+
+                    <span>
+                        Storage Used
+                    </span>
+
+                    <strong id="storage-used">
+                        0 MB
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- FILE COUNT -->
+
+            <div class="storage-card">
+
+                <div class="storage-icon">
+
+                    <i class="fa-solid fa-file"></i>
+
+                </div>
+
+
+                <div class="storage-content">
+
+                    <span>
+                        Files
+                    </span>
+
+                    <strong id="file-count">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- STORAGE AVAILABLE -->
+
+            <div class="storage-card">
+
+                <div class="storage-icon">
+
+                    <i class="fa-solid fa-database"></i>
+
+                </div>
+
+
+                <div class="storage-content">
+
+                    <span>
+                        Available
+                    </span>
+
+                    <strong id="storage-available">
+                        512 MB
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             UPLOAD SECTION
+        ================================================== -->
+
+        <section class="files-section">
+
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        UPLOAD
+                    </span>
+
+                    <h2>
+                        Add a file
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+
+            <!--
+                JavaScript uses this element for:
+
+                • Click-to-upload
+                • Drag and drop
+                • Drag-over state
+                • Drop handling
+            -->
+
+            <div
+                class="upload-area"
+                id="upload-area"
+                role="button"
+                tabindex="0"
+                aria-label="Upload files">
+
+                <!-- FILE INPUT -->
+
+                <input
+                    type="file"
+                    id="file-input"
+                    hidden
+                    multiple
+                    aria-label="Choose files">
+
+
+                <div class="upload-icon">
+
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                </div>
+
+
+                <h3>
+                    Upload your files
+                </h3>
+
+
+                <p>
+                    Drag and drop files here or
+                    choose files from your device.
+                </p>
+
+
+                <button
+                    type="button"
+                    class="upload-button"
+                    id="upload-button">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Choose Files
+
+                </button>
+
+
+                <small>
+                    Files are stored locally in your browser.
+                </small>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             FILE LIST
+        ================================================== -->
+
+        <section class="files-section">
+
+
+            <div class="section-heading file-list-heading">
+
+                <div>
+
+                    <span class="eyebrow">
+                        LIBRARY
+                    </span>
+
+                    <h2>
+                        Your Files
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="clear-files-button"
+                    id="clear-files-button">
+
+                    <i class="fa-solid fa-trash"></i>
+
+                    Clear All
+
+                </button>
+
+            </div>
+
+
+
+            <!--
+                JavaScript dynamically inserts
+                file cards into this container.
+            -->
+
+            <div
+                class="file-list"
+                id="file-list"
+                aria-live="polite"
+                aria-label="Uploaded files">
+
+
+                <!-- EMPTY STATE -->
+
+                <div
+                    class="empty-files"
+                    id="empty-files">
+
+
+                    <div class="empty-files-icon">
+
+                        <i class="fa-regular fa-folder-open"></i>
+
+                    </div>
+
+
+                    <h3>
+                        No files yet
+                    </h3>
+
+
+                    <p>
+                        Upload a file and it will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script src="js/config.js"></script>
+
     <script src="js/shared.js"></script>
+
+    <script src="js/theme.js"></script>
+
     <script src="js/files.js"></script>
+
+    <script src="js/navigation.js"></script>
+
 
 </body>
 

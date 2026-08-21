@@ -1,0 +1,608 @@
+/* ===========================================================
+   ORBIT AI — NAVIGATION
+   Clean AI interface
+   Uses global variables from variables.css
+   =========================================================== */
+
+
+/* ===========================================================
+   HEADER
+   =========================================================== */
+
+.app-header {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: var(--z-header);
+
+    width: 100%;
+
+    height: var(--header-height);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        0
+        var(--spacing-lg);
+
+    background:
+        rgba(85, 90, 101, 0.94);
+
+    border-bottom:
+        1px solid var(--border);
+
+    backdrop-filter:
+        blur(14px);
+
+    -webkit-backdrop-filter:
+        blur(14px);
+
+}
+
+
+/* ===========================================================
+   BRAND
+   =========================================================== */
+
+.brand {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--text);
+
+    text-decoration: none;
+
+    transition:
+        color var(--transition-fast);
+
+}
+
+
+.brand strong {
+
+    font-family:
+        var(--font-secondary);
+
+    font-size:
+        var(--font-size-lg);
+
+    font-weight:
+        var(--font-weight-bold);
+
+    letter-spacing:
+        -0.02em;
+
+}
+
+
+.brand span {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 28px;
+
+    height: 22px;
+
+    padding: 0 7px;
+
+    border-radius:
+        var(--radius-full);
+
+    background:
+        var(--primary-soft);
+
+    color:
+        var(--primary);
+
+    font-size:
+        var(--font-size-xs);
+
+    font-weight:
+        var(--font-weight-semibold);
+
+}
+
+
+/* ===========================================================
+   MENU BUTTON
+   =========================================================== */
+
+.menu-toggle {
+
+    width: 42px;
+
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-md);
+
+    background:
+        var(--surface);
+
+    color:
+        var(--text-secondary);
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+
+}
+
+
+.menu-toggle:hover {
+
+    background:
+        var(--surface-hover);
+
+    border-color:
+        var(--primary);
+
+    color:
+        var(--primary);
+
+}
+
+
+.menu-toggle:active {
+
+    transform:
+        scale(0.96);
+
+}
+
+
+/* ===========================================================
+   NAVIGATION PANEL
+   =========================================================== */
+
+.navigation-panel {
+
+    position: fixed;
+
+    top: 0;
+
+    right: 0;
+
+    z-index: var(--z-navigation);
+
+    width: min(
+        360px,
+        90vw
+    );
+
+    height: 100vh;
+
+    height: 100dvh;
+
+    padding:
+        var(--spacing-lg);
+
+    background:
+        var(--surface);
+
+    border-left:
+        1px solid var(--border);
+
+    box-shadow:
+        var(--shadow-lg);
+
+    transform:
+        translateX(100%);
+
+    transition:
+        transform var(--transition-normal);
+
+    overflow-y: auto;
+
+}
+
+
+.navigation-panel.is-open {
+
+    transform:
+        translateX(0);
+
+}
+
+
+/* ===========================================================
+   NAVIGATION HEADER
+   =========================================================== */
+
+.navigation-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding-bottom:
+        var(--spacing-lg);
+
+    border-bottom:
+        1px solid var(--border-light);
+
+}
+
+
+.navigation-header div {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+}
+
+
+.navigation-header span {
+
+    color:
+        var(--text);
+
+    font-family:
+        var(--font-secondary);
+
+    font-size:
+        var(--font-size-lg);
+
+    font-weight:
+        var(--font-weight-semibold);
+
+}
+
+
+.navigation-header small {
+
+    color:
+        var(--muted);
+
+    font-size:
+        var(--font-size-sm);
+
+}
+
+
+/* ===========================================================
+   CLOSE BUTTON
+   =========================================================== */
+
+.menu-close {
+
+    width: 40px;
+
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border:
+        1px solid var(--border);
+
+    border-radius:
+        var(--radius-md);
+
+    background:
+        var(--surface-soft);
+
+    color:
+        var(--text-secondary);
+
+    cursor: pointer;
+
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+
+}
+
+
+.menu-close:hover {
+
+    background:
+        var(--danger-soft);
+
+    border-color:
+        var(--danger);
+
+    color:
+        var(--danger);
+
+}
+
+
+/* ===========================================================
+   NAVIGATION LINKS
+   =========================================================== */
+
+.navigation-links {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+    padding-top:
+        var(--spacing-lg);
+
+}
+
+
+.navigation-links a {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    min-height: 48px;
+
+    padding:
+        0
+        var(--spacing-md);
+
+    border:
+        1px solid transparent;
+
+    border-radius:
+        var(--radius-md);
+
+    color:
+        var(--text-secondary);
+
+    text-decoration: none;
+
+    font-size:
+        var(--font-size-md);
+
+    font-weight:
+        var(--font-weight-medium);
+
+    transition:
+        background var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+
+}
+
+
+.navigation-links a i {
+
+    width: 20px;
+
+    text-align: center;
+
+    color:
+        var(--muted);
+
+    transition:
+        color var(--transition-fast);
+
+}
+
+
+.navigation-links a:hover {
+
+    background:
+        var(--surface-hover);
+
+    border-color:
+        var(--border);
+
+    color:
+        var(--text);
+
+}
+
+
+.navigation-links a:hover i {
+
+    color:
+        var(--primary);
+
+}
+
+
+/* ===========================================================
+   ACTIVE LINK
+   =========================================================== */
+
+.navigation-links a.active {
+
+    background:
+        var(--primary-soft);
+
+    border-color:
+        rgba(79, 70, 229, 0.14);
+
+    color:
+        var(--primary);
+
+}
+
+
+.navigation-links a.active i {
+
+    color:
+        var(--primary);
+
+}
+
+
+/* ===========================================================
+   ACTIVE INDICATOR
+   =========================================================== */
+
+.navigation-links a.active::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    top: 50%;
+
+    width: 3px;
+
+    height: 22px;
+
+    border-radius:
+        var(--radius-full);
+
+    background:
+        var(--primary);
+
+    transform:
+        translateY(-50%);
+
+}
+
+
+/* ===========================================================
+   OVERLAY
+   =========================================================== */
+
+.navigation-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index:
+        calc(var(--z-navigation) - 1);
+
+    background:
+        rgba(0, 0, 0, 0.35);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+        opacity var(--transition-normal),
+        visibility var(--transition-normal);
+
+}
+
+
+.navigation-overlay.is-visible {
+
+    opacity: 1;
+
+    visibility: visible;
+
+}
+
+
+/* ===========================================================
+   PREVENT BODY SCROLL
+   =========================================================== */
+
+body.navigation-open {
+
+    overflow: hidden;
+
+}
+
+
+/* ===========================================================
+   ACCESSIBILITY
+   =========================================================== */
+
+.menu-toggle:focus-visible,
+.menu-close:focus-visible,
+.navigation-links a:focus-visible {
+
+    outline:
+        2px solid var(--primary);
+
+    outline-offset:
+        2px;
+
+}
+
+
+/* ===========================================================
+   DESKTOP
+   =========================================================== */
+
+@media (min-width: 768px) {
+
+    .app-header {
+
+        padding:
+            0
+            var(--spacing-xl);
+
+    }
+
+}
+
+
+/* ===========================================================
+   MOBILE
+   =========================================================== */
+
+@media (max-width: 480px) {
+
+    .app-header {
+
+        padding:
+            0
+            var(--spacing-md);
+
+    }
+
+
+    .navigation-panel {
+
+        width:
+            min(
+                330px,
+                88vw
+            );
+
+        padding:
+            var(--spacing-md);
+
+    }
+
+}

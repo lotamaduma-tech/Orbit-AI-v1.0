@@ -1,0 +1,844 @@
+/* =========================================================
+   ORBIT AI — SETTINGS PAGE
+   ========================================================= */
+
+/* =========================================================
+   SETTINGS MAIN
+   ========================================================= */
+
+.settings-main {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 80px 24px 100px;
+}
+
+/* =========================================================
+   SETTINGS INTRO
+   ========================================================= */
+
+.settings-intro {
+  margin-bottom: 50px;
+}
+
+.settings-intro h1 {
+  margin: 10px 0 12px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+.settings-intro p {
+  max-width: 650px;
+  margin: 0;
+  color: var(--muted, #a7a7a7);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   SETTINGS SECTION
+   ========================================================= */
+
+.settings-section {
+  margin-bottom: 42px;
+}
+
+.settings-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.settings-section-icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 7%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  font-size: 1rem;
+}
+
+.settings-section-heading h2 {
+  margin: 5px 0 5px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.35rem;
+}
+
+.settings-section-heading p {
+  margin: 0;
+  color: var(--muted, #a7a7a7);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   SETTINGS CARD
+   ========================================================= */
+
+.settings-card {
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 4%);
+  backdrop-filter: blur(12px);
+}
+
+/* =========================================================
+   SETTING ROW
+   ========================================================= */
+
+.setting-row {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-information {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.setting-information strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.98rem;
+}
+
+.setting-information span {
+  color: var(--muted, #a7a7a7);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   SELECT
+   ========================================================= */
+
+.settings-select {
+  min-width: 145px;
+  padding: 10px 36px 10px 13px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 10px;
+  outline: none;
+  background: rgb(255 255 255 / 6%);
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.settings-select:hover {
+  background: rgb(255 255 255 / 9%);
+}
+
+.settings-select:focus {
+  border-color: currentColor;
+}
+
+.settings-select option {
+  background: #181818;
+  color: #ffffff;
+}
+
+/* =========================================================
+   TOGGLE SWITCH
+   ========================================================= */
+
+.settings-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex: 0 0 48px;
+  display: block;
+  cursor: pointer;
+}
+
+.settings-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 14%);
+  border: 1px solid rgb(255 255 255 / 12%);
+  transition: 0.25s ease;
+}
+
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 2px;
+  left: 3px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.25s ease;
+}
+
+.settings-switch input:checked + .switch-slider::before {
+  transform: translateX(21px);
+}
+
+.settings-switch input:focus-visible + .switch-slider {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   ACTION BUTTON
+   ========================================================= */
+
+.settings-action-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 5%);
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.settings-action-button:hover {
+  transform: translateY(-2px);
+  background: rgb(255 255 255 / 9%);
+  border-color: rgb(255 255 255 / 20%);
+}
+
+.settings-action-button:active {
+  transform: translateY(0);
+}
+
+/* =========================================================
+   STORAGE STATUS
+   ========================================================= */
+
+.storage-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 22px;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+}
+
+.storage-status-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 7%);
+}
+
+.storage-status > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.storage-status strong {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.storage-status span {
+  color: var(--muted, #a7a7a7);
+  font-size: 0.82rem;
+}
+
+/* =========================================================
+   PRIVACY CARD
+   ========================================================= */
+
+.privacy-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 4%);
+}
+
+.privacy-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 7%);
+  font-size: 1.1rem;
+}
+
+.privacy-card h3 {
+  margin: 0 0 7px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+}
+
+.privacy-card p {
+  margin: 0;
+  color: var(--muted, #a7a7a7);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   ABOUT CARD
+   ========================================================= */
+
+.about-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px;
+}
+
+.about-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.about-logo {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 7%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  line-height: 1;
+}
+
+.about-logo strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.about-logo span {
+  margin-top: 4px;
+  font-size: 0.62rem;
+  opacity: 0.65;
+}
+
+.about-brand > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.about-brand > div:last-child strong {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.about-brand > div:last-child span {
+  color: var(--muted, #a7a7a7);
+  font-size: 0.82rem;
+}
+
+.about-version {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.about-version span {
+  color: var(--muted, #a7a7a7);
+  font-size: 0.75rem;
+}
+
+.about-version strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.85rem;
+}
+
+/* =========================================================
+   LEGAL LINKS
+   ========================================================= */
+
+.legal-card {
+  padding: 0;
+}
+
+.settings-link {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 22px;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  transition:
+    background 0.25s ease,
+    padding-left 0.25s ease;
+}
+
+.settings-link:last-child {
+  border-bottom: none;
+}
+
+.settings-link:hover {
+  background: rgb(255 255 255 / 5%);
+  padding-left: 26px;
+}
+
+.settings-link span {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.settings-link span i {
+  width: 22px;
+  text-align: center;
+}
+
+.settings-link > i {
+  opacity: 0.55;
+  font-size: 0.75rem;
+}
+
+/* =========================================================
+   DANGER ZONE
+   ========================================================= */
+
+.danger-section {
+  margin-top: 60px;
+}
+
+.danger-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 3%);
+}
+
+.danger-card strong {
+  display: block;
+  margin-bottom: 6px;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.danger-card p {
+  max-width: 650px;
+  margin: 0;
+  color: var(--muted, #a7a7a7);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.danger-button {
+  min-height: 42px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 5%);
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.danger-button:hover {
+  transform: translateY(-2px);
+  background: rgb(255 255 255 / 10%);
+  border-color: rgb(255 255 255 / 25%);
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .settings-main {
+    padding: 60px 18px 80px;
+  }
+
+  .settings-intro {
+    margin-bottom: 38px;
+  }
+
+  .settings-section {
+    margin-bottom: 34px;
+  }
+
+  .setting-row {
+    align-items: flex-start;
+    padding: 17px;
+  }
+
+  .settings-select {
+    min-width: 125px;
+  }
+
+  .danger-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .danger-button {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .settings-main {
+    padding: 45px 14px 65px;
+  }
+
+  .settings-intro h1 {
+    font-size: 2.25rem;
+  }
+
+  .settings-section-heading {
+    gap: 11px;
+  }
+
+  .settings-section-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    border-radius: 11px;
+  }
+
+  .settings-section-heading h2 {
+    font-size: 1.15rem;
+  }
+
+  .settings-section-heading p {
+    font-size: 0.8rem;
+  }
+
+  .setting-row {
+    min-height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 13px;
+    padding: 17px 15px;
+  }
+
+  .settings-select {
+    width: 100%;
+  }
+
+  .settings-switch {
+    align-self: flex-start;
+  }
+
+  .setting-row-action {
+    gap: 14px;
+  }
+
+  .settings-action-button {
+    width: 100%;
+  }
+
+  .storage-status {
+    padding: 17px 15px;
+  }
+
+  .privacy-card {
+    padding: 18px 15px;
+    gap: 13px;
+  }
+
+  .privacy-icon {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  .privacy-card p {
+    font-size: 0.8rem;
+  }
+
+  .about-card {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 17px 15px;
+  }
+
+  .about-version {
+    align-items: flex-start;
+  }
+
+  .settings-link {
+    padding: 15px;
+  }
+
+  .settings-link:hover {
+    padding-left: 18px;
+  }
+
+  .danger-card {
+    padding: 18px 15px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-action-button,
+  .danger-button,
+  .settings-link,
+  .switch-slider,
+  .switch-slider::before {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   THEME-AWARE SETTINGS CONTROLS
+   ========================================================= */
+
+/* SETTINGS CARD */
+.settings-card,
+.privacy-card,
+.danger-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* SECTION ICONS */
+.settings-section-icon,
+.privacy-icon,
+.about-logo,
+.storage-status-icon {
+  background: var(--surface-soft);
+  border-color: var(--border);
+}
+
+/* SETTING ROW DIVIDERS */
+.setting-row,
+.storage-status,
+.settings-link {
+  border-color: var(--border);
+}
+
+/* SELECT */
+.settings-select {
+  background: var(--surface-soft);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.settings-select:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+}
+
+.settings-select:focus {
+  border-color: var(--primary);
+}
+
+.settings-select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* =========================================================
+   TOGGLE SWITCH
+   ========================================================= */
+
+.switch-slider {
+  background: var(--surface-hover);
+  border-color: var(--border);
+}
+
+/* Toggle knob */
+.switch-slider::before {
+  background: var(--text);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ACTIVE / ON STATE */
+.settings-switch input:checked + .switch-slider {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Move knob when ON */
+.settings-switch input:checked + .switch-slider::before {
+  transform: translateX(21px);
+}
+
+/* Keyboard focus */
+.settings-switch input:focus-visible + .switch-slider {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.settings-action-button,
+.danger-button {
+  background: var(--surface-soft);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.settings-action-button:hover,
+.danger-button:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+}
+
+/* =========================================================
+   SETTINGS LINKS
+   ========================================================= */
+
+.settings-link {
+  color: var(--text);
+}
+
+.settings-link:hover {
+  background: var(--surface-hover);
+}
+
+/* =========================================================
+   PRIVACY / INFO TEXT
+   ========================================================= */
+
+.settings-intro p,
+.settings-section-heading p,
+.setting-information span,
+.storage-status span,
+.privacy-card p,
+.about-brand > div:last-child span,
+.about-version span,
+.danger-card p {
+  color: var(--text-secondary);
+}
+
+/* =========================================================
+   LIGHT THEME
+   ========================================================= */
+
+[data-theme="light"] {
+  .settings-card,
+  .privacy-card,
+  .danger-card {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .settings-section-icon,
+  .privacy-icon,
+  .about-logo,
+  .storage-status-icon {
+    background: var(--surface-soft);
+    border-color: var(--border);
+  }
+
+  .setting-row,
+  .storage-status,
+  .settings-link {
+    border-color: var(--border);
+  }
+
+  .settings-select {
+    background: var(--surface-soft);
+    color: var(--text);
+    border-color: var(--border);
+  }
+
+  .settings-select option {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .switch-slider {
+    background: #d9dde5;
+    border-color: #c8cdd6;
+  }
+
+  .switch-slider::before {
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  }
+
+  .settings-switch input:checked + .switch-slider {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .settings-action-button,
+  .danger-button {
+    background: var(--surface-soft);
+    border-color: var(--border);
+  }
+
+  .settings-action-button:hover,
+  .danger-button:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+  }
+
+  .settings-link:hover {
+    background: var(--surface-hover);
+  }
+}

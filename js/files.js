@@ -1,1028 +1,1772 @@
-/* =========================================================
-   ORBIT AI
-   FILES SYSTEM
-   ========================================================= */
+/* ============================================================
+   ORBIT AI — FILE MANAGER
+   IndexedDB File Storage System
+   ============================================================ */
 
-document.addEventListener("DOMContentLoaded", () => {
+"use strict";
 
-  /* =======================================================
-     ELEMENTS
-     ======================================================= */
 
-  const fileInput = document.getElementById("file-input");
+/* ============================================================
+   CONFIGURATION
+   ============================================================ */
 
-  const uploadBtn =
-    document.getElementById("upload-files-btn");
+const ORBIT_FILE_CONFIG = {
 
-  const scanBtn =
-    document.getElementById("scan-files-btn");
+    databaseName: "OrbitAIFileDatabase",
 
-  const emptyScanBtn =
-    document.getElementById("empty-scan-btn");
+    databaseVersion: 1,
 
-  const refreshBtn =
-    document.getElementById("refresh-files-btn");
+    storeName: "files",
 
-  const fileList =
+    /*
+       Maximum local storage allocated by Orbit AI.
+
+       Current limit:
+       512 MB
+    */
+
+    storageLimit: 512 * 1024 * 1024
+
+};
+
+
+/* ============================================================
+   DOM ELEMENTS
+   ============================================================ */
+
+const fileInput =
+    document.getElementById("file-input");
+
+const uploadButton =
+    document.getElementById("upload-button");
+
+const uploadArea =
+    document.getElementById("upload-area");
+
+const fileList =
     document.getElementById("file-list");
 
-  const emptyState =
+const emptyFiles =
     document.getElementById("empty-files");
 
-  const totalFiles =
-    document.getElementById("total-files");
+const clearFilesButton =
+    document.getElementById("clear-files-button");
 
-  const totalSize =
-    document.getElementById("total-size");
+const storageUsed =
+    document.getElementById("storage-used");
 
-  const documentCount =
-    document.getElementById("document-count");
+const fileCount =
+    document.getElementById("file-count");
 
-  const imageCount =
-    document.getElementById("image-count");
+const storageAvailable =
+    document.getElementById("storage-available");
 
-  const fileCountLabel =
-    document.getElementById("file-count-label");
 
-  const searchInput =
-    document.getElementById("file-search");
+/* ============================================================
+   DATABASE
+   ============================================================ */
 
-  const filterSelect =
-    document.getElementById("file-filter");
+let orbitDatabase = null;
 
 
-  /* =======================================================
-     STORAGE
-     ======================================================= */
+/* ============================================================
+   INITIALIZE DATABASE
+   ============================================================ */
 
-  let selectedFiles = [];
+function initializeDatabase() {
 
+    return new Promise((resolve, reject) => {
 
-  /* =======================================================
-     LOAD SAVED FILE INFORMATION
-     ======================================================= */
+        if (!window.indexedDB) {
 
-  function loadFiles() {
+            reject(
+                new Error(
+                    "IndexedDB is not supported by this browser."
+                )
+            );
 
-    try {
+            return;
+        }
 
-      const savedFiles =
-        JSON.parse(
-          localStorage.getItem("orbit-files")
-        ) || [];
 
-      selectedFiles = Array.isArray(savedFiles)
-        ? savedFiles
-        : [];
+        const request =
+            indexedDB.open(
+                ORBIT_FILE_CONFIG.databaseName,
+                ORBIT_FILE_CONFIG.databaseVersion
+            );
 
-    } catch (error) {
 
-      console.error(
-        "Orbit Files: Could not load saved files.",
-        error
-      );
+        request.onupgradeneeded = function (event) {
 
-      selectedFiles = [];
+            const database =
+                event.target.result;
 
-    }
 
-    renderFiles();
+            if (
+                !database.objectStoreNames.contains(
+                    ORBIT_FILE_CONFIG.storeName
+                )
+            ) {
 
-  }
+                const objectStore =
+                    database.createObjectStore(
+                        ORBIT_FILE_CONFIG.storeName,
+                        {
+                            keyPath: "id",
+                            autoIncrement: true
+                        }
+                    );
 
 
-  /* =======================================================
-     OPEN FILE PICKER
-     ======================================================= */
+                objectStore.createIndex(
+                    "name",
+                    "name",
+                    {
+                        unique: false
+                    }
+                );
 
-  function openFilePicker() {
 
-    if (!fileInput) return;
+                objectStore.createIndex(
+                    "type",
+                    "type",
+                    {
+                        unique: false
+                    }
+                );
 
-    fileInput.click();
 
-  }
+                objectStore.createIndex(
+                    "size",
+                    "size",
+                    {
+                        unique: false
+                    }
+                );
 
 
-  /* =======================================================
-     UPLOAD BUTTON
-     ======================================================= */
+                objectStore.createIndex(
+                    "createdAt",
+                    "createdAt",
+                    {
+                        unique: false
+                    }
+                );
 
-  if (uploadBtn) {
+            }
 
-    uploadBtn.addEventListener(
-      "click",
-      openFilePicker
-    );
+        };
 
-  }
 
+        request.onsuccess = function (event) {
 
-  /* =======================================================
-     SCAN FILES BUTTON
-     ======================================================= */
+            orbitDatabase =
+                event.target.result;
 
-  if (scanBtn) {
 
-    scanBtn.addEventListener(
-      "click",
-      openFilePicker
-    );
+            orbitDatabase.onerror =
+                function (error) {
 
-  }
+                    console.error(
+                        "Orbit Files database error:",
+                        error
+                    );
 
+                };
 
-  /* =======================================================
-     EMPTY STATE SELECT BUTTON
-     ======================================================= */
 
-  if (emptyScanBtn) {
+            resolve(
+                orbitDatabase
+            );
 
-    emptyScanBtn.addEventListener(
-      "click",
-      openFilePicker
-    );
+        };
 
-  }
 
+        request.onerror = function () {
 
-  /* =======================================================
-     FILE INPUT
-     ======================================================= */
+            reject(
+                request.error ||
+                new Error(
+                    "Unable to open Orbit Files database."
+                )
+            );
 
-  if (fileInput) {
-
-    fileInput.addEventListener(
-      "change",
-      (event) => {
-
-        const files =
-          Array.from(
-            event.target.files
-          );
-
-        addFiles(files);
-
-        /*
-         * Reset the input so the same
-         * file can be selected again.
-         */
-
-        fileInput.value = "";
-
-      }
-    );
-
-  }
-
-
-  /* =======================================================
-     ADD FILES
-     ======================================================= */
-
-  function addFiles(files) {
-
-    if (!files.length) return;
-
-
-    files.forEach(file => {
-
-      /*
-       * Prevent duplicate files.
-       */
-
-      const alreadyExists =
-        selectedFiles.some(
-          existingFile =>
-            existingFile.name === file.name &&
-            existingFile.size === file.size &&
-            existingFile.modified === file.lastModified
-        );
-
-
-      if (alreadyExists) return;
-
-
-      const fileData = {
-
-        id:
-          Date.now() +
-          "-" +
-          Math.random()
-            .toString(36)
-            .substring(2, 10),
-
-        name:
-          file.name,
-
-        type:
-          file.type ||
-          "Unknown",
-
-        size:
-          file.size,
-
-        modified:
-          file.lastModified,
-
-        category:
-          getFileCategory(file)
-
-      };
-
-
-      selectedFiles.push(fileData);
+        };
 
     });
 
+}
 
-    saveFiles();
 
-    renderFiles();
+/* ============================================================
+   GET ALL FILES
+   ============================================================ */
 
-  }
+function getAllFiles() {
 
+    return new Promise((resolve, reject) => {
 
-  /* =======================================================
-     DETERMINE FILE CATEGORY
-     ======================================================= */
+        if (!orbitDatabase) {
 
-  function getFileCategory(file) {
+            reject(
+                new Error(
+                    "Database is not initialized."
+                )
+            );
 
-    const type =
-      String(file.type || "")
-        .toLowerCase();
+            return;
+        }
 
-    const name =
-      String(file.name || "")
-        .toLowerCase();
 
+        const transaction =
+            orbitDatabase.transaction(
+                ORBIT_FILE_CONFIG.storeName,
+                "readonly"
+            );
 
-    /* IMAGE */
 
-    if (type.startsWith("image/")) {
+        const objectStore =
+            transaction.objectStore(
+                ORBIT_FILE_CONFIG.storeName
+            );
 
-      return "Image";
 
-    }
+        const request =
+            objectStore.getAll();
 
 
-    /* VIDEO */
+        request.onsuccess =
+            function () {
 
-    if (type.startsWith("video/")) {
+                resolve(
+                    request.result || []
+                );
 
-      return "Video";
+            };
 
-    }
 
+        request.onerror =
+            function () {
 
-    /* AUDIO */
+                reject(
+                    request.error
+                );
 
-    if (type.startsWith("audio/")) {
-
-      return "Audio";
-
-    }
-
-
-    /* DOCUMENTS */
-
-    const documentExtensions = [
-      ".pdf",
-      ".doc",
-      ".docx",
-      ".txt",
-      ".rtf",
-      ".odt",
-      ".xls",
-      ".xlsx",
-      ".csv",
-      ".ppt",
-      ".pptx"
-    ];
-
-
-    if (
-      type.includes("pdf") ||
-      type.includes("document") ||
-      type.includes("text") ||
-      documentExtensions.some(
-        extension =>
-          name.endsWith(extension)
-      )
-    ) {
-
-      return "Document";
-
-    }
-
-
-    /* CODE */
-
-    const codeExtensions = [
-      ".html",
-      ".css",
-      ".js",
-      ".jsx",
-      ".ts",
-      ".tsx",
-      ".json",
-      ".py",
-      ".java",
-      ".c",
-      ".cpp",
-      ".php",
-      ".sql"
-    ];
-
-
-    if (
-      codeExtensions.some(
-        extension =>
-          name.endsWith(extension)
-      )
-    ) {
-
-      return "Code";
-
-    }
-
-
-    /* ARCHIVES */
-
-    const archiveExtensions = [
-      ".zip",
-      ".rar",
-      ".7z",
-      ".tar",
-      ".gz"
-    ];
-
-
-    if (
-      type.includes("zip") ||
-      type.includes("rar") ||
-      type.includes("compressed") ||
-      archiveExtensions.some(
-        extension =>
-          name.endsWith(extension)
-      )
-    ) {
-
-      return "Archive";
-
-    }
-
-
-    return "Other";
-
-  }
-
-
-  /* =======================================================
-     SAVE FILE INFORMATION
-     ======================================================= */
-
-  function saveFiles() {
-
-    try {
-
-      localStorage.setItem(
-        "orbit-files",
-        JSON.stringify(selectedFiles)
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Orbit Files: Could not save files.",
-        error
-      );
-
-    }
-
-  }
-
-
-  /* =======================================================
-     RENDER FILES
-     ======================================================= */
-
-  function renderFiles() {
-
-    if (!fileList) return;
-
-
-    /*
-     * Remove only generated file cards.
-     */
-
-    const fileCards =
-      fileList.querySelectorAll(
-        ".file-card"
-      );
-
-
-    fileCards.forEach(card => {
-      card.remove();
-    });
-
-
-    /*
-     * Empty state.
-     */
-
-    if (selectedFiles.length === 0) {
-
-      if (emptyState) {
-
-        emptyState.style.display =
-          "flex";
-
-      }
-
-      updateStatistics();
-
-      return;
-
-    }
-
-
-    if (emptyState) {
-
-      emptyState.style.display =
-        "none";
-
-    }
-
-
-    /*
-     * Search and filter.
-     */
-
-    const searchTerm =
-      searchInput
-        ? searchInput.value
-            .trim()
-            .toLowerCase()
-        : "";
-
-
-    const selectedFilter =
-      filterSelect
-        ? filterSelect.value
-        : "all";
-
-
-    const visibleFiles =
-      selectedFiles.filter(file => {
-
-        const matchesSearch =
-          !searchTerm ||
-          file.name
-            .toLowerCase()
-            .includes(searchTerm);
-
-
-        const matchesFilter =
-          selectedFilter === "all" ||
-          file.category.toLowerCase() ===
-            selectedFilter.toLowerCase();
-
-
-        return (
-          matchesSearch &&
-          matchesFilter
-        );
-
-      });
-
-
-    /*
-     * Display filtered files.
-     */
-
-    visibleFiles.forEach(file => {
-
-      const fileCard =
-        document.createElement("article");
-
-      fileCard.className =
-        "file-card";
-
-      fileCard.dataset.id =
-        file.id;
-
-
-      fileCard.innerHTML = `
-
-        <div class="file-icon">
-
-          <i class="${getFileIcon(
-            file.category
-          )}"></i>
-
-        </div>
-
-
-        <div class="file-info">
-
-          <h3
-            title="${escapeHTML(
-              file.name
-            )}"
-          >
-            ${escapeHTML(
-              file.name
-            )}
-          </h3>
-
-
-          <p>
-
-            ${escapeHTML(
-              file.category
-            )}
-
-            •
-
-            ${formatSize(
-              file.size
-            )}
-
-          </p>
-
-
-          <small>
-
-            Modified:
-
-            ${formatDate(
-              file.modified
-            )}
-
-          </small>
-
-        </div>
-
-
-        <button
-          class="file-delete"
-          type="button"
-          aria-label="Remove ${escapeHTML(
-            file.name
-          )}"
-          data-id="${file.id}"
-        >
-
-          <i class="fa-solid fa-trash"></i>
-
-        </button>
-
-      `;
-
-
-      fileList.appendChild(
-        fileCard
-      );
+            };
 
     });
 
+}
 
-    /*
-     * If search/filter returns nothing.
-     */
 
-    if (
-      visibleFiles.length === 0 &&
-      selectedFiles.length > 0
-    ) {
+/* ============================================================
+   ADD FILE
+   ============================================================ */
 
-      const noResults =
-        document.createElement("div");
+function saveFile(file) {
 
-      noResults.className =
-        "empty-files search-empty";
+    return new Promise((resolve, reject) => {
 
+        if (!orbitDatabase) {
 
-      noResults.innerHTML = `
+            reject(
+                new Error(
+                    "Database is not initialized."
+                )
+            );
 
-        <div class="empty-files-icon">
+            return;
+        }
 
-          <i class="fa-solid fa-magnifying-glass"></i>
 
-        </div>
+        const transaction =
+            orbitDatabase.transaction(
+                ORBIT_FILE_CONFIG.storeName,
+                "readwrite"
+            );
 
-        <h3>
-          No Matching Files
-        </h3>
 
-        <p>
-          Try another search or filter.
-        </p>
+        const objectStore =
+            transaction.objectStore(
+                ORBIT_FILE_CONFIG.storeName
+            );
 
-      `;
 
+        const fileRecord = {
 
-      fileList.appendChild(
-        noResults
-      );
+            name: file.name,
 
-    }
+            type: file.type ||
+                "application/octet-stream",
 
+            size: file.size,
 
-    updateStatistics();
+            file: file,
 
-  }
+            createdAt: new Date().toISOString()
 
+        };
 
-  /* =======================================================
-     FILE ICON
-     ======================================================= */
 
-  function getFileIcon(category) {
+        const request =
+            objectStore.add(
+                fileRecord
+            );
 
-    const icons = {
 
-      Image:
-        "fa-solid fa-image",
+        request.onsuccess =
+            function () {
 
-      Video:
-        "fa-solid fa-video",
+                resolve(
+                    request.result
+                );
 
-      Audio:
-        "fa-solid fa-music",
+            };
 
-      Document:
-        "fa-solid fa-file-lines",
 
-      Code:
-        "fa-solid fa-code",
+        request.onerror =
+            function () {
 
-      Archive:
-        "fa-solid fa-file-zipper",
+                reject(
+                    request.error
+                );
 
-      Other:
-        "fa-solid fa-file"
+            };
 
-    };
+    });
 
+}
 
-    return (
-      icons[category] ||
-      icons.Other
-    );
 
-  }
+/* ============================================================
+   DELETE FILE
+   ============================================================ */
 
+function deleteFile(fileId) {
 
-  /* =======================================================
-     DELETE FILE
-     ======================================================= */
+    return new Promise((resolve, reject) => {
 
-  if (fileList) {
+        if (!orbitDatabase) {
 
-    fileList.addEventListener(
-      "click",
-      (event) => {
+            reject(
+                new Error(
+                    "Database is not initialized."
+                )
+            );
 
-        const deleteButton =
-          event.target.closest(
-            ".file-delete"
-          );
+            return;
+        }
 
 
-        if (!deleteButton) return;
+        const transaction =
+            orbitDatabase.transaction(
+                ORBIT_FILE_CONFIG.storeName,
+                "readwrite"
+            );
 
 
-        const id =
-          deleteButton.dataset.id;
+        const objectStore =
+            transaction.objectStore(
+                ORBIT_FILE_CONFIG.storeName
+            );
 
 
-        selectedFiles =
-          selectedFiles.filter(
-            file =>
-              file.id !== id
-          );
+        const request =
+            objectStore.delete(
+                Number(fileId)
+            );
 
 
-        saveFiles();
+        request.onsuccess =
+            function () {
 
-        renderFiles();
+                resolve();
 
-      }
-    );
+            };
 
-  }
 
+        request.onerror =
+            function () {
 
-  /* =======================================================
-     SEARCH
-     ======================================================= */
+                reject(
+                    request.error
+                );
 
-  if (searchInput) {
+            };
 
-    searchInput.addEventListener(
-      "input",
-      () => {
+    });
 
-        renderFiles();
+}
 
-      }
-    );
 
-  }
+/* ============================================================
+   CLEAR ALL FILES
+   ============================================================ */
 
+function clearAllFiles() {
 
-  /* =======================================================
-     FILTER
-     ======================================================= */
+    return new Promise((resolve, reject) => {
 
-  if (filterSelect) {
+        if (!orbitDatabase) {
 
-    filterSelect.addEventListener(
-      "change",
-      () => {
+            reject(
+                new Error(
+                    "Database is not initialized."
+                )
+            );
 
-        renderFiles();
+            return;
+        }
 
-      }
-    );
 
-  }
+        const transaction =
+            orbitDatabase.transaction(
+                ORBIT_FILE_CONFIG.storeName,
+                "readwrite"
+            );
 
 
-  /* =======================================================
-     REFRESH
-     ======================================================= */
+        const objectStore =
+            transaction.objectStore(
+                ORBIT_FILE_CONFIG.storeName
+            );
 
-  if (refreshBtn) {
 
-    refreshBtn.addEventListener(
-      "click",
-      () => {
+        const request =
+            objectStore.clear();
 
-        refreshBtn.classList.add(
-          "is-refreshing"
-        );
 
+        request.onsuccess =
+            function () {
 
-        loadFiles();
+                resolve();
 
+            };
 
-        setTimeout(() => {
 
-          refreshBtn.classList.remove(
-            "is-refreshing"
-          );
+        request.onerror =
+            function () {
 
-        }, 500);
+                reject(
+                    request.error
+                );
 
-      }
-    );
+            };
 
-  }
+    });
 
+}
 
-  /* =======================================================
-     STATISTICS
-     ======================================================= */
 
-  function updateStatistics() {
+/* ============================================================
+   FORMAT FILE SIZE
+   ============================================================ */
 
-    /*
-     * Total files
-     */
+function formatFileSize(bytes) {
 
-    if (totalFiles) {
+    if (!Number.isFinite(bytes) || bytes <= 0) {
 
-      totalFiles.textContent =
-        selectedFiles.length;
-
-    }
-
-
-    /*
-     * Total size
-     */
-
-    if (totalSize) {
-
-      const size =
-        selectedFiles.reduce(
-          (total, file) =>
-            total +
-            Number(
-              file.size || 0
-            ),
-          0
-        );
-
-
-      totalSize.textContent =
-        formatSize(size);
-
-    }
-
-
-    /*
-     * Documents
-     */
-
-    if (documentCount) {
-
-      const count =
-        selectedFiles.filter(
-          file =>
-            file.category ===
-            "Document"
-        ).length;
-
-
-      documentCount.textContent =
-        count;
-
-    }
-
-
-    /*
-     * Images
-     */
-
-    if (imageCount) {
-
-      const count =
-        selectedFiles.filter(
-          file =>
-            file.category ===
-            "Image"
-        ).length;
-
-
-      imageCount.textContent =
-        count;
-
-    }
-
-
-    /*
-     * File counter
-     */
-
-    if (fileCountLabel) {
-
-      const count =
-        selectedFiles.length;
-
-
-      fileCountLabel.textContent =
-        `${count} ${
-          count === 1
-            ? "file"
-            : "files"
-        }`;
-
-    }
-
-  }
-
-
-  /* =======================================================
-     FORMAT FILE SIZE
-     ======================================================= */
-
-  function formatSize(bytes) {
-
-    if (
-      !bytes ||
-      bytes <= 0
-    ) {
-
-      return "0 B";
+        return "0 Bytes";
 
     }
 
 
     const units = [
-      "B",
-      "KB",
-      "MB",
-      "GB",
-      "TB"
+
+        "Bytes",
+
+        "KB",
+
+        "MB",
+
+        "GB"
+
     ];
 
 
     const index =
-      Math.floor(
-        Math.log(bytes) /
-        Math.log(1024)
-      );
+        Math.floor(
+            Math.log(bytes) /
+            Math.log(1024)
+        );
 
 
     const safeIndex =
-      Math.min(
-        index,
-        units.length - 1
-      );
+        Math.min(
+            index,
+            units.length - 1
+        );
 
 
     const size =
-      bytes /
-      Math.pow(
-        1024,
-        safeIndex
-      );
+        bytes /
+        Math.pow(
+            1024,
+            safeIndex
+        );
 
 
-    return `${size.toFixed(
-      safeIndex === 0
-        ? 0
-        : 2
-    )} ${units[safeIndex]}`;
+    return (
+        size.toFixed(
+            safeIndex === 0 ? 0 : 2
+        ) +
+        " " +
+        units[safeIndex]
+    );
 
-  }
+}
 
 
-  /* =======================================================
-     FORMAT DATE
-     ======================================================= */
+/* ============================================================
+   CALCULATE STORAGE
+   ============================================================ */
 
-  function formatDate(timestamp) {
+function calculateStorage(files) {
 
-    if (!timestamp) {
+    return files.reduce(
+        function (total, item) {
 
-      return "Unknown";
+            return total +
+                (Number(item.size) || 0);
+
+        },
+        0
+    );
+
+}
+
+
+/* ============================================================
+   UPDATE STORAGE UI
+   ============================================================ */
+
+function updateStorageDisplay(files) {
+
+    const used =
+        calculateStorage(files);
+
+
+    const available =
+        Math.max(
+            ORBIT_FILE_CONFIG.storageLimit -
+            used,
+            0
+        );
+
+
+    if (storageUsed) {
+
+        storageUsed.textContent =
+            formatFileSize(
+                used
+            );
 
     }
 
 
-    const date =
-      new Date(timestamp);
+    if (fileCount) {
+
+        fileCount.textContent =
+            files.length;
+
+    }
+
+
+    if (storageAvailable) {
+
+        storageAvailable.textContent =
+            formatFileSize(
+                available
+            );
+
+    }
+
+}
+
+
+/* ============================================================
+   GET FILE ICON
+   ============================================================ */
+
+function getFileIcon(file) {
+
+    const type =
+        file.type ||
+        "";
+
+
+    const name =
+        file.name ||
+        "";
+
+
+    const extension =
+        name
+            .split(".")
+            .pop()
+            .toLowerCase();
+
+
+    if (type.startsWith("image/")) {
+
+        return "fa-file-image";
+
+    }
+
+
+    if (type.startsWith("video/")) {
+
+        return "fa-file-video";
+
+    }
+
+
+    if (type.startsWith("audio/")) {
+
+        return "fa-file-audio";
+
+    }
 
 
     if (
-      Number.isNaN(
-        date.getTime()
-      )
+        type === "application/pdf" ||
+        extension === "pdf"
     ) {
 
-      return "Unknown";
+        return "fa-file-pdf";
 
     }
 
 
-    return date.toLocaleDateString(
-      undefined,
-      {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-      }
+    if (
+        type.includes("word") ||
+        extension === "doc" ||
+        extension === "docx"
+    ) {
+
+        return "fa-file-word";
+
+    }
+
+
+    if (
+        type.includes("excel") ||
+        type.includes("spreadsheet") ||
+        extension === "xls" ||
+        extension === "xlsx" ||
+        extension === "csv"
+    ) {
+
+        return "fa-file-excel";
+
+    }
+
+
+    if (
+        type.includes("powerpoint") ||
+        extension === "ppt" ||
+        extension === "pptx"
+    ) {
+
+        return "fa-file-powerpoint";
+
+    }
+
+
+    if (
+        type.includes("zip") ||
+        type.includes("compressed") ||
+        extension === "zip" ||
+        extension === "rar" ||
+        extension === "7z"
+    ) {
+
+        return "fa-file-zipper";
+
+    }
+
+
+    if (
+        type.startsWith("text/") ||
+        extension === "txt" ||
+        extension === "html" ||
+        extension === "css" ||
+        extension === "js"
+    ) {
+
+        return "fa-file-lines";
+
+    }
+
+
+    return "fa-file";
+
+}
+
+
+/* ============================================================
+   FORMAT DATE
+   ============================================================ */
+
+function formatFileDate(date) {
+
+    if (!date) {
+
+        return "";
+
+    }
+
+
+    const parsedDate =
+        new Date(date);
+
+
+    if (
+        Number.isNaN(
+            parsedDate.getTime()
+        )
+    ) {
+
+        return "";
+
+    }
+
+
+    return parsedDate.toLocaleDateString(
+        undefined,
+        {
+            day: "numeric",
+            month: "short",
+            year: "numeric"
+        }
     );
 
-  }
+}
 
 
-  /* =======================================================
-     ESCAPE HTML
-     ======================================================= */
+/* ============================================================
+   CREATE FILE ELEMENT
+   ============================================================ */
 
-  function escapeHTML(value) {
+function createFileElement(fileRecord) {
 
-    return String(value)
-
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-
-      .replace(
-        /</g,
-        "&lt;"
-      )
-
-      .replace(
-        />/g,
-        "&gt;"
-      )
-
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-
-      .replace(
-        /'/g,
-        "&#039;"
-      );
-
-  }
+    const wrapper =
+        document.createElement("article");
 
 
-  /* =======================================================
-     INITIALIZE
-     ======================================================= */
+    /*
+       These classes are added only to the
+       dynamically-created file item.
 
-  loadFiles();
+       Existing HTML classes remain untouched.
+    */
 
-});
+    wrapper.className =
+        "file-item";
+
+
+    wrapper.dataset.fileId =
+        fileRecord.id;
+
+
+    const icon =
+        document.createElement("div");
+
+    icon.className =
+        "file-item-icon";
+
+
+    const iconElement =
+        document.createElement("i");
+
+    iconElement.className =
+        `fa - solid ${ getFileIcon(fileRecord) } `;
+
+
+    icon.appendChild(
+        iconElement
+    );
+
+
+    const information =
+        document.createElement("div");
+
+    information.className =
+        "file-item-info";
+
+
+    const name =
+        document.createElement("strong");
+
+    name.className =
+        "file-item-name";
+
+    name.textContent =
+        fileRecord.name;
+
+
+    const metadata =
+        document.createElement("span");
+
+    metadata.className =
+        "file-item-meta";
+
+
+    metadata.textContent =
+        `${ formatFileSize(fileRecord.size) } • ${ formatFileDate(fileRecord.createdAt) } `;
+
+
+    information.appendChild(
+        name
+    );
+
+    information.appendChild(
+        metadata
+    );
+
+
+    const actions =
+        document.createElement("div");
+
+    actions.className =
+        "file-item-actions";
+
+
+    /* OPEN / DOWNLOAD */
+
+    const downloadButton =
+        document.createElement("button");
+
+    downloadButton.type =
+        "button";
+
+    downloadButton.className =
+        "file-action";
+
+    downloadButton.title =
+        "Open or download file";
+
+    downloadButton.setAttribute(
+        "aria-label",
+        `Open ${ fileRecord.name } `
+    );
+
+
+    const downloadIcon =
+        document.createElement("i");
+
+    downloadIcon.className =
+        "fa-solid fa-download";
+
+
+    downloadButton.appendChild(
+        downloadIcon
+    );
+
+
+    downloadButton.addEventListener(
+        "click",
+        function () {
+
+            downloadFile(
+                fileRecord
+            );
+
+        }
+    );
+
+
+    /* DELETE */
+
+    const deleteButton =
+        document.createElement("button");
+
+    deleteButton.type =
+        "button";
+
+    deleteButton.className =
+        "file-action delete";
+
+    deleteButton.title =
+        "Delete file";
+
+    deleteButton.setAttribute(
+        "aria-label",
+        `Delete ${ fileRecord.name } `
+    );
+
+
+    const deleteIcon =
+        document.createElement("i");
+
+    deleteIcon.className =
+        "fa-solid fa-trash";
+
+
+    deleteButton.appendChild(
+        deleteIcon
+    );
+
+
+    deleteButton.addEventListener(
+        "click",
+        async function () {
+
+            await handleDeleteFile(
+                fileRecord.id
+            );
+
+        }
+    );
+
+
+    actions.appendChild(
+        downloadButton
+    );
+
+    actions.appendChild(
+        deleteButton
+    );
+
+
+    wrapper.appendChild(
+        icon
+    );
+
+    wrapper.appendChild(
+        information
+    );
+
+    wrapper.appendChild(
+        actions
+    );
+
+
+    return wrapper;
+
+}
+
+
+/* ============================================================
+   RENDER FILE LIST
+   ============================================================ */
+
+async function renderFiles() {
+
+    try {
+
+        const files =
+            await getAllFiles();
+
+
+        updateStorageDisplay(
+            files
+        );
+
+
+        if (!fileList) {
+
+            return;
+
+        }
+
+
+        /*
+           Remove dynamically-generated files
+           while preserving the empty state.
+        */
+
+        const existingItems =
+            fileList.querySelectorAll(
+                ".file-item"
+            );
+
+
+        existingItems.forEach(
+            function (item) {
+
+                item.remove();
+
+            }
+        );
+
+
+        if (files.length === 0) {
+
+            if (emptyFiles) {
+
+                emptyFiles.style.display =
+                    "";
+
+            }
+
+            return;
+
+        }
+
+
+        if (emptyFiles) {
+
+            emptyFiles.style.display =
+                "none";
+
+        }
+
+
+        /*
+           Newest files appear first.
+        */
+
+        files.sort(
+            function (a, b) {
+
+                return new Date(b.createdAt) -
+                    new Date(a.createdAt);
+
+            }
+        );
+
+
+        files.forEach(
+            function (fileRecord) {
+
+                const element =
+                    createFileElement(
+                        fileRecord
+                    );
+
+
+                fileList.appendChild(
+                    element
+                );
+
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Orbit Files: Unable to render files.",
+            error
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   CHECK DUPLICATE
+   ============================================================ */
+
+async function isDuplicateFile(file) {
+
+    const files =
+        await getAllFiles();
+
+
+    return files.some(
+        function (existingFile) {
+
+            return (
+                existingFile.name === file.name &&
+                existingFile.size === file.size
+            );
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   HANDLE FILE UPLOAD
+   ============================================================ */
+
+async function handleFiles(fileCollection) {
+
+    if (!fileCollection) {
+
+        return;
+
+    }
+
+
+    const files =
+        Array.from(
+            fileCollection
+        );
+
+
+    if (files.length === 0) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const existingFiles =
+            await getAllFiles();
+
+
+        let currentStorage =
+            calculateStorage(
+                existingFiles
+            );
+
+
+        let addedCount = 0;
+
+        let skippedCount = 0;
+
+
+        for (const file of files) {
+
+
+            /* DUPLICATE CHECK */
+
+            const duplicate =
+                existingFiles.some(
+                    function (existingFile) {
+
+                        return (
+                            existingFile.name === file.name &&
+                            existingFile.size === file.size
+                        );
+
+                    }
+                );
+
+
+            if (duplicate) {
+
+                skippedCount++;
+
+                continue;
+
+            }
+
+
+            /* STORAGE CHECK */
+
+            if (
+                currentStorage +
+                file.size >
+                ORBIT_FILE_CONFIG.storageLimit
+            ) {
+
+                alert(
+                    `Not enough Orbit storage for "${file.name}".`
+                );
+
+                continue;
+
+            }
+
+
+            await saveFile(
+                file
+            );
+
+
+            currentStorage +=
+                file.size;
+
+
+            existingFiles.push({
+                name: file.name,
+                size: file.size
+            });
+
+
+            addedCount++;
+
+        }
+
+
+        await renderFiles();
+
+
+        if (skippedCount > 0) {
+
+            console.info(
+                `${ skippedCount } duplicate file(s) skipped.`
+            );
+
+        }
+
+
+        if (addedCount > 0) {
+
+            console.info(
+                `Orbit Files: ${ addedCount } file(s) uploaded.`
+            );
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Orbit Files: Upload failed.",
+            error
+        );
+
+
+        alert(
+            "Unable to upload the selected files."
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   DOWNLOAD FILE
+   ============================================================ */
+
+function downloadFile(fileRecord) {
+
+    if (!fileRecord || !fileRecord.file) {
+
+        alert(
+            "This file is no longer available."
+        );
+
+        return;
+
+    }
+
+
+    const blob =
+        fileRecord.file;
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        fileRecord.name;
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    setTimeout(
+        function () {
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        },
+        1000
+    );
+
+}
+
+
+/* ============================================================
+   DELETE SINGLE FILE
+   ============================================================ */
+
+async function handleDeleteFile(fileId) {
+
+    try {
+
+        const files =
+            await getAllFiles();
+
+
+        const file =
+            files.find(
+                function (item) {
+
+                    return Number(item.id) ===
+                        Number(fileId);
+
+                }
+            );
+
+
+        if (!file) {
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                `Delete "${file.name}" ? `
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        await deleteFile(
+            fileId
+        );
+
+
+        await renderFiles();
+
+
+    } catch (error) {
+
+        console.error(
+            "Orbit Files: Delete failed.",
+            error
+        );
+
+
+        alert(
+            "Unable to delete this file."
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   CLEAR ALL FILES
+   ============================================================ */
+
+async function handleClearAllFiles() {
+
+    try {
+
+        const files =
+            await getAllFiles();
+
+
+        if (files.length === 0) {
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                `Delete all ${ files.length } stored file(s) ? `
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        await clearAllFiles();
+
+
+        await renderFiles();
+
+
+    } catch (error) {
+
+        console.error(
+            "Orbit Files: Clear operation failed.",
+            error
+        );
+
+
+        alert(
+            "Unable to clear your files."
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   FILE INPUT CHANGE
+   ============================================================ */
+
+function handleFileInputChange(event) {
+
+    const selectedFiles =
+        event.target.files;
+
+
+    if (
+        selectedFiles &&
+        selectedFiles.length > 0
+    ) {
+
+        handleFiles(
+            selectedFiles
+        );
+
+    }
+
+
+    /*
+       Reset input so selecting the same
+       file again triggers change.
+    */
+
+    event.target.value =
+        "";
+
+}
+
+
+/* ============================================================
+   UPLOAD BUTTON
+   ============================================================ */
+
+function setupUploadButton() {
+
+    if (!uploadButton || !fileInput) {
+
+        console.warn(
+            "Orbit Files: Upload elements not found."
+        );
+
+        return;
+
+    }
+
+
+    uploadButton.addEventListener(
+        "click",
+        function (event) {
+
+            event.stopPropagation();
+
+            fileInput.click();
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   UPLOAD AREA CLICK
+   ============================================================ */
+
+function setupUploadArea() {
+
+    if (!uploadArea || !fileInput) {
+
+        return;
+
+    }
+
+
+    uploadArea.addEventListener(
+        "click",
+        function (event) {
+
+            /*
+               Don't trigger the picker twice
+               when the actual upload button
+               is clicked.
+            */
+
+            if (
+                event.target.closest(
+                    "#upload-button"
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            fileInput.click();
+
+        }
+    );
+
+
+    /* KEYBOARD ACCESS */
+
+    uploadArea.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.preventDefault();
+
+                fileInput.click();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   DRAG & DROP
+   ============================================================ */
+
+function setupDragAndDrop() {
+
+    if (!uploadArea) {
+
+        return;
+
+    }
+
+
+    uploadArea.addEventListener(
+        "dragenter",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            uploadArea.classList.add(
+                "drag-active"
+            );
+
+        }
+    );
+
+
+    uploadArea.addEventListener(
+        "dragover",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            uploadArea.classList.add(
+                "drag-active"
+            );
+
+        }
+    );
+
+
+    uploadArea.addEventListener(
+        "dragleave",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            /*
+               Only remove the state when
+               actually leaving the upload area.
+            */
+
+            if (
+                event.relatedTarget &&
+                uploadArea.contains(
+                    event.relatedTarget
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            uploadArea.classList.remove(
+                "drag-active"
+            );
+
+        }
+    );
+
+
+    uploadArea.addEventListener(
+        "drop",
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            uploadArea.classList.remove(
+                "drag-active"
+            );
+
+
+            const droppedFiles =
+                event.dataTransfer.files;
+
+
+            if (
+                droppedFiles &&
+                droppedFiles.length > 0
+            ) {
+
+                handleFiles(
+                    droppedFiles
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   CLEAR BUTTON
+   ============================================================ */
+
+function setupClearButton() {
+
+    if (!clearFilesButton) {
+
+        return;
+
+    }
+
+
+    clearFilesButton.addEventListener(
+        "click",
+        handleClearAllFiles
+    );
+
+}
+
+
+/* ============================================================
+   INITIALIZE
+   ============================================================ */
+
+async function initializeOrbitFiles() {
+
+    console.log(
+        "Orbit Files: Starting..."
+    );
+
+
+    try {
+
+        await initializeDatabase();
+
+
+        console.log(
+            "Orbit Files: Database ready."
+        );
+
+
+        setupUploadButton();
+
+        setupUploadArea();
+
+        setupDragAndDrop();
+
+        setupClearButton();
+
+
+        if (fileInput) {
+
+            fileInput.addEventListener(
+                "change",
+                handleFileInputChange
+            );
+
+        }
+
+
+        await renderFiles();
+
+
+        console.log(
+            "Orbit Files: Ready."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Orbit Files: Initialization failed.",
+            error
+        );
+
+
+        if (uploadArea) {
+
+            uploadArea.style.opacity =
+                "0.6";
+
+        }
+
+
+        if (uploadButton) {
+
+            uploadButton.disabled =
+                true;
+
+        }
+
+
+        alert(
+            "Orbit Files could not start. Your browser may not support local file storage."
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   START
+   ============================================================ */
+
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeOrbitFiles
+    );
+
+} else {
+
+    initializeOrbitFiles();
+
+}

@@ -1,182 +1,371 @@
-// ==========================================
-// ORBIT AI - SYSTEM PAGE
-// ==========================================
+/* ===========================================================
+   ORBIT AI — SYSTEM / OVERVIEW
+   System Monitoring
+   =========================================================== */
 
-// CPU Elements
-const cpuBar = document.querySelector(".cpu-progress");
+"use strict";
+
+
+/* ===========================================================
+   DOM ELEMENTS
+   =========================================================== */
+
 const cpuValue = document.getElementById("cpu-value");
-
-// Memory Elements
-const memoryBar = document.querySelector(".memory-progress");
 const memoryValue = document.getElementById("memory-value");
 
-// Activity Log
-const systemLog = document.querySelector(".system-log");
 
-// Buttons
-const restartBtn = document.getElementById("restart-btn");
-const diagnosticsBtn = document.getElementById("diagnostics-btn");
-const cacheBtn = document.getElementById("cache-btn");
-const updateBtn = document.getElementById("update-btn");
+/* ===========================================================
+   SYSTEM STATE
+   =========================================================== */
+
+const OrbitOverview = {
+
+    cpu: 24,
+    memory: 48,
+
+    network: {
+        online: navigator.onLine,
+        type: "Unknown",
+        speed: null,
+        latency: null
+    },
 
 
+    /* =======================================================
+       INITIALIZE
+       ======================================================= */
 
-const timeEl = document.getElementById("time");
-const dateEl = document.getElementById("date");
-const greetingEl = document.getElementById("greeting");
+    init() {
 
-function updateClock(){
+        this.updateNetwork();
 
-    const now = new Date();
+        this.updateSystemValues();
 
-    let hours = now.getHours();
-    let minutes = String(now.getMinutes()).padStart(2,"0");
-    let seconds = String(now.getSeconds()).padStart(2,"0");
+        this.startMonitoring();
 
-    const period = hours >= 12 ? "PM" : "AM";
+        console.log("Orbit Overview initialized.");
 
-    const displayHour = hours % 12 || 12;
+    },
 
-    if(timeEl){
-        timeEl.textContent =
-            `${displayHour}:${minutes}:${seconds} ${period}`;
-    }
 
-    if(dateEl){
-        dateEl.textContent =
-            now.toLocaleDateString("en-US",{
-                weekday:"long",
-                year:"numeric",
-                month:"long",
-                day:"numeric"
-            });
-    }
+    /* =======================================================
+       SYSTEM VALUES
+       ======================================================= */
 
-    if(greetingEl){
+    updateSystemValues() {
 
-        let greeting = "Good Evening";
+        /*
+         * Browser JavaScript cannot reliably access
+         * the real CPU and RAM usage of the computer.
+         *
+         * These values are therefore UI/demo values
+         * unless connected to a real system-monitoring backend.
+         */
 
-        if(hours >= 5 && hours < 12){
+        this.cpu =
+            Math.floor(
+                Math.random() * 15
+            ) + 20;
 
-            greeting = "Good Morning";
 
-        }else if(hours >= 12 && hours < 17){
+        this.memory =
+            Math.floor(
+                Math.random() * 12
+            ) + 42;
 
-            greeting = "Good Afternoon";
+
+        if (cpuValue) {
+
+            cpuValue.textContent =
+                `${this.cpu}%`;
 
         }
 
-        greetingEl.textContent = `${greeting}, Kingsley`;
+
+        if (memoryValue) {
+
+            memoryValue.textContent =
+                `${this.memory}%`;
+
+        }
+
+    },
+
+
+    /* =======================================================
+       NETWORK MONITOR
+       ======================================================= */
+
+    updateNetwork() {
+
+        const connection =
+            navigator.connection ||
+            navigator.mozConnection ||
+            navigator.webkitConnection;
+
+
+        this.network = {
+
+            online:
+                navigator.onLine,
+
+            type:
+                connection?.effectiveType ||
+                "Unknown",
+
+            speed:
+                connection?.downlink ||
+                null,
+
+            latency:
+                connection?.rtt ||
+                null
+
+        };
+
+
+        this.updateNetworkUI();
+
+    },
+
+
+    /* =======================================================
+       NETWORK UI
+       ======================================================= */
+
+    updateNetworkUI() {
+
+        const online =
+            this.network.online;
+
+
+        const statusElements =
+            document.querySelectorAll(
+                ".connection-status"
+            );
+
+
+        const networkStrong =
+            document.querySelector(
+                ".network-main strong"
+            );
+
+
+        const networkDescription =
+            document.querySelector(
+                ".network-main p"
+            );
+
+
+        const systemStatus =
+            document.querySelector(
+                ".system-status"
+            );
+
+
+        const statusIndicator =
+            document.querySelector(
+                ".status-indicator"
+            );
+
+
+        const networkStatusText =
+            document.querySelector(
+                ".connection-status"
+            );
+
+
+        /* -----------------------------------------------
+           ONLINE / OFFLINE
+        ------------------------------------------------ */
+
+        if (online) {
+
+            if (networkStrong) {
+
+                networkStrong.textContent =
+                    "Network Connected";
+
+            }
+
+
+            if (networkDescription) {
+
+                networkDescription.textContent =
+                    "Your connection is currently stable.";
+
+            }
+
+
+            if (systemStatus) {
+
+                systemStatus.innerHTML = `
+                    <span class="status-indicator"></span>
+                    <span>System Operational</span>
+                `;
+
+            }
+
+
+            if (networkStatusText) {
+
+                networkStatusText.innerHTML = `
+                    <i class="fa-solid fa-circle"></i>
+                    Online
+                `;
+
+            }
+
+        } else {
+
+            if (networkStrong) {
+
+                networkStrong.textContent =
+                    "Network Offline";
+
+            }
+
+
+            if (networkDescription) {
+
+                networkDescription.textContent =
+                    "Your device is currently offline.";
+
+            }
+
+
+            if (systemStatus) {
+
+                systemStatus.innerHTML = `
+                    <span class="status-indicator"></span>
+                    <span>Connection Offline</span>
+                `;
+
+            }
+
+
+            if (networkStatusText) {
+
+                networkStatusText.innerHTML = `
+                    <i class="fa-solid fa-circle"></i>
+                    Offline
+                `;
+
+            }
+
+        }
+
+    },
+
+
+    /* =======================================================
+       START MONITORING
+       ======================================================= */
+
+    startMonitoring() {
+
+        /*
+         * Refresh system display every 5 seconds.
+         */
+
+        setInterval(() => {
+
+            this.updateSystemValues();
+
+        }, 5000);
+
+
+        /*
+         * Check network every 5 seconds.
+         */
+
+        setInterval(() => {
+
+            this.updateNetwork();
+
+        }, 5000);
 
     }
 
-}
+};
 
-updateClock();
 
-setInterval(updateClock,1000);
+/* ===========================================================
+   BROWSER NETWORK EVENTS
+   =========================================================== */
 
-// ==========================================
-// RANDOM NUMBER
-// ==========================================
+window.addEventListener(
+    "online",
+    () => {
 
-function randomNumber(min,max){
-    return Math.floor(Math.random()*(max-min+1))+min;
-}
+        OrbitOverview.updateNetwork();
 
-// ==========================================
-// UPDATE CPU & MEMORY
-// ==========================================
-
-function updateSystem(){
-
-    const cpu = randomNumber(20,70);
-    const memory = randomNumber(35,85);
-
-    cpuBar.style.width = cpu + "%";
-    memoryBar.style.width = memory + "%";
-
-    cpuValue.textContent = cpu + "%";
-    memoryValue.textContent = memory + "%";
-
-}
-
-updateSystem();
-
-setInterval(updateSystem,3000);
-
-// ==========================================
-// SYSTEM LOG
-// ==========================================
-
-const logMessages = [
-
-    "AI Core synchronized.",
-    "Voice Engine initialized.",
-    "Memory optimization completed.",
-    "Security scan passed.",
-    "Neural Engine updated.",
-    "Network connection stable.",
-    "Storage scan completed.",
-    "Background services running.",
-    "Firewall active.",
-    "Orbit AI operating normally."
-
-];
-
-function addLog(message){
-
-    const p = document.createElement("p");
-
-    const time = new Date().toLocaleTimeString([],{
-        hour:"2-digit",
-        minute:"2-digit",
-        second:"2-digit"
-    });
-
-    p.textContent = `${time} • ${message}`;
-
-    systemLog.prepend(p);
-
-    while(systemLog.children.length > 10){
-        systemLog.removeChild(systemLog.lastChild);
     }
+);
+
+
+window.addEventListener(
+    "offline",
+    () => {
+
+        OrbitOverview.updateNetwork();
+
+    }
+);
+
+
+/* ===========================================================
+   CONNECTION CHANGE
+   =========================================================== */
+
+const connection =
+    navigator.connection ||
+    navigator.mozConnection ||
+    navigator.webkitConnection;
+
+
+if (connection) {
+
+    connection.addEventListener(
+        "change",
+        () => {
+
+            OrbitOverview.updateNetwork();
+
+        }
+    );
 
 }
 
-// Automatic logs
 
-setInterval(()=>{
+/* ===========================================================
+   DOM READY
+   =========================================================== */
 
-    const randomLog =
-        logMessages[Math.floor(Math.random()*logMessages.length)];
+if (
+    document.readyState ===
+    "loading"
+) {
 
-    addLog(randomLog);
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
 
-},7000);
+            OrbitOverview.init();
 
-// ==========================================
-// BUTTON ACTIONS
-// ==========================================
+        }
+    );
 
-restartBtn.addEventListener("click",()=>{
+} else {
 
-    addLog("Restarting Orbit AI...");
-    updateSystem();
+    OrbitOverview.init();
 
-});
+}
 
-diagnosticsBtn.addEventListener("click",()=>{
 
-    addLog("Running diagnostics...");
-});
+/* ===========================================================
+   GLOBAL ACCESS
+   =========================================================== */
 
-cacheBtn.addEventListener("click",()=>{
-
-    addLog("Cache cleared successfully.");
-});
-
-updateBtn.addEventListener("click",()=>{
-
-    addLog("Checking for updates...");
-});
+window.OrbitOverview =
+    OrbitOverview;

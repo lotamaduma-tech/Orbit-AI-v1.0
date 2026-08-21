@@ -1,14 +1,14 @@
 /* ===========================================================
    ORBIT AI — SHARED.JS
-   System + Weather
-=========================================================== */
+   Shared System + Network + Weather Services
+   =========================================================== */
 
 "use strict";
 
 
 /* ===========================================================
-   SYSTEM MONITOR
-=========================================================== */
+   ORBIT SYSTEM
+   =========================================================== */
 
 window.OrbitSystem = {
 
@@ -16,30 +16,41 @@ window.OrbitSystem = {
     network: null,
     device: null,
 
+    /* =======================================================
+       INITIALIZE SYSTEM
+       ======================================================= */
+
     init() {
 
         this.updateStorage();
         this.updateNetwork();
         this.updateDevice();
 
+        /* Refresh storage periodically */
         setInterval(() => {
             this.updateStorage();
         }, 10000);
 
+        /* Refresh network information */
         setInterval(() => {
             this.updateNetwork();
         }, 5000);
 
+        /* Browser comes online */
         window.addEventListener("online", () => {
             this.updateNetwork();
         });
 
+        /* Browser goes offline */
         window.addEventListener("offline", () => {
             this.updateNetwork();
         });
-
     },
 
+
+    /* =======================================================
+       STORAGE
+       ======================================================= */
 
     async updateStorage() {
 
@@ -75,14 +86,17 @@ window.OrbitSystem = {
         } catch (error) {
 
             console.error(
-                "Storage check failed:",
+                "Orbit storage check failed:",
                 error
             );
 
         }
-
     },
 
+
+    /* =======================================================
+       NETWORK
+       ======================================================= */
 
     updateNetwork() {
 
@@ -117,9 +131,12 @@ window.OrbitSystem = {
                 }
             )
         );
-
     },
 
+
+    /* =======================================================
+       DEVICE
+       ======================================================= */
 
     updateDevice() {
 
@@ -131,35 +148,54 @@ window.OrbitSystem = {
 
             language:
                 navigator.language ||
-                "Unknown"
+                "Unknown",
+
+            screenWidth:
+                window.innerWidth,
+
+            screenHeight:
+                window.innerHeight
 
         };
-
     }
 
 };
 
 
 /* ===========================================================
-   WEATHER
-=========================================================== */
+   ORBIT WEATHER
+   Uses Open-Meteo
+   =========================================================== */
 
 window.OrbitWeather = {
 
     data: null,
 
+    loading: false,
+
+
+    /* =======================================================
+       INITIALIZE WEATHER
+       ======================================================= */
 
     async init() {
+
+        if (this.loading) {
+            return;
+        }
+
+        this.loading = true;
 
         console.log(
             "Orbit Weather: Starting..."
         );
 
-
         if (!navigator.geolocation) {
 
+            this.loading = false;
+
             this.showError(
-                "Location is not supported"
+                "Location is not supported by this browser."
             );
 
             return;
@@ -176,49 +212,46 @@ window.OrbitWeather = {
                 const longitude =
                     position.coords.longitude;
 
-
                 console.log(
-                    "Orbit Weather: Location found",
-                    latitude,
-                    longitude
+                    "Orbit Weather: Location detected."
                 );
-
 
                 await this.getWeather(
                     latitude,
                     longitude
                 );
 
+                this.loading = false;
             },
 
 
             (error) => {
 
-                console.error(
-                    "Orbit Weather: Location error",
+                console.warn(
+                    "Orbit Weather: Location unavailable.",
                     error
                 );
 
+                this.loading = false;
 
                 this.showError(
-                    "Location permission required"
+                    "Location permission is required."
                 );
-
             },
 
             {
                 enableHighAccuracy: false,
-
                 timeout: 15000,
-
                 maximumAge: 300000
-
             }
 
         );
-
     },
 
+
+    /* =======================================================
+       GET WEATHER
+       ======================================================= */
 
     async getWeather(
         latitude,
@@ -229,19 +262,22 @@ window.OrbitWeather = {
 
             const url =
                 "https://api.open-meteo.com/v1/forecast" +
+
                 `?latitude=${latitude}` +
+
                 `&longitude=${longitude}` +
+
                 "&current=" +
+
                 "temperature_2m," +
+
                 "relative_humidity_2m," +
+
                 "weather_code," +
+
                 "wind_speed_10m" +
+
                 "&timezone=auto";
-
-
-            console.log(
-                "Orbit Weather: Requesting weather..."
-            );
 
 
             const response =
@@ -259,6 +295,15 @@ window.OrbitWeather = {
 
             const result =
                 await response.json();
+
+
+            if (!result.current) {
+
+                throw new Error(
+                    "Weather data unavailable."
+                );
+
+            }
 
 
             const current =
@@ -305,15 +350,17 @@ window.OrbitWeather = {
                 error
             );
 
-
             this.showError(
-                "Weather unavailable"
+                "Weather is currently unavailable."
             );
 
         }
-
     },
 
+
+    /* =======================================================
+       WEATHER ERROR
+       ======================================================= */
 
     showError(message) {
 
@@ -332,147 +379,20 @@ window.OrbitWeather = {
 
 
 /* ===========================================================
-   START EVERYTHING
-=========================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        console.log(
-            "Orbit shared system starting..."
-        );
-
-
-        OrbitSystem.init();
-
-        OrbitWeather.init();
-
-    }
-);
-
-/* ===========================================================
-   ORBIT AI — DASHBOARD WEATHER
-=========================================================== */
-
-window.addEventListener(
-    "orbit:weatherUpdate",
-    (event) => {
-
-        const weather =
-            event.detail;
-
-
-        const temperature =
-            document.getElementById(
-                "weather-temperature"
-            );
-
-
-        const condition =
-            document.getElementById(
-                "weather-condition"
-            );
-
-
-        const humidity =
-            document.getElementById(
-                "weather-humidity"
-            );
-
-
-        const wind =
-            document.getElementById(
-                "weather-wind"
-            );
-
-
-        const location =
-            document.getElementById(
-                "weather-location"
-            );
-
-
-        const icon =
-            document.getElementById(
-                "weather-icon"
-            );
-
-
-        if (temperature) {
-
-            temperature.textContent =
-                `${Math.round(
-                    weather.temperature
-                )}°C`;
-
-        }
-
-
-        if (condition) {
-
-            condition.textContent =
-                getWeatherCondition(
-                    weather.weatherCode
-                );
-
-        }
-
-
-        if (humidity) {
-
-            humidity.textContent =
-                `${weather.humidity}%`;
-
-        }
-
-
-        if (wind) {
-
-            wind.textContent =
-                `${weather.windSpeed} km/h`;
-
-        }
-
-
-        if (location) {
-
-            location.textContent =
-                "Current location";
-
-        }
-
-
-        if (icon) {
-
-            icon.className =
-                `fa-solid ${
-                    getWeatherIcon(
-                        weather.weatherCode
-                    )
-                }`;
-
-        }
-
-    }
-);
-
-
-/* ===========================================================
    WEATHER CONDITION
-=========================================================== */
+   =========================================================== */
 
 function getWeatherCondition(code) {
 
     if (code === 0) {
-        return "Clear Sky";
+        return "Clear sky";
     }
 
     if (
         code === 1 ||
         code === 2
     ) {
-        return "Partly Cloudy";
+        return "Partly cloudy";
     }
 
     if (code === 3) {
@@ -504,7 +424,7 @@ function getWeatherCondition(code) {
         code >= 80 &&
         code <= 82
     ) {
-        return "Rain Showers";
+        return "Rain showers";
     }
 
     if (
@@ -515,13 +435,12 @@ function getWeatherCondition(code) {
     }
 
     return "Unknown";
-
 }
 
 
 /* ===========================================================
    WEATHER ICON
-=========================================================== */
+   =========================================================== */
 
 function getWeatherIcon(code) {
 
@@ -576,13 +495,132 @@ function getWeatherIcon(code) {
     }
 
     return "fa-cloud";
-
 }
 
 
 /* ===========================================================
-   WEATHER ERROR
-=========================================================== */
+   UPDATE DASHBOARD WEATHER UI
+   =========================================================== */
+
+window.addEventListener(
+    "orbit:weatherUpdate",
+    (event) => {
+
+        const weather =
+            event.detail;
+
+
+        const temperature =
+            document.getElementById(
+                "weather-temperature"
+            );
+
+
+        const condition =
+            document.getElementById(
+                "weather-condition"
+            );
+
+
+        const humidity =
+            document.getElementById(
+                "weather-humidity"
+            );
+
+
+        const wind =
+            document.getElementById(
+                "weather-wind"
+            );
+
+
+        const location =
+            document.getElementById(
+                "weather-location"
+            );
+
+
+        const icon =
+            document.getElementById(
+                "weather-icon"
+            );
+
+
+        /* TEMPERATURE */
+
+        if (temperature) {
+
+            temperature.textContent =
+                `${Math.round(
+                    weather.temperature
+                )}°C`;
+
+        }
+
+
+        /* CONDITION */
+
+        if (condition) {
+
+            condition.textContent =
+                getWeatherCondition(
+                    weather.weatherCode
+                );
+
+        }
+
+
+        /* HUMIDITY */
+
+        if (humidity) {
+
+            humidity.textContent =
+                `${weather.humidity}%`;
+
+        }
+
+
+        /* WIND */
+
+        if (wind) {
+
+            wind.textContent =
+                `${Math.round(
+                    weather.windSpeed
+                )} km/h`;
+
+        }
+
+
+        /* LOCATION */
+
+        if (location) {
+
+            location.textContent =
+                "Current location";
+
+        }
+
+
+        /* ICON */
+
+        if (icon) {
+
+            icon.className =
+                `fa-solid ${getWeatherIcon(
+                    weather.weatherCode
+                )
+                }`;
+
+        }
+
+    }
+);
+
+
+/* ===========================================================
+   WEATHER ERROR UI
+   =========================================================== */
 
 window.addEventListener(
     "orbit:weatherError",
@@ -603,7 +641,8 @@ window.addEventListener(
         if (condition) {
 
             condition.textContent =
-                event.detail;
+                event.detail ||
+                "Weather unavailable";
 
         }
 
@@ -611,9 +650,194 @@ window.addEventListener(
         if (location) {
 
             location.textContent =
-                "Unable to detect location";
+                "Location unavailable";
 
         }
 
     }
 );
+
+
+/* ===========================================================
+   NETWORK UI
+   =========================================================== */
+
+window.addEventListener(
+    "orbit:networkUpdate",
+    (event) => {
+
+        const network =
+            event.detail;
+
+
+        const networkElements =
+            document.querySelectorAll(
+                "[data-orbit-network]"
+            );
+
+
+        networkElements.forEach(
+            (element) => {
+
+                if (network.online) {
+
+                    element.textContent =
+                        "Online";
+
+                    element.classList.add(
+                        "online"
+                    );
+
+                    element.classList.remove(
+                        "offline"
+                    );
+
+                } else {
+
+                    element.textContent =
+                        "Offline";
+
+                    element.classList.add(
+                        "offline"
+                    );
+
+                    element.classList.remove(
+                        "online"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+/* ===========================================================
+   STORAGE UI
+   =========================================================== */
+
+window.addEventListener(
+    "orbit:storageUpdate",
+    (event) => {
+
+        const storage =
+            event.detail;
+
+
+        const usedElement =
+            document.querySelector(
+                "[data-orbit-storage-used]"
+            );
+
+
+        const quotaElement =
+            document.querySelector(
+                "[data-orbit-storage-quota]"
+            );
+
+
+        const progressElement =
+            document.querySelector(
+                "[data-orbit-storage-progress]"
+            );
+
+
+        if (!storage.quota) {
+            return;
+        }
+
+
+        const usedGB =
+            storage.used /
+            (1024 * 1024 * 1024);
+
+
+        const quotaGB =
+            storage.quota /
+            (1024 * 1024 * 1024);
+
+
+        const percentage =
+            Math.min(
+                100,
+                (storage.used /
+                    storage.quota) *
+                100
+            );
+
+
+        if (usedElement) {
+
+            usedElement.textContent =
+                `${usedGB.toFixed(1)} GB`;
+
+        }
+
+
+        if (quotaElement) {
+
+            quotaElement.textContent =
+                `${quotaGB.toFixed(1)} GB`;
+
+        }
+
+
+        if (progressElement) {
+
+            progressElement.style.width =
+                `${percentage}%`;
+
+        }
+
+    }
+);
+
+
+/* ===========================================================
+   START SHARED SERVICES
+   =========================================================== */
+
+function initializeOrbitShared() {
+
+    console.log(
+        "Orbit shared services starting..."
+    );
+
+
+    if (window.OrbitSystem) {
+
+        window.OrbitSystem.init();
+
+    }
+
+
+    if (window.OrbitWeather) {
+
+        window.OrbitWeather.init();
+
+    }
+
+}
+
+
+/* ===========================================================
+   DOM READY
+   =========================================================== */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeOrbitShared
+    );
+
+} else {
+
+    initializeOrbitShared();
+
+}
