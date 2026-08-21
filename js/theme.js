@@ -1,22 +1,12 @@
 /* =========================================================
-   ORBIT AI — THEME SYSTEM
-   Global theme controller
+   ORBIT AI — GLOBAL THEME SYSTEM
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-
-    /* =====================================================
-       STORAGE
-       ===================================================== */
+(() => {
 
     const THEME_KEY = "orbitTheme";
 
     const root = document.documentElement;
-
-
-    /* =====================================================
-       SYSTEM THEME
-       ===================================================== */
 
     const systemTheme = window.matchMedia(
         "(prefers-color-scheme: light)"
@@ -66,10 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function applyTheme(themeName) {
 
-        /*
-         * Make sure only valid themes are accepted.
-         */
-
         if (
             themeName !== "dark" &&
             themeName !== "light" &&
@@ -81,9 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
-        /*
-         * Save the user's preference.
-         */
+        /* Save preference */
 
         localStorage.setItem(
             THEME_KEY,
@@ -92,49 +76,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         /*
-         * Set the theme preference on <html>.
+         * THIS IS THE IMPORTANT PART.
          *
-         * variables.css uses this attribute:
+         * variables.css listens to:
          *
-         * html[data-theme="light"]
          * html[data-theme="dark"]
+         * html[data-theme="light"]
          * html[data-theme="system"]
          */
 
-        root.setAttribute(
-            "data-theme",
-            themeName
-        );
+        root.dataset.theme = themeName;
 
 
         /*
-         * Also update the body classes.
-         * This keeps compatibility with any existing
-         * CSS that uses theme-dark / theme-light.
+         * Body classes for compatibility
          */
 
-        document.body.classList.remove(
-            "theme-dark",
-            "theme-light",
-            "theme-system"
-        );
+        if (document.body) {
 
-        document.body.classList.add(
-            `theme-${themeName}`
-        );
+            document.body.classList.remove(
+                "theme-dark",
+                "theme-light",
+                "theme-system"
+            );
+
+            document.body.classList.add(
+                `theme-${themeName}`
+            );
+
+        }
 
 
-        /*
-         * Update the theme selector.
-         */
+        /* Update settings controls */
 
         updateThemeControls(themeName);
 
 
-        /*
-         * Tell other Orbit AI scripts that the theme
-         * has changed.
-         */
+        /* Notify the rest of Orbit */
 
         window.dispatchEvent(
             new CustomEvent(
@@ -155,53 +133,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       UPDATE THEME CONTROLS
+       UPDATE SETTINGS CONTROLS
        ===================================================== */
 
     function updateThemeControls(themeName) {
 
         /*
-         * Support buttons using data-theme.
+         * Theme buttons
          */
 
-        const themeButtons =
-            document.querySelectorAll(
-                "[data-theme]"
-            );
+        document
+            .querySelectorAll("[data-theme]")
+            .forEach(button => {
 
+                const active =
+                    button.dataset.theme === themeName;
 
-        themeButtons.forEach(button => {
+                button.classList.toggle(
+                    "active",
+                    active
+                );
 
-            const buttonTheme =
-                button.dataset.theme;
+                button.setAttribute(
+                    "aria-pressed",
+                    active
+                        ? "true"
+                        : "false"
+                );
 
-
-            const isActive =
-                buttonTheme === themeName;
-
-
-            button.classList.toggle(
-                "active",
-                isActive
-            );
-
-
-            button.setAttribute(
-                "aria-pressed",
-                isActive
-                    ? "true"
-                    : "false"
-            );
-
-        });
+            });
 
 
         /*
-         * Support the settings select.
-         *
-         * Your HTML uses:
-         *
-         * id="theme-setting"
+         * Theme select
          */
 
         const themeSelect =
@@ -221,54 +185,85 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       THEME SELECT
+       INITIALIZE THEME IMMEDIATELY
        ===================================================== */
 
-    const themeSelect =
-        document.getElementById(
-            "theme-setting"
-        );
+    const savedTheme =
+        getSavedTheme();
 
 
-    if (themeSelect) {
+    /*
+     * Apply the theme immediately.
+     *
+     * This prevents the page from briefly
+     * loading in the wrong theme.
+     */
 
-        themeSelect.addEventListener(
-            "change",
-            event => {
-
-                applyTheme(
-                    event.target.value
-                );
-
-            }
-        );
-
-    }
+    root.dataset.theme = savedTheme;
 
 
     /* =====================================================
-       THEME BUTTONS
+       WAIT FOR PAGE CONTENT
        ===================================================== */
 
-    document
-        .querySelectorAll("[data-theme]")
-        .forEach(button => {
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
 
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const themeName =
-                        button.dataset.theme;
-
-                    applyTheme(
-                        themeName
-                    );
-
-                }
+            updateThemeControls(
+                savedTheme
             );
 
-        });
+
+            /*
+             * Theme selector
+             */
+
+            const themeSelect =
+                document.getElementById(
+                    "theme-setting"
+                );
+
+
+            if (themeSelect) {
+
+                themeSelect.addEventListener(
+                    "change",
+                    event => {
+
+                        applyTheme(
+                            event.target.value
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /*
+             * Theme buttons
+             */
+
+            document
+                .querySelectorAll("[data-theme]")
+                .forEach(button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            applyTheme(
+                                button.dataset.theme
+                            );
+
+                        }
+                    );
+
+                });
+
+        }
+    );
 
 
     /* =====================================================
@@ -285,22 +280,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
 
-            /*
-             * Only react to OS changes when the user
-             * has selected "system".
-             */
-
             if (savedTheme === "system") {
 
-                /*
-                 * Re-apply the system theme so all
-                 * CSS variables update.
-                 */
-
-                root.setAttribute(
-                    "data-theme",
-                    "system"
-                );
+                root.dataset.theme =
+                    "system";
 
 
                 window.dispatchEvent(
@@ -323,20 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =====================================================
-       INITIALIZE
-       ===================================================== */
-
-    const savedTheme =
-        getSavedTheme();
-
-
-    applyTheme(
-        savedTheme
-    );
-
-
-    /* =====================================================
-       GLOBAL ORBIT THEME API
+       GLOBAL API
        ===================================================== */
 
     window.OrbitTheme = {
@@ -358,23 +328,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     THEME_KEY
                 ) || "dark";
 
-
             return theme === "system"
                 ? getSystemTheme()
                 : theme;
 
         },
 
-        getAvailableThemes: () => {
-
-            return [
-                "dark",
-                "light",
-                "system"
-            ];
-
-        }
+        getAvailableThemes: () => [
+            "dark",
+            "light",
+            "system"
+        ]
 
     };
 
-});
+})();

@@ -564,3 +564,38 @@ html[data-reduced-motion="true"] *::after {
     scroll-behavior: auto !important;
 
 }
+
+
+/* =========================================================
+   ORBIT AI — ANIMATION SYSTEM
+   ========================================================= */
+
+:root {
+    --animation-duration-fast: 0.15s;
+    --animation-duration-normal: 0.25s;
+    --animation-duration-slow: 0.35s;
+
+    --animation-ease: ease;
+}
+
+/* =========================================================
+   ANIMATIONS DISABLED
+   ========================================================= */
+
+html[data-animations="false"] *,
+html[data-animations="false"] *::before,
+html[data-animations="false"] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* =========================================================
+   ANIMATIONS ENABLED
+   ========================================================= */
+
+html[data-animations="true"] body {
+    transition:
+        background-color var(--animation-duration-normal) var(--animation-ease),
+        color var(--animation-duration-normal) var(--animation-ease);
+}

@@ -1,28 +1,22 @@
 /* =========================================================
    ORBIT AI — ASSISTANT PAGE
-   Clean Dark AI Workspace
-   Uses variables from variables.css
+   Clean, Spacious AI Workspace
    ========================================================= */
 
 
 /* =========================================================
-   ASSISTANT MAIN
+   PAGE
    ========================================================= */
 
 .assistant-main {
     width: 100%;
-    min-height: 100vh;
+    min-height: 0;
 }
 
-
-/* =========================================================
-   ASSISTANT PAGE
-   ========================================================= */
-
 .assistant-page {
-    width: min(1400px, 100%);
+    width: min(1500px, 100%);
     margin: 0 auto;
-    padding: var(--spacing-xl);
+    padding: 28px 32px;
 }
 
 
@@ -34,108 +28,74 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: var(--spacing-xl);
-
-    margin-bottom: var(--spacing-xl);
+    gap: 24px;
+    margin-bottom: 2px;
 }
-
 
 .assistant-intro-content {
-    max-width: 760px;
+    max-width: 850px;
 }
-
 
 .assistant-intro-content .eyebrow {
     display: inline-block;
-
-    margin-bottom: var(--spacing-sm);
-
+    margin-bottom: 8px;
     color: var(--primary-light);
-
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
-
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
-
 .assistant-intro-content h1 {
-    margin: 0 0 var(--spacing-sm);
-
+    margin: 0 0 10px;
     color: var(--text);
-
     font-family: var(--font-secondary);
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: clamp(2.3rem, 4vw, 3.5rem);
     font-weight: var(--font-weight-bold);
-
-    line-height: 1.1;
+    line-height: 1.05;
 }
 
-
 .assistant-intro-content p {
-    max-width: 650px;
-
+    max-width: 760px;
     margin: 0;
-
     color: var(--text-secondary);
-
     font-size: var(--font-size-md);
     line-height: 1.7;
 }
 
-
-/* =========================================================
-   ONLINE STATUS
-   ========================================================= */
-
 .assistant-online {
     display: inline-flex;
     align-items: center;
-    gap: var(--spacing-sm);
-
-    padding: 9px 14px;
-
+    gap: 9px;
+    padding: 9px 15px;
     border: 1px solid var(--border);
     border-radius: var(--radius-full);
-
     background: var(--surface);
-
     color: var(--text-secondary);
-
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-
     white-space: nowrap;
 }
-
 
 .status-dot {
     width: 8px;
     height: 8px;
-
     border-radius: 50%;
-
     background: var(--success);
-
-    box-shadow:
-        0 0 0 4px var(--success-soft);
+    box-shadow: 0 0 0 4px var(--success-soft);
 }
 
 
 /* =========================================================
-   ASSISTANT WORKSPACE
+   MAIN WORKSPACE
    ========================================================= */
 
 .assistant-workspace {
     display: grid;
-
-    grid-template-columns:
-        minmax(0, 1fr)
-        minmax(260px, 340px);
-
-    gap: var(--spacing-lg);
-
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 22px;
+    height: calc(100vh - 210px);
+    min-height: 680px;
     align-items: stretch;
 }
 
@@ -147,17 +107,13 @@
 .assistant-chat {
     display: flex;
     flex-direction: column;
-
     min-width: 0;
-    min-height: 650px;
-
+    min-height: 0;
     overflow: hidden;
 
     border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-
+    border-radius: 20px;
     background: var(--surface);
-
     box-shadow: var(--shadow);
 }
 
@@ -171,60 +127,50 @@
     align-items: center;
     justify-content: space-between;
 
-    min-height: 72px;
+    min-height: 76px;
+    padding: 14px 22px;
 
-    padding: var(--spacing-md) var(--spacing-lg);
+    flex-shrink: 0;
 
     border-bottom: 1px solid var(--border);
-
     background: var(--surface);
 }
-
 
 .chat-identity {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 13px;
 }
-
 
 .chat-avatar {
     display: grid;
     place-items: center;
 
-    width: 42px;
-    height: 42px;
-
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
 
-    border-radius: var(--radius-md);
-
+    border-radius: 13px;
     background: var(--primary-soft);
-
     color: var(--primary-light);
 
-    font-size: 17px;
+    font-size: 18px;
 }
-
 
 .chat-identity-text {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
 }
-
 
 .chat-identity-text strong {
     color: var(--text);
-
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-semibold);
 }
 
-
 .chat-identity-text span {
     color: var(--muted);
-
     font-size: var(--font-size-xs);
 }
 
@@ -236,24 +182,21 @@
 .chat-actions {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
 }
-
 
 .chat-actions button {
     display: grid;
     place-items: center;
 
-    width: 36px;
-    height: 36px;
-
+    width: 38px;
+    height: 38px;
     padding: 0;
 
     border: 1px solid transparent;
-    border-radius: var(--radius-md);
+    border-radius: 10px;
 
     background: transparent;
-
     color: var(--muted);
 
     cursor: pointer;
@@ -265,131 +208,205 @@
         transform var(--transition-fast);
 }
 
-
 .chat-actions button:hover {
     border-color: var(--border);
-
     background: var(--surface-hover);
-
     color: var(--text);
 }
 
-
 .chat-actions button:active {
-    transform: scale(0.95);
+    transform: scale(0.94);
 }
 
 
 /* =========================================================
    CHAT WINDOW
+   ONLY THIS AREA SCROLLS
    ========================================================= */
 
-.assistant-chat-window {
+.assistant-chat-window,
+#chat-window {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 20px;
 
     flex: 1;
+    min-height: 0;
 
-    min-height: 400px;
-
-    padding: var(--spacing-lg);
+    padding: 28px 32px;
 
     overflow-y: auto;
+    overflow-x: hidden;
 
     background: var(--bg);
 
+    scroll-behavior: smooth;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
 }
 
-
-.assistant-chat-window::-webkit-scrollbar {
-    width: 6px;
+#chat-window::-webkit-scrollbar {
+    width: 7px;
 }
 
-
-.assistant-chat-window::-webkit-scrollbar-track {
+#chat-window::-webkit-scrollbar-track {
     background: transparent;
 }
 
-
-.assistant-chat-window::-webkit-scrollbar-thumb {
-    border-radius: var(--radius-full);
-
+#chat-window::-webkit-scrollbar-thumb {
+    border-radius: 20px;
     background: var(--border);
 }
 
-
-/* =========================================================
-   CHAT EMPTY STATE
-   ========================================================= */
-
-.assistant-chat-window:empty::before {
-    content: "Start a conversation with Orbit.";
-
-    display: block;
-
-    margin: auto;
-
-    color: var(--muted);
-
-    font-size: var(--font-size-md);
-
-    text-align: center;
+#chat-window::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
 }
 
 
 /* =========================================================
-   MESSAGE SUPPORT
-   Works with common Orbit message structures
+   MESSAGE BASE
    ========================================================= */
 
-.message {
-    max-width: min(760px, 85%);
+#chat-window .message {
+    width: fit-content;
+    max-width: 82%;
 
-    padding: 12px 15px;
+    padding: 15px 19px;
+
+    border-radius: 17px;
+
+    font-size: 15px;
+    line-height: 1.7;
+
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+
+    animation: orbitMessageIn 0.25s ease;
+}
+
+
+/* =========================================================
+   ORBIT MESSAGE — LEFT
+   ========================================================= */
+
+#chat-window .message.orbit {
+    align-self: flex-start;
+    margin-right: auto;
 
     border: 1px solid var(--border);
+    border-bottom-left-radius: 6px;
 
-    border-radius: var(--radius-lg);
-
+    background: var(--surface);
     color: var(--text);
 
-    font-size: var(--font-size-md);
-
-    line-height: 1.65;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
 }
 
 
-.user-message {
-    align-self: flex-end;
+/* =========================================================
+   USER MESSAGE — RIGHT
+   ========================================================= */
 
-    border-color: var(--primary);
+#chat-window .message.user {
+    align-self: flex-end;
+    margin-left: auto;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom-right-radius: 6px;
 
     background: var(--primary);
+    color: #ffffff;
 
-    color: #FFFFFF;
-
-    border-bottom-right-radius: var(--radius-sm);
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
 }
 
 
-.ai-message {
-    align-self: flex-start;
+/* =========================================================
+   MESSAGE CONTENT
+   ========================================================= */
 
-    background: var(--surface);
+#chat-window .message p {
+    margin: 0;
+}
 
-    border-bottom-left-radius: var(--radius-sm);
+#chat-window .message strong {
+    font-weight: 700;
+}
+
+#chat-window .message em {
+    font-style: italic;
+}
+
+#chat-window .message h2,
+#chat-window .message h3,
+#chat-window .message h4 {
+    margin: 8px 0;
+}
+
+#chat-window .message ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+#chat-window .message li {
+    margin-bottom: 5px;
+}
+
+#chat-window .message code {
+    padding: 2px 6px;
+    border-radius: 5px;
+
+    background: rgba(0, 0, 0, 0.22);
+
+    font-family: monospace;
+    font-size: 0.9em;
 }
 
 
-.assistant-message {
+/* =========================================================
+   CODE BLOCKS
+   ========================================================= */
+
+#chat-window .orbit-code-block {
+    max-width: 100%;
+
+    margin: 12px 0 0;
+    padding: 16px;
+
+    overflow-x: auto;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: rgba(0, 0, 0, 0.25);
+
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   TYPING INDICATOR
+   ========================================================= */
+
+#orbit-typing {
     align-self: flex-start;
+    margin-right: auto;
+
+    padding: 11px 15px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
 
     background: var(--surface);
+    color: var(--muted);
 
-    border-bottom-left-radius: var(--radius-sm);
+    font-size: 13px;
+}
+
+.typing-dots {
+    margin-left: 5px;
+    letter-spacing: 3px;
 }
 
 
@@ -398,51 +415,61 @@
    ========================================================= */
 
 .assistant-input-area {
-    padding: var(--spacing-md) var(--spacing-lg);
+    flex-shrink: 0;
+
+    padding: 15px 22px 12px;
 
     border-top: 1px solid var(--border);
-
     background: var(--surface);
 }
 
 
+/* =========================================================
+   INPUT BOX
+   ========================================================= */
+
 .assistant-input-box {
     display: flex;
     align-items: flex-end;
-    gap: var(--spacing-sm);
+    gap: 10px;
 
-    min-height: 56px;
+    min-height: 58px;
 
-    padding: 7px 7px 7px 15px;
+    padding: 7px 7px 7px 17px;
 
     border: 1px solid var(--border);
-
-    border-radius: var(--radius-lg);
+    border-radius: 16px;
 
     background: var(--bg);
 
     transition:
-        border-color var(--transition-normal),
-        box-shadow var(--transition-normal);
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
 }
-
 
 .assistant-input-box:focus-within {
     border-color: var(--primary);
+    background: var(--surface);
 
     box-shadow:
         0 0 0 3px var(--primary-soft);
 }
 
 
+/* =========================================================
+   TEXT FIELD
+   ========================================================= */
+
+#command-input,
 .assistant-input-box textarea {
     flex: 1;
 
     width: 100%;
-    min-height: 40px;
+    min-height: 42px;
     max-height: 150px;
 
-    padding: 9px 0;
+    padding: 10px 0;
 
     border: 0;
     outline: 0;
@@ -450,22 +477,20 @@
     resize: none;
 
     background: transparent;
-
     color: var(--text);
 
     font-family: var(--font-body);
-    font-size: var(--font-size-md);
-    line-height: 1.5;
+    font-size: 15px;
+    line-height: 1.55;
 }
 
-
+#command-input::placeholder,
 .assistant-input-box textarea::placeholder {
     color: var(--muted);
 }
 
-
-.assistant-input-box textarea:focus {
-    outline: none;
+#command-input:disabled {
+    opacity: 0.6;
 }
 
 
@@ -473,42 +498,46 @@
    SEND BUTTON
    ========================================================= */
 
+#send-btn,
 .assistant-input-box #send-btn {
     display: grid;
     place-items: center;
 
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
 
     flex-shrink: 0;
 
     border: 0;
-    border-radius: var(--radius-md);
+    border-radius: 12px;
 
     background: var(--primary);
-
-    color: #FFFFFF;
+    color: #ffffff;
 
     cursor: pointer;
 
     transition:
-        background var(--transition-fast),
-        transform var(--transition-fast),
-        box-shadow var(--transition-fast);
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-
-.assistant-input-box #send-btn:hover {
+#send-btn:hover {
     background: var(--primary-dark);
 
-    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
 
-    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
+#send-btn:active {
+    transform: scale(0.94);
+}
 
-.assistant-input-box #send-btn:active {
-    transform: scale(0.95);
+#send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 
@@ -521,15 +550,13 @@
     align-items: center;
     justify-content: space-between;
 
-    gap: var(--spacing-md);
+    gap: 15px;
 
-    margin-top: 9px;
+    margin-top: 8px;
 
     color: var(--muted);
-
-    font-size: var(--font-size-xs);
+    font-size: 11px;
 }
-
 
 .assistant-input-footer span {
     display: inline-flex;
@@ -537,56 +564,69 @@
     gap: 6px;
 }
 
-
 .assistant-input-footer i {
     color: var(--success);
 }
 
 
 /* =========================================================
-   RIGHT PANEL
+   RIGHT INFORMATION PANEL
    ========================================================= */
 
 .assistant-panel {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: 16px;
 
     min-width: 0;
+    min-height: 0;
+
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.assistant-panel::-webkit-scrollbar {
+    width: 5px;
+}
+
+.assistant-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.assistant-panel::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+    background: var(--border);
 }
 
 
 /* =========================================================
-   ASSISTANT CARD
+   ASSISTANT CARDS
    ========================================================= */
 
 .assistant-card {
-    padding: var(--spacing-lg);
+    padding: 20px;
 
     border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
+    border-radius: 17px;
 
     background: var(--surface);
 
     box-shadow: var(--shadow-sm);
 }
 
-
 .assistant-card-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
 
-    gap: var(--spacing-md);
-
-    margin-bottom: var(--spacing-lg);
+    gap: 15px;
+    margin-bottom: 17px;
 }
-
 
 .assistant-card-header > div:first-child {
     min-width: 0;
 }
-
 
 .card-label {
     display: block;
@@ -595,13 +635,12 @@
 
     color: var(--primary-light);
 
-    font-size: var(--font-size-xs);
+    font-size: 10px;
     font-weight: var(--font-weight-bold);
 
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
 }
-
 
 .assistant-card-header h3 {
     margin: 0;
@@ -613,7 +652,6 @@
     font-weight: var(--font-weight-semibold);
 }
 
-
 .card-icon {
     display: grid;
     place-items: center;
@@ -623,16 +661,15 @@
 
     flex-shrink: 0;
 
-    border-radius: var(--radius-md);
+    border-radius: 11px;
 
     background: var(--primary-soft);
-
     color: var(--primary-light);
 }
 
 
 /* =========================================================
-   STATUS LIST
+   STATUS
    ========================================================= */
 
 .assistant-status-list {
@@ -642,41 +679,33 @@
     border-top: 1px solid var(--border);
 }
 
-
 .assistant-status-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    gap: var(--spacing-md);
+    gap: 15px;
 
     padding: 12px 0;
 
     border-bottom: 1px solid var(--border);
 }
 
-
 .assistant-status-item:last-child {
     border-bottom: 0;
-
     padding-bottom: 0;
 }
 
-
 .assistant-status-item span {
     color: var(--text-secondary);
-
     font-size: var(--font-size-sm);
 }
-
 
 .assistant-status-item strong {
     color: var(--text);
-
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
 }
-
 
 .assistant-status-item strong.online {
     color: var(--success);
@@ -693,7 +722,6 @@
     gap: 8px;
 }
 
-
 .quick-action {
     display: grid;
 
@@ -708,10 +736,9 @@
     padding: 11px;
 
     border: 1px solid transparent;
-    border-radius: var(--radius-md);
+    border-radius: 11px;
 
     background: var(--surface-soft);
-
     color: var(--text);
 
     text-align: left;
@@ -719,25 +746,17 @@
     cursor: pointer;
 
     transition:
-        background var(--transition-fast),
-        border-color var(--transition-fast),
-        transform var(--transition-fast);
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
-
 
 .quick-action:hover {
     border-color: var(--border);
-
     background: var(--surface-hover);
 
     transform: translateY(-1px);
 }
-
-
-.quick-action:active {
-    transform: scale(0.99);
-}
-
 
 .quick-action-icon {
     display: grid;
@@ -746,23 +765,19 @@
     width: 38px;
     height: 38px;
 
-    border-radius: var(--radius-md);
+    border-radius: 10px;
 
     background: var(--primary-soft);
-
     color: var(--primary-light);
 }
-
 
 .quick-action-text {
     display: flex;
     flex-direction: column;
 
     min-width: 0;
-
     gap: 3px;
 }
-
 
 .quick-action-text strong {
     overflow: hidden;
@@ -776,7 +791,6 @@
     white-space: nowrap;
 }
 
-
 .quick-action-text small {
     overflow: hidden;
 
@@ -788,22 +802,18 @@
     white-space: nowrap;
 }
 
-
 .quick-action > i:last-child {
     color: var(--muted);
-
     font-size: 12px;
 
     transition:
-        color var(--transition-fast),
-        transform var(--transition-fast);
+        color 0.2s ease,
+        transform 0.2s ease;
 }
-
 
 .quick-action:hover > i:last-child {
     color: var(--primary-light);
-
-    transform: translateX(2px);
+    transform: translateX(3px);
 }
 
 
@@ -822,17 +832,15 @@
     list-style: none;
 }
 
-
 .capability-list li {
     display: flex;
     align-items: center;
+
     gap: 10px;
 
     color: var(--text-secondary);
-
     font-size: var(--font-size-sm);
 }
-
 
 .capability-list li i {
     display: grid;
@@ -844,7 +852,6 @@
     border-radius: 50%;
 
     background: var(--success-soft);
-
     color: var(--success);
 
     font-size: 10px;
@@ -859,140 +866,435 @@
 .quick-action:focus-visible,
 #send-btn:focus-visible {
     outline: 2px solid var(--primary-light);
-
-    outline-offset: 2px;
+    outline-offset: 3px;
 }
 
 
 /* =========================================================
-   RESPONSIVE — TABLET
+   MESSAGE ANIMATION
    ========================================================= */
 
-@media (max-width: 1050px) {
+@keyframes orbitMessageIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   ORBIT AI — RESPONSIVE LAYOUT
+   ========================================================= */
+
+
+/* =========================================================
+   TABLET / SMALL DESKTOP
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    html,
+    body {
+        width: 100%;
+        min-height: 100%;
+        height: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+
+    /* =====================================
+       MAIN APP HEADER
+       ===================================== */
+
+    .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+        width: 100%;
+    }
+
+
+    /* =====================================
+       ASSISTANT PAGE
+       ===================================== */
 
     .assistant-page {
-        padding: var(--spacing-lg);
+        width: 100%;
+        padding: 24px;
     }
 
+
+    /* =====================================
+       WORKSPACE
+       ===================================== */
 
     .assistant-workspace {
+        display: grid;
         grid-template-columns: 1fr;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        gap: 20px;
     }
 
+
+    /* =====================================
+       CHAT
+       ===================================== */
+
+    .assistant-chat {
+        width: 100%;
+        min-height: 720px;
+        height: 720px;
+    }
+
+
+    /* =====================================
+       CHAT WINDOW
+       ===================================== */
+
+    .assistant-chat-window,
+    #chat-window {
+        min-height: 0;
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+
+    /* =====================================
+       INFORMATION PANEL
+       ===================================== */
 
     .assistant-panel {
         display: grid;
-
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-        align-items: start;
-    }
-
-
-    .assistant-chat {
-        min-height: 620px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
     }
 
 }
 
 
 /* =========================================================
-   RESPONSIVE — MOBILE
+   MOBILE
    ========================================================= */
 
 @media (max-width: 700px) {
 
-    .assistant-page {
-        padding: var(--spacing-md);
+    html,
+    body {
+        width: 100%;
+        height: auto;
+        min-height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
 
+    /* =====================================
+       MOBILE NAVIGATION
+       ===================================== */
+
+    .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 99999;
+        width: 100%;
+        min-height: 60px;
+    }
+
+
+    /* =====================================
+       PAGE
+       ===================================== */
+
+    .assistant-page {
+        width: 100%;
+        padding: 18px 12px 24px;
+    }
+
+
+    /* =====================================
+       INTRO
+       ===================================== */
+
     .assistant-intro {
+        display: flex;
         align-items: flex-start;
-
         flex-direction: column;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
 
-        gap: var(--spacing-md);
 
-        margin-bottom: var(--spacing-lg);
+    .assistant-intro-content {
+        width: 100%;
     }
 
 
     .assistant-intro-content h1 {
         font-size: 2rem;
+        line-height: 1.15;
     }
 
 
     .assistant-intro-content p {
         font-size: var(--font-size-sm);
+        line-height: 1.6;
     }
 
 
-    .assistant-online {
-        font-size: var(--font-size-xs);
+    /* =====================================
+       WORKSPACE
+       ===================================== */
+
+    .assistant-workspace {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        gap: 16px;
     }
 
+
+    /* =====================================
+       CHAT CONTAINER
+       ===================================== */
 
     .assistant-chat {
-        min-height: 580px;
-
-        border-radius: var(--radius-lg);
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 720px;
+        min-height: 720px;
+        max-height: 720px;
+        border-radius: 16px;
     }
 
 
+    /* =====================================
+       CHAT HEADER
+       ===================================== */
+
     .chat-header {
+        position: relative;
+        flex-shrink: 0;
+        min-height: 68px;
         padding: 12px 14px;
     }
 
 
-    .assistant-chat-window {
-        min-height: 350px;
-
-        padding: var(--spacing-md);
+    .chat-avatar {
+        width: 40px;
+        height: 40px;
     }
 
+
+    .chat-actions button {
+        width: 35px;
+        height: 35px;
+    }
+
+
+    /* =====================================
+       CHAT MESSAGES
+       ===================================== */
+
+    .assistant-chat-window,
+    #chat-window {
+        flex: 1;
+        min-height: 0;
+        height: auto;
+        padding: 20px 14px;
+        gap: 16px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    /* =====================================
+       MESSAGES
+       ===================================== */
+
+    #chat-window .message {
+        max-width: 91%;
+        padding: 13px 15px;
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+
+    /* =====================================
+       USER MESSAGE
+       ===================================== */
+
+    #chat-window .message.user {
+        align-self: flex-end;
+        margin-left: auto;
+        margin-right: 0;
+    }
+
+
+    /* =====================================
+       ORBIT MESSAGE
+       ===================================== */
+
+    #chat-window .message.orbit {
+        align-self: flex-start;
+        margin-left: 0;
+        margin-right: auto;
+    }
+
+
+    /* =====================================
+       INPUT AREA
+       ===================================== */
 
     .assistant-input-area {
-        padding: 12px;
+        flex-shrink: 0;
+        padding: 11px 12px 10px;
     }
 
+
+    .assistant-input-box {
+        min-height: 54px;
+        padding-left: 13px;
+        border-radius: 14px;
+    }
+
+
+    #command-input,
+    .assistant-input-box textarea {
+        min-height: 40px;
+        font-size: 14px;
+    }
+
+
+    /* =====================================
+       SEND BUTTON
+       ===================================== */
+
+    #send-btn,
+    .assistant-input-box #send-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+    }
+
+
+    /* =====================================
+       INPUT FOOTER
+       ===================================== */
 
     .assistant-input-footer {
-        font-size: 10px;
+        padding: 0 2px;
+        font-size: 9px;
     }
 
+
+    /* =====================================
+       INFORMATION PANEL
+       ===================================== */
 
     .assistant-panel {
         display: flex;
         flex-direction: column;
-
-        gap: var(--spacing-md);
+        width: 100%;
+        gap: 14px;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
     }
 
 
     .assistant-card {
-        padding: var(--spacing-md);
-
-        border-radius: var(--radius-lg);
+        width: 100%;
+        padding: 17px;
+        border-radius: 15px;
     }
 
 }
 
 
 /* =========================================================
-   RESPONSIVE — SMALL PHONES
+   SMALL PHONES
    ========================================================= */
 
 @media (max-width: 420px) {
 
     .assistant-page {
-        padding: 12px;
+        padding: 14px 9px 20px;
     }
 
 
+    /* =====================================
+       NAV HEADER
+       ===================================== */
+
+    .app-header {
+        min-height: 56px;
+    }
+
+
+    /* =====================================
+       INTRO
+       ===================================== */
+
     .assistant-intro-content h1 {
-        font-size: 1.7rem;
+        font-size: 1.75rem;
+    }
+
+
+    .assistant-online {
+        padding: 7px 11px;
+        font-size: 11px;
+    }
+
+
+    /* =====================================
+       CHAT
+       ===================================== */
+
+    .assistant-chat {
+        height: 680px;
+        min-height: 680px;
+        max-height: 680px;
+        border-radius: 14px;
+    }
+
+
+    .chat-header {
+        min-height: 64px;
+        padding: 10px 11px;
+    }
+
+
+    .chat-identity {
+        gap: 9px;
+    }
+
+
+    .chat-avatar {
+        width: 37px;
+        height: 37px;
+        font-size: 15px;
+    }
+
+
+    .chat-identity-text strong {
+        font-size: 13px;
     }
 
 
@@ -1001,8 +1303,36 @@
     }
 
 
-    .assistant-chat-window {
-        min-height: 320px;
+    /* =====================================
+       CHAT WINDOW
+       ===================================== */
+
+    .assistant-chat-window,
+    #chat-window {
+        min-height: 0;
+        padding: 17px 11px;
+        gap: 13px;
+    }
+
+
+    /* =====================================
+       MESSAGES
+       ===================================== */
+
+    #chat-window .message {
+        max-width: 94%;
+        padding: 11px 13px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+
+    /* =====================================
+       INPUT
+       ===================================== */
+
+    .assistant-input-area {
+        padding: 9px;
     }
 
 
@@ -1011,9 +1341,12 @@
     }
 
 
-    .quick-action {
-        grid-template-columns: 34px minmax(0, 1fr) 16px;
+    /* =====================================
+       QUICK ACTIONS
+       ===================================== */
 
+    .quick-action {
+        grid-template-columns: 34px minmax(0, 1fr) 15px;
         padding: 9px;
     }
 
@@ -1021,6 +1354,44 @@
     .quick-action-icon {
         width: 34px;
         height: 34px;
+    }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL DEVICES
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+    .assistant-page {
+        padding: 10px 7px 18px;
+    }
+
+
+    .assistant-chat {
+        height: 650px;
+        min-height: 650px;
+        max-height: 650px;
+    }
+
+
+    .assistant-chat-window,
+    #chat-window {
+        min-height: 0;
+        padding: 14px 9px;
+    }
+
+
+    #chat-window .message {
+        max-width: 96%;
+        font-size: 12.5px;
+    }
+
+
+    .chat-actions {
+        gap: 3px;
     }
 
 }

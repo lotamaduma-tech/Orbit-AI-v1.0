@@ -1,345 +1,97 @@
 /* =========================================================
-   ORBIT AI — ASSISTANT
+   ORBIT AI — ASSISTANT CONTROLLER
+   =========================================================
+
+   IMPORTANT:
+
+   orbit.js = SHARED AI ENGINE
+   assistant.js = ASSISTANT FEATURES
+
+   assistant.js handles:
+   - Quick commands
+   - Quick action buttons
+   - Assistant-specific controls
+   - Local commands
+   - Clean input behavior
+
+   Normal AI messages are sent through:
+
+       OrbitAI.sendMessage()
+
+   This prevents index.html and assistant.html
+   from having separate AI systems.
    ========================================================= */
+
+"use strict";
+
 
 /* =========================================================
    ELEMENTS
    ========================================================= */
 
-const chatWindow = document.getElementById("chat-window");
-const commandInput = document.getElementById("command-input");
-const sendBtn = document.getElementById("send-btn");
+const assistantInput =
+    document.getElementById("command-input");
 
-const clearChatBtn = document.getElementById("clear-chat-btn");
-const newChatBtn = document.getElementById("new-chat-btn");
+const assistantSendButton =
+    document.getElementById("send-btn");
 
-const responseTime = document.getElementById("response-time");
+const assistantClearButton =
+    document.getElementById("clear-chat-btn");
 
-const quickActions =
+const assistantNewChatButton =
+    document.getElementById("new-chat-btn");
+
+const assistantResponseTime =
+    document.getElementById("response-time");
+
+const assistantQuickActions =
     document.querySelectorAll(".quick-action");
 
 
 /* =========================================================
-   API
+   QUICK COMMANDS
    ========================================================= */
 
-const API_URL =
-    window.ORBIT_API_URL ||
-    "https://orbit-ai-v1-0.onrender.com/api/chat";
-
-
-/* =========================================================
-   STATE
-   ========================================================= */
-
-let conversationHistory = [];
-let isWaitingForResponse = false;
-
-
-/* =========================================================
-   WELCOME MESSAGE
-   ========================================================= */
-
-function renderWelcomeMessage() {
-
-    if (!chatWindow) return;
-
-    chatWindow.innerHTML = `
-        <div class="chat-message assistant-message">
-
-            <div class="message-avatar">
-                <i class="fa-solid fa-atom"></i>
-            </div>
-
-            <div class="message-content">
-
-                <span class="message-name">
-                    ORBIT
-                </span>
-
-                <div class="message-bubble">
-
-                    <p>
-                        Hello. I'm Orbit, your AI assistant.
-                    </p>
-
-                    <p>
-                        I can help you plan projects,
-                        answer questions, write content,
-                        organize ideas and more.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-    `;
-
-}
-
-
-/* =========================================================
-   ADD MESSAGE
-   ========================================================= */
-
-function addMessageToUI(role, message, shouldScroll = true) {
-
-    if (!chatWindow) return;
-
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.className =
-        `chat-message ${role}-message`;
-
-
-    /* AVATAR */
-
-    const avatar =
-        document.createElement("div");
-
-    avatar.className =
-        "message-avatar";
-
-
-    const icon =
-        document.createElement("i");
-
-    icon.className =
-        role === "assistant"
-            ? "fa-solid fa-atom"
-            : "fa-solid fa-user";
-
-
-    avatar.appendChild(icon);
-
-
-    /* CONTENT */
-
-    const content =
-        document.createElement("div");
-
-    content.className =
-        "message-content";
-
-
-    /* NAME */
-
-    const name =
-        document.createElement("span");
-
-    name.className =
-        "message-name";
-
-    name.textContent =
-        role === "assistant"
-            ? "ORBIT"
-            : "YOU";
-
-
-    /* MESSAGE */
-
-    const bubble =
-        document.createElement("div");
-
-    bubble.className =
-        "message-bubble";
-
-
-    const paragraph =
-        document.createElement("p");
-
-    paragraph.textContent =
-        message;
-
-
-    bubble.appendChild(paragraph);
-
-    content.appendChild(name);
-    content.appendChild(bubble);
-
-    wrapper.appendChild(avatar);
-    wrapper.appendChild(content);
-
-    chatWindow.appendChild(wrapper);
-
-
-    if (shouldScroll) {
-        scrollChatToBottom();
-    }
-
-}
-
-
-/* =========================================================
-   TYPING INDICATOR
-   ========================================================= */
-
-function showTypingIndicator() {
-
-    removeTypingIndicator();
-
-    if (!chatWindow) return;
-
-    const typing =
-        document.createElement("div");
-
-    typing.id =
-        "orbit-typing";
-
-    typing.className =
-        "chat-message assistant-message";
-
-
-    typing.innerHTML = `
-        <div class="message-avatar">
-            <i class="fa-solid fa-atom"></i>
-        </div>
-
-        <div class="message-content">
-
-            <span class="message-name">
-                ORBIT
-            </span>
-
-            <div class="message-bubble typing-bubble">
-
-                <span></span>
-                <span></span>
-                <span></span>
-
-            </div>
-
-        </div>
-    `;
-
-
-    chatWindow.appendChild(typing);
-
-    scrollChatToBottom();
-
-}
-
-
-/* =========================================================
-   REMOVE TYPING INDICATOR
-   ========================================================= */
-
-function removeTypingIndicator() {
-
-    const typing =
-        document.getElementById("orbit-typing");
-
-    if (typing) {
-        typing.remove();
-    }
-
-}
-
-
-/* =========================================================
-   SCROLL
-   ========================================================= */
-
-function scrollChatToBottom() {
-
-    if (!chatWindow) return;
-
-    requestAnimationFrame(() => {
-
-        chatWindow.scrollTo({
-            top: chatWindow.scrollHeight,
-            behavior: "smooth"
-        });
-
-    });
-
-}
-
-
-/* =========================================================
-   LOCAL COMMANDS
-   ========================================================= */
-
-function handleLocalCommand(input) {
-
-    const command =
-        input.trim().toLowerCase();
-
-
-    /* CLEAR */
-
-    if (command === "/clear") {
-
-        clearConversation();
-
-        return true;
-
-    }
-
-
-    /* NEW */
-
-    if (command === "/new") {
-
-        clearConversation();
-
-        return true;
-
-    }
-
-
-    /* HELP */
-
-    if (command === "/help") {
-
-        addMessageToUI(
-            "assistant",
-            `Available Orbit commands:
-
-/help — Show available commands
-/clear — Clear conversation
-/new — Start a new conversation
-/time — Show current time
-/date — Show today's date
-/status — Show Orbit status
-
-You can also simply ask me anything.`
+const ORBIT_COMMANDS = {
+
+    "/help": () => {
+
+        OrbitAI.sendMessage(
+            "Available commands:\n\n" +
+            "/help — Show available commands\n" +
+            "/clear — Clear the current conversation\n" +
+            "/new — Start a new conversation\n" +
+            "/time — Show the current time\n" +
+            "/date — Show today's date\n" +
+            "/status — Show Orbit system status\n\n" +
+            "You can also simply ask Orbit anything."
         );
 
-        return true;
-
-    }
+    },
 
 
-    /* TIME */
+    "/time": () => {
 
-    if (command === "/time") {
-
-        addMessageToUI(
-            "assistant",
-            `The current time is ${new Date().toLocaleTimeString(
+        const time =
+            new Date().toLocaleTimeString(
                 [],
                 {
                     hour: "2-digit",
                     minute: "2-digit"
                 }
-            )}.`
+            );
+
+        showLocalResponse(
+            `The current time is ${time}.`
         );
 
-        return true;
-
-    }
+    },
 
 
-    /* DATE */
+    "/date": () => {
 
-    if (command === "/date") {
-
-        addMessageToUI(
-            "assistant",
-            `Today is ${new Date().toLocaleDateString(
+        const date =
+            new Date().toLocaleDateString(
                 [],
                 {
                     weekday: "long",
@@ -347,259 +99,403 @@ You can also simply ask me anything.`
                     month: "long",
                     day: "numeric"
                 }
-            )}.`
+            );
+
+        showLocalResponse(
+            `Today is ${date}.`
         );
 
-        return true;
-
-    }
+    },
 
 
-    /* STATUS */
+    "/status": () => {
 
-    if (command === "/status") {
-
-        addMessageToUI(
-            "assistant",
+        showLocalResponse(
             `ORBIT SYSTEM STATUS
 
 Status: Online
 Assistant: Active
-Connection: Connected
-AI Engine: Ready`
+AI Engine: Connected
+Backend: Render
+Connection: Ready`
         );
 
-        return true;
+    },
+
+
+    "/clear": () => {
+
+        OrbitAI.clearConversation();
+
+    },
+
+
+    "/new": () => {
+
+        OrbitAI.newChat();
+
+    }
+
+};
+
+
+/* =========================================================
+   LOCAL RESPONSE
+   =========================================================
+
+   Used for commands that don't need the AI backend.
+   ========================================================= */
+
+function showLocalResponse(message) {
+
+    if (
+        typeof addOrbitMessage ===
+        "function"
+    ) {
+
+        addOrbitMessage(
+            message,
+            "orbit"
+        );
+
+    }
+    else {
+
+        console.warn(
+            "Orbit message renderer is unavailable."
+        );
 
     }
 
 
-    /* UNKNOWN */
+    if (assistantResponseTime) {
 
-    if (command.startsWith("/")) {
-
-        addMessageToUI(
-            "assistant",
-            `I don't recognize "${input}". Type /help to see the available commands.`
-        );
-
-        return true;
+        assistantResponseTime.textContent =
+            "Ready";
 
     }
-
-
-    return false;
 
 }
 
 
 /* =========================================================
-   SEND MESSAGE
+   NORMALIZE COMMAND
    ========================================================= */
 
-async function sendMessage(message = null) {
+function normalizeCommand(value) {
 
-    if (isWaitingForResponse) {
+    return String(value || "")
+        .trim()
+        .toLowerCase();
+
+}
+
+
+/* =========================================================
+   CHECK LOCAL COMMAND
+   ========================================================= */
+
+function isOrbitCommand(value) {
+
+    const command =
+        normalizeCommand(value);
+
+    return Boolean(
+        ORBIT_COMMANDS[command]
+    );
+
+}
+
+
+/* =========================================================
+   EXECUTE LOCAL COMMAND
+   ========================================================= */
+
+function executeOrbitCommand(value) {
+
+    const command =
+        normalizeCommand(value);
+
+    const handler =
+        ORBIT_COMMANDS[command];
+
+    if (!handler) {
+
+        return false;
+
+    }
+
+    if (assistantInput) {
+
+        assistantInput.value = "";
+
+        assistantInput.style.height =
+            "auto";
+
+    }
+
+    handler();
+
+    return true;
+
+}
+
+
+/* =========================================================
+   UNKNOWN COMMAND
+   ========================================================= */
+
+function handleUnknownCommand(value) {
+
+    const command =
+        String(value || "").trim();
+
+    if (!command.startsWith("/")) {
+
+        return false;
+
+    }
+
+    showLocalResponse(
+        `I don't recognize "${command}".
+
+Type /help to see the available Orbit commands.`
+    );
+
+    if (assistantInput) {
+
+        assistantInput.value = "";
+
+        assistantInput.style.height =
+            "auto";
+
+    }
+
+    return true;
+
+}
+
+
+/* =========================================================
+   PREPARE AI INPUT
+   ========================================================= */
+
+function setupAssistantInput() {
+
+    if (!assistantInput) {
+
         return;
+
     }
 
 
-    if (!commandInput) {
-        return;
-    }
+    /* Clean placeholder */
 
-
-    /* GET MESSAGE */
-
-    const text =
-        message !== null
-            ? message.trim()
-            : commandInput.value.trim();
-
-
-    if (!text) {
-        return;
-    }
-
-
-    /* CLEAR INPUT */
-
-    commandInput.value = "";
-
-    autoResizeTextarea();
-
-
-    /* LOCAL COMMAND */
-
-    if (handleLocalCommand(text)) {
-        return;
-    }
-
-
-    /* SHOW USER MESSAGE */
-
-    addMessageToUI(
-        "user",
-        text
+    assistantInput.setAttribute(
+        "placeholder",
+        "Ask Orbit anything..."
     );
 
 
-    /* SAVE TO CURRENT SESSION */
+    /* Accessibility */
 
-    conversationHistory.push({
-        role: "user",
-        content: text
-    });
+    assistantInput.setAttribute(
+        "aria-label",
+        "Ask Orbit AI"
+    );
 
 
-    /* WAITING */
+    /* Prevent browser spellcheck
+       from making the interface feel messy */
 
-    isWaitingForResponse = true;
+    assistantInput.setAttribute(
+        "spellcheck",
+        "true"
+    );
 
-    commandInput.disabled = true;
 
-    if (sendBtn) {
-        sendBtn.disabled = true;
+    /* Clean textarea behavior */
+
+    assistantInput.addEventListener(
+        "input",
+        () => {
+
+            assistantInput.style.height =
+                "auto";
+
+            assistantInput.style.height =
+                `${Math.min(
+                    assistantInput.scrollHeight,
+                    140
+                )}px`;
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   INTERCEPT LOCAL COMMANDS
+   =========================================================
+
+   orbit.js already handles normal Enter-to-send.
+
+   We only intercept commands such as:
+
+       /help
+       /time
+       /date
+       /status
+       /clear
+       /new
+
+   Capture mode ensures our command handler runs
+   before orbit.js sends the message to the backend.
+   ========================================================= */
+
+function setupCommandInterceptor() {
+
+    if (!assistantInput) {
+
+        return;
+
     }
 
 
-    showTypingIndicator();
+    assistantInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key !== "Enter" ||
+                event.shiftKey
+            ) {
+
+                return;
+
+            }
 
 
-    const startTime =
-        performance.now();
+            const value =
+                assistantInput.value.trim();
 
 
-    /* =====================================================
-       SEND TO BACKEND
-       ===================================================== */
+            if (!value) {
 
-    try {
+                return;
 
-        const response =
-            await fetch(API_URL, {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    message: text,
-
-                    history:
-                        conversationHistory
-
-                })
-
-            });
+            }
 
 
-        if (!response.ok) {
+            /* Known local command */
 
-            throw new Error(
-                `Server returned ${response.status}`
-            );
+            if (
+                isOrbitCommand(value)
+            ) {
 
-        }
+                event.preventDefault();
 
+                event.stopImmediatePropagation();
 
-        const data =
-            await response.json();
+                executeOrbitCommand(value);
 
+                return;
 
-        removeTypingIndicator();
-
-
-        /* GET AI RESPONSE */
-
-        const reply =
-            data.reply ||
-            data.response ||
-            data.message;
+            }
 
 
-        if (!reply) {
+            /* Unknown slash command */
 
-            throw new Error(
-                "Orbit returned an empty response."
-            );
+            if (
+                value.startsWith("/")
+            ) {
 
-        }
+                event.preventDefault();
 
+                event.stopImmediatePropagation();
 
-        /* SHOW AI RESPONSE */
+                handleUnknownCommand(value);
 
-        addMessageToUI(
-            "assistant",
-            reply
-        );
+            }
 
+        },
+        true
+    );
 
-        /* ADD TO CURRENT CONVERSATION */
-
-        conversationHistory.push({
-
-            role: "assistant",
-
-            content: reply
-
-        });
+}
 
 
-        /* RESPONSE TIME */
+/* =========================================================
+   SEND BUTTON COMMAND INTERCEPTOR
+   =========================================================
 
-        const elapsed =
-            performance.now() - startTime;
+   Normal messages are still handled by orbit.js.
 
+   Slash commands are handled here.
+   ========================================================= */
 
-        if (responseTime) {
+function setupSendCommandInterceptor() {
 
-            responseTime.textContent =
-                `${(elapsed / 1000).toFixed(1)}s`;
+    if (!assistantSendButton) {
 
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "Orbit AI error:",
-            error
-        );
-
-
-        removeTypingIndicator();
-
-
-        addMessageToUI(
-            "assistant",
-            "I couldn't connect to my AI service right now. Please check your connection and try again."
-        );
-
-
-        if (responseTime) {
-
-            responseTime.textContent =
-                "Error";
-
-        }
-
-    } finally {
-
-        isWaitingForResponse = false;
-
-        commandInput.disabled = false;
-
-        if (sendBtn) {
-            sendBtn.disabled = false;
-        }
-
-        commandInput.focus();
+        return;
 
     }
+
+
+    assistantSendButton.addEventListener(
+        "click",
+        event => {
+
+            if (!assistantInput) {
+
+                return;
+
+            }
+
+
+            const value =
+                assistantInput.value.trim();
+
+
+            if (!value) {
+
+                return;
+
+            }
+
+
+            if (
+                isOrbitCommand(value)
+            ) {
+
+                event.preventDefault();
+
+                event.stopImmediatePropagation();
+
+                executeOrbitCommand(value);
+
+                return;
+
+            }
+
+
+            if (
+                value.startsWith("/")
+            ) {
+
+                event.preventDefault();
+
+                event.stopImmediatePropagation();
+
+                handleUnknownCommand(value);
+
+            }
+
+        },
+        true
+    );
 
 }
 
@@ -610,157 +506,118 @@ async function sendMessage(message = null) {
 
 function setupQuickActions() {
 
-    quickActions.forEach(button => {
+    assistantQuickActions.forEach(
+        button => {
 
-        button.addEventListener("click", async () => {
+            button.addEventListener(
+                "click",
+                async () => {
 
-            const command =
-                button.dataset.command?.trim();
+                    if (
+                        typeof OrbitAI ===
+                        "undefined"
+                    ) {
 
+                        console.error(
+                            "OrbitAI engine is not available."
+                        );
 
-            if (!command) {
+                        return;
 
-                console.warn(
-                    "Orbit quick action has no data-command."
-                );
-
-                return;
-
-            }
-
-
-            if (isWaitingForResponse) {
-                return;
-            }
+                    }
 
 
-            /*
-             * IMPORTANT:
-             *
-             * We send the quick action directly
-             * to Orbit.
-             *
-             * It does NOT get placed inside
-             * the textarea first.
-             */
-
-            await sendMessage(command);
-
-        });
-
-    });
-
-}
+                    const command =
+                        button.dataset.command?.trim();
 
 
-/* =========================================================
-   CLEAR CONVERSATION
-   ========================================================= */
+                    if (!command) {
 
-function clearConversation() {
+                        console.warn(
+                            "Orbit quick action has no data-command."
+                        );
 
-    if (isWaitingForResponse) {
-        return;
-    }
+                        return;
 
-
-    conversationHistory = [];
+                    }
 
 
-    renderWelcomeMessage();
+                    /*
+
+                       If the quick action is a local
+                       command, handle it here.
+
+                    */
+
+                    if (
+                        isOrbitCommand(command)
+                    ) {
+
+                        executeOrbitCommand(
+                            command
+                        );
+
+                        return;
+
+                    }
 
 
-    if (responseTime) {
+                    /*
 
-        responseTime.textContent =
-            "Ready";
+                       Otherwise send it to the
+                       shared AI engine.
 
-    }
+                    */
 
-}
+                    await OrbitAI.sendMessage(
+                        command
+                    );
 
+                }
+            );
 
-/* =========================================================
-   NEW CHAT
-   ========================================================= */
-
-function startNewChat() {
-
-    clearConversation();
-
-
-    if (commandInput) {
-
-        commandInput.value = "";
-
-        autoResizeTextarea();
-
-        commandInput.focus();
-
-    }
-
-}
-
-
-/* =========================================================
-   TEXTAREA
-   ========================================================= */
-
-function autoResizeTextarea() {
-
-    if (!commandInput) {
-        return;
-    }
-
-
-    commandInput.style.height =
-        "auto";
-
-
-    commandInput.style.height =
-        `${Math.min(
-            commandInput.scrollHeight,
-            140
-        )}px`;
-
-}
-
-
-/* =========================================================
-   KEYBOARD
-   ========================================================= */
-
-function setupKeyboard() {
-
-    if (!commandInput) {
-        return;
-    }
-
-
-    commandInput.addEventListener(
-        "input",
-        autoResizeTextarea
+        }
     );
 
+}
 
-    commandInput.addEventListener(
-        "keydown",
-        event => {
 
-            /*
-             * Enter = Send
-             *
-             * Shift + Enter = New line
-             */
+/* =========================================================
+   CLEAR BUTTON
+   ========================================================= */
+
+function setupClearButton() {
+
+    if (!assistantClearButton) {
+
+        return;
+
+    }
+
+
+    assistantClearButton.addEventListener(
+        "click",
+        () => {
 
             if (
-                event.key === "Enter" &&
-                !event.shiftKey
+                typeof OrbitAI ===
+                "undefined"
             ) {
 
-                event.preventDefault();
+                return;
 
-                sendMessage();
+            }
+
+
+            OrbitAI.clearConversation();
+
+
+            if (assistantInput) {
+
+                assistantInput.value = "";
+
+                assistantInput.style.height =
+                    "auto";
 
             }
 
@@ -771,80 +628,94 @@ function setupKeyboard() {
 
 
 /* =========================================================
-   BUTTONS
+   NEW CHAT BUTTON
    ========================================================= */
 
-function setupButtons() {
+function setupNewChatButton() {
+
+    if (!assistantNewChatButton) {
+
+        return;
+
+    }
 
 
-    /* SEND */
-
-    sendBtn?.addEventListener(
+    assistantNewChatButton.addEventListener(
         "click",
-        () => sendMessage()
-    );
+        () => {
+
+            if (
+                typeof OrbitAI ===
+                "undefined"
+            ) {
+
+                return;
+
+            }
 
 
-    /* CLEAR */
-
-    clearChatBtn?.addEventListener(
-        "click",
-        clearConversation
-    );
+            OrbitAI.newChat();
 
 
-    /* NEW CHAT */
+            if (assistantInput) {
 
-    newChatBtn?.addEventListener(
-        "click",
-        startNewChat
+                assistantInput.value = "";
+
+                assistantInput.style.height =
+                    "auto";
+
+                assistantInput.focus();
+
+            }
+
+        }
     );
 
 }
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZE ASSISTANT
    ========================================================= */
 
 function initializeAssistant() {
 
     /*
-     * IMPORTANT:
-     *
-     * We intentionally DO NOT load
-     * anything from localStorage.
-     *
-     * Every page refresh starts with
-     * a completely fresh conversation.
+     * orbit.js MUST already be loaded.
      */
 
-    conversationHistory = [];
+    if (
+        typeof OrbitAI ===
+        "undefined"
+    ) {
 
+        console.error(
+            "OrbitAI engine not found. " +
+            "Make sure orbit.js is loaded before assistant.js."
+        );
 
-    renderWelcomeMessage();
-
-
-    setupButtons();
-
-    setupQuickActions();
-
-    setupKeyboard();
-
-    autoResizeTextarea();
-
-
-    if (responseTime) {
-
-        responseTime.textContent =
-            "Ready";
+        return;
 
     }
 
 
-    if (commandInput) {
+    setupAssistantInput();
 
-        commandInput.focus();
+    setupCommandInterceptor();
+
+    setupSendCommandInterceptor();
+
+    setupQuickActions();
+
+    setupClearButton();
+
+    setupNewChatButton();
+
+
+    if (assistantResponseTime) {
+
+        assistantResponseTime.textContent =
+            "Ready";
 
     }
 
@@ -852,17 +723,21 @@ function initializeAssistant() {
 
 
 /* =========================================================
-   START ORBIT
+   START ASSISTANT
    ========================================================= */
 
-if (document.readyState === "loading") {
+if (
+    document.readyState ===
+    "loading"
+) {
 
     document.addEventListener(
         "DOMContentLoaded",
         initializeAssistant
     );
 
-} else {
+}
+else {
 
     initializeAssistant();
 
