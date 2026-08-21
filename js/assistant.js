@@ -1,51 +1,31 @@
 /* =========================================================
-   ORBIT AI — ASSISTANT PAGE
-   Same AI engine used by the Dashboard
+   ORBIT AI — ASSISTANT
    ========================================================= */
-
 
 /* =========================================================
    ELEMENTS
    ========================================================= */
 
 const chatWindow = document.getElementById("chat-window");
-
 const commandInput = document.getElementById("command-input");
-
 const sendBtn = document.getElementById("send-btn");
 
 const clearChatBtn = document.getElementById("clear-chat-btn");
-
 const newChatBtn = document.getElementById("new-chat-btn");
 
 const responseTime = document.getElementById("response-time");
 
-const quickActions = document.querySelectorAll(".quick-action");
-
-
-/* =========================================================
-   STORAGE
-   ========================================================= */
-
-const STORAGE_KEY = "orbit_assistant_history";
+const quickActions =
+    document.querySelectorAll(".quick-action");
 
 
 /* =========================================================
    API
-   =========================================================
-   
-   IMPORTANT:
-   config.js controls the actual backend URL.
-
-   Example:
-
-   window.ORBIT_API_URL =
-       "https://your-orbit-backend.onrender.com/api/chat";
-
    ========================================================= */
 
 const API_URL =
-    window.ORBIT_API_URL || "/api/chat";
+    window.ORBIT_API_URL ||
+    "https://orbit-ai-v1-0.onrender.com/api/chat";
 
 
 /* =========================================================
@@ -53,135 +33,7 @@ const API_URL =
    ========================================================= */
 
 let conversationHistory = [];
-
 let isWaitingForResponse = false;
-
-
-/* =========================================================
-   SAVE CONVERSATION
-   ========================================================= */
-
-function saveConversation() {
-
-    try {
-
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(conversationHistory)
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Orbit could not save conversation:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   LOAD CONVERSATION
-   ========================================================= */
-
-function loadConversation() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(STORAGE_KEY);
-
-        if (!saved) {
-
-            conversationHistory = [];
-
-            renderWelcomeMessage();
-
-            return;
-        }
-
-
-        const parsed =
-            JSON.parse(saved);
-
-
-        if (!Array.isArray(parsed)) {
-
-            conversationHistory = [];
-
-            renderWelcomeMessage();
-
-            return;
-        }
-
-
-        conversationHistory = parsed;
-
-        renderConversation();
-
-
-    } catch (error) {
-
-        console.error(
-            "Orbit could not load conversation:",
-            error
-        );
-
-        conversationHistory = [];
-
-        renderWelcomeMessage();
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER CONVERSATION
-   ========================================================= */
-
-function renderConversation() {
-
-    if (!chatWindow) {
-        return;
-    }
-
-
-    chatWindow.innerHTML = "";
-
-
-    if (conversationHistory.length === 0) {
-
-        renderWelcomeMessage();
-
-        return;
-    }
-
-
-    conversationHistory.forEach(message => {
-
-        if (
-            message.role !== "user" &&
-            message.role !== "assistant"
-        ) {
-            return;
-        }
-
-
-        addMessageToUI(
-            message.role,
-            message.content,
-            false
-        );
-
-    });
-
-
-    scrollChatToBottom();
-
-}
 
 
 /* =========================================================
@@ -190,28 +42,20 @@ function renderConversation() {
 
 function renderWelcomeMessage() {
 
-    if (!chatWindow) {
-        return;
-    }
-
+    if (!chatWindow) return;
 
     chatWindow.innerHTML = `
-
         <div class="chat-message assistant-message">
 
             <div class="message-avatar">
-
                 <i class="fa-solid fa-atom"></i>
-
             </div>
-
 
             <div class="message-content">
 
                 <span class="message-name">
                     ORBIT
                 </span>
-
 
                 <div class="message-bubble">
 
@@ -230,26 +74,18 @@ function renderWelcomeMessage() {
             </div>
 
         </div>
-
     `;
 
 }
 
 
 /* =========================================================
-   ADD MESSAGE TO UI
+   ADD MESSAGE
    ========================================================= */
 
-function addMessageToUI(
-    role,
-    message,
-    shouldScroll = true
-) {
+function addMessageToUI(role, message, shouldScroll = true) {
 
-    if (!chatWindow) {
-        return;
-    }
-
+    if (!chatWindow) return;
 
     const wrapper =
         document.createElement("div");
@@ -258,9 +94,7 @@ function addMessageToUI(
         `chat-message ${role}-message`;
 
 
-    /* =====================================================
-       AVATAR
-       ===================================================== */
+    /* AVATAR */
 
     const avatar =
         document.createElement("div");
@@ -281,9 +115,7 @@ function addMessageToUI(
     avatar.appendChild(icon);
 
 
-    /* =====================================================
-       CONTENT
-       ===================================================== */
+    /* CONTENT */
 
     const content =
         document.createElement("div");
@@ -292,9 +124,7 @@ function addMessageToUI(
         "message-content";
 
 
-    /* =====================================================
-       NAME
-       ===================================================== */
+    /* NAME */
 
     const name =
         document.createElement("span");
@@ -302,16 +132,13 @@ function addMessageToUI(
     name.className =
         "message-name";
 
-
     name.textContent =
         role === "assistant"
             ? "ORBIT"
             : "YOU";
 
 
-    /* =====================================================
-       MESSAGE BUBBLE
-       ===================================================== */
+    /* MESSAGE */
 
     const bubble =
         document.createElement("div");
@@ -330,20 +157,16 @@ function addMessageToUI(
     bubble.appendChild(paragraph);
 
     content.appendChild(name);
-
     content.appendChild(bubble);
 
     wrapper.appendChild(avatar);
-
     wrapper.appendChild(content);
 
     chatWindow.appendChild(wrapper);
 
 
     if (shouldScroll) {
-
         scrollChatToBottom();
-
     }
 
 }
@@ -357,11 +180,7 @@ function showTypingIndicator() {
 
     removeTypingIndicator();
 
-
-    if (!chatWindow) {
-        return;
-    }
-
+    if (!chatWindow) return;
 
     const typing =
         document.createElement("div");
@@ -374,20 +193,15 @@ function showTypingIndicator() {
 
 
     typing.innerHTML = `
-
         <div class="message-avatar">
-
             <i class="fa-solid fa-atom"></i>
-
         </div>
-
 
         <div class="message-content">
 
             <span class="message-name">
                 ORBIT
             </span>
-
 
             <div class="message-bubble typing-bubble">
 
@@ -398,7 +212,6 @@ function showTypingIndicator() {
             </div>
 
         </div>
-
     `;
 
 
@@ -418,35 +231,26 @@ function removeTypingIndicator() {
     const typing =
         document.getElementById("orbit-typing");
 
-
     if (typing) {
-
         typing.remove();
-
     }
 
 }
 
 
 /* =========================================================
-   SCROLL CHAT
+   SCROLL
    ========================================================= */
 
 function scrollChatToBottom() {
 
-    if (!chatWindow) {
-        return;
-    }
-
+    if (!chatWindow) return;
 
     requestAnimationFrame(() => {
 
         chatWindow.scrollTo({
-
             top: chatWindow.scrollHeight,
-
             behavior: "smooth"
-
         });
 
     });
@@ -455,104 +259,7 @@ function scrollChatToBottom() {
 
 
 /* =========================================================
-   LOCAL ORBIT COMMANDS
-   ========================================================= */
-
-const orbitCommands = {
-
-
-    /* =====================================================
-       HELP
-       ===================================================== */
-
-    "/help": () => {
-
-        return `
-
-Available Orbit commands:
-
-/help — Show available commands
-
-/clear — Clear the current conversation
-
-/new — Start a new conversation
-
-/time — Show the current time
-
-/date — Show today's date
-
-/status — Show Orbit system status
-
-You can also simply ask Orbit questions normally.
-
-        `.trim();
-
-    },
-
-
-    /* =====================================================
-       TIME
-       ===================================================== */
-
-    "/time": () => {
-
-        return `The current time is ${new Date().toLocaleTimeString(
-            [],
-            {
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        )}.`;
-
-    },
-
-
-    /* =====================================================
-       DATE
-       ===================================================== */
-
-    "/date": () => {
-
-        return `Today is ${new Date().toLocaleDateString(
-            [],
-            {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            }
-        )}.`;
-
-    },
-
-
-    /* =====================================================
-       STATUS
-       ===================================================== */
-
-    "/status": () => {
-
-        return `
-
-ORBIT SYSTEM STATUS
-
-Status: Online
-
-Assistant: Ready
-
-Connection: Connected
-
-Chat Engine: Active
-
-        `.trim();
-
-    }
-
-};
-
-
-/* =========================================================
-   HANDLE LOCAL COMMAND
+   LOCAL COMMANDS
    ========================================================= */
 
 function handleLocalCommand(input) {
@@ -561,9 +268,7 @@ function handleLocalCommand(input) {
         input.trim().toLowerCase();
 
 
-    /* =====================================================
-       CLEAR
-       ===================================================== */
+    /* CLEAR */
 
     if (command === "/clear") {
 
@@ -574,51 +279,109 @@ function handleLocalCommand(input) {
     }
 
 
-    /* =====================================================
-       NEW CHAT
-       ===================================================== */
+    /* NEW */
 
     if (command === "/new") {
 
-        startNewChat();
+        clearConversation();
 
         return true;
 
     }
 
 
-    /* =====================================================
-       NORMAL LOCAL COMMAND
-       ===================================================== */
+    /* HELP */
 
-    if (orbitCommands[command]) {
-
-        const reply =
-            orbitCommands[command]();
-
+    if (command === "/help") {
 
         addMessageToUI(
             "assistant",
-            reply
-        );
+            `Available Orbit commands:
 
+/help — Show available commands
+/clear — Clear conversation
+/new — Start a new conversation
+/time — Show current time
+/date — Show today's date
+/status — Show Orbit status
+
+You can also simply ask me anything.`
+        );
 
         return true;
 
     }
 
 
-    /* =====================================================
-       UNKNOWN SLASH COMMAND
-       ===================================================== */
+    /* TIME */
+
+    if (command === "/time") {
+
+        addMessageToUI(
+            "assistant",
+            `The current time is ${new Date().toLocaleTimeString(
+                [],
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            )}.`
+        );
+
+        return true;
+
+    }
+
+
+    /* DATE */
+
+    if (command === "/date") {
+
+        addMessageToUI(
+            "assistant",
+            `Today is ${new Date().toLocaleDateString(
+                [],
+                {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                }
+            )}.`
+        );
+
+        return true;
+
+    }
+
+
+    /* STATUS */
+
+    if (command === "/status") {
+
+        addMessageToUI(
+            "assistant",
+            `ORBIT SYSTEM STATUS
+
+Status: Online
+Assistant: Active
+Connection: Connected
+AI Engine: Ready`
+        );
+
+        return true;
+
+    }
+
+
+    /* UNKNOWN */
 
     if (command.startsWith("/")) {
 
         addMessageToUI(
             "assistant",
-            `I don't recognize "${input}". Type /help to see the commands I understand.`
+            `I don't recognize "${input}". Type /help to see the available commands.`
         );
-
 
         return true;
 
@@ -631,23 +394,7 @@ function handleLocalCommand(input) {
 
 
 /* =========================================================
-   SEND MESSAGE TO ORBIT
-   =========================================================
-
-   IMPORTANT:
-
-   This function accepts a message parameter.
-
-   That means BOTH of these work:
-
-       sendMessage()
-
-   and:
-
-       sendMessage("Help me plan my day.")
-
-   The second one is what makes the quick actions
-   automatically talk to Orbit.
+   SEND MESSAGE
    ========================================================= */
 
 async function sendMessage(message = null) {
@@ -657,14 +404,17 @@ async function sendMessage(message = null) {
     }
 
 
-    /* =====================================================
-       GET MESSAGE
-       ===================================================== */
+    if (!commandInput) {
+        return;
+    }
+
+
+    /* GET MESSAGE */
 
     const text =
         message !== null
-            ? String(message).trim()
-            : commandInput?.value.trim();
+            ? message.trim()
+            : commandInput.value.trim();
 
 
     if (!text) {
@@ -672,33 +422,21 @@ async function sendMessage(message = null) {
     }
 
 
-    /* =====================================================
-       CLEAR INPUT
-       ===================================================== */
+    /* CLEAR INPUT */
 
-    if (commandInput) {
+    commandInput.value = "";
 
-        commandInput.value = "";
-
-        autoResizeTextarea();
-
-    }
+    autoResizeTextarea();
 
 
-    /* =====================================================
-       CHECK LOCAL COMMAND
-       ===================================================== */
+    /* LOCAL COMMAND */
 
     if (handleLocalCommand(text)) {
-
         return;
-
     }
 
 
-    /* =====================================================
-       DISPLAY USER MESSAGE
-       ===================================================== */
+    /* SHOW USER MESSAGE */
 
     addMessageToUI(
         "user",
@@ -706,40 +444,22 @@ async function sendMessage(message = null) {
     );
 
 
-    /* =====================================================
-       SAVE USER MESSAGE
-       ===================================================== */
+    /* SAVE TO CURRENT SESSION */
 
     conversationHistory.push({
-
         role: "user",
-
         content: text
-
     });
 
 
-    saveConversation();
-
-
-    /* =====================================================
-       LOADING STATE
-       ===================================================== */
+    /* WAITING */
 
     isWaitingForResponse = true;
 
-
-    if (commandInput) {
-
-        commandInput.disabled = true;
-
-    }
-
+    commandInput.disabled = true;
 
     if (sendBtn) {
-
         sendBtn.disabled = true;
-
     }
 
 
@@ -751,7 +471,7 @@ async function sendMessage(message = null) {
 
 
     /* =====================================================
-       SEND TO SAME BACKEND AS DASHBOARD
+       SEND TO BACKEND
        ===================================================== */
 
     try {
@@ -762,10 +482,7 @@ async function sendMessage(message = null) {
                 method: "POST",
 
                 headers: {
-
-                    "Content-Type":
-                        "application/json"
-
+                    "Content-Type": "application/json"
                 },
 
                 body: JSON.stringify({
@@ -780,22 +497,14 @@ async function sendMessage(message = null) {
             });
 
 
-        /* =================================================
-           SERVER ERROR
-           ================================================= */
-
         if (!response.ok) {
 
             throw new Error(
-                `Server error: ${response.status}`
+                `Server returned ${response.status}`
             );
 
         }
 
-
-        /* =================================================
-           READ RESPONSE
-           ================================================= */
 
         const data =
             await response.json();
@@ -804,9 +513,7 @@ async function sendMessage(message = null) {
         removeTypingIndicator();
 
 
-        /* =================================================
-           FIND AI RESPONSE
-           ================================================= */
+        /* GET AI RESPONSE */
 
         const reply =
             data.reply ||
@@ -817,15 +524,13 @@ async function sendMessage(message = null) {
         if (!reply) {
 
             throw new Error(
-                "Orbit backend returned an empty response."
+                "Orbit returned an empty response."
             );
 
         }
 
 
-        /* =================================================
-           DISPLAY AI RESPONSE
-           ================================================= */
+        /* SHOW AI RESPONSE */
 
         addMessageToUI(
             "assistant",
@@ -833,9 +538,7 @@ async function sendMessage(message = null) {
         );
 
 
-        /* =================================================
-           SAVE AI RESPONSE
-           ================================================= */
+        /* ADD TO CURRENT CONVERSATION */
 
         conversationHistory.push({
 
@@ -846,12 +549,7 @@ async function sendMessage(message = null) {
         });
 
 
-        saveConversation();
-
-
-        /* =================================================
-           RESPONSE TIME
-           ================================================= */
+        /* RESPONSE TIME */
 
         const elapsed =
             performance.now() - startTime;
@@ -868,7 +566,7 @@ async function sendMessage(message = null) {
     } catch (error) {
 
         console.error(
-            "Orbit AI request failed:",
+            "Orbit AI error:",
             error
         );
 
@@ -878,7 +576,7 @@ async function sendMessage(message = null) {
 
         addMessageToUI(
             "assistant",
-            "I couldn't connect to Orbit AI right now. Please check your internet connection or Orbit backend."
+            "I couldn't connect to my AI service right now. Please check your connection and try again."
         );
 
 
@@ -893,21 +591,13 @@ async function sendMessage(message = null) {
 
         isWaitingForResponse = false;
 
-
-        if (commandInput) {
-
-            commandInput.disabled = false;
-
-            commandInput.focus();
-
-        }
-
+        commandInput.disabled = false;
 
         if (sendBtn) {
-
             sendBtn.disabled = false;
-
         }
+
+        commandInput.focus();
 
     }
 
@@ -916,46 +606,13 @@ async function sendMessage(message = null) {
 
 /* =========================================================
    QUICK ACTIONS
-   =========================================================
-
-   THIS IS THE IMPORTANT PART.
-
-   The button's data-command is sent DIRECTLY to
-   sendMessage().
-
-   It does NOT put the command into the textarea first.
-
-   Example:
-
-   Plan my day
-        ↓
-   "Help me plan my day."
-        ↓
-   sendMessage(...)
-        ↓
-   /api/chat
-        ↓
-   Orbit AI
-        ↓
-   response appears in chat
    ========================================================= */
 
 function setupQuickActions() {
 
-    if (!quickActions.length) {
-
-        console.warn(
-            "Orbit: No quick action buttons were found."
-        );
-
-        return;
-
-    }
-
-
     quickActions.forEach(button => {
 
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
 
             const command =
                 button.dataset.command?.trim();
@@ -964,7 +621,7 @@ function setupQuickActions() {
             if (!command) {
 
                 console.warn(
-                    "Orbit quick action is missing data-command."
+                    "Orbit quick action has no data-command."
                 );
 
                 return;
@@ -973,17 +630,21 @@ function setupQuickActions() {
 
 
             if (isWaitingForResponse) {
-
                 return;
-
             }
 
 
-            /* =============================================
-               SEND DIRECTLY TO ORBIT
-               ============================================= */
+            /*
+             * IMPORTANT:
+             *
+             * We send the quick action directly
+             * to Orbit.
+             *
+             * It does NOT get placed inside
+             * the textarea first.
+             */
 
-            sendMessage(command);
+            await sendMessage(command);
 
         });
 
@@ -1004,11 +665,6 @@ function clearConversation() {
 
 
     conversationHistory = [];
-
-
-    localStorage.removeItem(
-        STORAGE_KEY
-    );
 
 
     renderWelcomeMessage();
@@ -1047,7 +703,7 @@ function startNewChat() {
 
 
 /* =========================================================
-   TEXTAREA AUTO RESIZE
+   TEXTAREA
    ========================================================= */
 
 function autoResizeTextarea() {
@@ -1092,10 +748,10 @@ function setupKeyboard() {
         event => {
 
             /*
-               Enter = Send
-
-               Shift + Enter = New line
-            */
+             * Enter = Send
+             *
+             * Shift + Enter = New line
+             */
 
             if (
                 event.key === "Enter" &&
@@ -1121,9 +777,7 @@ function setupKeyboard() {
 function setupButtons() {
 
 
-    /* =====================================================
-       SEND
-       ===================================================== */
+    /* SEND */
 
     sendBtn?.addEventListener(
         "click",
@@ -1131,9 +785,7 @@ function setupButtons() {
     );
 
 
-    /* =====================================================
-       CLEAR
-       ===================================================== */
+    /* CLEAR */
 
     clearChatBtn?.addEventListener(
         "click",
@@ -1141,9 +793,7 @@ function setupButtons() {
     );
 
 
-    /* =====================================================
-       NEW CHAT
-       ===================================================== */
+    /* NEW CHAT */
 
     newChatBtn?.addEventListener(
         "click",
@@ -1154,20 +804,26 @@ function setupButtons() {
 
 
 /* =========================================================
-   INITIALIZE ASSISTANT
+   INITIALIZE
    ========================================================= */
 
 function initializeAssistant() {
 
-    console.log("Orbit Assistant initializing...");
+    /*
+     * IMPORTANT:
+     *
+     * We intentionally DO NOT load
+     * anything from localStorage.
+     *
+     * Every page refresh starts with
+     * a completely fresh conversation.
+     */
 
-    console.log(
-        "Orbit API:",
-        API_URL
-    );
+    conversationHistory = [];
 
 
-    loadConversation();
+    renderWelcomeMessage();
+
 
     setupButtons();
 
@@ -1178,16 +834,19 @@ function initializeAssistant() {
     autoResizeTextarea();
 
 
+    if (responseTime) {
+
+        responseTime.textContent =
+            "Ready";
+
+    }
+
+
     if (commandInput) {
 
         commandInput.focus();
 
     }
-
-
-    console.log(
-        "Orbit Assistant ready."
-    );
 
 }
 
