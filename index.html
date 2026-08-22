@@ -43,6 +43,7 @@
 
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/response-tools.css">
+  <link rel="stylesheet" href="css/chat-history.css">
 
 </head>
 
@@ -200,6 +201,52 @@
 
       </a>
 
+    </div>
+
+    <!-- =========================================
+         CHAT HISTORY
+         ========================================= -->
+    
+    <div class="chat-history-panel" id="chat-history-panel">
+    
+      <div class="chat-history-header">
+    
+        <div class="chat-history-title">
+    
+          <i class="fa-solid fa-clock-rotate-left"></i>
+    
+          <div>
+            <span>CHAT HISTORY</span>
+            <small>Recent conversations</small>
+          </div>
+    
+        </div>
+    
+        <button type="button" class="chat-history-new" id="chat-history-new" aria-label="Start a new chat" title="New chat">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+    
+      </div>
+    
+    
+      <div class="chat-history-list" id="chat-history-list" aria-label="Recent chats">
+    
+        <!-- Chat history items will be inserted here by chat-history.js -->
+    
+        <div class="chat-history-empty" id="chat-history-empty">
+    
+          <i class="fa-regular fa-comments"></i>
+    
+          <span>No conversations yet</span>
+    
+          <small>
+            Your recent chats will appear here.
+          </small>
+    
+        </div>
+    
+      </div>
+    
     </div>
 
   </nav>
@@ -599,6 +646,7 @@
   <script src="js/script.js"></script>
 
   <script src="js/navigation.js"></script>
+  <script src="js/chat-history.js"></script>
 
 
 </body>
