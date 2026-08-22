@@ -1,24 +1,27 @@
 /* ===========================================================
    ORBIT AI — SHARED AI ENGINE
    ===========================================================
+
    Used by:
    - index.html
    - assistant.html
 
    Handles:
    - Live Render API
-   - Conversation history
-   - Persistent user memory
+   - Temporary conversation history
+   - Persistent Supabase user memory
+   - Anonymous browser identity
    - Automatic memory detection
    - AI response formatting
    - Typing indicator
+   - Render cold-start notification
    - Sending messages
    - Enter-to-send
    - Shared AI state
 
    IMPORTANT:
    Conversation history is NOT saved.
-   User memory IS saved.
+   Persistent memory is handled by Supabase.
    =========================================================== */
 
 "use strict";
@@ -30,15 +33,18 @@
 
 const ORBIT_API_URL =
     window.ORBIT_API_URL ||
-    "/api/chat";
+    "https://orbit-ai-v1-0.onrender.com/api/chat";
 
 
 /* ===========================================================
-   STORAGE
+   STORAGE KEYS
    =========================================================== */
 
-const ORBIT_MEMORY_KEY =
-    "orbit-user-memory";
+const ORBIT_USER_ID_KEY =
+    "orbit-user-id";
+
+const ORBIT_MEMORY_CACHE_KEY =
+    "orbit-memory-cache";
 
 
 /* ===========================================================
@@ -46,10 +52,91 @@ const ORBIT_MEMORY_KEY =
    =========================================================== */
 
 let orbitConversationHistory = [];
-
 let orbitUserMemory = [];
-
 let orbitIsWaiting = false;
+
+
+/* ===========================================================
+   GET / CREATE ANONYMOUS USER ID
+   =========================================================== */
+
+function getOrbitUserId() {
+
+    try {
+
+        let userId =
+            localStorage.getItem(
+                ORBIT_USER_ID_KEY
+            );
+
+        /*
+           Existing visitor.
+        */
+
+        if (userId) {
+            return userId;
+        }
+
+
+        /*
+           Generate a new anonymous ID.
+           crypto.randomUUID() is preferred.
+        */
+
+        if (
+            window.crypto &&
+            typeof window.crypto.randomUUID === "function"
+        ) {
+
+            userId =
+                window.crypto.randomUUID();
+
+        }
+
+        else {
+
+            userId =
+                "orbit-" +
+                Date.now().toString(36) +
+                "-" +
+                Math.random()
+                    .toString(36)
+                    .substring(2, 12);
+
+        }
+
+
+        localStorage.setItem(
+            ORBIT_USER_ID_KEY,
+            userId
+        );
+
+        return userId;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Orbit user ID could not be created:",
+            error
+        );
+
+        return (
+            "orbit-temporary-" +
+            Date.now()
+        );
+
+    }
+}
+
+
+/* ===========================================================
+   CURRENT USER ID
+   =========================================================== */
+
+const ORBIT_USER_ID =
+    getOrbitUserId();
 
 
 /* ===========================================================
@@ -61,13 +148,19 @@ function getOrbitElements() {
     return {
 
         chatWindow:
-            document.getElementById("chat-window"),
+            document.getElementById(
+                "chat-window"
+            ),
 
         commandInput:
-            document.getElementById("command-input"),
+            document.getElementById(
+                "command-input"
+            ),
 
         sendButton:
-            document.getElementById("send-btn")
+            document.getElementById(
+                "send-btn"
+            )
 
     };
 
@@ -75,7 +168,7 @@ function getOrbitElements() {
 
 
 /* ===========================================================
-   LOAD USER MEMORY
+   LOAD LOCAL MEMORY CACHE
    =========================================================== */
 
 function loadOrbitMemory() {
@@ -84,8 +177,9 @@ function loadOrbitMemory() {
 
         const saved =
             localStorage.getItem(
-                ORBIT_MEMORY_KEY
+                ORBIT_MEMORY_CACHE_KEY
             );
+
 
         if (!saved) {
 
@@ -95,12 +189,21 @@ function loadOrbitMemory() {
 
         }
 
+
         const parsed =
             JSON.parse(saved);
 
+
         if (Array.isArray(parsed)) {
 
-            orbitUserMemory = parsed;
+            orbitUserMemory =
+                parsed;
+
+        }
+
+        else {
+
+            orbitUserMemory = [];
 
         }
 
@@ -109,7 +212,7 @@ function loadOrbitMemory() {
     catch (error) {
 
         console.error(
-            "Orbit memory could not be loaded:",
+            "Orbit memory cache could not be loaded:",
             error
         );
 
@@ -121,15 +224,15 @@ function loadOrbitMemory() {
 
 
 /* ===========================================================
-   SAVE USER MEMORY
+   SAVE LOCAL MEMORY CACHE
    =========================================================== */
 
-function saveOrbitMemory() {
+function saveOrbitMemoryCache() {
 
     try {
 
         localStorage.setItem(
-            ORBIT_MEMORY_KEY,
+            ORBIT_MEMORY_CACHE_KEY,
             JSON.stringify(
                 orbitUserMemory
             )
@@ -140,7 +243,7 @@ function saveOrbitMemory() {
     catch (error) {
 
         console.error(
-            "Orbit memory could not be saved:",
+            "Orbit memory cache could not be saved:",
             error
         );
 
@@ -157,8 +260,10 @@ function rememberOrbitDetail(detail) {
 
     if (!detail) return;
 
+
     const cleanDetail =
-        detail.trim();
+        String(detail).trim();
+
 
     if (!cleanDetail) return;
 
@@ -166,7 +271,7 @@ function rememberOrbitDetail(detail) {
     const exists =
         orbitUserMemory.some(
             item =>
-                item.toLowerCase() ===
+                String(item).toLowerCase() ===
                 cleanDetail.toLowerCase()
         );
 
@@ -179,9 +284,15 @@ function rememberOrbitDetail(detail) {
     );
 
 
-    /* Prevent unlimited memory */
+    /*
+       Keep the local cache manageable.
+       Supabase remains the persistent source
+       of truth.
+    */
 
-    if (orbitUserMemory.length > 50) {
+    if (
+        orbitUserMemory.length > 50
+    ) {
 
         orbitUserMemory =
             orbitUserMemory.slice(-50);
@@ -189,7 +300,7 @@ function rememberOrbitDetail(detail) {
     }
 
 
-    saveOrbitMemory();
+    saveOrbitMemoryCache();
 
 }
 
@@ -202,8 +313,10 @@ function detectOrbitMemory(message) {
 
     if (!message) return;
 
+
     const text =
-        message.trim();
+        String(message).trim();
+
 
     if (!text) return;
 
@@ -216,6 +329,7 @@ function detectOrbitMemory(message) {
         text.match(
             /(?:my name is|call me|you can call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})/i
         );
+
 
     if (nameMatch) {
 
@@ -235,6 +349,7 @@ function detectOrbitMemory(message) {
             /(?:i am|i'm|im)\s+(\d{1,3})(?:\s+years?\s+old)?/i
         );
 
+
     if (ageMatch) {
 
         rememberOrbitDetail(
@@ -252,6 +367,7 @@ function detectOrbitMemory(message) {
         text.match(
             /(?:i study at|i attend|my school is|i go to)\s+(.+)/i
         );
+
 
     if (schoolMatch) {
 
@@ -271,6 +387,7 @@ function detectOrbitMemory(message) {
             /(?:my course is|i'm studying|i am studying)\s+(.+)/i
         );
 
+
     if (courseMatch) {
 
         rememberOrbitDetail(
@@ -288,6 +405,7 @@ function detectOrbitMemory(message) {
         text.match(
             /(?:i live in|i'm from|i am from|i live at)\s+(.+)/i
         );
+
 
     if (locationMatch) {
 
@@ -307,6 +425,7 @@ function detectOrbitMemory(message) {
             /(?:my goal is|i want to|i plan to)\s+(.+)/i
         );
 
+
     if (goalMatch) {
 
         rememberOrbitDetail(
@@ -324,6 +443,7 @@ function detectOrbitMemory(message) {
         text.match(
             /(?:i like|i love|i enjoy)\s+(.+)/i
         );
+
 
     if (likeMatch) {
 
@@ -365,6 +485,7 @@ function formatOrbitResponse(text) {
 
     if (!text) return "";
 
+
     let formatted =
         String(text);
 
@@ -375,9 +496,18 @@ function formatOrbitResponse(text) {
 
     formatted =
         formatted
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            );
 
 
     /* =======================================================
@@ -395,11 +525,15 @@ function formatOrbitResponse(text) {
                 const index =
                     codeBlocks.length;
 
+
                 codeBlocks.push(
                     `<pre class="orbit-code-block"><code>${code.trim()}</code></pre>`
                 );
 
-                return `___ORBIT_CODE_BLOCK_${index}___`;
+
+                return (
+                    `___ORBIT_CODE_BLOCK_${index}___`
+                );
 
             }
         );
@@ -448,11 +582,13 @@ function formatOrbitResponse(text) {
             "<h4>$1</h4>"
         );
 
+
     formatted =
         formatted.replace(
             /^## (.*?)$/gm,
             "<h3>$1</h3>"
         );
+
 
     formatted =
         formatted.replace(
@@ -590,7 +726,9 @@ function addOrbitMessage(
        USER MESSAGE
        ======================================================= */
 
-    if (sender === "user") {
+    if (
+        sender === "user"
+    ) {
 
         message.textContent =
             text;
@@ -605,7 +743,9 @@ function addOrbitMessage(
     else {
 
         message.innerHTML =
-            formatOrbitResponse(text);
+            formatOrbitResponse(
+                text
+            );
 
     }
 
@@ -622,7 +762,15 @@ function addOrbitMessage(
 
 
 /* ===========================================================
-   TYPING INDICATOR
+   TYPING / COLD START INDICATOR
+   =========================================================== */
+
+let orbitTypingTimer = null;
+let orbitColdStartTimer = null;
+
+
+/* ===========================================================
+   SHOW INITIAL THINKING MESSAGE
    =========================================================== */
 
 function showOrbitTyping() {
@@ -634,6 +782,10 @@ function showOrbitTyping() {
 
     if (!chatWindow) return;
 
+
+    /*
+       Prevent duplicate indicators.
+    */
 
     if (
         document.getElementById(
@@ -660,9 +812,23 @@ function showOrbitTyping() {
         "message orbit typing-message";
 
 
+    /*
+       Initial message.
+
+       This tells the user that the backend
+       may be waking up from Render sleep.
+    */
+
     typing.innerHTML = `
-        <span>Orbit is thinking</span>
+        <span class="orbit-thinking-text">
+            Orbit is waking up
+        </span>
+
         <span class="typing-dots">...</span>
+
+        <small class="orbit-wake-message">
+            This may take a few seconds on the first message.
+        </small>
     `;
 
 
@@ -674,6 +840,109 @@ function showOrbitTyping() {
     chatWindow.scrollTop =
         chatWindow.scrollHeight;
 
+
+    /*
+       After 5 seconds, update the message.
+    */
+
+    orbitColdStartTimer =
+        setTimeout(
+            () => {
+
+                const currentTyping =
+                    document.getElementById(
+                        "orbit-typing"
+                    );
+
+
+                if (!currentTyping) {
+                    return;
+                }
+
+
+                const textElement =
+                    currentTyping.querySelector(
+                        ".orbit-thinking-text"
+                    );
+
+
+                const wakeMessage =
+                    currentTyping.querySelector(
+                        ".orbit-wake-message"
+                    );
+
+
+                if (textElement) {
+
+                    textElement.textContent =
+                        "Orbit is still waking up";
+
+                }
+
+
+                if (wakeMessage) {
+
+                    wakeMessage.textContent =
+                        "The server is starting up. Almost there...";
+
+                }
+
+            },
+            5000
+        );
+
+
+    /*
+       After 12 seconds, give the user another
+       reassuring message.
+    */
+
+    orbitTypingTimer =
+        setTimeout(
+            () => {
+
+                const currentTyping =
+                    document.getElementById(
+                        "orbit-typing"
+                    );
+
+
+                if (!currentTyping) {
+                    return;
+                }
+
+
+                const textElement =
+                    currentTyping.querySelector(
+                        ".orbit-thinking-text"
+                    );
+
+
+                const wakeMessage =
+                    currentTyping.querySelector(
+                        ".orbit-wake-message"
+                    );
+
+
+                if (textElement) {
+
+                    textElement.textContent =
+                        "Orbit is working on it";
+
+                }
+
+
+                if (wakeMessage) {
+
+                    wakeMessage.textContent =
+                        "Thanks for waiting — your request is being processed.";
+
+                }
+
+            },
+            12000
+        );
+
 }
 
 
@@ -682,6 +951,30 @@ function showOrbitTyping() {
    =========================================================== */
 
 function hideOrbitTyping() {
+
+    if (orbitTypingTimer) {
+
+        clearTimeout(
+            orbitTypingTimer
+        );
+
+        orbitTypingTimer =
+            null;
+
+    }
+
+
+    if (orbitColdStartTimer) {
+
+        clearTimeout(
+            orbitColdStartTimer
+        );
+
+        orbitColdStartTimer =
+            null;
+
+    }
+
 
     const typing =
         document.getElementById(
@@ -707,7 +1000,6 @@ async function orbitSendMessage(
 ) {
 
     const {
-        chatWindow,
         commandInput,
         sendButton
     } = getOrbitElements();
@@ -725,22 +1017,20 @@ async function orbitSendMessage(
 
 
     if (orbitIsWaiting) {
-
         return;
-
     }
 
 
     const message =
         suppliedMessage !== null
-            ? String(suppliedMessage).trim()
+            ? String(
+                suppliedMessage
+            ).trim()
             : commandInput.value.trim();
 
 
     if (!message) {
-
         return;
-
     }
 
 
@@ -764,7 +1054,7 @@ async function orbitSendMessage(
 
 
     /* =======================================================
-       UPDATE HISTORY
+       UPDATE TEMPORARY HISTORY
        ======================================================= */
 
     orbitConversationHistory.push({
@@ -776,15 +1066,19 @@ async function orbitSendMessage(
     });
 
 
-    /* Keep history manageable */
+    /*
+       Backend history limit is 30 messages.
+    */
 
     if (
         orbitConversationHistory.length >
-        40
+        30
     ) {
 
         orbitConversationHistory =
-            orbitConversationHistory.slice(-40);
+            orbitConversationHistory.slice(
+                -30
+            );
 
     }
 
@@ -797,7 +1091,8 @@ async function orbitSendMessage(
         suppliedMessage === null
     ) {
 
-        commandInput.value = "";
+        commandInput.value =
+            "";
 
     }
 
@@ -823,7 +1118,7 @@ async function orbitSendMessage(
 
 
     /* =======================================================
-       TYPING INDICATOR
+       SHOW COLD START / THINKING INDICATOR
        ======================================================= */
 
     showOrbitTyping();
@@ -836,31 +1131,65 @@ async function orbitSendMessage(
     try {
 
         /* ===================================================
-           SEND REQUEST
+           SEND REQUEST TO RENDER BACKEND
            =================================================== */
 
         const response =
             await fetch(
                 ORBIT_API_URL,
                 {
+
                     method: "POST",
 
                     headers: {
+
                         "Content-Type":
                             "application/json"
+
                     },
 
                     body:
                         JSON.stringify({
 
+                            /*
+                               Actual user message.
+                            */
+
                             message:
                                 message,
+
+
+                            /*
+                               Temporary conversation.
+
+                               NOT persisted.
+                            */
 
                             history:
                                 orbitConversationHistory,
 
+
+                            /*
+                               Local memory cache.
+
+                               Backend also loads
+                               persistent Supabase memory.
+                            */
+
                             memory:
-                                getOrbitMemoryContext()
+                                getOrbitMemoryContext(),
+
+
+                            /*
+                               Anonymous browser identity.
+
+                               Used by the backend to connect
+                               this visitor with their Supabase
+                               memory.
+                            */
+
+                            userId:
+                                ORBIT_USER_ID
 
                         })
 
@@ -898,7 +1227,9 @@ async function orbitSendMessage(
 
             catch (_) {
 
-                /* Ignore JSON parsing errors */
+                /*
+                   Ignore JSON parsing errors.
+                */
 
             }
 
@@ -941,6 +1272,52 @@ async function orbitSendMessage(
 
 
         /* ===================================================
+           UPDATE MEMORY FROM SERVER RESPONSE
+           =================================================== */
+
+        /*
+           If the backend returns memory as an array,
+           synchronize the local cache.
+        */
+
+        if (
+            Array.isArray(data.memory)
+        ) {
+
+            orbitUserMemory =
+                data.memory.slice(-50);
+
+            saveOrbitMemoryCache();
+
+        }
+
+
+        /*
+           Some backend versions may return
+           memory as a string.
+        */
+
+        else if (
+            typeof data.memory === "string" &&
+            data.memory.trim()
+        ) {
+
+            orbitUserMemory =
+                data.memory
+                    .split("\n")
+                    .map(
+                        item =>
+                            item.trim()
+                    )
+                    .filter(Boolean)
+                    .slice(-50);
+
+            saveOrbitMemoryCache();
+
+        }
+
+
+        /* ===================================================
            DISPLAY ORBIT RESPONSE
            =================================================== */
 
@@ -965,11 +1342,13 @@ async function orbitSendMessage(
 
         if (
             orbitConversationHistory.length >
-            40
+            30
         ) {
 
             orbitConversationHistory =
-                orbitConversationHistory.slice(-40);
+                orbitConversationHistory.slice(
+                    -30
+                );
 
         }
 
@@ -992,11 +1371,14 @@ async function orbitSendMessage(
         if (responseTime) {
 
             responseTime.textContent =
-                `${(elapsed / 1000).toFixed(1)}s`;
+                `${(
+                    elapsed / 1000
+                ).toFixed(1)}s`;
 
         }
 
     }
+
 
     catch (error) {
 
@@ -1010,11 +1392,8 @@ async function orbitSendMessage(
 
 
         addOrbitMessage(
-
             `Orbit connection error: ${error.message}`,
-
             "orbit"
-
         );
 
 
@@ -1066,11 +1445,15 @@ async function orbitSendMessage(
 function clearOrbitConversation() {
 
     if (orbitIsWaiting) {
-
         return;
-
     }
 
+
+    /*
+       Clears ONLY temporary conversation history.
+
+       Does NOT delete Supabase memory.
+    */
 
     orbitConversationHistory =
         [];
@@ -1083,7 +1466,9 @@ function clearOrbitConversation() {
 
     if (chatWindow) {
 
-        chatWindow.innerHTML = "";
+        chatWindow.innerHTML =
+            "";
+
 
         addOrbitMessage(
             "Orbit AI Online. How can I assist you?",
@@ -1147,9 +1532,7 @@ function setupOrbitKeyboard() {
 
 
     if (!commandInput) {
-
         return;
-
     }
 
 
@@ -1186,9 +1569,7 @@ function setupOrbitSendButton() {
 
 
     if (!sendButton) {
-
         return;
-
     }
 
 
@@ -1210,16 +1591,21 @@ function setupOrbitSendButton() {
 
 function initializeOrbitAI() {
 
+    /*
+       Load only the local memory cache.
+
+       Persistent memory comes from Supabase
+       through the backend.
+    */
+
     loadOrbitMemory();
 
 
     /*
-       IMPORTANT:
-
        Conversation history is intentionally
-       reset when the page loads.
+       reset whenever the page loads.
 
-       User memory remains saved.
+       Persistent memory remains available.
     */
 
     orbitConversationHistory =
@@ -1249,6 +1635,20 @@ function initializeOrbitAI() {
 
     setupOrbitKeyboard();
 
+
+    console.log(
+        "Orbit AI initialized.",
+        {
+
+            userId:
+                ORBIT_USER_ID,
+
+            api:
+                ORBIT_API_URL
+
+        }
+    );
+
 }
 
 
@@ -1270,6 +1670,9 @@ window.OrbitAI = {
     getMemory:
         getOrbitMemoryContext,
 
+    getUserId:
+        () => ORBIT_USER_ID,
+
     formatResponse:
         formatOrbitResponse,
 
@@ -1284,7 +1687,8 @@ window.OrbitAI = {
    =========================================================== */
 
 if (
-    document.readyState === "loading"
+    document.readyState ===
+    "loading"
 ) {
 
     document.addEventListener(
