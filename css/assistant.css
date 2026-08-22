@@ -1,6 +1,6 @@
 /* =========================================================
    ORBIT AI — ASSISTANT PAGE
-   Clean, Spacious AI Workspace
+   Full-Time AI Workspace
    ========================================================= */
 
 
@@ -11,12 +11,54 @@
 .assistant-main {
     width: 100%;
     min-height: 0;
+
+    /*
+       The application header is fixed.
+       This prevents the first section from sitting underneath it.
+    */
+    padding-top: 64px;
 }
 
 .assistant-page {
     width: min(1500px, 100%);
     margin: 0 auto;
-    padding: 28px 32px;
+    padding: 12px 28px 20px;
+}
+
+
+/* =========================================================
+   FIXED APPLICATION HEADER
+   Works reliably on desktop + mobile
+   ========================================================= */
+
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    width: 100%;
+    min-height: 64px;
+
+    z-index: 99999;
+
+    /*
+       Prevent the header from being affected by
+       page scrolling or internal chat scrolling.
+    */
+    isolation: isolate;
+
+    /*
+       Keeps the navbar visually above everything.
+    */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+
+    /*
+       Helps mobile browsers keep the header stable.
+    */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 
@@ -26,10 +68,10 @@
 
 .assistant-intro {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
     gap: 24px;
-    margin-bottom: 2px;
+    margin: 0 0 12px;
 }
 
 .assistant-intro-content {
@@ -38,7 +80,7 @@
 
 .assistant-intro-content .eyebrow {
     display: inline-block;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     color: var(--primary-light);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-bold);
@@ -47,10 +89,10 @@
 }
 
 .assistant-intro-content h1 {
-    margin: 0 0 10px;
+    margin: 0 0 6px;
     color: var(--text);
     font-family: var(--font-secondary);
-    font-size: clamp(2.3rem, 4vw, 3.5rem);
+    font-size: clamp(2rem, 3.5vw, 3rem);
     font-weight: var(--font-weight-bold);
     line-height: 1.05;
 }
@@ -59,15 +101,15 @@
     max-width: 760px;
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--font-size-md);
-    line-height: 1.7;
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
 }
 
 .assistant-online {
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    padding: 9px 15px;
+    padding: 8px 14px;
     border: 1px solid var(--border);
     border-radius: var(--radius-full);
     background: var(--surface);
@@ -92,10 +134,10 @@
 
 .assistant-workspace {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 22px;
-    height: calc(100vh - 210px);
-    min-height: 680px;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 18px;
+    height: calc(100vh - 145px);
+    min-height: 620px;
     align-items: stretch;
 }
 
@@ -127,8 +169,8 @@
     align-items: center;
     justify-content: space-between;
 
-    min-height: 76px;
-    padding: 14px 22px;
+    min-height: 68px;
+    padding: 11px 18px;
 
     flex-shrink: 0;
 
@@ -139,28 +181,29 @@
 .chat-identity {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 12px;
 }
 
 .chat-avatar {
     display: grid;
     place-items: center;
 
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
 
-    border-radius: 13px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
     background: var(--primary-soft);
     color: var(--primary-light);
-
-    font-size: 18px;
+    font-size: 17px;
 }
 
 .chat-identity-text {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
 }
 
 .chat-identity-text strong {
@@ -182,15 +225,15 @@
 .chat-actions {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 6px;
 }
 
 .chat-actions button {
     display: grid;
     place-items: center;
 
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
     padding: 0;
 
     border: 1px solid transparent;
@@ -221,19 +264,19 @@
 
 /* =========================================================
    CHAT WINDOW
-   ONLY THIS AREA SCROLLS
+   ONLY THE CONVERSATION SCROLLS
    ========================================================= */
 
 .assistant-chat-window,
 #chat-window {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
 
     flex: 1;
     min-height: 0;
 
-    padding: 28px 32px;
+    padding: 24px 28px;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -246,7 +289,7 @@
 }
 
 #chat-window::-webkit-scrollbar {
-    width: 7px;
+    width: 6px;
 }
 
 #chat-window::-webkit-scrollbar-track {
@@ -269,9 +312,9 @@
 
 #chat-window .message {
     width: fit-content;
-    max-width: 82%;
+    max-width: min(82%, 760px);
 
-    padding: 15px 19px;
+    padding: 14px 18px;
 
     border-radius: 17px;
 
@@ -286,7 +329,7 @@
 
 
 /* =========================================================
-   ORBIT MESSAGE — LEFT
+   ORBIT MESSAGE
    ========================================================= */
 
 #chat-window .message.orbit {
@@ -299,12 +342,12 @@
     background: var(--surface);
     color: var(--text);
 
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 
 /* =========================================================
-   USER MESSAGE — RIGHT
+   USER MESSAGE
    ========================================================= */
 
 #chat-window .message.user {
@@ -317,7 +360,7 @@
     background: var(--primary);
     color: #ffffff;
 
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
 }
 
 
@@ -343,7 +386,8 @@
     margin: 8px 0;
 }
 
-#chat-window .message ul {
+#chat-window .message ul,
+#chat-window .message ol {
     margin: 8px 0;
     padding-left: 20px;
 }
@@ -369,7 +413,6 @@
 
 #chat-window .orbit-code-block {
     max-width: 100%;
-
     margin: 12px 0 0;
     padding: 16px;
 
@@ -393,7 +436,7 @@
     align-self: flex-start;
     margin-right: auto;
 
-    padding: 11px 15px;
+    padding: 10px 14px;
 
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -417,7 +460,7 @@
 .assistant-input-area {
     flex-shrink: 0;
 
-    padding: 15px 22px 12px;
+    padding: 13px 18px 12px;
 
     border-top: 1px solid var(--border);
     background: var(--surface);
@@ -425,7 +468,7 @@
 
 
 /* =========================================================
-   INPUT BOX
+   AI INPUT BOX
    ========================================================= */
 
 .assistant-input-box {
@@ -438,9 +481,11 @@
     padding: 7px 7px 7px 17px;
 
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 17px;
 
     background: var(--bg);
+
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
 
     transition:
         border-color 0.2s ease,
@@ -448,12 +493,18 @@
         background 0.2s ease;
 }
 
+.assistant-input-box:hover {
+    border-color: var(--primary-light);
+}
+
 .assistant-input-box:focus-within {
     border-color: var(--primary);
+
     background: var(--surface);
 
     box-shadow:
-        0 0 0 3px var(--primary-soft);
+        0 0 0 3px var(--primary-soft),
+        0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 
@@ -505,16 +556,17 @@
 
     width: 44px;
     height: 44px;
-
     flex-shrink: 0;
 
     border: 0;
-    border-radius: 12px;
+    border-radius: 13px;
 
     background: var(--primary);
     color: #ffffff;
 
     cursor: pointer;
+
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.12);
 
     transition:
         transform 0.2s ease,
@@ -524,9 +576,7 @@
 
 #send-btn:hover {
     background: var(--primary-dark);
-
     transform: translateY(-2px);
-
     box-shadow: var(--shadow-sm);
 }
 
@@ -552,10 +602,11 @@
 
     gap: 15px;
 
-    margin-top: 8px;
+    margin-top: 7px;
+    padding: 0 2px;
 
     color: var(--muted);
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .assistant-input-footer span {
@@ -576,12 +627,13 @@
 .assistant-panel {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
 
     min-width: 0;
     min-height: 0;
 
     overflow-y: auto;
+
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
 }
@@ -605,10 +657,10 @@
    ========================================================= */
 
 .assistant-card {
-    padding: 20px;
+    padding: 18px;
 
     border: 1px solid var(--border);
-    border-radius: 17px;
+    border-radius: 16px;
 
     background: var(--surface);
 
@@ -621,7 +673,8 @@
     justify-content: space-between;
 
     gap: 15px;
-    margin-bottom: 17px;
+
+    margin-bottom: 15px;
 }
 
 .assistant-card-header > div:first-child {
@@ -631,7 +684,7 @@
 .card-label {
     display: block;
 
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 
     color: var(--primary-light);
 
@@ -656,12 +709,11 @@
     display: grid;
     place-items: center;
 
-    width: 38px;
-    height: 38px;
-
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
 
-    border-radius: 11px;
+    border-radius: 10px;
 
     background: var(--primary-soft);
     color: var(--primary-light);
@@ -686,7 +738,7 @@
 
     gap: 15px;
 
-    padding: 12px 0;
+    padding: 11px 0;
 
     border-bottom: 1px solid var(--border);
 }
@@ -719,21 +771,21 @@
 .quick-actions {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
 }
 
 .quick-action {
     display: grid;
 
-    grid-template-columns: 38px minmax(0, 1fr) 18px;
+    grid-template-columns: 36px minmax(0, 1fr) 16px;
 
     align-items: center;
 
-    gap: 10px;
+    gap: 9px;
 
     width: 100%;
 
-    padding: 11px;
+    padding: 9px;
 
     border: 1px solid transparent;
     border-radius: 11px;
@@ -754,7 +806,6 @@
 .quick-action:hover {
     border-color: var(--border);
     background: var(--surface-hover);
-
     transform: translateY(-1px);
 }
 
@@ -762,10 +813,10 @@
     display: grid;
     place-items: center;
 
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
 
-    border-radius: 10px;
+    border-radius: 9px;
 
     background: var(--primary-soft);
     color: var(--primary-light);
@@ -776,7 +827,8 @@
     flex-direction: column;
 
     min-width: 0;
-    gap: 3px;
+
+    gap: 2px;
 }
 
 .quick-action-text strong {
@@ -804,7 +856,7 @@
 
 .quick-action > i:last-child {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
 
     transition:
         color 0.2s ease,
@@ -824,7 +876,8 @@
 .capability-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+
+    gap: 9px;
 
     margin: 0;
     padding: 0;
@@ -836,7 +889,7 @@
     display: flex;
     align-items: center;
 
-    gap: 10px;
+    gap: 9px;
 
     color: var(--text-secondary);
     font-size: var(--font-size-sm);
@@ -846,15 +899,15 @@
     display: grid;
     place-items: center;
 
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
 
     border-radius: 50%;
 
     background: var(--success-soft);
     color: var(--success);
 
-    font-size: 10px;
+    font-size: 9px;
 }
 
 
@@ -886,10 +939,6 @@
     }
 }
 
-/* =========================================================
-   ORBIT AI — RESPONSIVE LAYOUT
-   ========================================================= */
-
 
 /* =========================================================
    TABLET / SMALL DESKTOP
@@ -902,85 +951,85 @@
         width: 100%;
         min-height: 100%;
         height: auto;
+
         overflow-x: hidden;
         overflow-y: auto;
     }
 
 
-    /* =====================================
-       MAIN APP HEADER
-       ===================================== */
-
+    /* Fixed header remains active */
     .app-header {
-        position: sticky;
+        position: fixed;
         top: 0;
-        z-index: 9999;
+        left: 0;
+        right: 0;
+
+        z-index: 99999;
+
         width: 100%;
+        min-height: 60px;
     }
 
 
-    /* =====================================
-       ASSISTANT PAGE
-       ===================================== */
+    /*
+       Match the fixed header with the content offset.
+    */
+    .assistant-main {
+        padding-top: 60px;
+    }
+
 
     .assistant-page {
         width: 100%;
-        padding: 24px;
+        padding: 12px 20px 20px;
     }
 
-
-    /* =====================================
-       WORKSPACE
-       ===================================== */
 
     .assistant-workspace {
-        display: grid;
         grid-template-columns: 1fr;
+
         width: 100%;
+
         height: auto;
         min-height: 0;
-        gap: 20px;
+
+        gap: 18px;
     }
 
-
-    /* =====================================
-       CHAT
-       ===================================== */
 
     .assistant-chat {
         width: 100%;
-        min-height: 720px;
-        height: 720px;
+
+        height: 680px;
+        min-height: 680px;
     }
 
-
-    /* =====================================
-       CHAT WINDOW
-       ===================================== */
 
     .assistant-chat-window,
     #chat-window {
         min-height: 0;
         flex: 1;
+
         overflow-y: auto;
         overflow-x: hidden;
     }
 
 
-    /* =====================================
-       INFORMATION PANEL
-       ===================================== */
-
     .assistant-panel {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 18px;
+
         width: 100%;
+
         height: auto;
         min-height: 0;
+
         overflow: visible;
     }
-
 }
 
 
@@ -995,44 +1044,65 @@
         width: 100%;
         height: auto;
         min-height: 100%;
+
         overflow-x: hidden;
         overflow-y: auto;
     }
 
 
-    /* =====================================
-       MOBILE NAVIGATION
-       ===================================== */
+    /*
+       IMPORTANT:
+       Fixed instead of sticky.
 
+       This guarantees the navbar stays at the
+       very top while the phone page scrolls.
+    */
     .app-header {
-        position: sticky;
+        position: fixed;
+
         top: 0;
-        z-index: 99999;
+        left: 0;
+        right: 0;
+
         width: 100%;
         min-height: 60px;
+
+        z-index: 99999;
+
+        /*
+           Prevent mobile browser rendering glitches.
+        */
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
     }
 
 
-    /* =====================================
-       PAGE
-       ===================================== */
+    /*
+       Reserve exactly the header space.
+       The content will never hide behind the navbar.
+    */
+    .assistant-main {
+        padding-top: 60px;
+    }
+
 
     .assistant-page {
         width: 100%;
-        padding: 18px 12px 24px;
+        padding: 10px 11px 14px;
     }
 
-
-    /* =====================================
-       INTRO
-       ===================================== */
 
     .assistant-intro {
         display: flex;
         align-items: flex-start;
         flex-direction: column;
-        gap: 14px;
-        margin-bottom: 18px;
+
+        gap: 8px;
+
+        margin-bottom: 10px;
     }
 
 
@@ -1042,136 +1112,116 @@
 
 
     .assistant-intro-content h1 {
-        font-size: 2rem;
-        line-height: 1.15;
+        font-size: 1.9rem;
+        line-height: 1.1;
     }
 
 
     .assistant-intro-content p {
         font-size: var(--font-size-sm);
-        line-height: 1.6;
+        line-height: 1.55;
     }
 
 
-    /* =====================================
-       WORKSPACE
-       ===================================== */
+    .assistant-online {
+        padding: 7px 12px;
+        font-size: 11px;
+    }
+
 
     .assistant-workspace {
         display: flex;
         flex-direction: column;
+
         width: 100%;
+
         height: auto;
         min-height: 0;
-        gap: 16px;
+
+        gap: 12px;
     }
 
-
-    /* =====================================
-       CHAT CONTAINER
-       ===================================== */
 
     .assistant-chat {
         display: flex;
         flex-direction: column;
+
         width: 100%;
-        height: 720px;
-        min-height: 720px;
-        max-height: 720px;
+
+        height: 700px;
+        min-height: 700px;
+        max-height: 700px;
+
         border-radius: 16px;
     }
 
 
-    /* =====================================
-       CHAT HEADER
-       ===================================== */
-
     .chat-header {
-        position: relative;
-        flex-shrink: 0;
-        min-height: 68px;
-        padding: 12px 14px;
+        min-height: 64px;
+        padding: 10px 13px;
     }
 
 
     .chat-avatar {
-        width: 40px;
-        height: 40px;
+        width: 39px;
+        height: 39px;
     }
 
 
     .chat-actions button {
-        width: 35px;
-        height: 35px;
+        width: 34px;
+        height: 34px;
     }
 
-
-    /* =====================================
-       CHAT MESSAGES
-       ===================================== */
 
     .assistant-chat-window,
     #chat-window {
         flex: 1;
+
         min-height: 0;
         height: auto;
-        padding: 20px 14px;
-        gap: 16px;
+
+        padding: 18px 13px;
+
+        gap: 14px;
+
         overflow-x: hidden;
         overflow-y: auto;
+
         overscroll-behavior: contain;
+
         -webkit-overflow-scrolling: touch;
     }
 
 
-    /* =====================================
-       MESSAGES
-       ===================================== */
-
     #chat-window .message {
         max-width: 91%;
-        padding: 13px 15px;
+
+        padding: 12px 14px;
+
         font-size: 14px;
-        line-height: 1.65;
+        line-height: 1.6;
     }
 
 
-    /* =====================================
-       USER MESSAGE
-       ===================================== */
-
-    #chat-window .message.user {
-        align-self: flex-end;
-        margin-left: auto;
-        margin-right: 0;
-    }
-
-
-    /* =====================================
-       ORBIT MESSAGE
-       ===================================== */
-
-    #chat-window .message.orbit {
-        align-self: flex-start;
-        margin-left: 0;
-        margin-right: auto;
-    }
-
-
-    /* =====================================
-       INPUT AREA
-       ===================================== */
-
+    /*
+       Slightly more spacious input area on phones.
+       This makes it feel closer to the main Orbit AI
+       chat experience.
+    */
     .assistant-input-area {
         flex-shrink: 0;
-        padding: 11px 12px 10px;
+
+        padding: 9px 10px 8px;
     }
 
 
     .assistant-input-box {
-        min-height: 54px;
+        min-height: 55px;
+
         padding-left: 13px;
-        border-radius: 14px;
+
+        border-radius: 15px;
     }
 
 
@@ -1182,49 +1232,44 @@
     }
 
 
-    /* =====================================
-       SEND BUTTON
-       ===================================== */
-
     #send-btn,
     .assistant-input-box #send-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 11px;
+        width: 41px;
+        height: 41px;
+
+        border-radius: 12px;
     }
 
 
-    /* =====================================
-       INPUT FOOTER
-       ===================================== */
-
     .assistant-input-footer {
         padding: 0 2px;
+
         font-size: 9px;
     }
 
 
-    /* =====================================
-       INFORMATION PANEL
-       ===================================== */
-
     .assistant-panel {
         display: flex;
         flex-direction: column;
+
         width: 100%;
-        gap: 14px;
+
+        gap: 12px;
+
         height: auto;
         min-height: 0;
+
         overflow: visible;
     }
 
 
     .assistant-card {
         width: 100%;
-        padding: 17px;
+
+        padding: 16px;
+
         border-radius: 15px;
     }
-
 }
 
 
@@ -1234,50 +1279,38 @@
 
 @media (max-width: 420px) {
 
-    .assistant-page {
-        padding: 14px 9px 20px;
+    .assistant-main {
+        padding-top: 56px;
     }
 
 
-    /* =====================================
-       NAV HEADER
-       ===================================== */
+    .assistant-page {
+        padding: 8px 8px 12px;
+    }
+
 
     .app-header {
         min-height: 56px;
     }
 
 
-    /* =====================================
-       INTRO
-       ===================================== */
-
     .assistant-intro-content h1 {
-        font-size: 1.75rem;
+        font-size: 1.7rem;
     }
 
-
-    .assistant-online {
-        padding: 7px 11px;
-        font-size: 11px;
-    }
-
-
-    /* =====================================
-       CHAT
-       ===================================== */
 
     .assistant-chat {
-        height: 680px;
-        min-height: 680px;
-        max-height: 680px;
+        height: 670px;
+        min-height: 670px;
+        max-height: 670px;
+
         border-radius: 14px;
     }
 
 
     .chat-header {
-        min-height: 64px;
-        padding: 10px 11px;
+        min-height: 62px;
+        padding: 9px 10px;
     }
 
 
@@ -1287,8 +1320,9 @@
 
 
     .chat-avatar {
-        width: 37px;
-        height: 37px;
+        width: 36px;
+        height: 36px;
+
         font-size: 15px;
     }
 
@@ -1303,36 +1337,28 @@
     }
 
 
-    /* =====================================
-       CHAT WINDOW
-       ===================================== */
-
     .assistant-chat-window,
     #chat-window {
         min-height: 0;
-        padding: 17px 11px;
-        gap: 13px;
+
+        padding: 15px 10px;
+
+        gap: 12px;
     }
 
 
-    /* =====================================
-       MESSAGES
-       ===================================== */
-
     #chat-window .message {
         max-width: 94%;
-        padding: 11px 13px;
+
+        padding: 11px 12px;
+
         font-size: 13px;
         line-height: 1.6;
     }
 
 
-    /* =====================================
-       INPUT
-       ===================================== */
-
     .assistant-input-area {
-        padding: 9px;
+        padding: 8px;
     }
 
 
@@ -1341,21 +1367,18 @@
     }
 
 
-    /* =====================================
-       QUICK ACTIONS
-       ===================================== */
-
     .quick-action {
-        grid-template-columns: 34px minmax(0, 1fr) 15px;
-        padding: 9px;
+        grid-template-columns:
+            33px minmax(0, 1fr) 14px;
+
+        padding: 8px;
     }
 
 
     .quick-action-icon {
-        width: 34px;
-        height: 34px;
+        width: 33px;
+        height: 33px;
     }
-
 }
 
 
@@ -1365,22 +1388,32 @@
 
 @media (max-width: 360px) {
 
+    .assistant-main {
+        padding-top: 54px;
+    }
+
+
     .assistant-page {
-        padding: 10px 7px 18px;
+        padding: 7px 6px 10px;
+    }
+
+
+    .app-header {
+        min-height: 54px;
     }
 
 
     .assistant-chat {
-        height: 650px;
-        min-height: 650px;
-        max-height: 650px;
+        height: 640px;
+        min-height: 640px;
+        max-height: 640px;
     }
 
 
     .assistant-chat-window,
     #chat-window {
         min-height: 0;
-        padding: 14px 9px;
+        padding: 13px 8px;
     }
 
 
@@ -1391,7 +1424,6 @@
 
 
     .chat-actions {
-        gap: 3px;
+        gap: 2px;
     }
-
 }

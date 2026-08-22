@@ -1,0 +1,801 @@
+/* =========================================================
+   ORBIT AI — COPY & LINK COMPONENTS
+   =========================================================
+
+   Used by:
+   - Orbit AI chat responses
+   - Code blocks
+   - Links
+   - Copy buttons
+   - Shared interface components
+
+   IMPORTANT:
+   This file uses the GLOBAL Orbit AI theme variables.
+   It does NOT define a separate color system.
+
+   Supported themes:
+   - Light
+   - Dark
+   - System
+   ========================================================= */
+
+
+/* =========================================================
+   COPY / LINK CONTAINER
+   ========================================================= */
+
+.orbit-copy-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+
+    margin-top: var(--spacing-sm);
+
+    font-family: var(--font-family);
+}
+
+
+/* =========================================================
+   COPY BUTTON
+   ========================================================= */
+
+.orbit-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+
+    min-height: 34px;
+    padding: 7px 12px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+
+    background: var(--surface);
+    color: var(--text-secondary);
+
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+
+    cursor: pointer;
+
+    box-shadow: var(--shadow-xs);
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+
+/* =========================================================
+   COPY BUTTON — HOVER
+   ========================================================= */
+
+.orbit-copy-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+
+    box-shadow: var(--shadow-sm);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   COPY BUTTON — ACTIVE
+   ========================================================= */
+
+.orbit-copy-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-xs);
+}
+
+
+/* =========================================================
+   COPY BUTTON — FOCUS
+   ========================================================= */
+
+.orbit-copy-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   COPY BUTTON — SUCCESS STATE
+   ========================================================= */
+
+.orbit-copy-btn.copied {
+    background: var(--success-soft);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+
+/* =========================================================
+   COPY BUTTON — ERROR STATE
+   ========================================================= */
+
+.orbit-copy-btn.copy-error {
+    background: var(--danger-soft);
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+
+/* =========================================================
+   COPY ICON
+   ========================================================= */
+
+.orbit-copy-btn .copy-icon,
+.orbit-copy-btn .success-icon,
+.orbit-copy-btn .error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 16px;
+    height: 16px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   HIDE STATE ICONS
+   ========================================================= */
+
+.orbit-copy-btn .success-icon,
+.orbit-copy-btn .error-icon {
+    display: none;
+}
+
+
+/* =========================================================
+   SHOW SUCCESS ICON
+   ========================================================= */
+
+.orbit-copy-btn.copied .copy-icon {
+    display: none;
+}
+
+.orbit-copy-btn.copied .success-icon {
+    display: inline-flex;
+}
+
+
+/* =========================================================
+   SHOW ERROR ICON
+   ========================================================= */
+
+.orbit-copy-btn.copy-error .copy-icon {
+    display: none;
+}
+
+.orbit-copy-btn.copy-error .error-icon {
+    display: inline-flex;
+}
+
+
+/* =========================================================
+   COPY BUTTON TEXT
+   ========================================================= */
+
+.orbit-copy-btn .copy-text {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   CODE BLOCK WRAPPER
+   ========================================================= */
+
+.orbit-code-wrapper {
+    position: relative;
+
+    width: 100%;
+
+    margin: var(--spacing-md) 0;
+
+    overflow: hidden;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+
+    background: var(--surface-soft);
+
+    box-shadow: var(--shadow-xs);
+}
+
+
+/* =========================================================
+   CODE BLOCK HEADER
+   ========================================================= */
+
+.orbit-code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 42px;
+    padding: 6px var(--spacing-sm) 6px var(--spacing-md);
+
+    border-bottom: 1px solid var(--border);
+
+    background: var(--surface);
+}
+
+
+/* =========================================================
+   CODE LANGUAGE LABEL
+   ========================================================= */
+
+.orbit-code-language {
+    color: var(--muted);
+
+    font-family: var(--font-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   CODE COPY BUTTON
+   ========================================================= */
+
+.orbit-code-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-height: 30px;
+    padding: 5px 9px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+
+    font-family: var(--font-family);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+
+/* =========================================================
+   CODE COPY BUTTON — HOVER
+   ========================================================= */
+
+.orbit-code-copy:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   CODE COPY BUTTON — SUCCESS
+   ========================================================= */
+
+.orbit-code-copy.copied {
+    background: var(--success-soft);
+    border-color: var(--success);
+    color: var(--success);
+}
+
+
+/* =========================================================
+   CODE COPY BUTTON — ERROR
+   ========================================================= */
+
+.orbit-code-copy.copy-error {
+    background: var(--danger-soft);
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+
+/* =========================================================
+   ORBIT CODE BLOCK
+   ========================================================= */
+
+.orbit-code-block {
+    display: block;
+
+    margin: 0;
+    padding: var(--spacing-md);
+
+    overflow-x: auto;
+
+    background: var(--surface-soft);
+    color: var(--text);
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        Menlo,
+        monospace;
+
+    font-size: var(--font-size-sm);
+    line-height: 1.65;
+
+    white-space: pre;
+    tab-size: 4;
+
+    scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   CODE BLOCK SCROLLBAR
+   ========================================================= */
+
+.orbit-code-block::-webkit-scrollbar {
+    height: 7px;
+}
+
+
+.orbit-code-block::-webkit-scrollbar-track {
+    background: var(--surface);
+}
+
+
+.orbit-code-block::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
+
+
+.orbit-code-block::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+
+/* =========================================================
+   INLINE CODE
+   ========================================================= */
+
+.message.orbit code:not(.orbit-code-block code) {
+    display: inline-block;
+
+    padding: 2px 6px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+
+    background: var(--surface-soft);
+    color: var(--primary);
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        Menlo,
+        monospace;
+
+    font-size: 0.88em;
+}
+
+
+/* =========================================================
+   ORBIT RESPONSE LINKS
+   ========================================================= */
+
+.message.orbit a {
+    color: var(--primary);
+
+    font-weight: var(--font-weight-medium);
+
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 3px;
+
+    transition:
+        color var(--transition-fast),
+        text-decoration-color var(--transition-fast);
+}
+
+
+/* =========================================================
+   LINKS — HOVER
+   ========================================================= */
+
+.message.orbit a:hover {
+    color: var(--primary-dark);
+    text-decoration-color: currentColor;
+}
+
+
+/* =========================================================
+   LINKS — FOCUS
+   ========================================================= */
+
+.message.orbit a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+
+    border-radius: var(--radius-xs);
+}
+
+
+/* =========================================================
+   EXTERNAL LINK INDICATOR
+   ========================================================= */
+
+.orbit-external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+
+/* =========================================================
+   LINK BUTTON
+   ========================================================= */
+
+.orbit-link-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    padding: 7px 11px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+
+    background: var(--surface);
+    color: var(--text-secondary);
+
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+
+/* =========================================================
+   LINK BUTTON — HOVER
+   ========================================================= */
+
+.orbit-link-btn:hover {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+    color: var(--primary);
+
+    box-shadow: var(--shadow-xs);
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   LINK BUTTON — ACTIVE
+   ========================================================= */
+
+.orbit-link-btn:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   LINK BUTTON — FOCUS
+   ========================================================= */
+
+.orbit-link-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   LINK GROUP
+   ========================================================= */
+
+.orbit-link-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-sm);
+
+    margin-top: var(--spacing-sm);
+}
+
+
+/* =========================================================
+   COPY FEEDBACK
+   ========================================================= */
+
+.orbit-copy-feedback {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 20px;
+
+    color: var(--success);
+
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+
+    opacity: 0;
+
+    transform: translateY(2px);
+
+    pointer-events: none;
+
+    transition:
+        opacity var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+
+/* =========================================================
+   COPY FEEDBACK — VISIBLE
+   ========================================================= */
+
+.orbit-copy-feedback.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   TOOLTIP
+   ========================================================= */
+
+.orbit-copy-btn[data-tooltip],
+.orbit-code-copy[data-tooltip] {
+    position: relative;
+}
+
+
+/* =========================================================
+   TOOLTIP CONTENT
+   ========================================================= */
+
+.orbit-copy-btn[data-tooltip]::after,
+.orbit-code-copy[data-tooltip]::after {
+    content: attr(data-tooltip);
+
+    position: absolute;
+
+    bottom: calc(100% + 8px);
+    left: 50%;
+
+    transform:
+        translateX(-50%)
+        translateY(3px);
+
+    padding: 5px 8px;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+
+    background: var(--surface);
+    color: var(--text);
+
+    box-shadow: var(--shadow-sm);
+
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+
+    white-space: nowrap;
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity var(--transition-fast),
+        transform var(--transition-fast),
+        visibility var(--transition-fast);
+
+    z-index: var(--z-tooltip, 3000);
+}
+
+
+/* =========================================================
+   TOOLTIP — SHOW
+   ========================================================= */
+
+.orbit-copy-btn[data-tooltip]:hover::after,
+.orbit-code-copy[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .orbit-copy-link {
+        width: 100%;
+    }
+
+
+    .orbit-copy-btn {
+        min-height: 36px;
+        padding: 8px 11px;
+    }
+
+
+    .orbit-code-wrapper {
+        margin: var(--spacing-sm) 0;
+        border-radius: var(--radius-sm);
+    }
+
+
+    .orbit-code-header {
+        min-height: 40px;
+        padding-left: var(--spacing-sm);
+    }
+
+
+    .orbit-code-block {
+        padding: var(--spacing-sm);
+
+        font-size: var(--font-size-xs);
+        line-height: 1.6;
+    }
+
+
+    .orbit-link-group {
+        width: 100%;
+    }
+
+
+    .orbit-link-btn {
+        min-height: 36px;
+    }
+
+
+    /* Disable tooltips on touch-sized screens. */
+
+    .orbit-copy-btn[data-tooltip]::after,
+    .orbit-code-copy[data-tooltip]::after {
+        display: none;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .orbit-copy-link {
+        gap: 6px;
+    }
+
+
+    .orbit-copy-btn {
+        font-size: var(--font-size-xs);
+    }
+
+
+    .orbit-code-header {
+        gap: var(--spacing-xs);
+    }
+
+
+    .orbit-code-language {
+        font-size: 0.68rem;
+    }
+
+
+    .orbit-code-copy {
+        padding: 5px 7px;
+    }
+
+
+    .orbit-code-block {
+        padding: 10px;
+
+        font-size: 0.72rem;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+html[data-reduced-motion="true"] .orbit-copy-btn,
+html[data-reduced-motion="true"] .orbit-code-copy,
+html[data-reduced-motion="true"] .orbit-link-btn,
+html[data-reduced-motion="true"] .orbit-copy-feedback,
+html[data-reduced-motion="true"] .orbit-copy-btn::after,
+html[data-reduced-motion="true"] .orbit-code-copy::after {
+    transition: none !important;
+    transform: none !important;
+}
+
+
+/* =========================================================
+   ANIMATIONS DISABLED
+   ========================================================= */
+
+html[data-animations="false"] .orbit-copy-btn,
+html[data-animations="false"] .orbit-code-copy,
+html[data-animations="false"] .orbit-link-btn,
+html[data-animations="false"] .orbit-copy-feedback,
+html[data-animations="false"] .orbit-copy-btn::after,
+html[data-animations="false"] .orbit-code-copy::after {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* ===========================================================
+   ORBIT AI — MARKDOWN TABLES
+   =========================================================== */
+
+.orbit-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 14px 0;
+    border-radius: 12px;
+}
+
+.orbit-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.orbit-table th,
+.orbit-table td {
+    padding: 11px 13px;
+    text-align: left;
+    border: 1px solid var(--border);
+}
+
+.orbit-table th {
+    font-weight: 700;
+    background: var(--card-hover);
+}
+
+.orbit-table td {
+    background: var(--card);
+}
+
+.orbit-table tr:hover td {
+    background: var(--card-hover);
+}

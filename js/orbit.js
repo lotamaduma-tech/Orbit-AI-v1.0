@@ -1,5 +1,6 @@
 /* ===========================================================
    ORBIT AI — SHARED AI ENGINE
+
    ===========================================================
 
    Used by:
@@ -13,6 +14,10 @@
    - Anonymous browser identity
    - Automatic memory detection
    - AI response formatting
+   - Clickable website links
+   - Copyable website links
+   - Copyable code blocks
+   - HTML / CSS / JS code rendering
    - Typing indicator
    - Render cold-start notification
    - Sending messages
@@ -21,7 +26,9 @@
 
    IMPORTANT:
    Conversation history is NOT saved.
+
    Persistent memory is handled by Supabase.
+
    =========================================================== */
 
 "use strict";
@@ -69,20 +76,12 @@ function getOrbitUserId() {
                 ORBIT_USER_ID_KEY
             );
 
-        /*
-           Existing visitor.
-        */
-
+        /* Existing visitor. */
         if (userId) {
             return userId;
         }
 
-
-        /*
-           Generate a new anonymous ID.
-           crypto.randomUUID() is preferred.
-        */
-
+        /* Generate a new anonymous ID. */
         if (
             window.crypto &&
             typeof window.crypto.randomUUID === "function"
@@ -91,9 +90,7 @@ function getOrbitUserId() {
             userId =
                 window.crypto.randomUUID();
 
-        }
-
-        else {
+        } else {
 
             userId =
                 "orbit-" +
@@ -102,9 +99,7 @@ function getOrbitUserId() {
                 Math.random()
                     .toString(36)
                     .substring(2, 12);
-
         }
-
 
         localStorage.setItem(
             ORBIT_USER_ID_KEY,
@@ -113,9 +108,7 @@ function getOrbitUserId() {
 
         return userId;
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Orbit user ID could not be created:",
@@ -126,7 +119,6 @@ function getOrbitUserId() {
             "orbit-temporary-" +
             Date.now()
         );
-
     }
 }
 
@@ -161,9 +153,7 @@ function getOrbitElements() {
             document.getElementById(
                 "send-btn"
             )
-
     };
-
 }
 
 
@@ -180,36 +170,27 @@ function loadOrbitMemory() {
                 ORBIT_MEMORY_CACHE_KEY
             );
 
-
         if (!saved) {
 
             orbitUserMemory = [];
 
             return;
-
         }
-
 
         const parsed =
             JSON.parse(saved);
-
 
         if (Array.isArray(parsed)) {
 
             orbitUserMemory =
                 parsed;
 
-        }
-
-        else {
+        } else {
 
             orbitUserMemory = [];
-
         }
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Orbit memory cache could not be loaded:",
@@ -217,9 +198,7 @@ function loadOrbitMemory() {
         );
 
         orbitUserMemory = [];
-
     }
-
 }
 
 
@@ -238,17 +217,13 @@ function saveOrbitMemoryCache() {
             )
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Orbit memory cache could not be saved:",
             error
         );
-
     }
-
 }
 
 
@@ -260,13 +235,10 @@ function rememberOrbitDetail(detail) {
 
     if (!detail) return;
 
-
     const cleanDetail =
         String(detail).trim();
 
-
     if (!cleanDetail) return;
-
 
     const exists =
         orbitUserMemory.some(
@@ -275,14 +247,11 @@ function rememberOrbitDetail(detail) {
                 cleanDetail.toLowerCase()
         );
 
-
     if (exists) return;
-
 
     orbitUserMemory.push(
         cleanDetail
     );
-
 
     /*
        Keep the local cache manageable.
@@ -296,12 +265,9 @@ function rememberOrbitDetail(detail) {
 
         orbitUserMemory =
             orbitUserMemory.slice(-50);
-
     }
 
-
     saveOrbitMemoryCache();
-
 }
 
 
@@ -313,10 +279,8 @@ function detectOrbitMemory(message) {
 
     if (!message) return;
 
-
     const text =
         String(message).trim();
-
 
     if (!text) return;
 
@@ -330,13 +294,11 @@ function detectOrbitMemory(message) {
             /(?:my name is|call me|you can call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})/i
         );
 
-
     if (nameMatch) {
 
         rememberOrbitDetail(
             `The user's name is ${nameMatch[1].trim()}.`
         );
-
     }
 
 
@@ -349,13 +311,11 @@ function detectOrbitMemory(message) {
             /(?:i am|i'm|im)\s+(\d{1,3})(?:\s+years?\s+old)?/i
         );
 
-
     if (ageMatch) {
 
         rememberOrbitDetail(
             `The user is ${ageMatch[1]} years old.`
         );
-
     }
 
 
@@ -368,13 +328,11 @@ function detectOrbitMemory(message) {
             /(?:i study at|i attend|my school is|i go to)\s+(.+)/i
         );
 
-
     if (schoolMatch) {
 
         rememberOrbitDetail(
             `The user's school is ${schoolMatch[1].trim()}.`
         );
-
     }
 
 
@@ -387,13 +345,11 @@ function detectOrbitMemory(message) {
             /(?:my course is|i'm studying|i am studying)\s+(.+)/i
         );
 
-
     if (courseMatch) {
 
         rememberOrbitDetail(
             `The user studies ${courseMatch[1].trim()}.`
         );
-
     }
 
 
@@ -406,13 +362,11 @@ function detectOrbitMemory(message) {
             /(?:i live in|i'm from|i am from|i live at)\s+(.+)/i
         );
 
-
     if (locationMatch) {
 
         rememberOrbitDetail(
             `The user is from ${locationMatch[1].trim()}.`
         );
-
     }
 
 
@@ -425,13 +379,11 @@ function detectOrbitMemory(message) {
             /(?:my goal is|i want to|i plan to)\s+(.+)/i
         );
 
-
     if (goalMatch) {
 
         rememberOrbitDetail(
             `The user's goal is ${goalMatch[1].trim()}.`
         );
-
     }
 
 
@@ -444,15 +396,12 @@ function detectOrbitMemory(message) {
             /(?:i like|i love|i enjoy)\s+(.+)/i
         );
 
-
     if (likeMatch) {
 
         rememberOrbitDetail(
             `The user likes ${likeMatch[1].trim()}.`
         );
-
     }
-
 }
 
 
@@ -468,230 +417,881 @@ function getOrbitMemoryContext() {
     ) {
 
         return "";
-
     }
 
-
     return orbitUserMemory.join("\n");
-
 }
 
 
 /* ===========================================================
-   FORMAT ORBIT RESPONSE
+   ESCAPE HTML SAFELY
    =========================================================== */
+
+function escapeOrbitHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* ===========================================================
+   ESCAPE ATTRIBUTE VALUE
+   =========================================================== */
+
+function escapeOrbitAttribute(value) {
+
+    return escapeOrbitHTML(value);
+}
+
+
+/* ===========================================================
+   VALIDATE WEBSITE URL
+   =========================================================== */
+
+function isValidOrbitURL(url) {
+
+    try {
+
+        const parsed =
+            new URL(url);
+
+        return (
+            parsed.protocol === "http:" ||
+            parsed.protocol === "https:"
+        );
+
+    } catch (_) {
+
+        return false;
+    }
+}
+
+
+/* ===========================================================
+   CREATE COPY ICON
+   =========================================================== */
+
+function getOrbitCopyIcon() {
+
+    return `
+        <svg
+            class="orbit-copy-icon"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+        >
+            <rect
+                x="9"
+                y="9"
+                width="13"
+                height="13"
+                rx="2"
+            ></rect>
+
+            <path
+                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+            ></path>
+        </svg>
+    `;
+}
+
+
+/* ===========================================================
+   CREATE EXTERNAL LINK ICON
+   =========================================================== */
+
+function getOrbitExternalLinkIcon() {
+
+    return `
+        <svg
+            class="orbit-external-link-icon"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+        >
+            <path d="M14 3h7v7"></path>
+            <path d="M10 14L21 3"></path>
+            <path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"></path>
+        </svg>
+    `;
+}
+
+
+/* ===========================================================
+   COPY TEXT TO CLIPBOARD
+   =========================================================== */
+
+async function copyOrbitText(text) {
+
+    const value =
+        String(text ?? "");
+
+    if (!value) {
+        return false;
+    }
+
+    try {
+
+        if (
+            navigator.clipboard &&
+            window.isSecureContext
+        ) {
+
+            await navigator.clipboard.writeText(
+                value
+            );
+
+            return true;
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Orbit clipboard API failed. Using fallback.",
+            error
+        );
+    }
+
+
+    /* =======================================================
+       FALLBACK COPY METHOD
+       ======================================================= */
+
+    try {
+
+        const textarea =
+            document.createElement(
+                "textarea"
+            );
+
+        textarea.value =
+            value;
+
+        textarea.style.position =
+            "fixed";
+
+        textarea.style.left =
+            "-9999px";
+
+        textarea.style.top =
+            "-9999px";
+
+        textarea.setAttribute(
+            "readonly",
+            ""
+        );
+
+        document.body.appendChild(
+            textarea
+        );
+
+        textarea.select();
+
+        textarea.setSelectionRange(
+            0,
+            textarea.value.length
+        );
+
+        const copied =
+            document.execCommand(
+                "copy"
+            );
+
+        textarea.remove();
+
+        return copied;
+
+    } catch (error) {
+
+        console.error(
+            "Orbit could not copy text:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* ===========================================================
+   UPDATE COPY BUTTON STATE
+   =========================================================== */
+
+function updateOrbitCopyButton(
+    button,
+    success,
+    originalText = "Copy"
+) {
+
+    if (!button) return;
+
+    if (success) {
+
+        button.innerHTML = `
+            <span class="orbit-copy-success">✓</span>
+            Copied
+        `;
+
+        button.classList.add(
+            "copied"
+        );
+
+        setTimeout(
+            () => {
+
+                if (!button.isConnected) {
+                    return;
+                }
+
+                button.innerHTML =
+                    getOrbitCopyIcon() +
+                    originalText;
+
+                button.classList.remove(
+                    "copied"
+                );
+
+            },
+            1600
+        );
+
+    } else {
+
+        button.innerHTML =
+            getOrbitCopyIcon() +
+            "Copy";
+    }
+}
+
+
+/* ===========================================================
+   FORMAT URL DISPLAY
+   =========================================================== */
+
+function createOrbitLinkHTML(url, label = null) {
+
+    if (!isValidOrbitURL(url)) {
+
+        return escapeOrbitHTML(
+            label || url
+        );
+    }
+
+    const safeURL =
+        escapeOrbitAttribute(url);
+
+    const safeLabel =
+        escapeOrbitHTML(
+            label || url
+        );
+
+    return `
+        <span class="orbit-link-wrapper">
+
+            <a
+                class="orbit-link"
+                href="${safeURL}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                ${safeLabel}
+            </a>
+
+            <button
+                type="button"
+                class="orbit-link-action orbit-open-link"
+                data-orbit-url="${safeURL}"
+                title="Open link"
+                aria-label="Open link"
+            >
+                ${getOrbitExternalLinkIcon()}
+            </button>
+
+            <button
+                type="button"
+                class="orbit-link-action orbit-copy-link"
+                data-orbit-url="${safeURL}"
+                title="Copy link"
+                aria-label="Copy link"
+            >
+                ${getOrbitCopyIcon()}
+            </button>
+
+        </span>
+    `;
+}
+
+/* ===========================================================
+   ORBIT AI — SAFE MARKDOWN / LINK FORMATTER
+   =========================================================== */
+
+/*
+   IMPORTANT:
+   URLs are protected BEFORE HTML is generated.
+
+   This prevents the raw URL formatter from scanning
+   generated HTML attributes such as:
+
+   href="https://example.com"
+   data-orbit-url="https://example.com"
+
+   and creating broken nested links.
+*/
+
+
+/* ===========================================================
+   FORMAT MARKDOWN LINKS
+   =========================================================== */
+
+function formatOrbitMarkdownLinks(text) {
+
+    const linkTokens = [];
+
+    const result = text.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi,
+        (match, label, url) => {
+
+            if (!isValidOrbitURL(url)) {
+                return escapeOrbitHTML(match);
+            }
+
+            const token =
+                `___ORBIT_LINK_${linkTokens.length}___`;
+
+            linkTokens.push(
+                createOrbitLinkHTML(
+                    url,
+                    label
+                )
+            );
+
+            return token;
+        }
+    );
+
+    return {
+        text: result,
+        links: linkTokens
+    };
+}
+
+
+/* ===========================================================
+   FORMAT RAW URLS
+   =========================================================== */
+
+function formatOrbitRawLinks(
+    text,
+    linkTokens
+) {
+
+    const urlPattern =
+        /(https?:\/\/[^\s<>"'`]+[^\s<>"'`.,!?;:)\]}])/gi;
+
+    return text.replace(
+        urlPattern,
+        (url) => {
+
+            if (!isValidOrbitURL(url)) {
+                return escapeOrbitHTML(url);
+            }
+
+            const token =
+                `___ORBIT_LINK_${linkTokens.length}___`;
+
+            linkTokens.push(
+                createOrbitLinkHTML(url)
+            );
+
+            return token;
+        }
+    );
+}
 
 function formatOrbitResponse(text) {
 
-    if (!text) return "";
+    if (!text) {
+        return "";
+    }
 
-
-    let formatted =
-        String(text);
-
-
-    /* =======================================================
-       ESCAPE HTML
-       ======================================================= */
-
-    formatted =
-        formatted
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            );
-
-
-    /* =======================================================
-       CODE BLOCKS
-       ======================================================= */
+    let source = String(text);
 
     const codeBlocks = [];
-
-
-    formatted =
-        formatted.replace(
-            /```([\s\S]*?)```/g,
-            (match, code) => {
-
-                const index =
-                    codeBlocks.length;
-
-
-                codeBlocks.push(
-                    `<pre class="orbit-code-block"><code>${code.trim()}</code></pre>`
-                );
-
-
-                return (
-                    `___ORBIT_CODE_BLOCK_${index}___`
-                );
-
-            }
-        );
+    const inlineCodeBlocks = [];
+    const linkTokens = [];
+    const tableTokens = [];
 
 
     /* =======================================================
-       INLINE CODE
+       1. PROTECT CODE BLOCKS
        ======================================================= */
 
-    formatted =
-        formatted.replace(
-            /`([^`\n]+)`/g,
-            "<code>$1</code>"
-        );
+    source = source.replace(
+        /```([a-zA-Z0-9_+#.-]*)\s*\n?([\s\S]*?)```/g,
+        (match, language, code) => {
+
+            const index = codeBlocks.length;
+
+            const cleanCode = code
+                .replace(/^\n/, "")
+                .replace(/\n$/, "");
+
+            codeBlocks.push({
+                language: language
+                    ? language.trim().toLowerCase()
+                    : "",
+                code: cleanCode
+            });
+
+            return `___ORBIT_CODE_BLOCK_${index}___`;
+        }
+    );
 
 
     /* =======================================================
-       BOLD
+       2. PROTECT INLINE CODE
        ======================================================= */
 
-    formatted =
-        formatted.replace(
-            /\*\*(.*?)\*\*/g,
-            "<strong>$1</strong>"
-        );
+    source = source.replace(
+        /`([^`\n]+)`/g,
+        (match, code) => {
+
+            const index = inlineCodeBlocks.length;
+
+            inlineCodeBlocks.push(`
+                <code class="orbit-inline-code">
+                    ${escapeOrbitHTML(code)}
+                </code>
+            `);
+
+            return `___ORBIT_INLINE_CODE_${index}___`;
+        }
+    );
 
 
     /* =======================================================
-       ITALIC
+       3. CONVERT MARKDOWN TABLES
        ======================================================= */
 
-    formatted =
-        formatted.replace(
-            /(?<!\*)\*([^\*\n]+)\*(?!\*)/g,
-            "<em>$1</em>"
-        );
+    const lines = source.split("\n");
+    const processedLines = [];
 
+    let i = 0;
 
-    /* =======================================================
-       HEADINGS
-       ======================================================= */
+    while (i < lines.length) {
 
-    formatted =
-        formatted.replace(
-            /^### (.*?)$/gm,
-            "<h4>$1</h4>"
-        );
+        const currentLine = lines[i];
+        const nextLine = lines[i + 1];
 
+        /*
+           Detect:
 
-    formatted =
-        formatted.replace(
-            /^## (.*?)$/gm,
-            "<h3>$1</h3>"
-        );
+           | Header | Header |
+           |--------|--------|
+           | Data   | Data   |
+        */
 
-
-    formatted =
-        formatted.replace(
-            /^# (.*?)$/gm,
-            "<h2>$1</h2>"
-        );
-
-
-    /* =======================================================
-       BULLET LISTS
-       ======================================================= */
-
-    formatted =
-        formatted.replace(
-            /^[•\-]\s+(.*?)$/gm,
-            "<li>$1</li>"
-        );
-
-
-    /* =======================================================
-       NUMBERED LISTS
-       ======================================================= */
-
-    formatted =
-        formatted.replace(
-            /^\d+\.\s+(.*?)$/gm,
-            "<li>$1</li>"
-        );
-
-
-    /* =======================================================
-       GROUP LIST ITEMS
-       ======================================================= */
-
-    formatted =
-        formatted.replace(
-            /((?:<li>.*?<\/li>\s*)+)/g,
-            "<ul>$1</ul>"
-        );
-
-
-    /* =======================================================
-       LINE BREAKS
-       ======================================================= */
-
-    formatted =
-        formatted.replace(
-            /\n/g,
-            "<br>"
-        );
-
-
-    /* =======================================================
-       CLEAN BLOCK ELEMENT BREAKS
-       ======================================================= */
-
-    formatted =
-        formatted
-            .replace(
-                /<br>\s*<ul>/g,
-                "<ul>"
-            )
-            .replace(
-                /<\/ul>\s*<br>/g,
-                "</ul>"
-            )
-            .replace(
-                /<br>\s*<h([2-4])>/g,
-                "<h$1>"
-            )
-            .replace(
-                /<\/h([2-4])><br>/g,
-                "</h$1>"
-            )
-            .replace(
-                /<br>\s*<pre/g,
-                "<pre"
-            )
-            .replace(
-                /<\/pre><br>/g,
-                "</pre>"
+        const isTableHeader =
+            currentLine &&
+            currentLine.includes("|") &&
+            nextLine &&
+            /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$/.test(
+                nextLine
             );
 
+        if (isTableHeader) {
+
+            const tableRows = [];
+
+            const parseRow = (row) => {
+
+                return row
+                    .trim()
+                    .replace(/^\|/, "")
+                    .replace(/\|$/, "")
+                    .split("|")
+                    .map(cell => cell.trim());
+            };
+
+            const headers = parseRow(currentLine);
+
+            i += 2;
+
+            while (
+                i < lines.length &&
+                lines[i].includes("|") &&
+                lines[i].trim() !== ""
+            ) {
+
+                tableRows.push(
+                    parseRow(lines[i])
+                );
+
+                i++;
+            }
+
+            const tableIndex =
+                tableTokens.length;
+
+            let tableHTML = `
+                <div class="orbit-table-wrapper">
+                    <table class="orbit-table">
+                        <thead>
+                            <tr>
+            `;
+
+            headers.forEach(header => {
+
+                tableHTML += `
+                    <th>
+                        ${escapeOrbitHTML(header)}
+                    </th>
+                `;
+
+            });
+
+            tableHTML += `
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            tableRows.forEach(row => {
+
+                tableHTML += `
+                    <tr>
+                `;
+
+                headers.forEach((_, columnIndex) => {
+
+                    const cell =
+                        row[columnIndex] || "";
+
+                    tableHTML += `
+                        <td>
+                            ${escapeOrbitHTML(cell)}
+                        </td>
+                    `;
+
+                });
+
+                tableHTML += `
+                    </tr>
+                `;
+
+            });
+
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            tableTokens.push(tableHTML);
+
+            processedLines.push(
+                `___ORBIT_TABLE_${tableIndex}___`
+            );
+
+            continue;
+        }
+
+        processedLines.push(currentLine);
+
+        i++;
+    }
+
+    source = processedLines.join("\n");
+
 
     /* =======================================================
-       RESTORE CODE BLOCKS
+       4. PROTECT MARKDOWN LINKS
        ======================================================= */
 
-    codeBlocks.forEach(
+    source = source.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi,
+        (match, label, url) => {
+
+            if (!isValidOrbitURL(url)) {
+                return escapeOrbitHTML(match);
+            }
+
+            const index = linkTokens.length;
+
+            linkTokens.push(
+                createOrbitLinkHTML(
+                    url,
+                    label
+                )
+            );
+
+            return `___ORBIT_LINK_${index}___`;
+        }
+    );
+
+
+    /* =======================================================
+       5. ESCAPE NORMAL TEXT
+       ======================================================= */
+
+    let formatted =
+        escapeOrbitHTML(source);
+
+
+    /* =======================================================
+       6. RAW URL DETECTION
+       ======================================================= */
+
+    formatted =
+        formatOrbitRawLinks(
+            formatted,
+            linkTokens
+        );
+
+
+    /* =======================================================
+       7. BOLD
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /\*\*(.+?)\*\*/g,
+        "<strong>$1</strong>"
+    );
+
+
+    /* =======================================================
+       8. ITALIC
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /(^|[^\*])\*([^\*\n]+)\*(?!\*)/gm,
+        "$1<em>$2</em>"
+    );
+
+
+    /* =======================================================
+       9. HEADINGS
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /^### (.*?)$/gm,
+        "<h4>$1</h4>"
+    );
+
+    formatted = formatted.replace(
+        /^## (.*?)$/gm,
+        "<h3>$1</h3>"
+    );
+
+    formatted = formatted.replace(
+        /^# (.*?)$/gm,
+        "<h2>$1</h2>"
+    );
+
+
+    /* =======================================================
+       10. BULLET LISTS
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /^[•-]\s+(.*?)$/gm,
+        "<li>$1</li>"
+    );
+
+
+    /* =======================================================
+       11. NUMBERED LISTS
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /^\d+\.\s+(.*?)$/gm,
+        "<li>$1</li>"
+    );
+
+
+    /* =======================================================
+       12. GROUP LIST ITEMS
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /((?:<li>.*?<\/li>\s*)+)/g,
+        "<ul>$1</ul>"
+    );
+
+
+    /* =======================================================
+       13. LINE BREAKS
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /\n/g,
+        "<br>"
+    );
+
+
+    /* =======================================================
+       14. CLEAN BLOCK ELEMENT BREAKS
+       ======================================================= */
+
+    formatted = formatted
+        .replace(
+            /<br>\s*<ul>/g,
+            "<ul>"
+        )
+        .replace(
+            /<\/ul>\s*<br>/g,
+            "</ul>"
+        )
+        .replace(
+            /<br>\s*<h([2-4])>/g,
+            "<h$1>"
+        )
+        .replace(
+            /<\/h([2-4])><br>/g,
+            "</h$1>"
+        )
+        .replace(
+            /<br>\s*<div class="orbit-table-wrapper">/g,
+            '<div class="orbit-table-wrapper">'
+        )
+        .replace(
+            /<\/div>\s*<br>/g,
+            "</div>"
+        );
+
+
+    /* =======================================================
+       15. RESTORE INLINE CODE
+       ======================================================= */
+
+    inlineCodeBlocks.forEach(
         (block, index) => {
 
-            formatted =
-                formatted.replace(
-                    `___ORBIT_CODE_BLOCK_${index}___`,
-                    block
-                );
+            formatted = formatted.replace(
+                `___ORBIT_INLINE_CODE_${index}___`,
+                block
+            );
 
         }
     );
 
 
-    return formatted;
+    /* =======================================================
+       16. RESTORE LINKS
+       ======================================================= */
 
+    linkTokens.forEach(
+        (linkHTML, index) => {
+
+            formatted = formatted.replace(
+                `___ORBIT_LINK_${index}___`,
+                linkHTML
+            );
+
+        }
+    );
+
+
+    /* =======================================================
+       17. RESTORE TABLES
+       ======================================================= */
+
+    tableTokens.forEach(
+        (tableHTML, index) => {
+
+            formatted = formatted.replace(
+                `___ORBIT_TABLE_${index}___`,
+                tableHTML
+            );
+
+        }
+    );
+
+
+    /* =======================================================
+       18. RESTORE CODE BLOCKS
+       ======================================================= */
+
+    codeBlocks.forEach(
+        (block, index) => {
+
+            const safeCode =
+                escapeOrbitHTML(block.code);
+
+            const safeLanguage =
+                escapeOrbitHTML(block.language);
+
+            const languageLabel =
+                block.language
+                    ? block.language.toUpperCase()
+                    : "CODE";
+
+            const codeBlockHTML = `
+                <div
+                    class="orbit-code-container"
+                    data-orbit-code-block
+                >
+
+                    <div class="orbit-code-header">
+
+                        <span class="orbit-code-language">
+                            ${safeLanguage || languageLabel}
+                        </span>
+
+                        <button
+                            type="button"
+                            class="orbit-code-copy"
+                            data-orbit-copy-code
+                            title="Copy code"
+                            aria-label="Copy code"
+                        >
+                            ${getOrbitCopyIcon()}
+                            Copy
+                        </button>
+
+                    </div>
+
+                    <pre class="orbit-code-block"><code>${safeCode}</code></pre>
+
+                </div>
+            `;
+
+            formatted = formatted.replace(
+                `___ORBIT_CODE_BLOCK_${index}___`,
+                codeBlockHTML
+            );
+
+        }
+    );
+
+
+    /* =======================================================
+       19. REMOVE UNINTENTIONAL MARKDOWN ASTERISKS
+       ======================================================= */
+
+    formatted = formatted.replace(
+        /(^|<br>)\s*\*{1,3}\s+/g,
+        "$1"
+    );
+
+
+    return formatted;
 }
 
 
@@ -708,15 +1308,14 @@ function addOrbitMessage(
         chatWindow
     } = getOrbitElements();
 
-
-    if (!chatWindow) return;
-
+    if (!chatWindow) {
+        return;
+    }
 
     const message =
         document.createElement(
             "div"
         );
-
 
     message.className =
         `message ${sender}`;
@@ -746,7 +1345,6 @@ function addOrbitMessage(
             formatOrbitResponse(
                 text
             );
-
     }
 
 
@@ -754,10 +1352,189 @@ function addOrbitMessage(
         message
     );
 
-
     chatWindow.scrollTop =
         chatWindow.scrollHeight;
+}
 
+
+/* ===========================================================
+   HANDLE CHAT ACTIONS
+
+   Handles:
+   - Copy code
+   - Copy links
+   - Open links
+   =========================================================== */
+
+function setupOrbitChatActions() {
+
+    const {
+        chatWindow
+    } = getOrbitElements();
+
+    if (!chatWindow) {
+        return;
+    }
+
+
+    /*
+       Prevent duplicate event listeners.
+    */
+
+    if (
+        chatWindow.dataset.orbitActionsReady === "true"
+    ) {
+
+        return;
+    }
+
+    chatWindow.dataset.orbitActionsReady =
+        "true";
+
+
+    chatWindow.addEventListener(
+        "click",
+        async event => {
+
+            const copyCodeButton =
+                event.target.closest(
+                    "[data-orbit-copy-code]"
+                );
+
+            const copyLinkButton =
+                event.target.closest(
+                    ".orbit-copy-link"
+                );
+
+            const openLinkButton =
+                event.target.closest(
+                    ".orbit-open-link"
+                );
+
+
+            /* =================================================
+               COPY CODE
+               ================================================= */
+
+            if (copyCodeButton) {
+
+                const container =
+                    copyCodeButton.closest(
+                        "[data-orbit-code-block]"
+                    );
+
+                if (!container) {
+                    return;
+                }
+
+                const codeElement =
+                    container.querySelector(
+                        "pre code"
+                    );
+
+                if (!codeElement) {
+                    return;
+                }
+
+                /*
+                   textContent gives us the original code
+                   including HTML < > characters.
+                */
+
+                const code =
+                    codeElement.textContent;
+
+                const success =
+                    await copyOrbitText(
+                        code
+                    );
+
+                updateOrbitCopyButton(
+                    copyCodeButton,
+                    success,
+                    "Copy"
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               COPY LINK
+               ================================================= */
+
+            if (copyLinkButton) {
+
+                const url =
+                    copyLinkButton.dataset.orbitUrl;
+
+                if (!url) {
+                    return;
+                }
+
+                const success =
+                    await copyOrbitText(
+                        url
+                    );
+
+                if (success) {
+
+                    copyLinkButton.innerHTML =
+                        "✓";
+
+                    copyLinkButton.classList.add(
+                        "copied"
+                    );
+
+                    setTimeout(
+                        () => {
+
+                            if (!copyLinkButton.isConnected) {
+                                return;
+                            }
+
+                            copyLinkButton.innerHTML =
+                                getOrbitCopyIcon();
+
+                            copyLinkButton.classList.remove(
+                                "copied"
+                            );
+
+                        },
+                        1600
+                    );
+                }
+
+                return;
+            }
+
+
+            /* =================================================
+               OPEN LINK
+               ================================================= */
+
+            if (openLinkButton) {
+
+                const url =
+                    openLinkButton.dataset.orbitUrl;
+
+                if (
+                    url &&
+                    isValidOrbitURL(url)
+                ) {
+
+                    window.open(
+                        url,
+                        "_blank",
+                        "noopener,noreferrer"
+                    );
+                }
+
+                return;
+            }
+
+        }
+    );
 }
 
 
@@ -779,13 +1556,12 @@ function showOrbitTyping() {
         chatWindow
     } = getOrbitElements();
 
+    if (!chatWindow) {
+        return;
+    }
 
-    if (!chatWindow) return;
 
-
-    /*
-       Prevent duplicate indicators.
-    */
+    /* Prevent duplicate indicators. */
 
     if (
         document.getElementById(
@@ -794,7 +1570,6 @@ function showOrbitTyping() {
     ) {
 
         return;
-
     }
 
 
@@ -803,10 +1578,8 @@ function showOrbitTyping() {
             "div"
         );
 
-
     typing.id =
         "orbit-typing";
-
 
     typing.className =
         "message orbit typing-message";
@@ -814,28 +1587,30 @@ function showOrbitTyping() {
 
     /*
        Initial message.
-
        This tells the user that the backend
        may be waking up from Render sleep.
     */
 
     typing.innerHTML = `
+
         <span class="orbit-thinking-text">
             Orbit is waking up
         </span>
 
-        <span class="typing-dots">...</span>
+        <span class="typing-dots">
+            ...
+        </span>
 
         <small class="orbit-wake-message">
             This may take a few seconds on the first message.
         </small>
+
     `;
 
 
     chatWindow.appendChild(
         typing
     );
-
 
     chatWindow.scrollTop =
         chatWindow.scrollHeight;
@@ -854,37 +1629,30 @@ function showOrbitTyping() {
                         "orbit-typing"
                     );
 
-
                 if (!currentTyping) {
                     return;
                 }
-
 
                 const textElement =
                     currentTyping.querySelector(
                         ".orbit-thinking-text"
                     );
 
-
                 const wakeMessage =
                     currentTyping.querySelector(
                         ".orbit-wake-message"
                     );
 
-
                 if (textElement) {
 
                     textElement.textContent =
                         "Orbit is still waking up";
-
                 }
-
 
                 if (wakeMessage) {
 
                     wakeMessage.textContent =
                         "The server is starting up. Almost there...";
-
                 }
 
             },
@@ -906,43 +1674,35 @@ function showOrbitTyping() {
                         "orbit-typing"
                     );
 
-
                 if (!currentTyping) {
                     return;
                 }
-
 
                 const textElement =
                     currentTyping.querySelector(
                         ".orbit-thinking-text"
                     );
 
-
                 const wakeMessage =
                     currentTyping.querySelector(
                         ".orbit-wake-message"
                     );
 
-
                 if (textElement) {
 
                     textElement.textContent =
                         "Orbit is working on it";
-
                 }
-
 
                 if (wakeMessage) {
 
                     wakeMessage.textContent =
                         "Thanks for waiting — your request is being processed.";
-
                 }
 
             },
             12000
         );
-
 }
 
 
@@ -960,7 +1720,6 @@ function hideOrbitTyping() {
 
         orbitTypingTimer =
             null;
-
     }
 
 
@@ -972,7 +1731,6 @@ function hideOrbitTyping() {
 
         orbitColdStartTimer =
             null;
-
     }
 
 
@@ -981,13 +1739,10 @@ function hideOrbitTyping() {
             "orbit-typing"
         );
 
-
     if (typing) {
 
         typing.remove();
-
     }
-
 }
 
 
@@ -1012,7 +1767,6 @@ async function orbitSendMessage(
         );
 
         return;
-
     }
 
 
@@ -1079,7 +1833,6 @@ async function orbitSendMessage(
             orbitConversationHistory.slice(
                 -30
             );
-
     }
 
 
@@ -1093,7 +1846,6 @@ async function orbitSendMessage(
 
         commandInput.value =
             "";
-
     }
 
 
@@ -1104,7 +1856,6 @@ async function orbitSendMessage(
     orbitIsWaiting =
         true;
 
-
     commandInput.disabled =
         true;
 
@@ -1113,7 +1864,6 @@ async function orbitSendMessage(
 
         sendButton.disabled =
             true;
-
     }
 
 
@@ -1161,7 +1911,6 @@ async function orbitSendMessage(
 
                             /*
                                Temporary conversation.
-
                                NOT persisted.
                             */
 
@@ -1171,7 +1920,6 @@ async function orbitSendMessage(
 
                             /*
                                Local memory cache.
-
                                Backend also loads
                                persistent Supabase memory.
                             */
@@ -1182,7 +1930,6 @@ async function orbitSendMessage(
 
                             /*
                                Anonymous browser identity.
-
                                Used by the backend to connect
                                this visitor with their Supabase
                                memory.
@@ -1212,7 +1959,6 @@ async function orbitSendMessage(
                 const errorData =
                     await response.json();
 
-
                 if (
                     errorData &&
                     errorData.error
@@ -1220,24 +1966,19 @@ async function orbitSendMessage(
 
                     errorMessage =
                         errorData.error;
-
                 }
 
-            }
-
-            catch (_) {
+            } catch (_) {
 
                 /*
                    Ignore JSON parsing errors.
                 */
-
             }
 
 
             throw new Error(
                 errorMessage
             );
-
         }
 
 
@@ -1267,7 +2008,6 @@ async function orbitSendMessage(
             throw new Error(
                 "Orbit returned an empty response."
             );
-
         }
 
 
@@ -1288,7 +2028,6 @@ async function orbitSendMessage(
                 data.memory.slice(-50);
 
             saveOrbitMemoryCache();
-
         }
 
 
@@ -1313,7 +2052,6 @@ async function orbitSendMessage(
                     .slice(-50);
 
             saveOrbitMemoryCache();
-
         }
 
 
@@ -1349,7 +2087,6 @@ async function orbitSendMessage(
                 orbitConversationHistory.slice(
                     -30
                 );
-
         }
 
 
@@ -1374,7 +2111,6 @@ async function orbitSendMessage(
                 `${(
                     elapsed / 1000
                 ).toFixed(1)}s`;
-
         }
 
     }
@@ -1407,9 +2143,7 @@ async function orbitSendMessage(
 
             responseTime.textContent =
                 "Connection error";
-
         }
-
     }
 
 
@@ -1420,7 +2154,6 @@ async function orbitSendMessage(
     orbitIsWaiting =
         false;
 
-
     commandInput.disabled =
         false;
 
@@ -1429,12 +2162,10 @@ async function orbitSendMessage(
 
         sendButton.disabled =
             false;
-
     }
 
 
     commandInput.focus();
-
 }
 
 
@@ -1451,7 +2182,6 @@ function clearOrbitConversation() {
 
     /*
        Clears ONLY temporary conversation history.
-
        Does NOT delete Supabase memory.
     */
 
@@ -1469,12 +2199,10 @@ function clearOrbitConversation() {
         chatWindow.innerHTML =
             "";
 
-
         addOrbitMessage(
             "Orbit AI Online. How can I assist you?",
             "orbit"
         );
-
     }
 
 
@@ -1488,9 +2216,7 @@ function clearOrbitConversation() {
 
         responseTime.textContent =
             "Ready";
-
     }
-
 }
 
 
@@ -1514,9 +2240,7 @@ function startOrbitNewChat() {
             "";
 
         commandInput.focus();
-
     }
-
 }
 
 
@@ -1536,6 +2260,22 @@ function setupOrbitKeyboard() {
     }
 
 
+    /*
+       Prevent duplicate keyboard listeners.
+    */
+
+    if (
+        commandInput.dataset.orbitKeyboardReady === "true"
+    ) {
+
+        return;
+    }
+
+
+    commandInput.dataset.orbitKeyboardReady =
+        "true";
+
+
     commandInput.addEventListener(
         "keydown",
         event => {
@@ -1548,12 +2288,9 @@ function setupOrbitKeyboard() {
                 event.preventDefault();
 
                 orbitSendMessage();
-
             }
-
         }
     );
-
 }
 
 
@@ -1573,6 +2310,22 @@ function setupOrbitSendButton() {
     }
 
 
+    /*
+       Prevent duplicate send listeners.
+    */
+
+    if (
+        sendButton.dataset.orbitSendReady === "true"
+    ) {
+
+        return;
+    }
+
+
+    sendButton.dataset.orbitSendReady =
+        "true";
+
+
     sendButton.addEventListener(
         "click",
         () => {
@@ -1581,7 +2334,6 @@ function setupOrbitSendButton() {
 
         }
     );
-
 }
 
 
@@ -1593,7 +2345,6 @@ function initializeOrbitAI() {
 
     /*
        Load only the local memory cache.
-
        Persistent memory comes from Supabase
        through the backend.
     */
@@ -1604,7 +2355,6 @@ function initializeOrbitAI() {
     /*
        Conversation history is intentionally
        reset whenever the page loads.
-
        Persistent memory remains available.
     */
 
@@ -1622,18 +2372,22 @@ function initializeOrbitAI() {
         chatWindow.innerHTML =
             "";
 
-
         addOrbitMessage(
             "Orbit AI Online. How can I assist you?",
             "orbit"
         );
-
     }
 
+
+    /*
+       Set up controls.
+    */
 
     setupOrbitSendButton();
 
     setupOrbitKeyboard();
+
+    setupOrbitChatActions();
 
 
     console.log(
@@ -1648,7 +2402,6 @@ function initializeOrbitAI() {
 
         }
     );
-
 }
 
 
@@ -1696,10 +2449,7 @@ if (
         initializeOrbitAI
     );
 
-}
-
-else {
+} else {
 
     initializeOrbitAI();
-
 }
