@@ -1,1238 +1,420 @@
 /* =========================================================
-   ORBIT AI — SETTINGS
+   ORBIT AI — SETTINGS CONTROLLER
    ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    /* =====================================================
-       ELEMENTS
-    ===================================================== */
-
-    const themeSelect = document.getElementById("theme-select");
-    const accentSelect = document.getElementById("accent-select");
-    const notificationsToggle = document.getElementById("notifications-toggle");
-    const animationsToggle = document.getElementById("animations-toggle");
-
-    const clearDataButton = document.getElementById("clear-data-button");
-    const resetSettingsButton = document.getElementById("reset-settings-button");
-
-    const termsButton = document.getElementById("terms-button");
-    const privacyButton = document.getElementById("privacy-button");
-
-    const termsModal = document.getElementById("terms-modal");
-    const privacyModal = document.getElementById("privacy-modal");
-
-    const modalCloseButtons =
-        document.querySelectorAll(".settings-modal-close");
-
-    const modalOverlays =
-        document.querySelectorAll(".settings-modal-overlay");
-
-
-    /* =====================================================
+  /* =====================================================
        STORAGE
-    ===================================================== */
+       ===================================================== */
 
-    const SETTINGS_KEY = "orbitAISettings";
+  const SETTINGS_KEY = "orbitAISettings";
 
+  const defaultSettings = {
+    theme: "system",
 
-    const defaultSettings = {
-        theme: "system",
-        accent: "default",
-        notifications: true,
-        animations: true
-    };
+    animations: true,
 
+    enterToSend: true,
 
-    let settings = loadSettings();
+    timestamps: false,
 
+    memory: true,
 
-    /* =====================================================
+    notifications: false,
+
+    language: "en",
+  };
+
+  let settings = loadSettings();
+
+  /* =====================================================
+       DOM ELEMENTS
+       ===================================================== */
+
+  const themeSelect = document.getElementById("theme-select");
+
+  const animationsToggle = document.getElementById("animations-toggle");
+
+  const enterSendToggle = document.getElementById("enter-send-toggle");
+
+  const timestampsToggle = document.getElementById("timestamps-toggle");
+
+  const memoryToggle = document.getElementById("memory-toggle");
+
+  const notificationsToggle = document.getElementById("notifications-toggle");
+
+  const languageSelect = document.getElementById("language-select");
+
+  const manageMemory = document.getElementById("manage-memory");
+
+  const clearDataBtn = document.getElementById("clear-data-button");
+
+  /* =====================================================
        LOAD SETTINGS
-    ===================================================== */
-
-    function loadSettings() {
-
-        try {
-
-            const saved =
-                localStorage.getItem(SETTINGS_KEY);
-
-            if (!saved) {
-                return { ...defaultSettings };
-            }
-
-            return {
-                ...defaultSettings,
-                ...JSON.parse(saved)
-            };
-
-        } catch (error) {
-
-            console.error(
-                "Unable to load Orbit AI settings:",
-                error
-            );
-
-            return { ...defaultSettings };
-
-        }
-
-    }
-
-
-    /* =====================================================
-       SAVE SETTINGS
-    ===================================================== */
-
-    function saveSettings() {
-
-        localStorage.setItem(
-            SETTINGS_KEY,
-            JSON.stringify(settings)
-        );
-
-    }
-
-
-    /* =====================================================
-       APPLY THEME
        ===================================================== */
 
-    function applyTheme() {
+  function loadSettings() {
+    try {
+      const saved = localStorage.getItem(SETTINGS_KEY);
 
-        const root =
-            document.documentElement;
-
-        root.removeAttribute("data-theme");
-
-
-        if (settings.theme === "dark") {
-
-            root.setAttribute(
-                "data-theme",
-                "dark"
-            );
-
-        }
-
-
-        if (settings.theme === "light") {
-
-            root.setAttribute(
-                "data-theme",
-                "light"
-            );
-
-        }
-
-
-        if (settings.theme === "system") {
-
-            const prefersDark =
-                window.matchMedia(
-                    "(prefers-color-scheme: dark)"
-                ).matches;
-
-            root.setAttribute(
-                "data-theme",
-                prefersDark
-                    ? "dark"
-                    : "light"
-            );
-
-        }
-
-    }
-
-
-    /* =====================================================
-       APPLY ACCENT
-       ===================================================== */
-
-    function applyAccent() {
-
-        document.documentElement
-            .setAttribute(
-                "data-accent",
-                settings.accent
-            );
-
-    }
-
-
-    /* =========================================================
-    ORBIT AI — SETTINGS
-    ========================================================= */
-
-    document.addEventListener("DOMContentLoaded", () => {
-
-        /* =====================================================
-           ELEMENTS
-        ===================================================== */
-
-        const themeSelect = document.getElementById("theme-select");
-        const accentSelect = document.getElementById("accent-select");
-        const notificationsToggle = document.getElementById("notifications-toggle");
-        const animationsToggle = document.getElementById("animations-toggle");
-
-        const clearDataButton = document.getElementById("clear-data-button");
-        const resetSettingsButton = document.getElementById("reset-settings-button");
-
-        const termsButton = document.getElementById("terms-button");
-        const privacyButton = document.getElementById("privacy-button");
-
-        const termsModal = document.getElementById("terms-modal");
-        const privacyModal = document.getElementById("privacy-modal");
-
-        const modalCloseButtons =
-            document.querySelectorAll(".settings-modal-close");
-
-        const modalOverlays =
-            document.querySelectorAll(".settings-modal-overlay");
-
-
-        /* =====================================================
-           STORAGE
-        ===================================================== */
-
-        const SETTINGS_KEY = "orbitAISettings";
-
-
-        const defaultSettings = {
-            theme: "system",
-            accent: "default",
-            notifications: true,
-            animations: true
+      if (!saved) {
+        return {
+          ...defaultSettings,
         };
+      }
 
+      const parsed = JSON.parse(saved);
 
-        let settings = loadSettings();
+      return {
+        ...defaultSettings,
 
+        ...parsed,
+      };
+    } catch (error) {
+      console.warn("Orbit settings could not be loaded.", error);
 
-        /* =====================================================
-           LOAD SETTINGS
-        ===================================================== */
+      return {
+        ...defaultSettings,
+      };
+    }
+  }
 
-        function loadSettings() {
-
-            try {
-
-                const saved =
-                    localStorage.getItem(SETTINGS_KEY);
-
-                if (!saved) {
-                    return { ...defaultSettings };
-                }
-
-                return {
-                    ...defaultSettings,
-                    ...JSON.parse(saved)
-                };
-
-            } catch (error) {
-
-                console.error(
-                    "Unable to load Orbit AI settings:",
-                    error
-                );
-
-                return { ...defaultSettings };
-
-            }
-
-        }
-
-
-        /* =====================================================
-           SAVE SETTINGS
-        ===================================================== */
-
-        function saveSettings() {
-
-            localStorage.setItem(
-                SETTINGS_KEY,
-                JSON.stringify(settings)
-            );
-
-        }
-
-
-        /* =====================================================
-           APPLY THEME
-           ===================================================== */
-
-        function applyTheme() {
-
-            const root =
-                document.documentElement;
-
-            root.removeAttribute("data-theme");
-
-
-            if (settings.theme === "dark") {
-
-                root.setAttribute(
-                    "data-theme",
-                    "dark"
-                );
-
-            }
-
-
-            if (settings.theme === "light") {
-
-                root.setAttribute(
-                    "data-theme",
-                    "light"
-                );
-
-            }
-
-
-            if (settings.theme === "system") {
-
-                const prefersDark =
-                    window.matchMedia(
-                        "(prefers-color-scheme: dark)"
-                    ).matches;
-
-                root.setAttribute(
-                    "data-theme",
-                    prefersDark
-                        ? "dark"
-                        : "light"
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           APPLY ACCENT
-           ===================================================== */
-
-        function applyAccent() {
-
-            document.documentElement
-                .setAttribute(
-                    "data-accent",
-                    settings.accent
-                );
-
-        }
-
-
-        /* =====================================================
-           APPLY ANIMATIONS
-           ===================================================== */
-
-        function applyAnimations() {
-
-            if (settings.animations) {
-
-                document.documentElement
-                    .removeAttribute(
-                        "data-reduced-motion"
-                    );
-
-            } else {
-
-                document.documentElement
-                    .setAttribute(
-                        "data-reduced-motion",
-                        "true"
-                    );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           APPLY ALL SETTINGS
-           ===================================================== */
-
-        function applySettings() {
-
-            applyTheme();
-
-            applyAccent();
-
-            applyAnimations();
-
-        }
-
-
-        /* =====================================================
-           UPDATE FORM CONTROLS
-        ===================================================== */
-
-        function updateControls() {
-
-            if (themeSelect) {
-
-                themeSelect.value =
-                    settings.theme;
-
-            }
-
-
-            if (accentSelect) {
-
-                accentSelect.value =
-                    settings.accent;
-
-            }
-
-
-            if (notificationsToggle) {
-
-                notificationsToggle.checked =
-                    settings.notifications;
-
-            }
-
-
-            if (animationsToggle) {
-
-                animationsToggle.checked =
-                    settings.animations;
-
-            }
-
-        }
-
-
-        /* =====================================================
-           THEME
-        ===================================================== */
-
-        if (themeSelect) {
-
-            themeSelect.addEventListener(
-                "change",
-                () => {
-
-                    settings.theme =
-                        themeSelect.value;
-
-                    saveSettings();
-
-                    applyTheme();
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           ACCENT
-        ===================================================== */
-
-        if (accentSelect) {
-
-            accentSelect.addEventListener(
-                "change",
-                () => {
-
-                    settings.accent =
-                        accentSelect.value;
-
-                    saveSettings();
-
-                    applyAccent();
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           NOTIFICATIONS
-        ===================================================== */
-
-        if (notificationsToggle) {
-
-            notificationsToggle.addEventListener(
-                "change",
-                () => {
-
-                    settings.notifications =
-                        notificationsToggle.checked;
-
-                    saveSettings();
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           ANIMATIONS
-        ===================================================== */
-
-        if (animationsToggle) {
-
-            animationsToggle.addEventListener(
-                "change",
-                () => {
-
-                    settings.animations =
-                        animationsToggle.checked;
-
-                    saveSettings();
-
-                    applyAnimations();
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           CLEAR ORBIT DATA
-        ===================================================== */
-
-        if (clearDataButton) {
-
-            clearDataButton.addEventListener(
-                "click",
-                () => {
-
-                    const confirmed =
-                        confirm(
-                            "This will remove your saved Orbit AI data from this browser. Continue?"
-                        );
-
-                    if (!confirmed) {
-                        return;
-                    }
-
-
-                    /*
-                     * Remove Orbit-specific local data.
-                     */
-
-                    const keysToRemove = [
-
-                        "orbitCalendarEvents",
-                        "orbitCalendar",
-                        "orbitAISettings",
-                        "orbitFiles",
-                        "orbitFilesData",
-                        "orbitMusic",
-                        "orbitMusicPlaylist"
-
-                    ];
-
-
-                    keysToRemove.forEach(
-                        key => {
-                            localStorage.removeItem(key);
-                        }
-                    );
-
-
-                    settings =
-                        { ...defaultSettings };
-
-
-                    saveSettings();
-
-                    updateControls();
-
-                    applySettings();
-
-
-                    alert(
-                        "Orbit AI local data has been cleared."
-                    );
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           RESET SETTINGS
-        ===================================================== */
-
-        if (resetSettingsButton) {
-
-            resetSettingsButton.addEventListener(
-                "click",
-                () => {
-
-                    const confirmed =
-                        confirm(
-                            "Reset all Orbit AI settings to their defaults?"
-                        );
-
-                    if (!confirmed) {
-                        return;
-                    }
-
-
-                    settings =
-                        { ...defaultSettings };
-
-
-                    saveSettings();
-
-                    updateControls();
-
-                    applySettings();
-
-
-                    alert(
-                        "Orbit AI settings have been reset."
-                    );
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           OPEN MODAL
-        ===================================================== */
-
-        function openModal(modal) {
-
-            if (!modal) {
-                return;
-            }
-
-
-            modal.classList.add("open");
-
-            modal.setAttribute(
-                "aria-hidden",
-                "false"
-            );
-
-        }
-
-
-        /* =====================================================
-           CLOSE MODAL
-        ===================================================== */
-
-        function closeModal(modal) {
-
-            if (!modal) {
-                return;
-            }
-
-
-            modal.classList.remove("open");
-
-            modal.setAttribute(
-                "aria-hidden",
-                "true"
-            );
-
-        }
-
-
-        /* =====================================================
-           TERMS
-        ===================================================== */
-
-        if (termsButton) {
-
-            termsButton.addEventListener(
-                "click",
-                () => {
-
-                    openModal(termsModal);
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           PRIVACY
-        ===================================================== */
-
-        if (privacyButton) {
-
-            privacyButton.addEventListener(
-                "click",
-                () => {
-
-                    openModal(privacyModal);
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           CLOSE BUTTONS
-        ===================================================== */
-
-        modalCloseButtons.forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        const modal =
-                            button.closest(
-                                ".settings-modal"
-                            );
-
-                        closeModal(modal);
-
-                    }
-                );
-
-            }
-        );
-
-
-        /* =====================================================
-           MODAL OVERLAYS
-        ===================================================== */
-
-        modalOverlays.forEach(
-            overlay => {
-
-                overlay.addEventListener(
-                    "click",
-                    () => {
-
-                        const modal =
-                            overlay.closest(
-                                ".settings-modal"
-                            );
-
-                        closeModal(modal);
-
-                    }
-                );
-
-            }
-        );
-
-
-        /* =====================================================
-           ESCAPE KEY
-        ===================================================== */
-
-        document.addEventListener(
-            "keydown",
-            event => {
-
-                if (event.key !== "Escape") {
-                    return;
-                }
-
-
-                document
-                    .querySelectorAll(
-                        ".settings-modal.open"
-                    )
-                    .forEach(
-                        modal => {
-                            closeModal(modal);
-                        }
-                    );
-
-            }
-        );
-
-
-        /* =====================================================
-           SYSTEM THEME CHANGES
-        ===================================================== */
-
-        const mediaQuery =
-            window.matchMedia(
-                "(prefers-color-scheme: dark)"
-            );
-
-
-        mediaQuery.addEventListener(
-            "change",
-            () => {
-
-                if (
-                    settings.theme ===
-                    "system"
-                ) {
-
-                    applyTheme();
-
-                }
-
-            }
-        );
-
-
-        /* =====================================================
-           INITIALIZE
-        ===================================================== */
-
-        updateControls();
-
-        applySettings();
-
-    });
-
-
-    /* =====================================================
-       APPLY ALL SETTINGS
+  /* =====================================================
+       SAVE SETTINGS
        ===================================================== */
 
-    function applySettings() {
-
-        applyTheme();
-
-        applyAccent();
-
-        applyAnimations();
-
+  function saveSettings() {
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.warn("Orbit settings could not be saved.", error);
     }
+  }
 
-
-    /* =====================================================
-       UPDATE FORM CONTROLS
-    ===================================================== */
-
-    function updateControls() {
-
-        if (themeSelect) {
-
-            themeSelect.value =
-                settings.theme;
-
-        }
-
-
-        if (accentSelect) {
-
-            accentSelect.value =
-                settings.accent;
-
-        }
-
-
-        if (notificationsToggle) {
-
-            notificationsToggle.checked =
-                settings.notifications;
-
-        }
-
-
-        if (animationsToggle) {
-
-            animationsToggle.checked =
-                settings.animations;
-
-        }
-
-    }
-
-
-    /* =====================================================
+  /* =====================================================
        THEME
-    ===================================================== */
+       ===================================================== */
 
-    if (themeSelect) {
+  function applyTheme() {
+    const root = document.documentElement;
 
-        themeSelect.addEventListener(
-            "change",
-            () => {
+    let theme = settings.theme;
 
-                settings.theme =
-                    themeSelect.value;
+    /*
+     * System mode follows the
+     * user's operating system.
+     */
 
-                saveSettings();
+    if (theme === "system") {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
 
-                applyTheme();
-
-            }
-        );
-
+      theme = prefersDark ? "dark" : "light";
     }
 
+    root.setAttribute("data-theme", theme);
+  }
 
-    /* =====================================================
-       ACCENT
-    ===================================================== */
-
-    if (accentSelect) {
-
-        accentSelect.addEventListener(
-            "change",
-            () => {
-
-                settings.accent =
-                    accentSelect.value;
-
-                saveSettings();
-
-                applyAccent();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       NOTIFICATIONS
-    ===================================================== */
-
-    if (notificationsToggle) {
-
-        notificationsToggle.addEventListener(
-            "change",
-            () => {
-
-                settings.notifications =
-                    notificationsToggle.checked;
-
-                saveSettings();
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
+  /* =====================================================
        ANIMATIONS
-    ===================================================== */
+       ===================================================== */
+
+  function applyAnimations() {
+    const root = document.documentElement;
+
+    if (settings.animations) {
+      root.setAttribute("data-animations", "true");
+
+      root.removeAttribute("data-reduced-motion");
+    } else {
+      root.setAttribute("data-animations", "false");
+
+      root.setAttribute("data-reduced-motion", "true");
+    }
+  }
+
+  /* =====================================================
+       SYNC CONTROLS
+       ===================================================== */
+
+  function syncControls() {
+    if (themeSelect) {
+      themeSelect.value = settings.theme;
+    }
 
     if (animationsToggle) {
-
-        animationsToggle.addEventListener(
-            "change",
-            () => {
-
-                settings.animations =
-                    animationsToggle.checked;
-
-                saveSettings();
-
-                applyAnimations();
-
-            }
-        );
-
+      animationsToggle.checked = settings.animations;
     }
 
-
-    /* =====================================================
-       CLEAR ORBIT DATA
-    ===================================================== */
-
-    if (clearDataButton) {
-
-        clearDataButton.addEventListener(
-            "click",
-            () => {
-
-                const confirmed =
-                    confirm(
-                        "This will remove your saved Orbit AI data from this browser. Continue?"
-                    );
-
-                if (!confirmed) {
-                    return;
-                }
-
-
-                /*
-                 * Remove Orbit-specific local data.
-                 */
-
-                const keysToRemove = [
-
-                    "orbitCalendarEvents",
-                    "orbitCalendar",
-                    "orbitAISettings",
-                    "orbitFiles",
-                    "orbitFilesData",
-                    "orbitMusic",
-                    "orbitMusicPlaylist"
-
-                ];
-
-
-                keysToRemove.forEach(
-                    key => {
-                        localStorage.removeItem(key);
-                    }
-                );
-
-
-                settings =
-                    { ...defaultSettings };
-
-
-                saveSettings();
-
-                updateControls();
-
-                applySettings();
-
-
-                alert(
-                    "Orbit AI local data has been cleared."
-                );
-
-            }
-        );
-
+    if (enterSendToggle) {
+      enterSendToggle.checked = settings.enterToSend;
     }
 
-
-    /* =====================================================
-       RESET SETTINGS
-    ===================================================== */
-
-    if (resetSettingsButton) {
-
-        resetSettingsButton.addEventListener(
-            "click",
-            () => {
-
-                const confirmed =
-                    confirm(
-                        "Reset all Orbit AI settings to their defaults?"
-                    );
-
-                if (!confirmed) {
-                    return;
-                }
-
-
-                settings =
-                    { ...defaultSettings };
-
-
-                saveSettings();
-
-                updateControls();
-
-                applySettings();
-
-
-                alert(
-                    "Orbit AI settings have been reset."
-                );
-
-            }
-        );
-
+    if (timestampsToggle) {
+      timestampsToggle.checked = settings.timestamps;
     }
 
+    if (memoryToggle) {
+      memoryToggle.checked = settings.memory;
+    }
 
-    /* =====================================================
-       OPEN MODAL
-    ===================================================== */
+    if (notificationsToggle) {
+      notificationsToggle.checked = settings.notifications;
+    }
 
-    function openModal(modal) {
+    if (languageSelect) {
+      languageSelect.value = settings.language;
+    }
+  }
 
-        if (!modal) {
-            return;
+  /* =====================================================
+       THEME CHANGE
+       ===================================================== */
+
+  if (themeSelect) {
+    themeSelect.addEventListener("change", function () {
+      settings.theme = this.value;
+
+      saveSettings();
+
+      applyTheme();
+    });
+  }
+
+  /* =====================================================
+       ANIMATIONS
+       ===================================================== */
+
+  if (animationsToggle) {
+    animationsToggle.addEventListener("change", function () {
+      settings.animations = this.checked;
+
+      saveSettings();
+
+      applyAnimations();
+    });
+  }
+
+  /* =====================================================
+       ENTER TO SEND
+       ===================================================== */
+
+  if (enterSendToggle) {
+    enterSendToggle.addEventListener("change", function () {
+      settings.enterToSend = this.checked;
+
+      saveSettings();
+
+      /*
+       * Make the preference available
+       * to the rest of Orbit.
+       */
+
+      document.documentElement.setAttribute(
+        "data-enter-to-send",
+        this.checked ? "true" : "false",
+      );
+    });
+  }
+
+  /* =====================================================
+       TIMESTAMPS
+       ===================================================== */
+
+  if (timestampsToggle) {
+    timestampsToggle.addEventListener("change", function () {
+      settings.timestamps = this.checked;
+
+      saveSettings();
+
+      document.documentElement.setAttribute(
+        "data-show-timestamps",
+        this.checked ? "true" : "false",
+      );
+    });
+  }
+
+  /* =====================================================
+       MEMORY
+       ===================================================== */
+
+  if (memoryToggle) {
+    memoryToggle.addEventListener("change", function () {
+      settings.memory = this.checked;
+
+      saveSettings();
+
+      document.documentElement.setAttribute(
+        "data-memory",
+        this.checked ? "enabled" : "disabled",
+      );
+    });
+  }
+
+  /* =====================================================
+       MANAGE MEMORY
+       ===================================================== */
+
+  if (manageMemory) {
+    manageMemory.addEventListener("click", function (event) {
+      event.preventDefault();
+
+      alert("Memory management will be available here soon.");
+    });
+  }
+
+  /* =====================================================
+       NOTIFICATIONS
+       ===================================================== */
+
+  if (notificationsToggle) {
+    notificationsToggle.addEventListener("change", async function () {
+      if (!this.checked) {
+        settings.notifications = false;
+
+        saveSettings();
+
+        return;
+      }
+
+      /*
+       * Browser notifications are only
+       * requested when the user enables them.
+       */
+
+      if (!("Notification" in window)) {
+        alert("Browser notifications are not supported on this device.");
+
+        this.checked = false;
+
+        settings.notifications = false;
+
+        saveSettings();
+
+        return;
+      }
+
+      try {
+        const permission = await Notification.requestPermission();
+
+        if (permission === "granted") {
+          settings.notifications = true;
+        } else {
+          settings.notifications = false;
+
+          this.checked = false;
         }
 
+        saveSettings();
+      } catch (error) {
+        console.warn("Notification permission failed.", error);
 
-        modal.classList.add("open");
+        settings.notifications = false;
 
-        modal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
+        this.checked = false;
 
-    }
+        saveSettings();
+      }
+    });
+  }
 
+  /* =====================================================
+       LANGUAGE
+       ===================================================== */
 
-    /* =====================================================
-       CLOSE MODAL
-    ===================================================== */
+  if (languageSelect) {
+    languageSelect.addEventListener("change", function () {
+      settings.language = this.value;
 
-    function closeModal(modal) {
+      saveSettings();
 
-        if (!modal) {
-            return;
-        }
+      document.documentElement.setAttribute("lang", settings.language);
+    });
+  }
 
+  /* =====================================================
+       CLEAR LOCAL DATA
+       ===================================================== */
 
-        modal.classList.remove("open");
+  if (clearDataBtn) {
+    clearDataBtn.addEventListener("click", function () {
+      const confirmed = confirm(
+        "Clear your saved Orbit settings and local preferences?",
+      );
 
-        modal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
+      if (!confirmed) {
+        return;
+      }
 
-    }
+      localStorage.removeItem(SETTINGS_KEY);
 
+      settings = {
+        ...defaultSettings,
+      };
 
-    /* =====================================================
-       TERMS
-    ===================================================== */
+      syncControls();
 
-    if (termsButton) {
+      applyTheme();
 
-        termsButton.addEventListener(
-            "click",
-            () => {
+      applyAnimations();
 
-                openModal(termsModal);
+      document.documentElement.setAttribute("data-enter-to-send", "true");
 
-            }
-        );
+      document.documentElement.setAttribute("data-show-timestamps", "false");
 
-    }
+      document.documentElement.setAttribute("data-memory", "enabled");
 
+      document.documentElement.setAttribute("lang", "en");
 
-    /* =====================================================
-       PRIVACY
-    ===================================================== */
+      alert("Orbit settings have been reset.");
+    });
+  }
 
-    if (privacyButton) {
-
-        privacyButton.addEventListener(
-            "click",
-            () => {
-
-                openModal(privacyModal);
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       CLOSE BUTTONS
-    ===================================================== */
-
-    modalCloseButtons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    const modal =
-                        button.closest(
-                            ".settings-modal"
-                        );
-
-                    closeModal(modal);
-
-                }
-            );
-
-        }
-    );
-
-
-    /* =====================================================
-       MODAL OVERLAYS
-    ===================================================== */
-
-    modalOverlays.forEach(
-        overlay => {
-
-            overlay.addEventListener(
-                "click",
-                () => {
-
-                    const modal =
-                        overlay.closest(
-                            ".settings-modal"
-                        );
-
-                    closeModal(modal);
-
-                }
-            );
-
-        }
-    );
-
-
-    /* =====================================================
-       ESCAPE KEY
-    ===================================================== */
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (event.key !== "Escape") {
-                return;
-            }
-
-
-            document
-                .querySelectorAll(
-                    ".settings-modal.open"
-                )
-                .forEach(
-                    modal => {
-                        closeModal(modal);
-                    }
-                );
-
-        }
-    );
-
-
-    /* =====================================================
+  /* =====================================================
        SYSTEM THEME CHANGES
-    ===================================================== */
+       ===================================================== */
 
-    const mediaQuery =
-        window.matchMedia(
-            "(prefers-color-scheme: dark)"
-        );
+  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
 
+  systemTheme.addEventListener("change", function () {
+    if (settings.theme === "system") {
+      applyTheme();
+    }
+  });
 
-    mediaQuery.addEventListener(
-        "change",
-        () => {
+  /* =====================================================
+       INITIALIZE DATA ATTRIBUTES
+       ===================================================== */
 
-            if (
-                settings.theme ===
-                "system"
-            ) {
-
-                applyTheme();
-
-            }
-
-        }
+  function applyDataPreferences() {
+    document.documentElement.setAttribute(
+      "data-enter-to-send",
+      settings.enterToSend ? "true" : "false",
     );
 
+    document.documentElement.setAttribute(
+      "data-show-timestamps",
+      settings.timestamps ? "true" : "false",
+    );
 
-    /* =====================================================
-       INITIALIZE
-    ===================================================== */
+    document.documentElement.setAttribute(
+      "data-memory",
+      settings.memory ? "enabled" : "disabled",
+    );
 
-    updateControls();
+    document.documentElement.setAttribute("lang", settings.language);
+  }
 
-    applySettings();
+  /* =====================================================
+       INITIALIZE SETTINGS PAGE
+       ===================================================== */
 
+  syncControls();
+
+  applyTheme();
+
+  applyAnimations();
+
+  applyDataPreferences();
 });

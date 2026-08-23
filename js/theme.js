@@ -3,343 +3,208 @@
    ========================================================= */
 
 (() => {
+  const THEME_KEY = "orbitTheme";
 
-    const THEME_KEY = "orbitTheme";
+  const root = document.documentElement;
 
-    const root = document.documentElement;
+  const systemTheme = window.matchMedia("(prefers-color-scheme: light)");
 
-    const systemTheme = window.matchMedia(
-        "(prefers-color-scheme: light)"
-    );
-
-
-    /* =====================================================
+  /* =====================================================
        GET SYSTEM THEME
        ===================================================== */
 
-    function getSystemTheme() {
+  function getSystemTheme() {
+    return systemTheme.matches ? "light" : "dark";
+  }
 
-        return systemTheme.matches
-            ? "light"
-            : "dark";
-
-    }
-
-
-    /* =====================================================
+  /* =====================================================
        GET SAVED THEME
        ===================================================== */
 
-    function getSavedTheme() {
+  function getSavedTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY);
 
-        const savedTheme =
-            localStorage.getItem(THEME_KEY);
-
-        if (
-            savedTheme === "dark" ||
-            savedTheme === "light" ||
-            savedTheme === "system"
-        ) {
-
-            return savedTheme;
-
-        }
-
-        return "dark";
-
+    if (
+      savedTheme === "dark" ||
+      savedTheme === "light" ||
+      savedTheme === "system"
+    ) {
+      return savedTheme;
     }
 
+    return "dark";
+  }
 
-    /* =====================================================
+  /* =====================================================
        APPLY THEME
        ===================================================== */
 
-    function applyTheme(themeName) {
-
-        if (
-            themeName !== "dark" &&
-            themeName !== "light" &&
-            themeName !== "system"
-        ) {
-
-            themeName = "dark";
-
-        }
-
-
-        /* Save preference */
-
-        localStorage.setItem(
-            THEME_KEY,
-            themeName
-        );
-
-
-        /*
-         * THIS IS THE IMPORTANT PART.
-         *
-         * variables.css listens to:
-         *
-         * html[data-theme="dark"]
-         * html[data-theme="light"]
-         * html[data-theme="system"]
-         */
-
-        root.dataset.theme = themeName;
-
-
-        /*
-         * Body classes for compatibility
-         */
-
-        if (document.body) {
-
-            document.body.classList.remove(
-                "theme-dark",
-                "theme-light",
-                "theme-system"
-            );
-
-            document.body.classList.add(
-                `theme-${themeName}`
-            );
-
-        }
-
-
-        /* Update settings controls */
-
-        updateThemeControls(themeName);
-
-
-        /* Notify the rest of Orbit */
-
-        window.dispatchEvent(
-            new CustomEvent(
-                "orbitThemeChanged",
-                {
-                    detail: {
-                        theme: themeName,
-                        effectiveTheme:
-                            themeName === "system"
-                                ? getSystemTheme()
-                                : themeName
-                    }
-                }
-            )
-        );
-
+  function applyTheme(themeName) {
+    if (
+      themeName !== "dark" &&
+      themeName !== "light" &&
+      themeName !== "system"
+    ) {
+      themeName = "dark";
     }
 
+    /* Save preference */
 
-    /* =====================================================
+    localStorage.setItem(THEME_KEY, themeName);
+
+    /*
+     * THIS IS THE IMPORTANT PART.
+     *
+     * variables.css listens to:
+     *
+     * html[data-theme="dark"]
+     * html[data-theme="light"]
+     * html[data-theme="system"]
+     */
+
+    root.dataset.theme = themeName;
+
+    /*
+     * Body classes for compatibility
+     */
+
+    if (document.body) {
+      document.body.classList.remove(
+        "theme-dark",
+        "theme-light",
+        "theme-system",
+      );
+
+      document.body.classList.add(`theme-${themeName}`);
+    }
+
+    /* Update settings controls */
+
+    updateThemeControls(themeName);
+
+    /* Notify the rest of Orbit */
+
+    window.dispatchEvent(
+      new CustomEvent("orbitThemeChanged", {
+        detail: {
+          theme: themeName,
+          effectiveTheme: themeName === "system" ? getSystemTheme() : themeName,
+        },
+      }),
+    );
+  }
+
+  /* =====================================================
        UPDATE SETTINGS CONTROLS
        ===================================================== */
 
-    function updateThemeControls(themeName) {
+  function updateThemeControls(themeName) {
+    /*
+     * Theme buttons
+     */
 
-        /*
-         * Theme buttons
-         */
+    document.querySelectorAll("[data-theme]").forEach((button) => {
+      const active = button.dataset.theme === themeName;
 
-        document
-            .querySelectorAll("[data-theme]")
-            .forEach(button => {
+      button.classList.toggle("active", active);
 
-                const active =
-                    button.dataset.theme === themeName;
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+    });
 
-                button.classList.toggle(
-                    "active",
-                    active
-                );
+    /*
+     * Theme select
+     */
 
-                button.setAttribute(
-                    "aria-pressed",
-                    active
-                        ? "true"
-                        : "false"
-                );
+    const themeSelect = document.getElementById("theme-setting");
 
-            });
-
-
-        /*
-         * Theme select
-         */
-
-        const themeSelect =
-            document.getElementById(
-                "theme-setting"
-            );
-
-
-        if (themeSelect) {
-
-            themeSelect.value =
-                themeName;
-
-        }
-
+    if (themeSelect) {
+      themeSelect.value = themeName;
     }
+  }
 
-
-    /* =====================================================
+  /* =====================================================
        INITIALIZE THEME IMMEDIATELY
        ===================================================== */
 
-    const savedTheme =
-        getSavedTheme();
+  const savedTheme = getSavedTheme();
 
+  /*
+   * Apply the theme immediately.
+   *
+   * This prevents the page from briefly
+   * loading in the wrong theme.
+   */
 
-    /*
-     * Apply the theme immediately.
-     *
-     * This prevents the page from briefly
-     * loading in the wrong theme.
-     */
+  root.dataset.theme = savedTheme;
 
-    root.dataset.theme = savedTheme;
-
-
-    /* =====================================================
+  /* =====================================================
        WAIT FOR PAGE CONTENT
        ===================================================== */
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
+  document.addEventListener("DOMContentLoaded", () => {
+    updateThemeControls(savedTheme);
 
-            updateThemeControls(
-                savedTheme
-            );
+    /*
+     * Theme selector
+     */
 
+    const themeSelect = document.getElementById("theme-setting");
 
-            /*
-             * Theme selector
-             */
+    if (themeSelect) {
+      themeSelect.addEventListener("change", (event) => {
+        applyTheme(event.target.value);
+      });
+    }
 
-            const themeSelect =
-                document.getElementById(
-                    "theme-setting"
-                );
+    /*
+     * Theme buttons
+     */
 
+    document.querySelectorAll("[data-theme]").forEach((button) => {
+      button.addEventListener("click", () => {
+        applyTheme(button.dataset.theme);
+      });
+    });
+  });
 
-            if (themeSelect) {
-
-                themeSelect.addEventListener(
-                    "change",
-                    event => {
-
-                        applyTheme(
-                            event.target.value
-                        );
-
-                    }
-                );
-
-            }
-
-
-            /*
-             * Theme buttons
-             */
-
-            document
-                .querySelectorAll("[data-theme]")
-                .forEach(button => {
-
-                    button.addEventListener(
-                        "click",
-                        () => {
-
-                            applyTheme(
-                                button.dataset.theme
-                            );
-
-                        }
-                    );
-
-                });
-
-        }
-    );
-
-
-    /* =====================================================
+  /* =====================================================
        SYSTEM THEME CHANGES
        ===================================================== */
 
-    systemTheme.addEventListener(
-        "change",
-        () => {
+  systemTheme.addEventListener("change", () => {
+    const savedTheme = localStorage.getItem(THEME_KEY);
 
-            const savedTheme =
-                localStorage.getItem(
-                    THEME_KEY
-                );
+    if (savedTheme === "system") {
+      root.dataset.theme = "system";
 
+      window.dispatchEvent(
+        new CustomEvent("orbitThemeChanged", {
+          detail: {
+            theme: "system",
+            effectiveTheme: getSystemTheme(),
+          },
+        }),
+      );
+    }
+  });
 
-            if (savedTheme === "system") {
-
-                root.dataset.theme =
-                    "system";
-
-
-                window.dispatchEvent(
-                    new CustomEvent(
-                        "orbitThemeChanged",
-                        {
-                            detail: {
-                                theme: "system",
-                                effectiveTheme:
-                                    getSystemTheme()
-                            }
-                        }
-                    )
-                );
-
-            }
-
-        }
-    );
-
-
-    /* =====================================================
+  /* =====================================================
        GLOBAL API
        ===================================================== */
 
-    window.OrbitTheme = {
+  window.OrbitTheme = {
+    setTheme: applyTheme,
 
-        setTheme: applyTheme,
+    getTheme: () => {
+      return localStorage.getItem(THEME_KEY) || "dark";
+    },
 
-        getTheme: () => {
+    getEffectiveTheme: () => {
+      const theme = localStorage.getItem(THEME_KEY) || "dark";
 
-            return localStorage.getItem(
-                THEME_KEY
-            ) || "dark";
+      return theme === "system" ? getSystemTheme() : theme;
+    },
 
-        },
-
-        getEffectiveTheme: () => {
-
-            const theme =
-                localStorage.getItem(
-                    THEME_KEY
-                ) || "dark";
-
-            return theme === "system"
-                ? getSystemTheme()
-                : theme;
-
-        },
-
-        getAvailableThemes: () => [
-            "dark",
-            "light",
-            "system"
-        ]
-
-    };
-
+    getAvailableThemes: () => ["dark", "light", "system"],
+  };
 })();

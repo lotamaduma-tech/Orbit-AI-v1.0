@@ -1,654 +1,381 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
 
-<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <meta charset="UTF-8">
+    <meta
+      name="description"
+      content="Orbit AI — Your intelligent personal AI workspace."
+    />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit AI</title>
 
-  <meta name="description" content="Orbit AI — A simple, professional AI assistant and productivity platform.">
+    <!-- =========================================
+       GOOGLE FONTS
+       ========================================= -->
 
-  <title>Orbit AI — Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <!-- =========================================
-         GOOGLE FONTS
-         ========================================= -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- =========================================
+       FONT AWESOME
+       ========================================= -->
 
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
-
-
-  <!-- =========================================
-         FONT AWESOME
-         ========================================= -->
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
-
-  <!-- =========================================
-         ORBIT AI STYLES
-         ========================================= -->
-
-  <link rel="stylesheet" href="css/reset.css">
-
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/animations.css">
-
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/response-tools.css">
-  <link rel="stylesheet" href="css/chat-history.css">
-
-</head>
-
-
-<body>
-
-
-  <!-- =========================================
-         GLOBAL NAVIGATION HEADER
-         ========================================= -->
-
-  <header class="app-header">
-
-    <a href="index.html" class="brand" aria-label="Orbit AI Home">
-
-      <strong>ORBIT</strong>
-
-      <span>AI</span>
-
-    </a>
-
-
-    <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"
-      aria-controls="navigation-panel">
-
-      <i class="fa-solid fa-bars"></i>
-
-    </button>
-
-  </header>
-
-
-
-  <!-- =========================================
-         NAVIGATION PANEL
-         ========================================= -->
-
-  <nav class="navigation-panel" id="navigation-panel" aria-label="Main navigation">
-
-
-    <!-- NAVIGATION HEADER -->
-
-    <div class="navigation-header">
-
-      <div>
-
-        <span>ORBIT AI</span>
-
-        <small>
-          Navigate
-        </small>
-
-      </div>
-
-
-      <button class="menu-close" id="menu-close" type="button" aria-label="Close navigation">
-
-        <i class="fa-solid fa-xmark"></i>
-
-      </button>
-
-    </div>
-
-
-
-    <!-- NAVIGATION LINKS -->
-
-    <div class="navigation-links">
-
-
-      <a href="index.html">
-
-        <i class="fa-solid fa-house"></i>
-
-        <span>
-          Home
-        </span>
-
-      </a>
-
-
-      <a href="assistant.html">
-
-        <i class="fa-solid fa-comments"></i>
-
-        <span>
-          Assistant
-        </span>
-
-      </a>
-
-
-      <a href="system.html">
-
-        <i class="fa-solid fa-chart-line"></i>
-
-        <span>
-          Overview
-        </span>
-
-      </a>
-
-
-      <a href="files.html">
-
-        <i class="fa-solid fa-folder"></i>
-
-        <span>
-          Files
-        </span>
-
-      </a>
-
-
-      <a href="weather.html">
-
-        <i class="fa-solid fa-cloud-sun"></i>
-
-        <span>
-          Weather
-        </span>
-
-      </a>
-
-
-      <a href="calendar.html">
-
-        <i class="fa-solid fa-calendar-days"></i>
-
-        <span>
-          Calendar
-        </span>
-
-      </a>
-
-
-      <a href="music.html">
-
-        <i class="fa-solid fa-music"></i>
-
-        <span>
-          Music
-        </span>
-
-      </a>
-
-
-      <a href="settings.html">
-
-        <i class="fa-solid fa-gear"></i>
-
-        <span>
-          Settings
-        </span>
-
-      </a>
-
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+
+    <!-- =========================================
+       ORBIT AI STYLES
+       ========================================= -->
+
+    <link rel="stylesheet" href="css/reset.css" />
+
+    <link rel="stylesheet" href="css/variables.css" />
+
+    <link rel="stylesheet" href="css/animations.css" />
+
+    <link rel="stylesheet" href="css/style.css" />
+
+    <link rel="stylesheet" href="css/quick-replies.css" />
+
+    <link rel="stylesheet" href="css/response-tools.css" />
+
+    <link rel="stylesheet" href="css/response-suggestion.css">
+
+    <link rel="stylesheet" href="css/chat-history.css" />
+  </head>
+
+  <body>
+    <!-- =========================================
+       APPLICATION
+       ========================================= -->
+
+    <div class="orbit-app">
+      <!-- =======================================
+         SIDEBAR
+         ======================================= -->
+
+      <aside
+        class="orbit-sidebar"
+        id="orbit-sidebar"
+        aria-label="Orbit navigation"
+      >
+        <!-- =====================================
+           SIDEBAR HEADER
+           ===================================== -->
+
+        <div class="sidebar-header">
+          <a href="index.html" class="brand" aria-label="Orbit AI">
+            <strong>ORBIT</strong>
+            <span>AI</span>
+          </a>
+
+          <button
+            type="button"
+            class="sidebar-close"
+            id="menu-close"
+            aria-label="Close navigation"
+            title="Close navigation"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- =====================================
+           CHAT ACTIONS
+           ===================================== -->
+
+        <nav class="sidebar-chat-actions" aria-label="Chat actions">
+          <button type="button" class="new-chat-btn" id="chat-history-new">
+            <i class="fa-solid fa-plus"></i>
+
+            <span>New chat</span>
+          </button>
+
+          <button type="button" class="search-chat-btn" id="chat-search-btn">
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <span>Search chats</span>
+          </button>
+        </nav>
+
+        <!-- =====================================
+           CHAT HISTORY
+           ===================================== -->
+
+        <section
+          class="chat-history-panel"
+          id="chat-history-panel"
+          aria-label="Chat history"
+        >
+          <div class="chat-history-header">
+            <div class="chat-history-title">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+
+              <div>
+                <span>RECENT CHATS</span>
+
+                <small>Your conversations</small>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="chat-history-list"
+            id="chat-history-list"
+            aria-label="Recent conversations"
+          >
+            <div class="chat-history-empty" id="chat-history-empty">
+              <i class="fa-regular fa-comments"></i>
+
+              <span>No conversations yet</span>
+
+              <small> Your recent chats will appear here. </small>
+            </div>
+          </div>
+        </section>
+
+        <!-- =====================================
+           ACCOUNT
+           ===================================== -->
+
+        <section class="sidebar-account" aria-label="Account">
+          <div class="sidebar-section-label">ACCOUNT</div>
+
+          <a
+            href="settings.html"
+            class="sidebar-account-link"
+            data-page="settings"
+          >
+            <i class="fa-solid fa-gear"></i>
+
+            <span>Settings</span>
+          </a>
+        </section>
+
+        <!-- =====================================
+           SIDEBAR FOOTER
+           ===================================== -->
+
+        <div class="sidebar-footer">
+          <div class="sidebar-status">
+            <span class="status-dot"></span>
+
+            <span>Orbit online</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- =======================================
+         SIDEBAR OVERLAY
+         ======================================= -->
+
+      <div class="navigation-overlay" id="navigation-overlay"></div>
+
+      <!-- =======================================
+         MAIN APPLICATION
+         ======================================= -->
+
+      <main class="orbit-main">
+        <!-- =====================================
+           TOP BAR
+           ===================================== -->
+
+        <header class="orbit-topbar">
+          <!-- =================================
+             NAVIGATION TOGGLE
+             ================================= -->
+
+          <button
+            type="button"
+            class="menu-toggle"
+            id="menu-toggle"
+            aria-label="Open navigation"
+            aria-expanded="false"
+            aria-controls="orbit-sidebar"
+            title="Open navigation"
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <!-- =================================
+             TOP BAR BRAND
+             ================================= -->
+
+          <div class="topbar-title">
+            <span>ORBIT AI</span>
+
+            <small>Personal AI workspace</small>
+          </div>
+
+          <!-- =================================
+             TOP BAR ACTIONS
+             ================================= -->
+
+          <div class="topbar-actions">
+            <button
+              type="button"
+              class="topbar-btn"
+              id="topbar-new-chat"
+              aria-label="New chat"
+              title="New chat"
+            >
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+
+            <button
+              type="button"
+              class="topbar-btn"
+              data-tool="settings"
+              aria-label="Settings"
+              title="Settings"
+              onclick="window.location.href = 'settings.html'"
+            >
+              <i class="fa-solid fa-gear"></i>
+            </button>
+          </div>
+        </header>
+
+        <!-- =====================================
+           CHAT WORKSPACE
+           ===================================== -->
+
+        <section class="chat-workspace" aria-label="Orbit AI chat">
+
+         
+
+          <!-- ===================================
+             AI CHAT WINDOW
+             =================================== -->
+
+          <div
+            class="chat-window"
+            id="chat-window"
+            aria-live="polite"
+            aria-label="Orbit AI conversation"
+          ></div>
+
+          <!-- ===================================
+             COMMAND AREA
+             =================================== -->
+
+          <div class="command-area">
+            <div class="command-box">
+              <!-- =================================
+                 ORBIT TOOLS BUTTON
+
+                 Kept the existing
+                 .command-attachment class
+                 so existing CSS continues
+                 working without changes.
+                 ================================= -->
+
+              <button
+                type="button"
+                class="command-attachment"
+                id="orbit-tools-btn"
+                aria-label="Orbit tools"
+                title="Orbit tools"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </button>
+
+              <!-- =================================
+                 MESSAGE INPUT
+                 ================================= -->
+
+              <textarea
+                id="command-input"
+                rows="1"
+                placeholder="Ask Orbit anything..."
+                autocomplete="off"
+                spellcheck="true"
+                aria-label="Ask Orbit AI"
+              ></textarea>
+
+              <!-- =================================
+                 SEND BUTTON
+                 ================================= -->
+
+              <button
+                id="send-btn"
+                type="button"
+                class="send-btn"
+                aria-label="Send message"
+                title="Send message"
+              >
+                <i class="fa-solid fa-arrow-up"></i>
+              </button>
+            </div>
+
+            <!-- =================================
+               COMMAND FOOTER
+               ================================= -->
+
+            <div class="command-footer">
+              <span>
+                <i class="fa-solid fa-shield-halved"></i>
+
+                Orbit AI is ready
+              </span>
+
+              <span>
+                <span id="response-time"> Ready </span>
+
+                <span aria-hidden="true"> · </span>
+
+                Enter to send
+              </span>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
 
     <!-- =========================================
-         CHAT HISTORY
-         ========================================= -->
-    
-    <div class="chat-history-panel" id="chat-history-panel">
-    
-      <div class="chat-history-header">
-    
-        <div class="chat-history-title">
-    
-          <i class="fa-solid fa-clock-rotate-left"></i>
-    
-          <div>
-            <span>CHAT HISTORY</span>
-            <small>Recent conversations</small>
-          </div>
-    
-        </div>
-    
-        <button type="button" class="chat-history-new" id="chat-history-new" aria-label="Start a new chat" title="New chat">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-    
-      </div>
-    
-    
-      <div class="chat-history-list" id="chat-history-list" aria-label="Recent chats">
-    
-        <!-- Chat history items will be inserted here by chat-history.js -->
-    
-        <div class="chat-history-empty" id="chat-history-empty">
-    
-          <i class="fa-regular fa-comments"></i>
-    
-          <span>No conversations yet</span>
-    
-          <small>
-            Your recent chats will appear here.
-          </small>
-    
-        </div>
-    
-      </div>
-    
-    </div>
+       JAVASCRIPT
+       ========================================= -->
 
-  </nav>
+    <!-- Configuration -->
+    <script src="js/config.js"></script>
 
+    <!-- Main Orbit AI engine -->
+    <script src="js/orbit.js"></script>
+    <!-- Quick replies -->
+    <script src="js/quick-replies.js"></script>
 
+    <!-- Response tools -->
+    <script src="js/response-suggestions.js"></script>
 
-  <!-- =========================================
-         NAVIGATION OVERLAY
-         ========================================= -->
+    <!-- Add files AI engine -->
+    <script src="js/orbit-tools.js"></script>
+    <!-- Response formatting / tools -->
+    <script src="js/response-tools.js"></script>
 
-  <div class="navigation-overlay" id="navigation-overlay"></div>
+    <!-- Settings -->
+    <script src="js/settings.js"></script>
 
+    <!-- Theme -->
 
+    <!-- General page logic -->
+    <script src="js/script.js"></script>
 
-  <!-- =========================================
-         MAIN APPLICATION
-         ========================================= -->
+    <!-- Sidebar navigation -->
+    <script src="js/navigation.js"></script>
 
-  <main class="main-content">
-
-
-    <!-- =====================================
-             WELCOME HEADER
-             ===================================== -->
-
-    <section class="welcome-section">
-
-      <div class="welcome-content">
-
-        <span class="eyebrow">
-          ORBIT AI
-        </span>
-
-
-        <h1 id="greeting">
-          Welcome back
-        </h1>
-
-
-        <p>
-          Your personal AI workspace for
-          planning, organizing, researching
-          and getting things done.
-        </p>
-
-      </div>
-
-
-      <!-- TIME -->
-
-      <div class="time-card">
-
-        <span>
-          Current time
-        </span>
-
-        <strong id="time">
-          --:--:--
-        </strong>
-
-        <small id="date">
-          Loading date...
-        </small>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================
-             MAIN AI SECTION
-             ===================================== -->
-
-    <section class="ai-section">
-
-
-      <!-- AI HEADER -->
-
-      <div class="ai-header">
-
-        <div class="ai-title">
-
-          <div class="ai-icon">
-
-            <i class="fa-solid fa-sparkles"></i>
-
-          </div>
-
-
-          <div>
-
-            <span>
-              ORBIT AI
-            </span>
-
-            <h2>
-              How can I help?
-            </h2>
-
-          </div>
-
-        </div>
-
-
-        <div class="ai-status">
-
-          <span class="status-dot"></span>
-
-          <span>
-            Online
-          </span>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- CHAT -->
-
-      <div class="chat-window" id="chat-window" aria-live="polite" aria-label="Orbit AI conversation"></div>
-
-
-
-      <!-- COMMAND AREA -->
-
-      <div class="command-area">
-      
-        <div class="command-box">
-      
-          <textarea id="command-input" rows="1" placeholder="Ask Orbit anything..." autocomplete="off"
-            aria-label="Ask Orbit AI"></textarea>
-      
-          <button id="send-btn" type="button" aria-label="Send message" title="Send message">
-      
-            <i class="fa-solid fa-arrow-up"></i>
-      
-          </button>
-      
-        </div>
-      
-        <div class="command-footer">
-      
-          <span>
-            <i class="fa-solid fa-shield-halved"></i>
-            Orbit AI is ready
-          </span>
-      
-          <span>
-            Enter to send
-          </span>
-      
-        </div>
-      
-      </div>
-    </section>
-
-
-
-    <!-- =====================================
-             QUICK ACCESS
-             ===================================== -->
-
-    <section class="quick-section">
-
-      <div class="section-heading">
-
-        <div>
-
-          <span class="eyebrow">
-            QUICK ACCESS
-          </span>
-
-          <h2>
-            What would you like to do?
-          </h2>
-
-        </div>
-
-      </div>
-
-
-      <div class="quick-grid">
-
-
-        <a href="assistant.html" class="quick-card">
-
-          <div class="quick-icon">
-
-            <i class="fa-solid fa-comments"></i>
-
-          </div>
-
-          <div>
-
-            <h3>
-              Chat with Orbit
-            </h3>
-
-            <p>
-              Start a conversation with
-              your AI assistant.
-            </p>
-
-          </div>
-
-          <i class="fa-solid fa-arrow-right quick-arrow"></i>
-
-        </a>
-
-
-
-        <a href="files.html" class="quick-card">
-
-          <div class="quick-icon">
-
-            <i class="fa-solid fa-folder"></i>
-
-          </div>
-
-          <div>
-
-            <h3>
-              Files
-            </h3>
-
-            <p>
-              Access and organize your
-              files.
-            </p>
-
-          </div>
-
-          <i class="fa-solid fa-arrow-right quick-arrow"></i>
-
-        </a>
-
-
-
-        <a href="calendar.html" class="quick-card">
-
-          <div class="quick-icon">
-
-            <i class="fa-solid fa-calendar-days"></i>
-
-          </div>
-
-          <div>
-
-            <h3>
-              Calendar
-            </h3>
-
-            <p>
-              Keep track of your schedule
-              and plans.
-            </p>
-
-          </div>
-
-          <i class="fa-solid fa-arrow-right quick-arrow"></i>
-
-        </a>
-
-
-
-        <a href="weather.html" class="quick-card">
-
-          <div class="quick-icon">
-
-            <i class="fa-solid fa-cloud-sun"></i>
-
-          </div>
-
-          <div>
-
-            <h3>
-              Weather
-            </h3>
-
-            <p>
-              Check the current weather
-              around you.
-            </p>
-
-          </div>
-
-          <i class="fa-solid fa-arrow-right quick-arrow"></i>
-
-        </a>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- =====================================
-             SIMPLE STATUS
-             ===================================== -->
-
-    <section class="status-section">
-
-      <div class="status-card">
-
-        <div class="status-card-icon">
-
-          <i class="fa-solid fa-circle-check"></i>
-
-        </div>
-
-
-        <div>
-
-          <span>
-            Orbit AI
-          </span>
-
-          <strong>
-            Ready to help
-          </strong>
-
-        </div>
-
-      </div>
-
-
-      <div class="status-card">
-
-        <div class="status-card-icon">
-
-          <i class="fa-solid fa-wifi"></i>
-
-        </div>
-
-
-        <div>
-
-          <span>
-            Connection
-          </span>
-
-          <strong class="online">
-            Online
-          </strong>
-
-        </div>
-
-      </div>
-
-
-      <div class="status-card">
-
-        <div class="status-card-icon">
-
-          <i class="fa-solid fa-shield-halved"></i>
-
-        </div>
-
-
-        <div>
-
-          <span>
-            Workspace
-          </span>
-
-          <strong>
-            Protected
-          </strong>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-
-  <!-- =========================================
-         JAVASCRIPT
-         ========================================= -->
-
-  <script src="js/config.js"></script>
-
-  <script src="js/orbit.js"></script>
-
-  <script src="js/response-tools.js"></script>
-
-  <script src="js/shared.js"></script>
-
-  <script src="js/theme.js"></script>
-  
-  <script src="js/animation.js"></script>
-  <script src="js/script.js"></script>
-
-  <script src="js/navigation.js"></script>
-  <script src="js/chat-history.js"></script>
-
-
-</body>
-
+    <!-- Chat history -->
+    <script src="js/chat-history.js"></script>
+  </body>
 </html>

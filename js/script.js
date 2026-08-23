@@ -1,7 +1,27 @@
 /* ===========================================================
    ORBIT AI — DASHBOARD SCRIPT
-   Dashboard UI + Clock + Date + Greeting + UI Enhancements
-   AI functionality is handled by orbit-ai.js
+
+   Handles:
+   - Dashboard UI
+   - Live clock
+   - Date
+   - Greeting
+   - Card interactions
+   - Status interactions
+   - Online status
+   - Dashboard animation
+   - Power button
+   - General UI feedback
+
+   AI/API functionality:
+   - Handled by orbit.js
+
+   Quick replies:
+   - Handled by quick-replies.js
+
+   Typing indicator:
+   - Handled by orbit.js
+
    =========================================================== */
 
 "use strict";
@@ -11,9 +31,14 @@
    DASHBOARD ELEMENTS
    =========================================================== */
 
-const timeEl = document.getElementById("time");
-const dateEl = document.getElementById("date");
-const greetingEl = document.getElementById("greeting");
+const timeEl =
+    document.getElementById("time");
+
+const dateEl =
+    document.getElementById("date");
+
+const greetingEl =
+    document.getElementById("greeting");
 
 const dashboard =
     document.querySelector(".app-container");
@@ -39,10 +64,12 @@ function updateClock() {
     const hours = now.getHours();
 
     const minutes =
-        String(now.getMinutes()).padStart(2, "0");
+        String(now.getMinutes())
+            .padStart(2, "0");
 
     const seconds =
-        String(now.getSeconds()).padStart(2, "0");
+        String(now.getSeconds())
+            .padStart(2, "0");
 
     const period =
         hours >= 12 ? "PM" : "AM";
@@ -91,6 +118,7 @@ function updateClock() {
 
         let greeting = "Good Evening";
 
+
         if (hours >= 5 && hours < 12) {
 
             greeting = "Good Morning";
@@ -102,6 +130,7 @@ function updateClock() {
             greeting = "Good Afternoon";
 
         }
+
 
         greetingEl.textContent =
             `${greeting}, Kingsley`;
@@ -133,6 +162,7 @@ function setupCardInteractions() {
         return;
     }
 
+
     cards.forEach(card => {
 
         card.addEventListener(
@@ -140,10 +170,10 @@ function setupCardInteractions() {
             () => {
 
                 card.style.borderColor =
-                    "var(--olive-border)";
+                    "var(--primary-light)";
 
                 card.style.boxShadow =
-                    "var(--shadow-soft), var(--glow-olive-soft)";
+                    "var(--shadow), 0 0 0 3px var(--primary-soft)";
 
             }
         );
@@ -177,6 +207,7 @@ function setupStatusItems() {
         return;
     }
 
+
     statusItems.forEach(item => {
 
         item.addEventListener(
@@ -184,10 +215,10 @@ function setupStatusItems() {
             () => {
 
                 item.style.background =
-                    "var(--cream-glass)";
+                    "var(--primary-soft)";
 
                 item.style.borderColor =
-                    "var(--olive-border)";
+                    "var(--border)";
 
             }
         );
@@ -218,15 +249,18 @@ function setupStatusItems() {
 function initializeOnlineStatus() {
 
     const onlineElements =
-        document.querySelectorAll(".online");
+        document.querySelectorAll(
+            ".online"
+        );
+
 
     onlineElements.forEach(element => {
 
         element.style.color =
-            "var(--green)";
+            "var(--success)";
 
         element.style.textShadow =
-            "var(--olive-status-glow)";
+            "none";
 
     });
 
@@ -242,6 +276,7 @@ function initializeDashboardAnimation() {
     if (!dashboard) {
         return;
     }
+
 
     dashboard.classList.add(
         "orbit-dashboard-ready"
@@ -260,6 +295,7 @@ function setupPowerButton() {
         return;
     }
 
+
     powerButton.addEventListener(
         "click",
         () => {
@@ -275,7 +311,14 @@ function setupPowerButton() {
 
 
 /* ===========================================================
-   QUICK UI FEEDBACK
+   GENERAL UI FEEDBACK
+   ===========================================================
+
+   Adds a small press effect to buttons.
+
+   AI buttons and quick replies are still handled by
+   their own dedicated JavaScript files.
+
    =========================================================== */
 
 function setupInteractiveElements() {
@@ -285,7 +328,27 @@ function setupInteractiveElements() {
             "button"
         );
 
+
     buttons.forEach(button => {
+
+        /*
+         * Avoid adding the same interaction
+         * more than once.
+         */
+
+        if (
+            button.dataset.uiFeedbackReady ===
+            "true"
+        ) {
+
+            return;
+
+        }
+
+
+        button.dataset.uiFeedbackReady =
+            "true";
+
 
         button.addEventListener(
             "mousedown",
@@ -319,6 +382,20 @@ function setupInteractiveElements() {
             }
         );
 
+
+        button.addEventListener(
+            "touchend",
+            () => {
+
+                button.style.transform =
+                    "";
+
+            },
+            {
+                passive: true
+            }
+        );
+
     });
 
 }
@@ -330,7 +407,16 @@ function setupInteractiveElements() {
 
 function initializeDashboard() {
 
+    /*
+     * Clock
+     */
+
     updateClock();
+
+
+    /*
+     * General dashboard UI
+     */
 
     setupCardInteractions();
 
@@ -368,3 +454,120 @@ else {
     initializeDashboard();
 
 }
+
+/* =========================================================
+   ORBIT AI — CHAT UI BEHAVIOR
+   Auto-growing input + chat scrolling
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const chatWindow = document.querySelector(".chat-window");
+    const commandInput = document.querySelector("#command-input");
+
+    /* =======================================================
+       1. AUTO-GROW COMMAND INPUT
+       ======================================================= */
+
+    if (commandInput) {
+
+        const resizeCommandInput = () => {
+
+            // Reset height so scrollHeight can be measured correctly
+            commandInput.style.height = "auto";
+
+            // Get the natural height of the text
+            const maxHeight = 150;
+
+            const newHeight = Math.min(
+                commandInput.scrollHeight,
+                maxHeight
+            );
+
+            commandInput.style.height = `${newHeight}px`;
+
+            // Allow internal scrolling only after max height
+            commandInput.style.overflowY =
+                commandInput.scrollHeight > maxHeight
+                    ? "auto"
+                    : "hidden";
+        };
+
+        commandInput.addEventListener("input", resizeCommandInput);
+
+        // Set correct height when page loads
+        resizeCommandInput();
+    }
+
+
+    /* =======================================================
+       2. KEEP CHAT SCROLLED TO NEWEST MESSAGE
+       ======================================================= */
+
+    const scrollChatToBottom = () => {
+
+        if (!chatWindow) return;
+
+        requestAnimationFrame(() => {
+
+            chatWindow.scrollTo({
+                top: chatWindow.scrollHeight,
+                behavior: "smooth"
+            });
+
+        });
+    };
+
+
+    /* =======================================================
+       3. WATCH FOR NEW CHAT MESSAGES
+       ======================================================= */
+
+    if (chatWindow) {
+
+        const chatObserver = new MutationObserver(() => {
+
+            scrollChatToBottom();
+
+        });
+
+        chatObserver.observe(chatWindow, {
+            childList: true,
+            subtree: true
+        });
+
+    }
+
+
+    /* =======================================================
+       4. ENTER KEY
+       ======================================================= */
+
+    if (commandInput) {
+
+        commandInput.addEventListener("keydown", (event) => {
+
+            // Enter sends the message
+            // Shift + Enter creates a new line
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                const form =
+                    commandInput.closest("form");
+
+                if (form) {
+                    form.requestSubmit();
+                }
+
+            }
+
+        });
+
+    }
+
+});

@@ -1,380 +1,283 @@
-/* ===========================================================
-   ORBIT AI — NAVIGATION.JS
-   Global Navigation System
-   =========================================================== */
+/* =========================================================
+   ORBIT AI — PART 2
+   SIDEBAR + NAVIGATION JAVASCRIPT
 
-"use strict";
+   Controls:
+   .orbit-app
+   .orbit-sidebar
+   .sidebar-close
+   .navigation-overlay
+   .menu-toggle
 
+   States:
+   .orbit-app.nav-open
+   .orbit-sidebar.active
+   .navigation-overlay.active
 
-/* ===========================================================
-   ELEMENTS
-   =========================================================== */
+   Behavior:
+   CLOSED:
+   - Dashboard visible
+   - Menu button visible
+   - Sidebar hidden
 
-const menuToggle =
-    document.getElementById("menu-toggle");
+   OPEN:
+   - Sidebar slides in
+   - Menu button disappears
+   - Close button appears inside sidebar
+   - Overlay appears
 
-const menuClose =
-    document.getElementById("menu-close");
+   ========================================================= */
 
-const navigationPanel =
-    document.getElementById("navigation-panel");
+document.addEventListener("DOMContentLoaded", () => {
 
-const navigationOverlay =
-    document.getElementById("navigation-overlay");
+    /* =========================================================
+       1. ELEMENT REFERENCES
+       ========================================================= */
 
-const navigationLinks =
-    document.querySelectorAll(
-        ".navigation-links a"
-    );
-
-
-/* ===========================================================
-   OPEN NAVIGATION
-   =========================================================== */
-
-function openNavigation() {
-
-    if (!navigationPanel) return;
-
-    navigationPanel.classList.add("open");
-
-    if (navigationOverlay) {
-        navigationOverlay.classList.add("active");
-    }
-
-    document.body.classList.add(
-        "navigation-open"
-    );
+    const orbitApp = document.querySelector(".orbit-app");
+    const sidebar = document.querySelector(".orbit-sidebar");
+    const menuToggle = document.querySelector(".menu-toggle");
+    const sidebarClose = document.querySelector(".sidebar-close");
+    const navigationOverlay =
+        document.querySelector(".navigation-overlay");
 
 
-    /* Accessibility */
+    /* =========================================================
+       2. SAFETY CHECK
+       ========================================================= */
 
-    if (menuToggle) {
-
-        menuToggle.setAttribute(
-            "aria-expanded",
-            "true"
+    if (
+        !orbitApp ||
+        !sidebar ||
+        !menuToggle ||
+        !sidebarClose
+    ) {
+        console.warn(
+            "Orbit AI navigation: required elements were not found."
         );
 
-    }
-
-    if (menuToggle) {
-
-        menuToggle.setAttribute(
-            "aria-label",
-            "Close navigation"
-        );
-
+        return;
     }
 
 
-    /* Focus close button */
+    /* =========================================================
+       3. OPEN SIDEBAR
+       ========================================================= */
 
-    if (menuClose) {
+    function openNavigation() {
 
-        setTimeout(() => {
+        orbitApp.classList.add("nav-open");
+        sidebar.classList.add("active");
 
-            menuClose.focus();
+        if (navigationOverlay) {
+            navigationOverlay.classList.add("active");
+        }
 
-        }, 150);
+        /* Accessibility */
 
-    }
+        menuToggle.setAttribute("aria-expanded", "true");
+        sidebarClose.setAttribute("aria-label", "Close navigation");
 
-}
-
-
-/* ===========================================================
-   CLOSE NAVIGATION
-   =========================================================== */
-
-function closeNavigation() {
-
-    if (!navigationPanel) return;
-
-    navigationPanel.classList.remove("open");
-
-    if (navigationOverlay) {
-
-        navigationOverlay.classList.remove(
-            "active"
-        );
-
-    }
-
-    document.body.classList.remove(
-        "navigation-open"
-    );
-
-
-    /* Accessibility */
-
-    if (menuToggle) {
-
-        menuToggle.setAttribute(
-            "aria-expanded",
-            "false"
-        );
-
-    }
-
-    if (menuToggle) {
-
-        menuToggle.setAttribute(
-            "aria-label",
-            "Open navigation"
-        );
-
+        document.body.classList.add("navigation-open");
     }
 
 
-    /* Return focus */
+    /* =========================================================
+       4. CLOSE SIDEBAR
+       ========================================================= */
 
-    if (menuToggle) {
+    function closeNavigation() {
 
-        menuToggle.focus();
+        orbitApp.classList.remove("nav-open");
+        sidebar.classList.remove("active");
 
+        if (navigationOverlay) {
+            navigationOverlay.classList.remove("active");
+        }
+
+        /* Accessibility */
+
+        menuToggle.setAttribute("aria-expanded", "false");
+
+        document.body.classList.remove("navigation-open");
+
+        /*
+          Return focus to the menu button
+          after closing the sidebar.
+        */
+
+        if (document.activeElement === sidebarClose) {
+            menuToggle.focus();
+        }
     }
 
-}
+
+    /* =========================================================
+       5. MENU BUTTON
+       ========================================================= */
+
+    menuToggle.addEventListener("click", (event) => {
+
+        event.preventDefault();
+
+        const isOpen =
+            orbitApp.classList.contains("nav-open");
+
+        if (isOpen) {
+            closeNavigation();
+        } else {
+            openNavigation();
+        }
+
+    });
 
 
-/* ===========================================================
-   TOGGLE NAVIGATION
-   =========================================================== */
+    /* =========================================================
+       6. CLOSE BUTTON
+       ========================================================= */
 
-function toggleNavigation() {
+    sidebarClose.addEventListener("click", (event) => {
 
-    if (!navigationPanel) return;
-
-    const isOpen =
-        navigationPanel.classList.contains(
-            "open"
-        );
-
-    if (isOpen) {
+        event.preventDefault();
 
         closeNavigation();
 
-    } else {
-
-        openNavigation();
-
-    }
-
-}
+    });
 
 
-/* ===========================================================
-   MENU TOGGLE BUTTON
-   =========================================================== */
+    /* =========================================================
+       7. OVERLAY CLOSE
+       ========================================================= */
 
-if (menuToggle) {
+    if (navigationOverlay) {
 
-    menuToggle.addEventListener(
-        "click",
-        toggleNavigation
-    );
-
-}
-
-
-/* ===========================================================
-   CLOSE BUTTON
-   =========================================================== */
-
-if (menuClose) {
-
-    menuClose.addEventListener(
-        "click",
-        closeNavigation
-    );
-
-}
-
-
-/* ===========================================================
-   OVERLAY CLICK
-   =========================================================== */
-
-if (navigationOverlay) {
-
-    navigationOverlay.addEventListener(
-        "click",
-        closeNavigation
-    );
-
-}
-
-
-/* ===========================================================
-   NAVIGATION LINKS
-   =========================================================== */
-
-navigationLinks.forEach(
-    (link) => {
-
-        link.addEventListener(
-            "click",
-            () => {
-
-                closeNavigation();
-
-            }
-        );
-
-    }
-);
-
-
-/* ===========================================================
-   ESCAPE KEY
-   =========================================================== */
-
-document.addEventListener(
-    "keydown",
-    (event) => {
-
-        if (
-            event.key === "Escape" &&
-            navigationPanel?.classList.contains(
-                "open"
-            )
-        ) {
+        navigationOverlay.addEventListener("click", () => {
 
             closeNavigation();
 
-        }
+        });
 
     }
-);
 
 
-/* ===========================================================
-   PREVENT BACKGROUND SCROLL
-   =========================================================== */
+    /* =========================================================
+       8. ESCAPE KEY
+       ========================================================= */
 
-const navigationStyle =
-    document.createElement("style");
+    document.addEventListener("keydown", (event) => {
 
-navigationStyle.textContent = `
-
-    body.navigation-open {
-        overflow: hidden;
-    }
-
-`;
-
-document.head.appendChild(
-    navigationStyle
-);
-
-
-/* ===========================================================
-   CURRENT PAGE DETECTION
-   =========================================================== */
-
-function setActiveNavigationLink() {
-
-    const currentPage =
-        window.location.pathname
-            .split("/")
-            .pop()
-            .toLowerCase();
-
-
-    navigationLinks.forEach(
-        (link) => {
-
-            const linkPage =
-                link
-                    .getAttribute("href")
-                    ?.split("/")
-                    .pop()
-                    .toLowerCase();
-
-
-            link.classList.remove(
-                "active"
-            );
-
-
-            if (
-                linkPage === currentPage ||
-                (
-                    currentPage === "" &&
-                    linkPage === "index.html"
-                )
-            ) {
-
-                link.classList.add(
-                    "active"
-                );
-
-                link.setAttribute(
-                    "aria-current",
-                    "page"
-                );
-
-            }
-
-            else {
-
-                link.removeAttribute(
-                    "aria-current"
-                );
-
-            }
-
+        if (event.key !== "Escape") {
+            return;
         }
+
+        if (orbitApp.classList.contains("nav-open")) {
+            closeNavigation();
+        }
+
+    });
+
+
+    /* =========================================================
+       9. CLOSE NAVIGATION WHEN A SIDEBAR LINK IS CLICKED
+       ========================================================= */
+
+    sidebar.addEventListener("click", (event) => {
+
+        const link = event.target.closest(
+            ".sidebar-account-link"
+        );
+
+        if (!link) {
+            return;
+        }
+
+        /*
+          Allow the link's normal action to happen,
+          then close the mobile navigation.
+        */
+
+        if (window.innerWidth <= 768) {
+            closeNavigation();
+        }
+
+    });
+
+
+    /* =========================================================
+       10. PREVENT SIDEBAR CLICK FROM CLOSING IT
+       ========================================================= */
+
+    sidebar.addEventListener("click", (event) => {
+
+        event.stopPropagation();
+
+    });
+
+
+    /* =========================================================
+       11. HANDLE WINDOW RESIZE
+       ========================================================= */
+
+    window.addEventListener("resize", () => {
+
+        /*
+          If the screen becomes wider while the navigation
+          is open, reset it.
+    
+          This prevents a stale mobile navigation state
+          from remaining after resizing.
+        */
+
+        if (
+            window.innerWidth > 768 &&
+            orbitApp.classList.contains("nav-open")
+        ) {
+            closeNavigation();
+        }
+
+    });
+
+
+    /* =========================================================
+       12. INITIAL STATE
+       ========================================================= */
+
+    /*
+      IMPORTANT:
+  
+      Orbit AI starts with the sidebar CLOSED.
+  
+      The user initially sees:
+      - AI dashboard
+      - Menu button
+  
+      The sidebar only appears after clicking the menu button.
+    */
+
+    closeNavigation();
+
+
+    /* =========================================================
+       13. INITIAL ACCESSIBILITY STATE
+       ========================================================= */
+
+    menuToggle.setAttribute(
+        "aria-expanded",
+        "false"
     );
 
-}
-
-
-/* ===========================================================
-   INITIALIZE NAVIGATION
-   =========================================================== */
-
-function initializeNavigation() {
-
-    setActiveNavigationLink();
-
-}
-
-
-/* ===========================================================
-   DOM READY
-   =========================================================== */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeNavigation
+    menuToggle.setAttribute(
+        "aria-controls",
+        sidebar.id || "orbit-sidebar"
     );
 
-}
 
-else {
+    /* =========================================================
+       14. DEBUG MESSAGE
+       ========================================================= */
 
-    initializeNavigation();
+    console.log(
+        "Orbit AI navigation system initialized."
+    );
 
-}
-
-
-/* ===========================================================
-   GLOBAL ORBIT NAVIGATION API
-   =========================================================== */
-
-window.OrbitNavigation = {
-
-    open: openNavigation,
-
-    close: closeNavigation,
-
-    toggle: toggleNavigation
-
-};
+});

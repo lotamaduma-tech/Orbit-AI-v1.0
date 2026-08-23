@@ -47,40 +47,30 @@ console.log("========================================");
 console.log("       ORBIT AI ENVIRONMENT CHECK");
 console.log("========================================");
 
-console.log(
-    "Groq API Key:",
-    GROQ_API_KEY ? "✅ Loaded" : "❌ Missing"
-);
+console.log("Groq API Key:", GROQ_API_KEY ? "✅ Loaded" : "❌ Missing");
+
+console.log("Supabase URL:", SUPABASE_URL ? "✅ Loaded" : "❌ Missing");
 
 console.log(
-    "Supabase URL:",
-    SUPABASE_URL ? "✅ Loaded" : "❌ Missing"
-);
-
-console.log(
-    "Supabase Secret Key:",
-    SUPABASE_SECRET_KEY ? "✅ Loaded" : "❌ Missing"
+  "Supabase Secret Key:",
+  SUPABASE_SECRET_KEY ? "✅ Loaded" : "❌ Missing",
 );
 
 console.log("========================================");
 console.log("");
 
 if (!GROQ_API_KEY) {
-    console.error(
-        "❌ GROQ_API_KEY is missing from environment variables."
-    );
+  console.error("❌ GROQ_API_KEY is missing from environment variables.");
 }
 
 if (!SUPABASE_URL) {
-    console.error(
-        "❌ SUPABASE_URL is missing from environment variables."
-    );
+  console.error("❌ SUPABASE_URL is missing from environment variables.");
 }
 
 if (!SUPABASE_SECRET_KEY) {
-    console.error(
-        "❌ SUPABASE_SECRET_KEY is missing from environment variables."
-    );
+  console.error(
+    "❌ SUPABASE_SECRET_KEY is missing from environment variables.",
+  );
 }
 
 /* =========================================================
@@ -88,7 +78,7 @@ if (!SUPABASE_SECRET_KEY) {
 ========================================================= */
 
 const groq = new Groq({
-    apiKey: GROQ_API_KEY
+  apiKey: GROQ_API_KEY,
 });
 
 /* =========================================================
@@ -97,10 +87,7 @@ const groq = new Groq({
    Uses SUPABASE_SECRET_KEY from .env
 ========================================================= */
 
-const supabase = createClient(
-    SUPABASE_URL,
-    SUPABASE_SECRET_KEY
-);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
 
 /* =========================================================
    MIDDLEWARE
@@ -109,9 +96,9 @@ const supabase = createClient(
 app.use(cors());
 
 app.use(
-    express.json({
-        limit: "100kb"
-    })
+  express.json({
+    limit: "100kb",
+  }),
 );
 
 /* =========================================================
@@ -119,148 +106,115 @@ app.use(
 ========================================================= */
 
 function detectMemory(message) {
-    const memories = [];
+  const memories = [];
 
-    const text = message
-        .trim()
-        .replace(/\s+/g, " ");
+  const text = message.trim().replace(/\s+/g, " ");
 
-    /* =====================================================
+  /* =====================================================
        NAME
     ===================================================== */
 
-    const nameMatch = text.match(
-        /^(?:my name is|i am|i'm|call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})[.!?]?$/i
-    );
+  const nameMatch = text.match(
+    /^(?:my name is|i am|i'm|call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})[.!?]?$/i,
+  );
 
-    if (nameMatch) {
-        const name = nameMatch[1]
-            .trim()
-            .replace(/[.!?]+$/, "");
+  if (nameMatch) {
+    const name = nameMatch[1].trim().replace(/[.!?]+$/, "");
 
-        if (
-            name.length >= 2 &&
-            name.length <= 40
-        ) {
-            memories.push(
-                `User's name is ${name}.`
-            );
-        }
+    if (name.length >= 2 && name.length <= 40) {
+      memories.push(`User's name is ${name}.`);
     }
+  }
 
-    /* =====================================================
+  /* =====================================================
        LEARNING
     ===================================================== */
 
-    const learningMatch = text.match(
-        /^(?:i am learning|i'm learning|i'm currently learning|i am currently learning)\s+(.+?)[.!?]?$/i
-    );
+  const learningMatch = text.match(
+    /^(?:i am learning|i'm learning|i'm currently learning|i am currently learning)\s+(.+?)[.!?]?$/i,
+  );
 
-    if (learningMatch) {
-        const subject = learningMatch[1]
-            .trim()
-            .replace(/[.!?]+$/, "");
+  if (learningMatch) {
+    const subject = learningMatch[1].trim().replace(/[.!?]+$/, "");
 
-        if (subject.length >= 2) {
-            memories.push(
-                `User is learning ${subject}.`
-            );
-        }
+    if (subject.length >= 2) {
+      memories.push(`User is learning ${subject}.`);
     }
+  }
 
-    /* =====================================================
+  /* =====================================================
        STUDYING
     ===================================================== */
 
-    const studyMatch = text.match(
-        /^(?:i study|i am studying|i'm studying)\s+(.+?)[.!?]?$/i
-    );
+  const studyMatch = text.match(
+    /^(?:i study|i am studying|i'm studying)\s+(.+?)[.!?]?$/i,
+  );
 
-    if (studyMatch) {
-        const subject = studyMatch[1]
-            .trim()
-            .replace(/[.!?]+$/, "");
+  if (studyMatch) {
+    const subject = studyMatch[1].trim().replace(/[.!?]+$/, "");
 
-        if (subject.length >= 2) {
-            memories.push(
-                `User studies ${subject}.`
-            );
-        }
+    if (subject.length >= 2) {
+      memories.push(`User studies ${subject}.`);
     }
+  }
 
-    /* =====================================================
+  /* =====================================================
        GOALS
     ===================================================== */
 
-    const goalMatch = text.match(
-        /^(?:my goal is|my goal is to|i want to|i'd like to|i would like to)\s+(.+?)[.!?]?$/i
-    );
+  const goalMatch = text.match(
+    /^(?:my goal is|my goal is to|i want to|i'd like to|i would like to)\s+(.+?)[.!?]?$/i,
+  );
 
-    if (goalMatch) {
-        let goal = goalMatch[1]
-            .trim()
-            .replace(/[.!?]+$/, "");
+  if (goalMatch) {
+    let goal = goalMatch[1].trim().replace(/[.!?]+$/, "");
 
-        if (goal.length >= 3) {
-            if (
-                !goal.toLowerCase().startsWith("to ")
-            ) {
-                goal = `to ${goal}`;
-            }
+    if (goal.length >= 3) {
+      if (!goal.toLowerCase().startsWith("to ")) {
+        goal = `to ${goal}`;
+      }
 
-            memories.push(
-                `User's goal is ${goal}.`
-            );
-        }
+      memories.push(`User's goal is ${goal}.`);
     }
+  }
 
-    /* =====================================================
+  /* =====================================================
        PREFERENCES / LIKES
     ===================================================== */
 
-    const likeMatch = text.match(
-        /^(?:i like|i really like|i enjoy|i love)\s+(.+?)[.!?]?$/i
-    );
+  const likeMatch = text.match(
+    /^(?:i like|i really like|i enjoy|i love)\s+(.+?)[.!?]?$/i,
+  );
 
-    if (likeMatch) {
-        const preference = likeMatch[1]
-            .trim()
-            .replace(/[.!?]+$/, "");
+  if (likeMatch) {
+    const preference = likeMatch[1].trim().replace(/[.!?]+$/, "");
 
-        if (preference.length >= 2) {
-            memories.push(
-                `User likes ${preference}.`
-            );
-        }
+    if (preference.length >= 2) {
+      memories.push(`User likes ${preference}.`);
     }
+  }
 
-    /* =====================================================
+  /* =====================================================
        PROJECTS
     ===================================================== */
 
-    const projectMatch = text.match(
-        /^(?:i am working on|i'm working on|i am building|i'm building|my project is)\s+(.+?)[.!?]?$/i
-    );
+  const projectMatch = text.match(
+    /^(?:i am working on|i'm working on|i am building|i'm building|my project is)\s+(.+?)[.!?]?$/i,
+  );
 
-    if (projectMatch) {
-        const project = projectMatch[1]
-            .trim()
-            .replace(/[.!?]+$/, "");
+  if (projectMatch) {
+    const project = projectMatch[1].trim().replace(/[.!?]+$/, "");
 
-        if (project.length >= 3) {
-            memories.push(
-                `User is working on ${project}.`
-            );
-        }
+    if (project.length >= 3) {
+      memories.push(`User is working on ${project}.`);
     }
+  }
 
-    /* =====================================================
+  /* =====================================================
        RETURN UNIQUE MEMORIES
     ===================================================== */
 
-    return [
-        ...new Set(memories)
-    ];
+  return [...new Set(memories)];
 }
 
 /* =========================================================
@@ -268,126 +222,106 @@ function detectMemory(message) {
 ========================================================= */
 
 async function getUserMemory(userId) {
-    const { data, error } = await supabase
-        .from("memories")
-        .select("memory")
-        .eq("user_id", userId)
-        .order("created_at", {
-            ascending: true
-        });
+  const { data, error } = await supabase
+    .from("memories")
+    .select("memory")
+    .eq("user_id", userId)
+    .order("created_at", {
+      ascending: true,
+    });
 
-    if (error) {
-        console.error("");
-        console.error("❌ SUPABASE MEMORY LOAD FAILED");
-        console.error("----------------------------------------");
-        console.error("Message:", error.message);
-        console.error("Code:", error.code);
-        console.error("Details:", error.details);
-        console.error("Hint:", error.hint);
-        console.error("----------------------------------------");
-        console.error("");
+  if (error) {
+    console.error("");
+    console.error("❌ SUPABASE MEMORY LOAD FAILED");
+    console.error("----------------------------------------");
+    console.error("Message:", error.message);
+    console.error("Code:", error.code);
+    console.error("Details:", error.details);
+    console.error("Hint:", error.hint);
+    console.error("----------------------------------------");
+    console.error("");
 
-        throw error;
-    }
+    throw error;
+  }
 
-    if (!Array.isArray(data)) {
-        return [];
-    }
+  if (!Array.isArray(data)) {
+    return [];
+  }
 
-    return data
-        .map(item => item.memory)
-        .filter(
-            item =>
-                typeof item === "string" &&
-                item.trim().length > 0
-        );
+  return data
+    .map((item) => item.memory)
+    .filter((item) => typeof item === "string" && item.trim().length > 0);
 }
 
 /* =========================================================
    SAVE USER MEMORY TO SUPABASE
 ========================================================= */
 
-async function saveUserMemory(
-    userId,
-    memories
-) {
-    if (!Array.isArray(memories)) {
-        return;
-    }
+async function saveUserMemory(userId, memories) {
+  if (!Array.isArray(memories)) {
+    return;
+  }
 
-    const cleanMemories = [
-        ...new Set(
-            memories
-                .filter(
-                    item =>
-                        typeof item === "string" &&
-                        item.trim().length > 0
-                )
-                .map(
-                    item => item.trim()
-                )
-        )
-    ].slice(-50);
+  const cleanMemories = [
+    ...new Set(
+      memories
+        .filter((item) => typeof item === "string" && item.trim().length > 0)
+        .map((item) => item.trim()),
+    ),
+  ].slice(-50);
 
-    if (cleanMemories.length === 0) {
-        return;
-    }
+  if (cleanMemories.length === 0) {
+    return;
+  }
 
-    /* =====================================================
+  /* =====================================================
        GET EXISTING MEMORIES
     ===================================================== */
 
-    const existingMemory =
-        await getUserMemory(userId);
+  const existingMemory = await getUserMemory(userId);
 
-    const existingSet =
-        new Set(existingMemory);
+  const existingSet = new Set(existingMemory);
 
-    /* =====================================================
+  /* =====================================================
        ONLY SAVE NEW MEMORIES
     ===================================================== */
 
-    const newMemories =
-        cleanMemories.filter(
-            memory =>
-                !existingSet.has(memory)
-        );
+  const newMemories = cleanMemories.filter(
+    (memory) => !existingSet.has(memory),
+  );
 
-    if (newMemories.length === 0) {
-        return;
-    }
+  if (newMemories.length === 0) {
+    return;
+  }
 
-    /* =====================================================
+  /* =====================================================
        CREATE DATABASE ROWS
     ===================================================== */
 
-    const rows =
-        newMemories.map(memory => ({
-            user_id: userId,
-            memory
-        }));
+  const rows = newMemories.map((memory) => ({
+    user_id: userId,
+    memory,
+  }));
 
-    /* =====================================================
+  /* =====================================================
        INSERT INTO SUPABASE
     ===================================================== */
 
-    const { error } = await supabase
-        .from("memories")
-        .insert(rows);
+  const { error } = await supabase.from("memories").insert(rows);
 
-    if (error) {
-        console.error("");
-        console.error("❌ SUPABASE MEMORY SAVE FAILED");
-        console.error("----------------------------------------");
-        console.error("Message:", error.message);
-        console.error("Code:", error.code);
-        console.error("Details:", error.details);
-        console.error("Hint:", error.hint);
-        console.error("----------------------------------------");
-        console.error("");
+  if (error) {
+    console.error("");
+    console.error("❌ SUPABASE MEMORY SAVE FAILED");
+    console.error("----------------------------------------");
+    console.error("Message:", error.message);
+    console.error("Code:", error.code);
+    console.error("Details:", error.details);
+    console.error("Hint:", error.hint);
+    console.error("----------------------------------------");
+    console.error("");
 
-        throw error;
-    }
+    throw error;
+  }
 }
 
 /* =========================================================
@@ -395,389 +329,266 @@ async function saveUserMemory(
 ========================================================= */
 
 app.get("/", (req, res) => {
-    res.json({
-        status: "online",
-        message: "Orbit AI backend is running.",
-        provider: "Groq",
-        model: "openai/gpt-oss-120b",
-        memory: "Persistent Supabase memory",
-        conversation: "Temporary session history",
-        database: "Supabase PostgreSQL"
-    });
+  res.json({
+    status: "online",
+    message: "Orbit AI backend is running.",
+    provider: "Groq",
+    model: "openai/gpt-oss-120b",
+    memory: "Persistent Supabase memory",
+    conversation: "Temporary session history",
+    database: "Supabase PostgreSQL",
+  });
 });
 
 /* =========================================================
    SUPABASE DATABASE TEST
 ========================================================= */
 
-app.get(
-    "/api/test-supabase",
-    async (req, res) => {
-        try {
-            const { data, error } = await supabase
-                .from("memories")
-                .select("memory")
-                .limit(1);
+app.get("/api/test-supabase", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("memories")
+      .select("memory")
+      .limit(1);
 
-            if (error) {
-                console.error(
-                    "❌ Supabase test failed:",
-                    error
-                );
+    if (error) {
+      console.error("❌ Supabase test failed:", error);
 
-                return res.status(500).json({
-                    success: false,
-                    error: error.message,
-                    code: error.code,
-                    details: error.details,
-                    hint: error.hint
-                });
-            }
-
-            return res.json({
-                success: true,
-                message: "Supabase connection is working.",
-                rowsFound: Array.isArray(data)
-                    ? data.length
-                    : 0
-            });
-
-        } catch (error) {
-            console.error(
-                "❌ Supabase connection error:",
-                error
-            );
-
-            return res.status(500).json({
-                success: false,
-                error: error.message
-            });
-        }
+      return res.status(500).json({
+        success: false,
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
     }
-);
+
+    return res.json({
+      success: true,
+      message: "Supabase connection is working.",
+      rowsFound: Array.isArray(data) ? data.length : 0,
+    });
+  } catch (error) {
+    console.error("❌ Supabase connection error:", error);
+
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
 
 /* =========================================================
    MEMORY STATUS ENDPOINT
 ========================================================= */
 
-app.get(
-    "/api/memory/:userId",
-    async (req, res) => {
+app.get("/api/memory/:userId", async (req, res) => {
+  const userId =
+    typeof req.params.userId === "string" ? req.params.userId.trim() : "";
 
-        const userId =
-            typeof req.params.userId === "string"
-                ? req.params.userId.trim()
-                : "";
+  if (!userId) {
+    return res.status(400).json({
+      error: "User ID is required.",
+    });
+  }
 
-        if (!userId) {
-            return res.status(400).json({
-                error: "User ID is required."
-            });
-        }
+  try {
+    const memory = await getUserMemory(userId);
 
-        try {
-            const memory =
-                await getUserMemory(userId);
+    return res.json({
+      userId,
+      memory: Array.isArray(memory) ? memory : [],
+    });
+  } catch (error) {
+    console.error("❌ Failed to load memory:", error);
 
-            return res.json({
-                userId,
-                memory:
-                    Array.isArray(memory)
-                        ? memory
-                        : []
-            });
-
-        } catch (error) {
-
-            console.error(
-                "❌ Failed to load memory:",
-                error
-            );
-
-            return res.status(500).json({
-                error: "Could not load user memory.",
-                details: error.message,
-                code: error.code || null
-            });
-        }
-    }
-);
+    return res.status(500).json({
+      error: "Could not load user memory.",
+      details: error.message,
+      code: error.code || null,
+    });
+  }
+});
 
 /* =========================================================
    CHAT ENDPOINT
 ========================================================= */
 
-app.post(
-    "/api/chat",
-    async (req, res) => {
+app.post("/api/chat", async (req, res) => {
+  const {
+    message,
+    history = [],
+    memory = [],
+    userId = "default-user",
+  } = req.body;
 
-        const {
-            message,
-            history = [],
-            memory = [],
-            userId = "default-user"
-        } = req.body;
-
-        /* =================================================
+  /* =================================================
            VALIDATE MESSAGE
         ================================================= */
 
-        if (
-            typeof message !== "string" ||
-            !message.trim()
-        ) {
-            return res.status(400).json({
-                error: "Message is required."
-            });
-        }
+  if (typeof message !== "string" || !message.trim()) {
+    return res.status(400).json({
+      error: "Message is required.",
+    });
+  }
 
-        /* =================================================
+  /* =================================================
            CHECK GROQ
         ================================================= */
 
-        if (!GROQ_API_KEY) {
-            return res.status(500).json({
-                error:
-                    "Groq API key is not configured."
-            });
-        }
+  if (!GROQ_API_KEY) {
+    return res.status(500).json({
+      error: "Groq API key is not configured.",
+    });
+  }
 
-        /* =================================================
+  /* =================================================
            CHECK SUPABASE
         ================================================= */
 
-        if (
-            !SUPABASE_URL ||
-            !SUPABASE_SECRET_KEY
-        ) {
-            return res.status(500).json({
-                error:
-                    "Supabase is not configured."
-            });
-        }
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
+    return res.status(500).json({
+      error: "Supabase is not configured.",
+    });
+  }
 
-        /* =================================================
+  /* =================================================
            CLEAN USER ID
         ================================================= */
 
-        const cleanUserId =
-            typeof userId === "string" &&
-                userId.trim()
-                ? userId.trim()
-                : "default-user";
+  const cleanUserId =
+    typeof userId === "string" && userId.trim()
+      ? userId.trim()
+      : "default-user";
 
-        const cleanMessage =
-            message.trim();
+  const cleanMessage = message.trim();
 
-        /* =================================================
+  /* =================================================
            LOG REQUEST
         ================================================= */
 
-        console.log("");
-        console.log(
-            "========================================"
-        );
-        console.log(
-            "           ORBIT AI REQUEST"
-        );
-        console.log(
-            "========================================"
-        );
-        console.log(
-            "User ID:",
-            cleanUserId
-        );
-        console.log(
-            "Message:",
-            cleanMessage
-        );
+  console.log("");
+  console.log("========================================");
+  console.log("           ORBIT AI REQUEST");
+  console.log("========================================");
+  console.log("User ID:", cleanUserId);
+  console.log("Message:", cleanMessage);
 
-        /* =================================================
+  /* =================================================
            LOAD SUPABASE MEMORY
         ================================================= */
 
-        let storedMemory = [];
+  let storedMemory = [];
 
-        try {
-            storedMemory =
-                await getUserMemory(
-                    cleanUserId
-                );
+  try {
+    storedMemory = await getUserMemory(cleanUserId);
+  } catch (error) {
+    console.error("❌ Failed to load Supabase memory:", error.message);
 
-        } catch (error) {
+    storedMemory = [];
+  }
 
-            console.error(
-                "❌ Failed to load Supabase memory:",
-                error.message
-            );
-
-            storedMemory = [];
-        }
-
-        /* =================================================
+  /* =================================================
            CLEAN CONVERSATION HISTORY
         ================================================= */
 
-        let validHistory = [];
+  let validHistory = [];
 
-        if (Array.isArray(history)) {
+  if (Array.isArray(history)) {
+    validHistory = history
+      .filter((item) => {
+        return (
+          item &&
+          (item.role === "user" || item.role === "assistant") &&
+          typeof item.content === "string" &&
+          item.content.trim().length > 0
+        );
+      })
+      .map((item) => ({
+        role: item.role,
+        content: item.content.trim(),
+      }))
+      .slice(-30);
+  }
 
-            validHistory =
-                history
-                    .filter(item => {
-                        return (
-                            item &&
-                            (
-                                item.role === "user" ||
-                                item.role === "assistant"
-                            ) &&
-                            typeof item.content === "string" &&
-                            item.content.trim().length > 0
-                        );
-                    })
-                    .map(item => ({
-                        role:
-                            item.role,
-                        content:
-                            item.content.trim()
-                    }))
-                    .slice(-30);
-        }
-
-        /* =================================================
+  /* =================================================
            CLEAN FRONTEND MEMORY
         ================================================= */
 
-        let frontendMemory = [];
+  let frontendMemory = [];
 
-        if (Array.isArray(memory)) {
+  if (Array.isArray(memory)) {
+    frontendMemory = memory
+      .filter((item) => {
+        return typeof item === "string" && item.trim().length > 0;
+      })
+      .map((item) => item.trim())
+      .slice(-50);
+  }
 
-            frontendMemory =
-                memory
-                    .filter(item => {
-                        return (
-                            typeof item === "string" &&
-                            item.trim().length > 0
-                        );
-                    })
-                    .map(item =>
-                        item.trim()
-                    )
-                    .slice(-50);
-        }
-
-        /* =================================================
+  /* =================================================
            AUTOMATIC MEMORY DETECTION
         ================================================= */
 
-        const detectedMemories =
-            detectMemory(
-                cleanMessage
-            );
+  const detectedMemories = detectMemory(cleanMessage);
 
-        if (
-            detectedMemories.length > 0
-        ) {
+  if (detectedMemories.length > 0) {
+    console.log("");
+    console.log("🧠 MEMORY DETECTED");
 
-            console.log("");
-            console.log(
-                "🧠 MEMORY DETECTED"
-            );
+    detectedMemories.forEach((item) => {
+      console.log("→", item);
+    });
 
-            detectedMemories.forEach(
-                item => {
-                    console.log(
-                        "→",
-                        item
-                    );
-                }
-            );
+    try {
+      await saveUserMemory(cleanUserId, detectedMemories);
 
-            try {
+      console.log("✅ Memory saved to Supabase.");
+    } catch (error) {
+      console.error("❌ Failed to save detected memory:", error.message);
+    }
 
-                await saveUserMemory(
-                    cleanUserId,
-                    detectedMemories
-                );
-
-                console.log(
-                    "✅ Memory saved to Supabase."
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "❌ Failed to save detected memory:",
-                    error.message
-                );
-            }
-
-            /* =============================================
+    /* =============================================
                RELOAD MEMORY
             ============================================= */
 
-            try {
+    try {
+      storedMemory = await getUserMemory(cleanUserId);
+    } catch (error) {
+      console.error("❌ Failed to reload memory:", error.message);
+    }
+  }
 
-                storedMemory =
-                    await getUserMemory(
-                        cleanUserId
-                    );
-
-            } catch (error) {
-
-                console.error(
-                    "❌ Failed to reload memory:",
-                    error.message
-                );
-            }
-        }
-
-        /* =================================================
+  /* =================================================
            COMBINE MEMORY
         ================================================= */
 
-        const combinedMemory = [
-            ...storedMemory,
-            ...frontendMemory
-        ];
+  const combinedMemory = [...storedMemory, ...frontendMemory];
 
-        const validMemory = [
-            ...new Set(
-                combinedMemory
-                    .filter(item => {
-                        return (
-                            typeof item === "string" &&
-                            item.trim().length > 0
-                        );
-                    })
-                    .map(item =>
-                        item.trim()
-                    )
-            )
-        ].slice(-50);
+  const validMemory = [
+    ...new Set(
+      combinedMemory
+        .filter((item) => {
+          return typeof item === "string" && item.trim().length > 0;
+        })
+        .map((item) => item.trim()),
+    ),
+  ].slice(-50);
 
-        /* =================================================
+  /* =================================================
            BUILD MEMORY CONTEXT
         ================================================= */
 
-        let memoryContext = "";
+  let memoryContext = "";
 
-        if (
-            validMemory.length > 0
-        ) {
-
-            memoryContext = `
+  if (validMemory.length > 0) {
+    memoryContext = `
 USER MEMORY:
 
 The following information was previously provided
 by the user and may be useful when answering them:
 
-${validMemory
-                    .map(
-                        (item, index) =>
-                            `${index + 1}. ${item}`
-                    )
-                    .join("\n")}
+${validMemory.map((item, index) => `${index + 1}. ${item}`).join("\n")}
 
 IMPORTANT MEMORY RULES:
 
@@ -787,16 +598,16 @@ IMPORTANT MEMORY RULES:
 - Do not invent additional personal information.
 - If the user corrects a stored detail, follow the newest information.
 `;
-        }
+  }
 
-        /* =================================================
+  /* =================================================
            SYSTEM MESSAGE
         ================================================= */
 
-        const systemMessage = {
-            role: "system",
+  const systemMessage = {
+    role: "system",
 
-            content: `
+    content: `
 You are Orbit AI, a helpful and intelligent AI assistant.
 
 Your job is to answer the user's questions clearly,
@@ -845,260 +656,158 @@ IMPORTANT CONVERSATION RULES:
 You are Orbit AI.
 
 ${memoryContext}
-`
-        };
+`,
+  };
 
-        /* =================================================
+  /* =================================================
            BUILD COMPLETE CONVERSATION
         ================================================= */
 
-        const messages = [
-            systemMessage,
-            ...validHistory,
-            {
-                role: "user",
-                content: cleanMessage
-            }
-        ];
+  const messages = [
+    systemMessage,
+    ...validHistory,
+    {
+      role: "user",
+      content: cleanMessage,
+    },
+  ];
 
-        /* =================================================
+  /* =================================================
            LOG MEMORY / HISTORY
         ================================================= */
 
-        console.log("");
-        console.log(
-            "Conversation history:",
-            validHistory.length,
-            "messages"
-        );
+  console.log("");
+  console.log("Conversation history:", validHistory.length, "messages");
 
-        console.log(
-            "Supabase memory:",
-            storedMemory.length,
-            "items"
-        );
+  console.log("Supabase memory:", storedMemory.length, "items");
 
-        console.log(
-            "Frontend memory:",
-            frontendMemory.length,
-            "items"
-        );
+  console.log("Frontend memory:", frontendMemory.length, "items");
 
-        console.log(
-            "Detected memory:",
-            detectedMemories.length,
-            "items"
-        );
+  console.log("Detected memory:", detectedMemories.length, "items");
 
-        console.log(
-            "Combined memory:",
-            validMemory.length,
-            "items"
-        );
+  console.log("Combined memory:", validMemory.length, "items");
 
-        /* =================================================
+  /* =================================================
            SEND REQUEST TO GROQ
         ================================================= */
 
-        try {
+  try {
+    const completion = await groq.chat.completions.create({
+      messages,
 
-            const completion =
-                await groq.chat.completions.create({
+      model: "openai/gpt-oss-120b",
 
-                    messages,
+      temperature: 0.7,
 
-                    model:
-                        "openai/gpt-oss-120b",
+      max_tokens: 1024,
+    });
 
-                    temperature:
-                        0.7,
-
-                    max_tokens:
-                        1024
-                });
-
-            /* =============================================
+    /* =============================================
                EXTRACT RESPONSE
             ============================================= */
 
-            const reply =
-                completion
-                    ?.choices?.[0]
-                    ?.message?.content;
+    const reply = completion?.choices?.[0]?.message?.content;
 
-            if (!reply) {
-                throw new Error(
-                    "Groq returned an empty response."
-                );
-            }
+    if (!reply) {
+      throw new Error("Groq returned an empty response.");
+    }
 
-            /* =============================================
+    /* =============================================
                LOG RESPONSE
             ============================================= */
 
-            console.log("");
-            console.log(
-                "ORBIT RESPONSE"
-            );
-            console.log(
-                "----------------------------------------"
-            );
-            console.log(
-                reply.trim()
-            );
-            console.log(
-                "========================================"
-            );
-            console.log("");
+    console.log("");
+    console.log("ORBIT RESPONSE");
+    console.log("----------------------------------------");
+    console.log(reply.trim());
+    console.log("========================================");
+    console.log("");
 
-            /* =============================================
+    /* =============================================
                SEND RESPONSE TO FRONTEND
             ============================================= */
 
-            return res.json({
-                reply:
-                    reply.trim(),
+    return res.json({
+      reply: reply.trim(),
 
-                memory:
-                    validMemory,
+      memory: validMemory,
 
-                detectedMemory:
-                    detectedMemories
-            });
+      detectedMemory: detectedMemories,
+    });
+  } catch (error) {
+    console.error("");
+    console.error("❌ GROQ REQUEST FAILED");
+    console.error("----------------------------------------");
+    console.error(error?.message || error);
 
-        } catch (error) {
-
-            console.error("");
-            console.error(
-                "❌ GROQ REQUEST FAILED"
-            );
-            console.error(
-                "----------------------------------------"
-            );
-            console.error(
-                error?.message ||
-                error
-            );
-
-            if (error?.status) {
-                console.error(
-                    "Status:",
-                    error.status
-                );
-            }
-
-            if (error?.error) {
-                console.error(
-                    "Groq error details:",
-                    error.error
-                );
-            }
-
-            console.error(
-                "----------------------------------------"
-            );
-            console.error("");
-
-            return res.status(500).json({
-                error:
-                    "Orbit AI could not generate a response."
-            });
-        }
+    if (error?.status) {
+      console.error("Status:", error.status);
     }
-);
+
+    if (error?.error) {
+      console.error("Groq error details:", error.error);
+    }
+
+    console.error("----------------------------------------");
+    console.error("");
+
+    return res.status(500).json({
+      error: "Orbit AI could not generate a response.",
+    });
+  }
+});
 
 /* =========================================================
    404 HANDLER
 ========================================================= */
 
 app.use((req, res) => {
-
-    res.status(404).json({
-        error:
-            "Orbit API route not found."
-    });
-
+  res.status(404).json({
+    error: "Orbit API route not found.",
+  });
 });
 
 /* =========================================================
    GLOBAL ERROR HANDLER
 ========================================================= */
 
-app.use(
-    (error, req, res, next) => {
+app.use((error, req, res, next) => {
+  console.error("❌ Server error:", error);
 
-        console.error(
-            "❌ Server error:",
-            error
-        );
-
-        res.status(500).json({
-            error:
-                "Orbit AI server encountered an error."
-        });
-
-    }
-);
+  res.status(500).json({
+    error: "Orbit AI server encountered an error.",
+  });
+});
 
 /* =========================================================
    START SERVER
 ========================================================= */
 
-app.listen(
-    PORT,
-    () => {
+app.listen(PORT, () => {
+  console.log("");
+  console.log("========================================");
+  console.log("       ORBIT AI BACKEND ONLINE");
+  console.log("========================================");
 
-        console.log("");
-        console.log(
-            "========================================"
-        );
-        console.log(
-            "       ORBIT AI BACKEND ONLINE"
-        );
-        console.log(
-            "========================================"
-        );
+  console.log(`Server running on port ${PORT}`);
 
-        console.log(
-            `Server running on port ${PORT}`
-        );
+  console.log("AI: Groq");
 
-        console.log(
-            "AI: Groq"
-        );
+  console.log("Model: openai/gpt-oss-120b");
 
-        console.log(
-            "Model: openai/gpt-oss-120b"
-        );
+  console.log("Memory: Supabase PostgreSQL");
 
-        console.log(
-            "Memory: Supabase PostgreSQL"
-        );
+  console.log("Automatic Memory: Enabled");
 
-        console.log(
-            "Automatic Memory: Enabled"
-        );
+  console.log("Conversation: Temporary Session History");
 
-        console.log(
-            "Conversation: Temporary Session History"
-        );
+  console.log("History Limit: 30 messages");
 
-        console.log(
-            "History Limit: 30 messages"
-        );
+  console.log("Memory Limit: 50 items");
 
-        console.log(
-            "Memory Limit: 50 items"
-        );
+  console.log("Database: Supabase");
 
-        console.log(
-            "Database: Supabase"
-        );
+  console.log("========================================");
 
-        console.log(
-            "========================================"
-        );
-
-        console.log("");
-    }
-);
+  console.log("");
+});
