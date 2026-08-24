@@ -1757,42 +1757,35 @@ html[data-animations="false"] .topbar-btn {
    ========================================================= */
 
 .chat-window {
-  /*
-   * Take all available vertical space.
-   */
   flex: 1 1 auto;
 
+  /* IMPORTANT:
+     Allows the chat window to shrink inside .orbit-main
+     so its own scrollbar can activate. */
   min-height: 0;
 
-  /*
-   * Match the command area width.
-   */
-  width: min(100%, 900px);
-
-  max-width: 900px;
-
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
+  max-width: 100%;
 
   display: flex;
   flex-direction: column;
 
-  /*
-   * IMPORTANT:
-   * The chat window is the scrolling area.
-   */
   overflow-x: hidden;
   overflow-y: auto;
 
   padding: 1.25rem;
-
   gap: 1rem;
 
   box-sizing: border-box;
 
   scroll-behavior: smooth;
-
   overscroll-behavior: contain;
+
+  /* Better touch scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
+
+  /* Prevent flex children from forcing the container taller */
+  contain: layout paint;
 }
 
 
@@ -2786,6 +2779,202 @@ html[data-animations="false"] .topbar-btn {
   cursor: not-allowed;
 }
 
+/* =========================================================
+   114. COMMAND FOOTER
+   Small status information below the command input
+   ========================================================= */
+
+.command-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-width: 0;
+
+  margin-top: 7px;
+  padding: 0 4px;
+
+  color: var(--muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   115. COMMAND FOOTER GROUPS
+   ========================================================= */
+
+.command-footer > span {
+  display: inline-flex;
+  align-items: center;
+
+  min-width: 0;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   116. READY STATUS
+   ========================================================= */
+
+.command-footer > span:first-child {
+  gap: 6px;
+
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.command-footer > span:first-child i {
+  color: var(--primary);
+  font-size: 11px;
+}
+
+/* =========================================================
+   117. RESPONSE INFORMATION
+   ========================================================= */
+
+.command-footer > span:last-child {
+  justify-content: flex-end;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#response-time {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   118. FOOTER SEPARATOR
+   ========================================================= */
+
+.command-footer > span:last-child > span[aria-hidden="true"] {
+  flex: 0 0 auto;
+
+  margin: 0 6px;
+
+  color: var(--border);
+}
+
+/* =========================================================
+   119. COMMAND FOOTER HOVER
+   ========================================================= */
+
+.command-footer > span:first-child:hover {
+  color: var(--text);
+}
+
+.command-footer > span:first-child:hover i {
+  color: var(--primary-dark);
+}
+
+/* =========================================================
+   120. TABLET COMMAND FOOTER
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .command-footer {
+    padding: 0 3px;
+
+    font-size: 11px;
+  }
+}
+
+/* =========================================================
+   121. MOBILE COMMAND FOOTER
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .command-footer {
+    align-items: flex-start;
+
+    margin-top: 6px;
+    padding: 0 2px;
+
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .command-footer > span:first-child {
+    gap: 5px;
+  }
+
+  .command-footer > span:first-child i {
+    font-size: 10px;
+  }
+
+  .command-footer > span:last-child {
+    max-width: 68%;
+  }
+
+  #response-time {
+    max-width: 100%;
+  }
+}
+
+/* =========================================================
+   122. SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .command-footer {
+    margin-top: 5px;
+
+    font-size: 9px;
+  }
+
+  .command-footer > span:first-child {
+    max-width: 32%;
+  }
+
+  .command-footer > span:last-child {
+    max-width: 65%;
+  }
+
+  /* Hide the longer response information when space
+     becomes very limited, while keeping the status useful. */
+
+  #response-time {
+    max-width: 120px;
+  }
+}
+
+/* =========================================================
+   123. VERY SMALL SCREENS
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .command-footer {
+    font-size: 8.5px;
+  }
+
+  .command-footer > span:first-child {
+    max-width: 35%;
+  }
+
+  .command-footer > span:last-child {
+    max-width: 62%;
+  }
+
+  #response-time {
+    max-width: 85px;
+  }
+
+  .command-footer > span:last-child > span[aria-hidden="true"] {
+    margin: 0 4px;
+  }
+}
 
 /* =========================================================
    END OF PART 5
@@ -2822,10 +3011,16 @@ html[data-animations="false"] .topbar-btn {
      ----------------------------------------- */
 
   .orbit-main {
-    width: 100%;
+  width: 100%;
+  margin-left: 0;
 
-    margin-left: 0;
-  }
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
 
   .orbit-app.nav-open .orbit-main {
     width: 100%;
@@ -2950,6 +3145,22 @@ html[data-animations="false"] .topbar-btn {
   /* -----------------------------------------
      DESKTOP CHAT WIDTH
      ----------------------------------------- */
+
+     /* -----------------------------------------
+   MOBILE CHAT SCROLLING
+   ----------------------------------------- */
+
+.chat-window {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 0;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
 
   .chat-window,
   .command-area {
