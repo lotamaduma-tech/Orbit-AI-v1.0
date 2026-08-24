@@ -1,8 +1,3 @@
-/*
-  ORBIT AI — BACKEND SERVER
-  Express + Groq + Supabase
-*/
-
 "use strict";
 
 const express = require("express");
@@ -12,11 +7,15 @@ const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
 const app = express();
+
 const PORT = process.env.PORT || 5000;
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+
+const HISTORY_LIMIT = 30;
+const MEMORY_LIMIT = 50;
 
 console.log("");
 console.log("========================================");
@@ -79,7 +78,7 @@ app.use(
       console.warn("CORS request blocked from:", origin);
       return callback(new Error("Not allowed by CORS"));
     },
-    methods: ["GET", "POST", "OPTIONS"],
+    methods: ["GET", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: false,
   })
@@ -91,16 +90,59 @@ app.use(
   })
 );
 
+function cleanUserId(userId) {
+  if (typeof userId !== "string") {
+    return "default-user";
+  }
+
+  const value = userId.trim();
+
+  return value || "default-user";
+}
+
+function cleanConversationId(conversationId) {
+  if (typeof conversationId !== "string") {
+    return "";
+  }
+
+  return conversationId.trim();
+}
+
+function createConversationTitle(message) {
+  if (typeof message !== "string") {
+    return "New Chat";
+  }
+
+  const clean = message
+    .trim()
+    .replace(/\s+/g, " ");
+
+  if (!clean) {
+    return "New Chat";
+  }
+
+  if (clean.length <= 60) {
+    return clean;
+  }
+
+  return `${clean.substring(0, 57)}...`;
+}
+
 function detectMemory(message) {
   const memories = [];
-  const text = message.trim().replace(/\s+/g, " ");
+
+  const text = message
+    .trim()
+    .replace(/\s+/g, " ");
 
   const nameMatch = text.match(
     /^(?:my name is|i am|i'm|call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})[.!?]?$/i
   );
 
   if (nameMatch) {
-    const name = nameMatch[1].trim().replace(/[.!?]+$/, "");
+    const name = nameMatch[1]
+      .trim()
+      .replace(/[.!?]+$/, "");
 
     if (name.length >= 2 && name.length <= 40) {
       memories.push(`User's name is ${name}.`);
@@ -112,7 +154,9 @@ function detectMemory(message) {
   );
 
   if (learningMatch) {
-    const subject = learningMatch[1].trim().replace(/[.!?]+$/, "");
+    const subject = learningMatch[1]
+      .trim()
+      .replace(/[.!?]+$/, "");
 
     if (subject.length >= 2) {
       memories.push(`User is learning ${subject}.`);
@@ -124,7 +168,9 @@ function detectMemory(message) {
   );
 
   if (studyMatch) {
-    const subject = studyMatch[1].trim().replace(/[.!?]+$/, "");
+    const subject = studyMatch[1]
+      .trim()
+      .replace(/[.!?]+$/, "");
 
     if (subject.length >= 2) {
       memories.push(`User studies ${subject}.`);
@@ -136,7 +182,9 @@ function detectMemory(message) {
   );
 
   if (goalMatch) {
-    let goal = goalMatch[1].trim().replace(/[.!?]+$/, "");
+    let goal = goalMatch[1]
+      .trim()
+      .replace(/[.!?]+$/, "");
 
     if (goal.length >= 3) {
       if (!goal.toLowerCase().startsWith("to ")) {
@@ -152,7 +200,9 @@ function detectMemory(message) {
   );
 
   if (likeMatch) {
-    const preference = likeMatch[1].trim().replace(/[.!?]+$/, "");
+    const preference = likeMatch[1]
+      .trim()
+      .replace(/[.!?]+$/, "");
 
     if (preference.length >= 2) {
       memories.push(`User likes ${preference}.`);
@@ -164,7 +214,9 @@ function detectMemory(message) {
   );
 
   if (projectMatch) {
-    const project = projectMatch[1].trim().replace(/[.!?]+$/, "");
+    const project = projectMatch[1]
+      .trim()
+      .replace(/[.!?]+$/, "");
 
     if (project.length >= 3) {
       memories.push(`User is working on ${project}.`);
@@ -184,14 +236,11 @@ async function getUserMemory(userId) {
     });
 
   if (error) {
-    console.error("");
     console.error("SUPABASE MEMORY LOAD FAILED");
     console.error("Message:", error.message);
     console.error("Code:", error.code);
     console.error("Details:", error.details);
     console.error("Hint:", error.hint);
-    console.error("");
-
     throw error;
   }
 
@@ -203,7 +252,8 @@ async function getUserMemory(userId) {
     .map((item) => item.memory)
     .filter(
       (item) =>
-        typeof item === "string" && item.trim().length > 0
+        typeof item === "string" &&
+        item.trim().length > 0
     );
 }
 
@@ -217,11 +267,12 @@ async function saveUserMemory(userId, memories) {
       memories
         .filter(
           (item) =>
-            typeof item === "string" && item.trim().length > 0
+            typeof item === "string" &&
+            item.trim().length > 0
         )
         .map((item) => item.trim())
     ),
-  ].slice(-50);
+  ].slice(-MEMORY_LIMIT);
 
   if (cleanMemories.length === 0) {
     return;
@@ -248,16 +299,146 @@ async function saveUserMemory(userId, memories) {
     .insert(rows);
 
   if (error) {
-    console.error("");
     console.error("SUPABASE MEMORY SAVE FAILED");
     console.error("Message:", error.message);
     console.error("Code:", error.code);
     console.error("Details:", error.details);
     console.error("Hint:", error.hint);
-    console.error("");
-
     throw error;
   }
+}
+
+async function createConversation(userId, title) {
+  const { data, error } = await supabase
+    .from("conversations")
+    .insert({
+      user_id: userId,
+      title: title || "New Chat",
+    })
+    .select("id, user_id, title, created_at, updated_at")
+    .single();
+
+  if (error) {
+    console.error("CONVERSATION CREATE FAILED");
+    console.error("Message:", error.message);
+    console.error("Code:", error.code);
+    console.error("Details:", error.details);
+    console.error("Hint:", error.hint);
+    throw error;
+  }
+
+  return data;
+}
+
+async function getConversationForUser(
+  conversationId,
+  userId
+) {
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("id, user_id, title, created_at, updated_at")
+    .eq("id", conversationId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("CONVERSATION LOAD FAILED");
+    console.error("Message:", error.message);
+    console.error("Code:", error.code);
+    throw error;
+  }
+
+  return data;
+}
+
+async function saveConversationMessage(
+  conversationId,
+  role,
+  content
+) {
+  if (!conversationId) {
+    return null;
+  }
+
+  if (
+    role !== "user" &&
+    role !== "assistant"
+  ) {
+    return null;
+  }
+
+  if (
+    typeof content !== "string" ||
+    !content.trim()
+  ) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("conversation_messages")
+    .insert({
+      conversation_id: conversationId,
+      role,
+      content: content.trim(),
+    })
+    .select("id, conversation_id, role, content, created_at")
+    .single();
+
+  if (error) {
+    console.error("CONVERSATION MESSAGE SAVE FAILED");
+    console.error("Message:", error.message);
+    console.error("Code:", error.code);
+    console.error("Details:", error.details);
+    console.error("Hint:", error.hint);
+    throw error;
+  }
+
+  await supabase
+    .from("conversations")
+    .update({
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", conversationId);
+
+  return data;
+}
+
+async function getConversationMessages(
+  conversationId,
+  userId
+) {
+  const conversation =
+    await getConversationForUser(
+      conversationId,
+      userId
+    );
+
+  if (!conversation) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("conversation_messages")
+    .select(
+      "id, conversation_id, role, content, created_at"
+    )
+    .eq("conversation_id", conversationId)
+    .order("created_at", {
+      ascending: true,
+    });
+
+  if (error) {
+    console.error("CONVERSATION MESSAGES LOAD FAILED");
+    console.error("Message:", error.message);
+    console.error("Code:", error.code);
+    console.error("Details:", error.details);
+    throw error;
+  }
+
+  return {
+    conversation,
+    messages: Array.isArray(data) ? data : [],
+  };
 }
 
 app.get("/", (req, res) => {
@@ -267,7 +448,7 @@ app.get("/", (req, res) => {
     provider: "Groq",
     model: "openai/gpt-oss-120b",
     memory: "Persistent Supabase memory",
-    conversation: "Temporary session history",
+    conversation: "Persistent Supabase conversation history",
     database: "Supabase PostgreSQL",
   });
 });
@@ -294,10 +475,15 @@ app.get("/api/test-supabase", async (req, res) => {
     return res.json({
       success: true,
       message: "Supabase connection is working.",
-      rowsFound: Array.isArray(data) ? data.length : 0,
+      rowsFound: Array.isArray(data)
+        ? data.length
+        : 0,
     });
   } catch (error) {
-    console.error("Supabase connection error:", error);
+    console.error(
+      "Supabase connection error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -306,35 +492,228 @@ app.get("/api/test-supabase", async (req, res) => {
   }
 });
 
-app.get("/api/memory/:userId", async (req, res) => {
-  const userId =
-    typeof req.params.userId === "string"
-      ? req.params.userId.trim()
-      : "";
+app.get(
+  "/api/memory/:userId",
+  async (req, res) => {
+    const userId = cleanUserId(
+      req.params.userId
+    );
 
-  if (!userId) {
-    return res.status(400).json({
-      error: "User ID is required.",
-    });
+    try {
+      const memory =
+        await getUserMemory(userId);
+
+      return res.json({
+        userId,
+        memory: Array.isArray(memory)
+          ? memory
+          : [],
+      });
+    } catch (error) {
+      console.error(
+        "Failed to load memory:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Could not load user memory.",
+        details: error.message,
+        code: error.code || null,
+      });
+    }
   }
+);
 
-  try {
-    const memory = await getUserMemory(userId);
+app.get(
+  "/api/conversations/:userId",
+  async (req, res) => {
+    const userId = cleanUserId(
+      req.params.userId
+    );
 
-    return res.json({
-      userId,
-      memory: Array.isArray(memory) ? memory : [],
-    });
-  } catch (error) {
-    console.error("Failed to load memory:", error);
+    try {
+      const { data, error } = await supabase
+        .from("conversations")
+        .select(
+          "id, user_id, title, created_at, updated_at"
+        )
+        .eq("user_id", userId)
+        .order("updated_at", {
+          ascending: false,
+        });
 
-    return res.status(500).json({
-      error: "Could not load user memory.",
-      details: error.message,
-      code: error.code || null,
-    });
+      if (error) {
+        throw error;
+      }
+
+      return res.json({
+        userId,
+        conversations: Array.isArray(data)
+          ? data
+          : [],
+      });
+    } catch (error) {
+      console.error(
+        "Failed to load conversations:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Could not load conversations.",
+        details: error.message,
+        code: error.code || null,
+      });
+    }
   }
-});
+);
+
+app.post(
+  "/api/conversations",
+  async (req, res) => {
+    const userId = cleanUserId(
+      req.body?.userId
+    );
+
+    const title =
+      typeof req.body?.title === "string" &&
+        req.body.title.trim()
+        ? req.body.title.trim().substring(0, 100)
+        : "New Chat";
+
+    try {
+      const conversation =
+        await createConversation(
+          userId,
+          title
+        );
+
+      return res.status(201).json({
+        conversation,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to create conversation:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Could not create conversation.",
+        details: error.message,
+        code: error.code || null,
+      });
+    }
+  }
+);
+
+app.get(
+  "/api/conversations/:conversationId/messages",
+  async (req, res) => {
+    const conversationId =
+      cleanConversationId(
+        req.params.conversationId
+      );
+
+    const userId = cleanUserId(
+      req.query.userId
+    );
+
+    if (!conversationId) {
+      return res.status(400).json({
+        error: "Conversation ID is required.",
+      });
+    }
+
+    try {
+      const result =
+        await getConversationMessages(
+          conversationId,
+          userId
+        );
+
+      if (!result) {
+        return res.status(404).json({
+          error: "Conversation not found.",
+        });
+      }
+
+      return res.json({
+        conversation: result.conversation,
+        messages: result.messages,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to load conversation:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Could not load conversation.",
+        details: error.message,
+        code: error.code || null,
+      });
+    }
+  }
+);
+
+app.delete(
+  "/api/conversations/:conversationId",
+  async (req, res) => {
+    const conversationId =
+      cleanConversationId(
+        req.params.conversationId
+      );
+
+    const userId = cleanUserId(
+      req.query.userId
+    );
+
+    if (!conversationId) {
+      return res.status(400).json({
+        error: "Conversation ID is required.",
+      });
+    }
+
+    try {
+      const conversation =
+        await getConversationForUser(
+          conversationId,
+          userId
+        );
+
+      if (!conversation) {
+        return res.status(404).json({
+          error: "Conversation not found.",
+        });
+      }
+
+      const { error } = await supabase
+        .from("conversations")
+        .delete()
+        .eq("id", conversationId)
+        .eq("user_id", userId);
+
+      if (error) {
+        throw error;
+      }
+
+      return res.json({
+        success: true,
+        conversationId,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to delete conversation:",
+        error
+      );
+
+      return res.status(500).json({
+        error: "Could not delete conversation.",
+        details: error.message,
+        code: error.code || null,
+      });
+    }
+  }
+);
 
 app.post("/api/chat", async (req, res) => {
   const {
@@ -342,9 +721,13 @@ app.post("/api/chat", async (req, res) => {
     history = [],
     memory = [],
     userId = "default-user",
+    conversationId = null,
   } = req.body;
 
-  if (typeof message !== "string" || !message.trim()) {
+  if (
+    typeof message !== "string" ||
+    !message.trim()
+  ) {
     return res.status(400).json({
       error: "Message is required.",
     });
@@ -356,30 +739,77 @@ app.post("/api/chat", async (req, res) => {
     });
   }
 
-  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
+  if (
+    !SUPABASE_URL ||
+    !SUPABASE_SECRET_KEY
+  ) {
     return res.status(500).json({
       error: "Supabase is not configured.",
     });
   }
 
-  const cleanUserId =
-    typeof userId === "string" && userId.trim()
-      ? userId.trim()
-      : "default-user";
-
+  const cleanUserId = cleanUserIdValue(userId);
   const cleanMessage = message.trim();
+
+  let cleanConversationId =
+    cleanConversationIdValue(conversationId);
 
   console.log("");
   console.log("========================================");
   console.log("           ORBIT AI REQUEST");
   console.log("========================================");
   console.log("User ID:", cleanUserId);
+  console.log(
+    "Conversation ID:",
+    cleanConversationId || "New conversation"
+  );
   console.log("Message:", cleanMessage);
+
+  let conversation = null;
+
+  try {
+    if (cleanConversationId) {
+      conversation =
+        await getConversationForUser(
+          cleanConversationId,
+          cleanUserId
+        );
+
+      if (!conversation) {
+        return res.status(404).json({
+          error: "Conversation not found.",
+        });
+      }
+    } else {
+      conversation =
+        await createConversation(
+          cleanUserId,
+          createConversationTitle(
+            cleanMessage
+          )
+        );
+
+      cleanConversationId =
+        conversation.id;
+    }
+  } catch (error) {
+    console.error(
+      "Conversation initialization failed:",
+      error
+    );
+
+    return res.status(500).json({
+      error: "Could not initialize conversation.",
+      details: error.message,
+      code: error.code || null,
+    });
+  }
 
   let storedMemory = [];
 
   try {
-    storedMemory = await getUserMemory(cleanUserId);
+    storedMemory =
+      await getUserMemory(cleanUserId);
   } catch (error) {
     console.error(
       "Failed to load Supabase memory:",
@@ -396,7 +826,8 @@ app.post("/api/chat", async (req, res) => {
       .filter((item) => {
         return (
           item &&
-          (item.role === "user" || item.role === "assistant") &&
+          (item.role === "user" ||
+            item.role === "assistant") &&
           typeof item.content === "string" &&
           item.content.trim().length > 0
         );
@@ -405,7 +836,7 @@ app.post("/api/chat", async (req, res) => {
         role: item.role,
         content: item.content.trim(),
       }))
-      .slice(-30);
+      .slice(-HISTORY_LIMIT);
   }
 
   let frontendMemory = [];
@@ -414,13 +845,15 @@ app.post("/api/chat", async (req, res) => {
     frontendMemory = memory
       .filter(
         (item) =>
-          typeof item === "string" && item.trim().length > 0
+          typeof item === "string" &&
+          item.trim().length > 0
       )
       .map((item) => item.trim())
-      .slice(-50);
+      .slice(-MEMORY_LIMIT);
   }
 
-  const detectedMemories = detectMemory(cleanMessage);
+  const detectedMemories =
+    detectMemory(cleanMessage);
 
   if (detectedMemories.length > 0) {
     console.log("");
@@ -436,7 +869,9 @@ app.post("/api/chat", async (req, res) => {
         detectedMemories
       );
 
-      console.log("Memory saved to Supabase.");
+      console.log(
+        "Memory saved to Supabase."
+      );
     } catch (error) {
       console.error(
         "Failed to save detected memory:",
@@ -445,7 +880,8 @@ app.post("/api/chat", async (req, res) => {
     }
 
     try {
-      storedMemory = await getUserMemory(cleanUserId);
+      storedMemory =
+        await getUserMemory(cleanUserId);
     } catch (error) {
       console.error(
         "Failed to reload memory:",
@@ -469,7 +905,7 @@ app.post("/api/chat", async (req, res) => {
         )
         .map((item) => item.trim())
     ),
-  ].slice(-50);
+  ].slice(-MEMORY_LIMIT);
 
   let memoryContext = "";
 
@@ -481,7 +917,10 @@ The following information was previously provided
 by the user and may be useful when answering them:
 
 ${validMemory
-        .map((item, index) => `${index + 1}. ${item}`)
+        .map(
+          (item, index) =>
+            `${index + 1}. ${item}`
+        )
         .join("\n")}
 
 IMPORTANT MEMORY RULES:
@@ -580,26 +1019,54 @@ ${memoryContext}
       );
     }
 
+    const cleanReply = reply.trim();
+
+    try {
+      await saveConversationMessage(
+        cleanConversationId,
+        "user",
+        cleanMessage
+      );
+
+      await saveConversationMessage(
+        cleanConversationId,
+        "assistant",
+        cleanReply
+      );
+    } catch (error) {
+      console.error(
+        "Failed to save conversation messages:",
+        error.message
+      );
+    }
+
     console.log("");
     console.log("ORBIT RESPONSE");
     console.log("----------------------------------------");
-    console.log(reply.trim());
+    console.log(cleanReply);
     console.log("========================================");
     console.log("");
 
     return res.json({
-      reply: reply.trim(),
+      reply: cleanReply,
       memory: validMemory,
       detectedMemory: detectedMemories,
+      conversationId: cleanConversationId,
+      conversation,
     });
   } catch (error) {
     console.error("");
     console.error("GROQ REQUEST FAILED");
     console.error("----------------------------------------");
-    console.error(error?.message || error);
+    console.error(
+      error?.message || error
+    );
 
     if (error?.status) {
-      console.error("Status:", error.status);
+      console.error(
+        "Status:",
+        error.status
+      );
     }
 
     if (error?.error) {
@@ -613,10 +1080,33 @@ ${memoryContext}
     console.error("");
 
     return res.status(500).json({
-      error: "Orbit AI could not generate a response.",
+      error:
+        "Orbit AI could not generate a response.",
     });
   }
 });
+
+function cleanUserIdValue(userId) {
+  if (typeof userId !== "string") {
+    return "default-user";
+  }
+
+  const value = userId.trim();
+
+  return value || "default-user";
+}
+
+function cleanConversationIdValue(
+  conversationId
+) {
+  if (
+    typeof conversationId !== "string"
+  ) {
+    return "";
+  }
+
+  return conversationId.trim();
+}
 
 app.use((req, res) => {
   res.status(404).json({
@@ -624,28 +1114,50 @@ app.use((req, res) => {
   });
 });
 
-app.use((error, req, res, next) => {
-  console.error("Server error:", error);
+app.use(
+  (error, req, res, next) => {
+    console.error(
+      "Server error:",
+      error
+    );
 
-  res.status(500).json({
-    error: "Orbit AI server encountered an error.",
-  });
-});
+    res.status(500).json({
+      error:
+        "Orbit AI server encountered an error.",
+    });
+  }
+);
 
 app.listen(PORT, () => {
   console.log("");
   console.log("========================================");
   console.log("       ORBIT AI BACKEND ONLINE");
   console.log("========================================");
-  console.log(`Server running on port ${PORT}`);
+  console.log(
+    `Server running on port ${PORT}`
+  );
   console.log("AI: Groq");
-  console.log("Model: openai/gpt-oss-120b");
-  console.log("Memory: Supabase PostgreSQL");
-  console.log("Automatic Memory: Enabled");
-  console.log("Conversation: Temporary Session History");
-  console.log("History Limit: 30 messages");
-  console.log("Memory Limit: 50 items");
-  console.log("Database: Supabase");
+  console.log(
+    "Model: openai/gpt-oss-120b"
+  );
+  console.log(
+    "Memory: Supabase PostgreSQL"
+  );
+  console.log(
+    "Automatic Memory: Enabled"
+  );
+  console.log(
+    "Conversation: Persistent Supabase History"
+  );
+  console.log(
+    "History Limit: 30 messages"
+  );
+  console.log(
+    "Memory Limit: 50 items"
+  );
+  console.log(
+    "Database: Supabase"
+  );
   console.log("========================================");
   console.log("");
 });
