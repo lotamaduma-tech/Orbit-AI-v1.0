@@ -1,180 +1,83 @@
-/* Orbit AI — dashboard, chat UI and recent chats */
+/* Orbit AI — chat UI, quick prompts and recent chats */
 
 "use strict";
 
-const timeEl = document.getElementById("time");
-const dateEl = document.getElementById("date");
-const greetingEl = document.getElementById("greeting");
+/* =========================================================
+   STORAGE
+   ========================================================= */
 
-const dashboard = document.querySelector(".app-container");
-const cards = document.querySelectorAll(".card");
-const statusItems = document.querySelectorAll(".status-item");
-const powerButton = document.querySelector(".power-btn");
+const ORBIT_STORAGE_VERSION = "orbit_v2";
 
-const chatWindow = document.querySelector(".chat-window");
-const commandInput = document.querySelector("#command-input");
-const commandForm = commandInput
-    ? commandInput.closest("form")
-    : null;
+const ORBIT_STORAGE_KEYS = {
+    recentChats: `${ORBIT_STORAGE_VERSION}_recent_chats`,
+    theme: `${ORBIT_STORAGE_VERSION}_theme`,
+    settings: `${ORBIT_STORAGE_VERSION}_settings`,
+    chat: `${ORBIT_STORAGE_VERSION}_chat`
+};
 
-const newChatButton = document.querySelector(".new-chat-btn");
-const historyList = document.querySelector(".chat-history-list");
+/*
+ * Remove the old Orbit storage once.
+ * The new storage keys are intentionally different.
+ */
+function resetOldOrbitStorage() {
 
+    const oldKeys = [
+        "orbitTheme",
+        "orbit_recent_chats",
+        "orbit_chat_history",
+        "orbit_chat",
+        "orbit_messages",
+        "orbit_settings",
+        "orbitSettings",
+        "orbit-theme",
+        "orbit-theme-preference"
+    ];
 
-function updateClock() {
-
-    const now = new Date();
-    const hours = now.getHours();
-
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-
-    const period = hours >= 12 ? "PM" : "AM";
-    const displayHour = hours % 12 || 12;
-
-    if (timeEl) {
-        timeEl.textContent =
-            `${displayHour}:${minutes}:${seconds} ${period}`;
-    }
-
-    if (dateEl) {
-        dateEl.textContent =
-            now.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-            });
-    }
-
-    if (greetingEl) {
-
-        let greeting = "Good Evening";
-
-        if (hours >= 5 && hours < 12) {
-            greeting = "Good Morning";
-        } else if (hours >= 12 && hours < 17) {
-            greeting = "Good Afternoon";
+    oldKeys.forEach(key => {
+        try {
+            localStorage.removeItem(key);
+        } catch {
+            /* Ignore storage errors */
         }
-
-        greetingEl.textContent =
-            `${greeting}, Kingsley`;
-    }
-}
-
-
-updateClock();
-
-setInterval(updateClock, 1000);
-
-
-function setupCardInteractions() {
-
-    cards.forEach(card => {
-
-        card.addEventListener("mouseenter", () => {
-
-            card.style.borderColor =
-                "var(--primary-light)";
-
-            card.style.boxShadow =
-                "var(--shadow), 0 0 0 3px var(--primary-soft)";
-        });
-
-        card.addEventListener("mouseleave", () => {
-
-            card.style.borderColor = "";
-            card.style.boxShadow = "";
-        });
     });
 }
 
-
-function setupStatusItems() {
-
-    statusItems.forEach(item => {
-
-        item.addEventListener("mouseenter", () => {
-
-            item.style.background =
-                "var(--primary-soft)";
-
-            item.style.borderColor =
-                "var(--border)";
-        });
-
-        item.addEventListener("mouseleave", () => {
-
-            item.style.background = "";
-            item.style.borderColor = "";
-        });
-    });
-}
+resetOldOrbitStorage();
 
 
-function initializeOnlineStatus() {
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
 
-    document.querySelectorAll(".online").forEach(element => {
+const chatWindow =
+    document.querySelector(".chat-window");
 
-        element.style.color = "var(--success)";
-        element.style.textShadow = "none";
-    });
-}
+const commandInput =
+    document.querySelector("#command-input");
 
+const commandForm =
+    commandInput
+        ? commandInput.closest("form")
+        : null;
 
-function initializeDashboardAnimation() {
+const historyList =
+    document.querySelector(".chat-history-list");
 
-    if (!dashboard) {
-        return;
-    }
+const newChatButton =
+    document.querySelector(".new-chat-btn");
 
-    dashboard.classList.add("orbit-dashboard-ready");
-}
+const quickPromptContainer =
+    document.querySelector(
+        ".quick-prompts, .quick-prompt-container, .quick-replies"
+    );
 
-
-function setupPowerButton() {
-
-    if (!powerButton) {
-        return;
-    }
-
-    powerButton.addEventListener("click", () => {
-
-        powerButton.classList.toggle("power-active");
-    });
-}
+const quickPrompts =
+    document.querySelectorAll(".quick-prompt");
 
 
-function setupInteractiveElements() {
-
-    document.querySelectorAll("button").forEach(button => {
-
-        if (button.dataset.uiFeedbackReady === "true") {
-            return;
-        }
-
-        button.dataset.uiFeedbackReady = "true";
-
-        button.addEventListener("mousedown", () => {
-            button.style.transform = "scale(.96)";
-        });
-
-        button.addEventListener("mouseup", () => {
-            button.style.transform = "";
-        });
-
-        button.addEventListener("mouseleave", () => {
-            button.style.transform = "";
-        });
-
-        button.addEventListener("touchend", () => {
-            button.style.transform = "";
-        }, {
-            passive: true
-        });
-    });
-}
-
+/* =========================================================
+   COMMAND INPUT
+   ========================================================= */
 
 function resizeCommandInput() {
 
@@ -200,6 +103,10 @@ function resizeCommandInput() {
             : "hidden";
 }
 
+
+/* =========================================================
+   CHAT SCROLL
+   ========================================================= */
 
 function scrollChatToBottom(smooth = true) {
 
@@ -233,6 +140,148 @@ function scrollChatToTop() {
 }
 
 
+function isChatAtBottom() {
+
+    if (!chatWindow) {
+        return true;
+    }
+
+    const distanceFromBottom =
+        chatWindow.scrollHeight -
+        chatWindow.scrollTop -
+        chatWindow.clientHeight;
+
+    return distanceFromBottom <= 60;
+}
+
+
+/* =========================================================
+   QUICK PROMPTS
+   ========================================================= */
+
+function showQuickPrompts() {
+
+    if (!quickPromptContainer) {
+        return;
+    }
+
+    quickPromptContainer.classList.remove(
+        "quick-prompts-hidden"
+    );
+
+    quickPromptContainer.removeAttribute(
+        "aria-hidden"
+    );
+}
+
+
+function hideQuickPrompts() {
+
+    if (!quickPromptContainer) {
+        return;
+    }
+
+    quickPromptContainer.classList.add(
+        "quick-prompts-hidden"
+    );
+
+    quickPromptContainer.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+}
+
+
+function setupQuickPrompts() {
+
+    if (!quickPromptContainer) {
+        return;
+    }
+
+    quickPrompts.forEach(prompt => {
+
+        prompt.addEventListener("click", () => {
+
+            const text =
+                prompt.dataset.prompt;
+
+            if (!text || !commandInput) {
+                return;
+            }
+
+            commandInput.value = text;
+
+            resizeCommandInput();
+
+            hideQuickPrompts();
+
+            commandInput.focus();
+        });
+    });
+}
+
+
+function setupQuickPromptVisibility() {
+
+    if (!commandInput || !chatWindow) {
+        return;
+    }
+
+    commandInput.addEventListener(
+        "input",
+        () => {
+
+            if (commandInput.value.trim()) {
+                hideQuickPrompts();
+            } else if (
+                chatWindow.scrollTop <= 20 &&
+                !chatWindow.querySelector(".message")
+            ) {
+                showQuickPrompts();
+            }
+        }
+    );
+
+    chatWindow.addEventListener(
+        "scroll",
+        () => {
+
+            const distanceFromBottom =
+                chatWindow.scrollHeight -
+                chatWindow.scrollTop -
+                chatWindow.clientHeight;
+
+            /*
+             * Once the user moves away from
+             * the bottom, hide the prompts.
+             */
+            if (chatWindow.scrollTop > 20) {
+                hideQuickPrompts();
+                return;
+            }
+
+            /*
+             * Only show them again on a completely
+             * empty conversation.
+             */
+            if (
+                !chatWindow.querySelector(".message") &&
+                !commandInput.value.trim()
+            ) {
+                showQuickPrompts();
+            }
+        },
+        {
+            passive: true
+        }
+    );
+}
+
+
+/* =========================================================
+   MESSAGE TEXT
+   ========================================================= */
+
 function getMessageText(message) {
 
     if (!message) {
@@ -244,6 +293,10 @@ function getMessageText(message) {
         .trim();
 }
 
+
+/* =========================================================
+   RECENT CHAT STORAGE
+   ========================================================= */
 
 function createRecentChat(title) {
 
@@ -261,12 +314,15 @@ function createRecentChat(title) {
 
     for (const item of existingItems) {
 
-        const existingText =
-            getMessageText(
-                item.querySelector(
-                    ".chat-history-info .chat-history-title"
-                )
+        const existingTitle =
+            item.querySelector(
+                ".chat-history-info .chat-history-title"
             );
+
+        const existingText =
+            existingTitle
+                ? getMessageText(existingTitle)
+                : "";
 
         if (
             existingText.toLowerCase() ===
@@ -333,7 +389,8 @@ function createRecentChat(title) {
     time.className =
         "chat-history-time";
 
-    time.textContent = "Just now";
+    time.textContent =
+        "Just now";
 
     info.appendChild(titleElement);
     info.appendChild(time);
@@ -342,6 +399,7 @@ function createRecentChat(title) {
         document.createElement("button");
 
     deleteButton.type = "button";
+
     deleteButton.className =
         "chat-history-delete";
 
@@ -409,14 +467,14 @@ function saveRecentChats() {
     try {
 
         localStorage.setItem(
-            "orbit_recent_chats",
-            JSON.stringify(chats.slice(0, 30))
+            ORBIT_STORAGE_KEYS.recentChats,
+            JSON.stringify(
+                chats.slice(0, 30)
+            )
         );
 
-    } catch (error) {
-        console.warn(
-            "Orbit recent chats could not be saved."
-        );
+    } catch {
+        /* Ignore storage errors */
     }
 }
 
@@ -434,7 +492,7 @@ function loadRecentChats() {
         chats =
             JSON.parse(
                 localStorage.getItem(
-                    "orbit_recent_chats"
+                    ORBIT_STORAGE_KEYS.recentChats
                 )
             ) || [];
 
@@ -491,7 +549,7 @@ function loadRecentChats() {
             "chat-history-title";
 
         title.textContent =
-            chat.title;
+            chat.title || "Untitled chat";
 
         const time =
             document.createElement("span");
@@ -530,77 +588,90 @@ function loadRecentChats() {
 }
 
 
+/* =========================================================
+   RECENT CHAT ACTIONS
+   ========================================================= */
+
 function setupRecentChatActions() {
 
     if (!historyList) {
         return;
     }
 
-    historyList.addEventListener("click", event => {
+    historyList.addEventListener(
+        "click",
+        event => {
 
-        const deleteButton =
-            event.target.closest(
-                ".chat-history-delete"
-            );
+            const deleteButton =
+                event.target.closest(
+                    ".chat-history-delete"
+                );
 
-        if (deleteButton) {
+            if (deleteButton) {
 
-            event.preventDefault();
-            event.stopPropagation();
+                event.preventDefault();
+                event.stopPropagation();
+
+                const item =
+                    deleteButton.closest(
+                        ".chat-history-item"
+                    );
+
+                if (item) {
+                    item.remove();
+                    saveRecentChats();
+                }
+
+                if (
+                    !historyList.querySelector(
+                        ".chat-history-item"
+                    )
+                ) {
+
+                    const empty =
+                        document.createElement("div");
+
+                    empty.className =
+                        "chat-history-empty";
+
+                    empty.innerHTML = `
+                        <i class="fa-regular fa-comments"></i>
+                        <span>No recent chats</span>
+                        <small>Your conversations will appear here</small>
+                    `;
+
+                    historyList.appendChild(empty);
+                }
+
+                return;
+            }
 
             const item =
-                deleteButton.closest(
+                event.target.closest(
                     ".chat-history-item"
                 );
 
-            if (item) {
-                item.remove();
-                saveRecentChats();
+            if (!item) {
+                return;
             }
 
-            if (!historyList.querySelector(
-                ".chat-history-item"
-            )) {
+            historyList
+                .querySelectorAll(
+                    ".chat-history-item"
+                )
+                .forEach(chat => {
+                    chat.classList.remove("active");
+                });
 
-                const empty =
-                    document.createElement("div");
-
-                empty.className =
-                    "chat-history-empty";
-
-                empty.innerHTML =
-                    `
-                    <i class="fa-regular fa-comments"></i>
-                    <span>No recent chats</span>
-                    <small>Your conversations will appear here</small>
-                    `;
-
-                historyList.appendChild(empty);
-            }
-
-            return;
+            item.classList.add("active");
         }
-
-        const item =
-            event.target.closest(
-                ".chat-history-item"
-            );
-
-        if (!item) {
-            return;
-        }
-
-        historyList
-            .querySelectorAll(".chat-history-item")
-            .forEach(chat => {
-
-                chat.classList.remove("active");
-            });
-
-        item.classList.add("active");
-    });
+    );
 }
 
+
+/* =========================================================
+   NEW CHAT
+   ========================================================= */
 
 function startNewChat() {
 
@@ -608,42 +679,36 @@ function startNewChat() {
         return;
     }
 
-    const messages =
-        chatWindow.querySelectorAll(
-            ".message"
-        );
+    if (window.OrbitAI && typeof window.OrbitAI.clearConversation === "function") {
+        window.OrbitAI.clearConversation();
+    } else {
+        chatWindow
+            .querySelectorAll(
+                ".message, .typing-indicator"
+            )
+            .forEach(element => {
+                element.remove();
+            });
 
-    messages.forEach(message => {
-        message.remove();
-    });
-
-    const typingIndicator =
-        chatWindow.querySelector(
-            ".typing-indicator"
-        );
-
-    if (typingIndicator) {
-        typingIndicator.remove();
-    }
-
-    if (commandInput) {
-
-        commandInput.value = "";
-
-        resizeCommandInput();
-
-        commandInput.focus();
+        if (commandInput) {
+            commandInput.value = "";
+            resizeCommandInput();
+            commandInput.focus();
+        }
     }
 
     if (historyList) {
 
         historyList
-            .querySelectorAll(".chat-history-item")
+            .querySelectorAll(
+                ".chat-history-item"
+            )
             .forEach(item => {
-
                 item.classList.remove("active");
             });
     }
+
+    showQuickPrompts();
 
     scrollChatToTop();
 }
@@ -655,14 +720,21 @@ function setupNewChat() {
         return;
     }
 
-    newChatButton.addEventListener("click", event => {
+    newChatButton.addEventListener(
+        "click",
+        event => {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        startNewChat();
-    });
+            startNewChat();
+        }
+    );
 }
 
+
+/* =========================================================
+   NEW USER MESSAGE
+   ========================================================= */
 
 function detectNewUserMessage(message) {
 
@@ -681,9 +753,15 @@ function detectNewUserMessage(message) {
         return;
     }
 
+    hideQuickPrompts();
+
     createRecentChat(text);
 }
 
+
+/* =========================================================
+   CHAT OBSERVER
+   ========================================================= */
 
 function setupChatObserver() {
 
@@ -704,13 +782,21 @@ function setupChatObserver() {
                     ".message"
                 );
 
-            const currentCount =
+            const currentMessageCount =
                 messages.length;
 
-            if (currentCount > previousMessageCount) {
+            /*
+             * A new message was added.
+             */
+            if (
+                currentMessageCount >
+                previousMessageCount
+            ) {
 
                 const latestMessage =
-                    messages[messages.length - 1];
+                    messages[
+                    messages.length - 1
+                    ];
 
                 if (latestMessage) {
                     detectNewUserMessage(
@@ -721,8 +807,32 @@ function setupChatObserver() {
                 scrollChatToBottom(true);
             }
 
+            /*
+             * Keep the typing indicator visible
+             * when Orbit creates it.
+             */
+            const typingIndicator =
+                chatWindow.querySelector(
+                    ".typing-indicator"
+                );
+
+            if (typingIndicator) {
+
+                typingIndicator.removeAttribute(
+                    "hidden"
+                );
+
+                typingIndicator.style.display =
+                    "flex";
+
+                typingIndicator.setAttribute(
+                    "aria-live",
+                    "polite"
+                );
+            }
+
             previousMessageCount =
-                currentCount;
+                currentMessageCount;
         });
 
     observer.observe(chatWindow, {
@@ -732,6 +842,10 @@ function setupChatObserver() {
 }
 
 
+/* =========================================================
+   COMMAND INPUT
+   ========================================================= */
+
 function setupCommandInput() {
 
     if (!commandInput) {
@@ -740,7 +854,14 @@ function setupCommandInput() {
 
     commandInput.addEventListener(
         "input",
-        resizeCommandInput
+        () => {
+
+            resizeCommandInput();
+
+            if (commandInput.value.trim()) {
+                hideQuickPrompts();
+            }
+        }
     );
 
     commandInput.addEventListener(
@@ -748,6 +869,10 @@ function setupCommandInput() {
         () => {
 
             resizeCommandInput();
+
+            if (commandInput.value.trim()) {
+                hideQuickPrompts();
+            }
 
             scrollChatToBottom(false);
         }
@@ -764,7 +889,9 @@ function setupCommandInput() {
 
                 event.preventDefault();
 
-                if (commandForm) {
+                if (window.OrbitAI && typeof window.OrbitAI.sendMessage === "function") {
+                    window.OrbitAI.sendMessage();
+                } else if (commandForm) {
                     commandForm.requestSubmit();
                 }
             }
@@ -774,6 +901,10 @@ function setupCommandInput() {
     resizeCommandInput();
 }
 
+
+/* =========================================================
+   CHAT POSITION
+   ========================================================= */
 
 function initializeChatPosition() {
 
@@ -785,30 +916,34 @@ function initializeChatPosition() {
 }
 
 
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
 function initializeDashboard() {
-
-    updateClock();
-
-    setupCardInteractions();
-    setupStatusItems();
-    initializeOnlineStatus();
-    initializeDashboardAnimation();
-    setupPowerButton();
-    setupInteractiveElements();
 
     loadRecentChats();
 
     setupRecentChatActions();
+
     setupNewChat();
 
     setupCommandInput();
+
+    setupQuickPrompts();
+
+    setupQuickPromptVisibility();
+
     setupChatObserver();
 
     initializeChatPosition();
 }
 
 
-if (document.readyState === "loading") {
+if (
+    document.readyState ===
+    "loading"
+) {
 
     document.addEventListener(
         "DOMContentLoaded",

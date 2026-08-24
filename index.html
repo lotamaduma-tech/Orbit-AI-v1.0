@@ -1,384 +1,235 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Orbit AI — Your intelligent personal AI workspace." />
+  <title>Orbit AI</title>
 
-    <meta
-      name="description"
-      content="Orbit AI — Your intelligent personal AI workspace."
-    />
+  <!-- GOOGLE FONTS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
 
-    <title>Orbit AI</title>
+  <!-- FONT AWESOME -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
-    <!-- =========================================
-       GOOGLE FONTS
-       ========================================= -->
+  <!-- ORBIT AI STYLES -->
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/quick-replies.css" />
+  <link rel="stylesheet" href="css/typing-indicator.css" />
+  <link rel="stylesheet" href="css/recent-chats.css" />
+  <link rel="stylesheet" href="css/response-tools.css" />
+  <link rel="stylesheet" href="css/response-suggestion.css" />
+  <link rel="stylesheet" href="css/chat-history.css" />
+</head>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+<body>
+  <div class="orbit-app">
+    <!-- SIDEBAR -->
+    <aside class="orbit-sidebar" id="orbit-sidebar" aria-label="Orbit navigation">
+      <div class="sidebar-header">
+        <a href="index.html" class="brand" aria-label="Orbit AI">
+          <strong>ORBIT</strong>
+          <span>AI</span>
+        </a>
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <button type="button" class="sidebar-close" id="menu-close" aria-label="Close navigation"
+          title="Close navigation">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+      <nav class="sidebar-chat-actions" aria-label="Chat actions">
+        <button type="button" class="new-chat-btn" id="chat-history-new">
+          <i class="fa-solid fa-plus"></i>
+          <span>New chat</span>
+        </button>
 
-    <!-- =========================================
-       FONT AWESOME
-       ========================================= -->
+        <button type="button" class="search-chat-btn" id="chat-search-btn">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search chats</span>
+        </button>
+      </nav>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
-
-    <!-- =========================================
-       ORBIT AI STYLES
-       ========================================= -->
-
-    <link rel="stylesheet" href="css/reset.css" />
-
-    <link rel="stylesheet" href="css/variables.css" />
-
-    <link rel="stylesheet" href="css/animations.css" />
-
-    <link rel="stylesheet" href="css/style.css" />
-
-    <link rel="stylesheet" href="css/quick-replies.css" />
-
-    <link rel="stylesheet" href="css/response-tools.css" />
-
-    <link rel="stylesheet" href="css/response-suggestion.css">
-
-    <link rel="stylesheet" href="css/chat-history.css" />
-  </head>
-
-  <body>
-    <!-- =========================================
-       APPLICATION
-       ========================================= -->
-
-    <div class="orbit-app">
-      <!-- =======================================
-         SIDEBAR
-         ======================================= -->
-
-      <aside
-        class="orbit-sidebar"
-        id="orbit-sidebar"
-        aria-label="Orbit navigation"
-      >
-        <!-- =====================================
-           SIDEBAR HEADER
-           ===================================== -->
-
-        <div class="sidebar-header">
-          <a href="index.html" class="brand" aria-label="Orbit AI">
-            <strong>ORBIT</strong>
-            <span>AI</span>
-          </a>
-
-          <button
-            type="button"
-            class="sidebar-close"
-            id="menu-close"
-            aria-label="Close navigation"
-            title="Close navigation"
-          >
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+      <section class="chat-history-panel" id="chat-history-panel" aria-label="Chat history">
+        <div class="chat-history-header">
+          <div class="chat-history-title">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <div>
+              <span>RECENT CHATS</span>
+              <small>Your conversations</small>
+            </div>
+          </div>
         </div>
 
-        <!-- =====================================
-           CHAT ACTIONS
-           ===================================== -->
+        <div class="chat-history-list" id="chat-history-list" aria-label="Recent conversations">
+          <div class="chat-history-empty" id="chat-history-empty">
+            <i class="fa-regular fa-comments"></i>
+            <span>No conversations yet</span>
+            <small>Your recent chats will appear here.</small>
+          </div>
+        </div>
+      </section>
 
-        <nav class="sidebar-chat-actions" aria-label="Chat actions">
-          <button type="button" class="new-chat-btn" id="chat-history-new">
-            <i class="fa-solid fa-plus"></i>
+      <section class="sidebar-account" aria-label="Account">
+        <div class="sidebar-section-label">ACCOUNT</div>
 
-            <span>New chat</span>
+        <a href="settings.html" class="sidebar-account-link" data-page="settings">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </a>
+      </section>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-status">
+          <span class="status-dot"></span>
+          <span>Orbit online</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="navigation-overlay" id="navigation-overlay"></div>
+
+    <!-- MAIN APPLICATION -->
+    <main class="orbit-main">
+      <header class="orbit-topbar">
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Open navigation" aria-expanded="false"
+          aria-controls="orbit-sidebar" title="Open navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <div class="topbar-title">
+          <span>ORBIT AI</span>
+          <small>Personal AI workspace</small>
+        </div>
+
+        <div class="topbar-actions">
+          <button type="button" class="topbar-btn" id="topbar-new-chat" aria-label="New chat" title="New chat">
+            <i class="fa-solid fa-pen-to-square"></i>
           </button>
 
-          <button type="button" class="search-chat-btn" id="chat-search-btn">
-            <i class="fa-solid fa-magnifying-glass"></i>
-
-            <span>Search chats</span>
-          </button>
-        </nav>
-
-        <!-- =====================================
-           CHAT HISTORY
-           ===================================== -->
-
-        <section
-          class="chat-history-panel"
-          id="chat-history-panel"
-          aria-label="Chat history"
-        >
-          <div class="chat-history-header">
-            <div class="chat-history-title">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-
-              <div>
-                <span>RECENT CHATS</span>
-
-                <small>Your conversations</small>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="chat-history-list"
-            id="chat-history-list"
-            aria-label="Recent conversations"
-          >
-            <div class="chat-history-empty" id="chat-history-empty">
-              <i class="fa-regular fa-comments"></i>
-
-              <span>No conversations yet</span>
-
-              <small> Your recent chats will appear here. </small>
-            </div>
-          </div>
-        </section>
-
-        <!-- =====================================
-           ACCOUNT
-           ===================================== -->
-
-        <section class="sidebar-account" aria-label="Account">
-          <div class="sidebar-section-label">ACCOUNT</div>
-
-          <a
-            href="settings.html"
-            class="sidebar-account-link"
-            data-page="settings"
-          >
+          <button type="button" class="topbar-btn" data-tool="settings" aria-label="Settings" title="Settings"
+            onclick="window.location.href = 'settings.html'">
             <i class="fa-solid fa-gear"></i>
-
-            <span>Settings</span>
-          </a>
-        </section>
-
-        <!-- =====================================
-           SIDEBAR FOOTER
-           ===================================== -->
-
-        <div class="sidebar-footer">
-          <div class="sidebar-status">
-            <span class="status-dot"></span>
-
-            <span>Orbit online</span>
-          </div>
-        </div>
-      </aside>
-
-      <!-- =======================================
-         SIDEBAR OVERLAY
-         ======================================= -->
-
-      <div class="navigation-overlay" id="navigation-overlay"></div>
-
-      <!-- =======================================
-         MAIN APPLICATION
-         ======================================= -->
-
-      <main class="orbit-main">
-        <!-- =====================================
-           TOP BAR
-           ===================================== -->
-
-        <header class="orbit-topbar">
-          <!-- =================================
-             NAVIGATION TOGGLE
-             ================================= -->
-
-          <button
-            type="button"
-            class="menu-toggle"
-            id="menu-toggle"
-            aria-label="Open navigation"
-            aria-expanded="false"
-            aria-controls="orbit-sidebar"
-            title="Open navigation"
-          >
-            <i class="fa-solid fa-bars"></i>
           </button>
+        </div>
+      </header>
 
-          <!-- =================================
-             TOP BAR BRAND
-             ================================= -->
-
-          <div class="topbar-title">
-            <span>ORBIT AI</span>
-
-            <small>Personal AI workspace</small>
-          </div>
-
-          <!-- =================================
-             TOP BAR ACTIONS
-             ================================= -->
-
-          <div class="topbar-actions">
-            <button
-              type="button"
-              class="topbar-btn"
-              id="topbar-new-chat"
-              aria-label="New chat"
-              title="New chat"
-            >
-              <i class="fa-solid fa-pen-to-square"></i>
-            </button>
-
-            <button
-              type="button"
-              class="topbar-btn"
-              data-tool="settings"
-              aria-label="Settings"
-              title="Settings"
-              onclick="window.location.href = 'settings.html'"
-            >
-              <i class="fa-solid fa-gear"></i>
-            </button>
-          </div>
-        </header>
-
-        <!-- =====================================
-           CHAT WORKSPACE
-           ===================================== -->
-
-        <section class="chat-workspace" aria-label="Orbit AI chat">
-
-         
-
-          <!-- ===================================
-             AI CHAT WINDOW
-             =================================== -->
-
-          <div
-            class="chat-window"
-            id="chat-window"
-            aria-live="polite"
-            aria-label="Orbit AI conversation"
-          ></div>
-
-          <!-- ===================================
-             COMMAND AREA
-             =================================== -->
-
-          <div class="command-area">
-            <div class="command-box">
-              <!-- =================================
-                 ORBIT TOOLS BUTTON
-
-                 Kept the existing
-                 .command-attachment class
-                 so existing CSS continues
-                 working without changes.
-                 ================================= -->
-
-              <button
-                type="button"
-                class="command-attachment"
-                id="orbit-tools-btn"
-                aria-label="Orbit tools"
-                title="Orbit tools"
-                aria-haspopup="menu"
-                aria-expanded="false"
-              >
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <section class="chat-workspace" aria-label="Orbit AI chat">
+        <div class="chat-window" id="chat-window" aria-live="polite" aria-label="Orbit AI conversation">
+          <div class="chat-intro" id="chat-intro">
+            <div class="quick-prompts" aria-label="Quick prompts">
+              <button type="button" class="quick-prompt" data-prompt="Explain something to me in a simple way."
+                aria-label="Explain something">
+                <span class="quick-prompt-icon">
+                  <i class="fa-solid fa-lightbulb"></i>
+                </span>
+                <span class="quick-prompt-content">
+                  <strong>Explain something</strong>
+                  <small>Make a difficult topic simple</small>
+                </span>
+                <span class="quick-prompt-arrow" aria-hidden="true">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </span>
               </button>
 
-              <!-- =================================
-                 MESSAGE INPUT
-                 ================================= -->
+              <button type="button" class="quick-prompt" data-prompt="Help me plan my day." aria-label="Plan my day">
+                <span class="quick-prompt-icon">
+                  <i class="fa-solid fa-calendar-days"></i>
+                </span>
+                <span class="quick-prompt-content">
+                  <strong>Plan my day</strong>
+                  <small>Create a simple daily plan</small>
+                </span>
+                <span class="quick-prompt-arrow" aria-hidden="true">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </button>
 
-              <textarea
-                id="command-input"
-                rows="1"
-                placeholder="Ask Orbit anything..."
-                autocomplete="off"
-                spellcheck="true"
-                aria-label="Ask Orbit AI"
-              ></textarea>
+              <button type="button" class="quick-prompt" data-prompt="Help me write something."
+                aria-label="Help me write">
+                <span class="quick-prompt-icon">
+                  <i class="fa-solid fa-pen"></i>
+                </span>
+                <span class="quick-prompt-content">
+                  <strong>Help me write</strong>
+                  <small>Draft or improve my writing</small>
+                </span>
+                <span class="quick-prompt-arrow" aria-hidden="true">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </span>
+              </button>
 
-              <!-- =================================
-                 SEND BUTTON
-                 ================================= -->
-
-              <button
-                id="send-btn"
-                type="button"
-                class="send-btn"
-                aria-label="Send message"
-                title="Send message"
-              >
-                <i class="fa-solid fa-arrow-up"></i>
+              <button type="button" class="quick-prompt" data-prompt="Give me some ideas for a project."
+                aria-label="Brainstorm ideas">
+                <span class="quick-prompt-icon">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </span>
+                <span class="quick-prompt-content">
+                  <strong>Brainstorm ideas</strong>
+                  <small>Explore ideas with Orbit</small>
+                </span>
+                <span class="quick-prompt-arrow" aria-hidden="true">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </span>
               </button>
             </div>
-
-            <!-- =================================
-               COMMAND FOOTER
-               ================================= -->
-
-        <div class="command-footer">
-        
-            <span>
-                <i class="fa-solid fa-shield-halved"></i>
-                Orbit AI is ready
-            </span>
-        
-            <span>
-                <span id="response-time">
-                    Ready | Orbit AI can make mistakes. Check for important details.
-                </span>
-        
-                <span aria-hidden="true"> · </span>
-        
-                Enter to send
-            </span>
-        
-        </div>
           </div>
-        </section>
-      </main>
-    </div>
+        </div>
 
-    <!-- =========================================
-       JAVASCRIPT
-       ========================================= -->
+        <div class="command-area">
+          <div class="command-box">
+            <button type="button" class="command-attachment" id="orbit-tools-btn" aria-label="Orbit tools"
+              title="Orbit tools" aria-haspopup="menu" aria-expanded="false">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
 
-    <!-- Configuration -->
-    <script src="js/config.js"></script>
+            <textarea id="command-input" rows="1" placeholder="Ask Orbit anything..." autocomplete="off"
+              spellcheck="true" aria-label="Ask Orbit AI"></textarea>
 
-    <!-- Main Orbit AI engine -->
-    <script src="js/orbit.js"></script>
-    <!-- Quick replies -->
-    <script src="js/quick-replies.js"></script>
+            <button id="send-btn" type="button" class="send-btn" aria-label="Send message" title="Send message">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
 
-    <!-- Response tools -->
-    <script src="js/response-suggestions.js"></script>
+          <div class="command-footer">
+            <span>
+              <i class="fa-solid fa-shield-halved"></i>
+              Orbit AI is ready
+            </span>
 
-    <!-- Add files AI engine -->
-    <script src="js/orbit-tools.js"></script>
-    <!-- Response formatting / tools -->
-    <script src="js/response-tools.js"></script>
+            <span>
+              <span id="response-time">
+                Ready | Orbit AI can make mistakes. Check for important
+                details.
+              </span>
+              <span aria-hidden="true"> · </span>
+              Enter to send
+            </span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
-    <!-- Settings -->
-    <script src="js/settings.js"></script>
+  <!-- JAVASCRIPT -->
+  <script src="js/config.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/orbit.js"></script>
+  <script src="js/recent-chats.js"></script>
+  <script src="js/quick-replies.js"></script>
+  <script src="js/orbit-tools.js"></script>
+  <script src="js/response-tools.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/chat-history.js"></script>
+</body>
 
-    <!-- Theme -->
-
-    <!-- General page logic -->
-    <script src="js/script.js"></script>
-
-    <!-- Sidebar navigation -->
-    <script src="js/navigation.js"></script>
-
-    <!-- Chat history -->
-    <script src="js/chat-history.js"></script>
-  </body>
 </html>

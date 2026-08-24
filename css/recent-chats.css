@@ -1,0 +1,427 @@
+/* =========================================================
+   ORBIT AI — RECENT CONVERSATIONS
+   Clean, compact sidebar history UI
+   ========================================================= */
+
+/* =========================================================
+   RECENT CHATS CONTAINER
+   ========================================================= */
+
+.recent-chats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* =========================================================
+   RECENT CHATS HEADER
+   ========================================================= */
+
+.recent-chats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 4px 4px 6px;
+
+  min-height: 28px;
+}
+
+.recent-chats-title {
+  margin: 0;
+
+  font-family: "Inter", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   RECENT CHAT LIST
+   ========================================================= */
+
+.recent-chat-list {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: thin;
+
+  padding-right: 2px;
+}
+
+/* =========================================================
+   RECENT CHAT ITEM
+   ========================================================= */
+
+.recent-chat-item {
+  position: relative;
+
+  width: 100%;
+  min-height: 38px;
+
+  display: flex;
+  align-items: center;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.recent-chat-item:hover {
+  background: var(--card-hover);
+  border-color: var(--border);
+
+  transform: translateX(1px);
+}
+
+/* =========================================================
+   ACTIVE CHAT
+   ========================================================= */
+
+.recent-chat-item.active {
+  background: var(--card);
+
+  border-color: var(--border);
+}
+
+/* =========================================================
+   CHAT BUTTON
+   ========================================================= */
+
+.recent-chat-button {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 8px 9px;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+
+  color: var(--text);
+
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   CHAT ICON
+   ========================================================= */
+
+.recent-chat-icon {
+  flex: 0 0 24px;
+
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: var(--bg2);
+
+  color: var(--olive);
+
+  font-size: 0.7rem;
+
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.recent-chat-item:hover .recent-chat-icon {
+  background: var(--olive);
+  color: var(--cream);
+}
+
+/* =========================================================
+   CHAT TITLE
+   ========================================================= */
+
+.recent-chat-title {
+  flex: 1;
+  min-width: 0;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  color: var(--text);
+
+  line-height: 1.35;
+}
+
+/* =========================================================
+   CHAT META
+   ========================================================= */
+
+.recent-chat-meta {
+  flex: 0 0 auto;
+
+  font-size: 0.6rem;
+
+  color: var(--text-muted);
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CHAT ACTION BUTTON
+   ========================================================= */
+
+.recent-chat-actions {
+  display: flex;
+  align-items: center;
+
+  opacity: 0;
+
+  transition: opacity 0.18s ease;
+}
+
+.recent-chat-item:hover .recent-chat-actions,
+.recent-chat-item:focus-within .recent-chat-actions {
+  opacity: 1;
+}
+
+.recent-chat-action {
+  width: 27px;
+  height: 27px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: var(--text-muted);
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.recent-chat-action:hover {
+  background: var(--bg2);
+  color: var(--text);
+}
+
+/* =========================================================
+   DELETE CHAT
+   ========================================================= */
+
+.recent-chat-delete:hover {
+  color: var(--danger, #c94b4b);
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.recent-chats-empty {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px 10px;
+
+  text-align: center;
+
+  color: var(--text-muted);
+}
+
+.recent-chats-empty-icon {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 7px;
+
+  border-radius: 9px;
+
+  background: var(--bg2);
+
+  color: var(--text-muted);
+
+  font-size: 0.75rem;
+}
+
+.recent-chats-empty p {
+  margin: 0;
+
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   RECENT CHAT SCROLLBAR
+   ========================================================= */
+
+.recent-chat-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.recent-chat-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.recent-chat-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.recent-chat-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* =========================================================
+   SIDEBAR COMPACT SPACING
+   Keeps history from consuming too much space.
+   ========================================================= */
+
+.orbit-sidebar .recent-chats {
+  margin-top: 4px;
+}
+
+.orbit-sidebar .recent-chat-list {
+  max-height: 360px;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .recent-chats {
+    gap: 6px;
+  }
+
+  .recent-chats-header {
+    padding: 3px 4px 5px;
+  }
+
+  .recent-chats-title {
+    font-size: 0.64rem;
+  }
+
+  .recent-chat-list {
+    gap: 2px;
+    max-height: 280px;
+  }
+
+  .recent-chat-item {
+    min-height: 36px;
+    border-radius: 8px;
+  }
+
+  .recent-chat-button {
+    gap: 8px;
+    padding: 7px 8px;
+
+    font-size: 0.72rem;
+  }
+
+  .recent-chat-icon {
+    width: 22px;
+    height: 22px;
+
+    flex-basis: 22px;
+
+    border-radius: 6px;
+    font-size: 0.65rem;
+  }
+
+  .recent-chat-meta {
+    display: none;
+  }
+
+  .recent-chat-action {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL SCREENS
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .recent-chat-list {
+    max-height: 240px;
+  }
+
+  .recent-chat-button {
+    padding: 6px 7px;
+  }
+
+  .recent-chat-title {
+    font-size: 0.7rem;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .recent-chat-item,
+  .recent-chat-icon,
+  .recent-chat-actions,
+  .recent-chat-action {
+    transition: none;
+  }
+}
