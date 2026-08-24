@@ -1,20 +1,3 @@
-/* 
-   ORBIT AI — MAIN STYLE
-   PART 1 — GLOBAL + APPLICATION FOUNDATION
-
-   Design System:
-   SOFT SLATE + INDIGO
-
-   Core layout:
-   .orbit-app
-   .orbit-main
-   .chat-workspace
-    */
-
-/* ====
-   1. GLOBAL RESET
-  ==== */
-
 *,
 *::before,
 *::after {
@@ -23,46 +6,20 @@
   padding: 0;
 }
 
-/* =========================================================
-   2. ROOT DOCUMENT
-   ========================================================= */
-
 html {
-  width: 100%;
-  min-height: 100%;
-
   font-size: 16px;
-
   scroll-behavior: smooth;
 }
 
 body {
-  width: 100%;
   min-height: 100vh;
-
-  margin: 0;
-
   font-family: var(--font-body);
   font-size: var(--font-size-md);
-  font-weight: var(--font-weight-normal);
   line-height: 1.5;
-
   color: var(--text);
   background: var(--bg);
-
   overflow-x: hidden;
-
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  transition:
-    background-color var(--transition-normal),
-    color var(--transition-normal);
 }
-
-/* =========================================================
-   3. ELEMENT NORMALIZATION
-   ========================================================= */
 
 button,
 input,
@@ -73,20 +30,9 @@ select {
 
 button {
   border: 0;
-
-  background: transparent;
-
+  background: none;
   color: inherit;
-
   cursor: pointer;
-}
-
-button,
-a,
-input,
-textarea,
-select {
-  -webkit-tap-highlight-color: transparent;
 }
 
 a {
@@ -109,160 +55,153 @@ ol {
   list-style: none;
 }
 
-/* =========================================================
-   4. SELECTION
-   ========================================================= */
-
-::selection {
-  color: #ffffff;
-  background: var(--primary);
-}
-
-/* =========================================================
-   5. FOCUS STATES
-   ========================================================= */
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* =========================================================
-   6. DISABLED ELEMENTS
-   ========================================================= */
-
-button:disabled,
-input:disabled,
-textarea:disabled,
-select:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-/* =========================================================
-   7. GENERIC HIDDEN STATE
-   ========================================================= */
-
 [hidden] {
   display: none !important;
 }
 
+::selection {
+  color: #fff;
+  background: var(--primary);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* Orbit AI — App, navigation and chat layout */
+
+.orbit-app {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.orbit-main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  height: 100dvh;
+  min-height: 0;
+  margin-left: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.orbit-app.nav-open .orbit-main {
+  width: 100%;
+  margin-left: 0;
+}
+
+.orbit-main .chat-workspace {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.orbit-main .chat-window,
+.orbit-main .command-area {
+  width: 100%;
+  min-width: 0;
+}
+
 /* =========================================================
-   8. ORBIT APPLICATION
+   ORBIT AI — APP, NAVIGATION & CHAT LAYOUT
+   Uses the exact class names from index.html
+   ========================================================= */
+
+
+/* =========================================================
+   APPLICATION
    ========================================================= */
 
 .orbit-app {
   position: relative;
-
   width: 100%;
-  min-width: 0;
   min-height: 100vh;
-
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
-
-  overflow: visible;
-
-  transition:
-    background-color var(--transition-normal),
-    color var(--transition-normal);
+  overflow: hidden;
 }
 
+
 /* =========================================================
-   9. ORBIT MAIN
+   MAIN APPLICATION
    ========================================================= */
 
 .orbit-main {
   position: relative;
-
+  z-index: 1;
   display: flex;
   flex-direction: column;
-
-  width: calc(100% - var(--navigation-width));
-
+  width: 100%;
   min-width: 0;
-  min-height: 100vh;
-
-  margin-left: var(--navigation-width);
-
-  background: var(--bg);
-
-  transition:
-    margin-left var(--transition-normal),
-    width var(--transition-normal),
-    background-color var(--transition-normal);
+  height: 100dvh;
+  min-height: 0;
+  margin-left: 0;
+  overflow: hidden;
 }
 
+
 /* =========================================================
-   10. CHAT WORKSPACE
+   CHAT WORKSPACE
    ========================================================= */
 
 .chat-workspace {
   position: relative;
+  z-index: 1;
 
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
 
   width: 100%;
-
-  flex: 1 1 auto;
-
   min-width: 0;
   min-height: 0;
-
-  background: var(--bg);
 
   overflow: hidden;
 }
 
-/* =========================================================
-   11. WIDTH SAFETY
-   ========================================================= */
-
-.orbit-main,
-.orbit-topbar,
-.chat-workspace,
-.chat-window,
-.command-area {
-  min-width: 0;
-  max-width: 100%;
-}
 
 /* =========================================================
-   12. STATUS DOT
+   STATUS DOT
    ========================================================= */
 
 .status-dot {
-  display: inline-block;
-
   width: 7px;
   height: 7px;
-
   flex: 0 0 7px;
 
   border-radius: var(--radius-full);
 
   background: var(--success);
-
   box-shadow: 0 0 0 3px var(--success-soft);
 }
 
+
 /* =========================================================
-   13. SCROLLBAR
+   SCROLLBAR
    ========================================================= */
 
-html {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -271,7 +210,6 @@ html {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-
   border-radius: var(--radius-full);
 }
 
@@ -279,98 +217,23 @@ html {
   background: var(--muted);
 }
 
-/* =========================================================
-   14. COMMON TRANSITIONS
-   ========================================================= */
-
-.orbit-sidebar,
-.navigation-overlay,
-.orbit-topbar,
-.topbar-btn,
-.menu-toggle,
-.chat-workspace,
-.quick-prompt,
-.chat-message,
-.command-area,
-.command-box,
-.command-attachment,
-#command-input,
-.send-btn,
-.chat-history-panel,
-.chat-history-list,
-.chat-history-empty,
-.sidebar-account-link,
-.new-chat-btn,
-.search-chat-btn {
-  transition:
-    background-color var(--transition-normal),
-    border-color var(--transition-normal),
-    color var(--transition-normal),
-    box-shadow var(--transition-normal),
-    opacity var(--transition-normal),
-    transform var(--transition-fast);
-}
 
 /* =========================================================
-   15. REDUCED MOTION
-   ========================================================= */
-
-html[data-reduced-motion="true"] * {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-
-  transition-duration: 0.01ms !important;
-
-  scroll-behavior: auto !important;
-}
-
-/* =========================================================
-   16. ANIMATIONS DISABLED
-   ========================================================= */
-
-html[data-animations="false"] * {
-  animation: none !important;
-
-  transition: none !important;
-
-  scroll-behavior: auto !important;
-}
-
-/* =========================================================
-   END OF PART 1
-   ========================================================= */
-
-/* =========================================================
-   ORBIT AI — PART 2 + PART 3
-   SIDEBAR + NAVIGATION + TOPBAR SYSTEM
-   =========================================================
-
-   Navigation behavior:
-   ========================================================= */
-
-/* =========================================================
-   PART 2
-   SIDEBAR + NAVIGATION
-   ========================================================= */
-
-/* =========================================================
-   17. SIDEBAR FOUNDATION
+   SIDEBAR
    ========================================================= */
 
 .orbit-sidebar {
   position: fixed;
-  top: 0;
-  left: 0;
-
-  width: var(--navigation-width);
-  min-width: var(--navigation-width);
-  max-width: var(--navigation-width);
-  height: 100vh;
+  inset: 0 auto 0 0;
 
   z-index: var(--z-navigation);
 
   display: flex;
   flex-direction: column;
+
+  width: var(--navigation-width);
+  height: 100vh;
+  height: 100dvh;
 
   padding: var(--spacing-md);
 
@@ -378,42 +241,36 @@ html[data-animations="false"] * {
   color: var(--text);
 
   border-right: 1px solid var(--border);
+
   box-shadow: var(--shadow-navigation);
 
   overflow: hidden;
 
-  /* CLOSED BY DEFAULT */
   transform: translateX(-100%);
-  visibility: hidden;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 
   transition:
-    transform var(--transition-normal),
-    opacity var(--transition-normal),
-    visibility var(--transition-normal),
-    background-color var(--transition-normal),
-    border-color var(--transition-normal),
-    box-shadow var(--transition-normal);
+    transform 0.25s ease,
+    opacity 0.2s ease,
+    visibility 0.25s ease;
 }
 
-/* =========================================================
-   18. SIDEBAR OPEN STATE
-   ========================================================= */
+
+/* Sidebar open */
 
 .orbit-app.nav-open .orbit-sidebar,
 .orbit-sidebar.active {
   transform: translateX(0);
-
-  visibility: visible;
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
-
-  box-shadow: var(--shadow-navigation);
 }
 
+
 /* =========================================================
-   19. SIDEBAR HEADER
+   SIDEBAR HEADER
    ========================================================= */
 
 .sidebar-header {
@@ -421,59 +278,41 @@ html[data-animations="false"] * {
   align-items: center;
   justify-content: space-between;
 
-  width: 100%;
-  min-width: 0;
-  min-height: 42px;
+  min-height: 40px;
 
   margin-bottom: var(--spacing-md);
 }
 
+
 /* =========================================================
-   20. BRAND
+   BRAND
    ========================================================= */
 
 .brand {
   display: inline-flex;
   align-items: baseline;
-
   gap: var(--spacing-xs);
-
-  min-width: 0;
 
   color: var(--text);
 
   font-family: var(--font-secondary);
-  line-height: 1;
-
-  user-select: none;
-
-  transition:
-    color var(--transition-fast),
-    opacity var(--transition-fast);
-}
-
-.brand:hover {
-  color: var(--primary);
+  text-decoration: none;
 }
 
 .brand strong {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-
-  letter-spacing: -0.04em;
 }
 
 .brand span {
   color: var(--primary);
-
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
-
-  letter-spacing: 0.02em;
 }
 
+
 /* =========================================================
-   21. SIDEBAR CLOSE BUTTON
+   SIDEBAR CLOSE BUTTON
    ========================================================= */
 
 .sidebar-close {
@@ -483,7 +322,6 @@ html[data-animations="false"] * {
 
   width: 34px;
   height: 34px;
-  flex: 0 0 34px;
 
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -491,255 +329,141 @@ html[data-animations="false"] * {
   background: var(--surface-soft);
   color: var(--text-secondary);
 
-  /* HIDDEN BY DEFAULT */
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 
   transform: scale(0.9);
 
-  cursor: pointer;
-
   transition:
-    opacity var(--transition-fast),
-    visibility var(--transition-fast),
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast);
+    opacity 0.2s ease,
+    visibility 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-/* =========================================================
-   22. SIDEBAR CLOSE — OPEN STATE
-   ========================================================= */
+
+/* Show close button when sidebar is open */
 
 .orbit-app.nav-open .sidebar-close,
 .orbit-sidebar.active .sidebar-close {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-
   transform: scale(1);
 }
 
-/* =========================================================
-   23. SIDEBAR CLOSE HOVER
-   ========================================================= */
-
 .sidebar-close:hover {
-  background: var(--surface-hover);
   color: var(--danger);
-  border-color: var(--border);
+  background: var(--surface-hover);
 }
 
-.sidebar-close:active {
-  transform: scale(0.92);
-}
-
-.sidebar-close i {
-  pointer-events: none;
-  font-size: 14px;
-}
 
 /* =========================================================
-   24. SIDEBAR CHAT ACTIONS
+   SIDEBAR CHAT ACTIONS
    ========================================================= */
 
 .sidebar-chat-actions {
   display: flex;
   flex-direction: column;
 
-  width: 100%;
-
   gap: 6px;
 
   margin-bottom: var(--spacing-md);
 }
 
-/* =========================================================
-   25. NEW CHAT BUTTON
-   ========================================================= */
-
-.new-chat-btn {
-  display: flex;
-  align-items: center;
-
-  width: 100%;
-  min-width: 0;
-  min-height: 42px;
-
-  gap: 10px;
-
-  padding: 0 12px;
-
-  border: 1px solid var(--primary);
-  border-radius: var(--radius-md);
-
-  background: var(--primary);
-  color: #ffffff;
-
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-
-  text-align: left;
-
-  box-shadow: var(--shadow-xs);
-
-  cursor: pointer;
-
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.new-chat-btn:hover {
-  background: var(--primary-dark);
-  border-color: var(--primary-dark);
-
-  box-shadow: var(--shadow-sm);
-}
-
-.new-chat-btn:active {
-  transform: translateY(1px);
-}
-
-.new-chat-btn i {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 18px;
-  flex: 0 0 18px;
-
-  font-size: 13px;
-}
-
-.new-chat-btn span {
-  min-width: 0;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* =========================================================
-   26. SEARCH CHAT BUTTON
-   ========================================================= */
-
+.new-chat-btn,
 .search-chat-btn {
   display: flex;
   align-items: center;
 
   width: 100%;
-  min-width: 0;
   min-height: 40px;
 
-  gap: 10px;
+  gap: 9px;
 
-  padding: 0 12px;
+  padding: 0 11px;
 
-  border: 1px solid transparent;
   border-radius: var(--radius-md);
 
-  background: transparent;
-  color: var(--text-secondary);
-
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-
   text-align: left;
 
-  cursor: pointer;
-
   transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast);
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.new-chat-btn {
+  background: var(--primary);
+  color: #fff;
+
+  font-weight: var(--font-weight-semibold);
+}
+
+.new-chat-btn:hover {
+  background: var(--primary-dark);
+}
+
+.search-chat-btn {
+  color: var(--text-secondary);
 }
 
 .search-chat-btn:hover {
   background: var(--surface-hover);
-  border-color: var(--border-light);
-
   color: var(--text);
 }
 
-.search-chat-btn i {
+.new-chat-btn:active,
+.search-chat-btn:active {
+  transform: scale(0.98);
+}
+
+.new-chat-btn i,
+.search-chat-btn i,
+.sidebar-account-link i {
   width: 18px;
   flex: 0 0 18px;
 
   text-align: center;
-
-  color: var(--muted);
-
-  font-size: 13px;
 }
 
-.search-chat-btn span {
-  min-width: 0;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 /* =========================================================
-   27. CHAT HISTORY PANEL
+   CHAT HISTORY
    ========================================================= */
 
 .chat-history-panel {
   display: flex;
+  flex: 1;
   flex-direction: column;
 
-  flex: 1 1 auto;
-
-  width: 100%;
-  min-width: 0;
   min-height: 0;
 
   overflow: hidden;
 }
 
-/* =========================================================
-   28. CHAT HISTORY HEADER
-   ========================================================= */
-
 .chat-history-header {
-  display: flex;
-  align-items: center;
-
-  width: 100%;
-
-  padding: 7px 4px;
-
-  margin-bottom: 3px;
+  padding: 6px 4px;
 }
-
-/* =========================================================
-   29. CHAT HISTORY TITLE
-   ========================================================= */
 
 .chat-history-title {
   display: flex;
   align-items: center;
 
-  gap: 8px;
-
-  min-width: 0;
+  gap: 7px;
 
   color: var(--text-secondary);
 }
 
 .chat-history-title > i {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
 
   width: 23px;
   height: 23px;
-  flex: 0 0 23px;
 
   border-radius: var(--radius-sm);
 
@@ -752,82 +476,47 @@ html[data-animations="false"] * {
 .chat-history-title > div {
   display: flex;
   flex-direction: column;
-
-  min-width: 0;
 }
 
-.chat-history-title > div > span {
-  color: var(--text-secondary);
-
+.chat-history-title span {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-
-  line-height: 1.15;
-
-  letter-spacing: 0.05em;
 }
 
-.chat-history-title > div > small {
-  margin-top: 1px;
-
+.chat-history-title small {
   color: var(--text-dim);
-
-  font-size: 9px;
-
-  line-height: 1.25;
+  font-size: 8px;
 }
+
 
 /* =========================================================
-   30. CHAT HISTORY LIST
+   CHAT HISTORY LIST
    ========================================================= */
 
 .chat-history-list {
   display: flex;
   flex-direction: column;
-
-  flex: 1 1 auto;
-
-  width: 100%;
-  min-width: 0;
-  min-height: 0;
+  flex: 1;
 
   gap: 3px;
 
-  padding-right: 2px;
+  min-height: 0;
 
-  overflow-x: hidden;
   overflow-y: auto;
 
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  padding-right: 2px;
 }
 
-.chat-history-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.chat-history-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-history-list::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: var(--radius-full);
-}
 
 /* =========================================================
-   31. CHAT HISTORY ITEM
+   HISTORY ITEM
    ========================================================= */
 
 .chat-history-item {
-  position: relative;
-
   display: flex;
   align-items: center;
 
-  width: 100%;
-  min-width: 0;
-  min-height: 38px;
+  min-height: 36px;
 
   gap: 7px;
 
@@ -836,51 +525,37 @@ html[data-animations="false"] * {
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
 
-  background: transparent;
   color: var(--text-secondary);
 
   cursor: pointer;
 
-  overflow: hidden;
-
   transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast);
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .chat-history-item:hover {
   background: var(--surface-hover);
-  border-color: var(--border-light);
-
   color: var(--text);
-}
-
-.chat-history-item:active {
-  transform: scale(0.99);
 }
 
 .chat-history-item.active {
   background: var(--primary-soft);
-
-  border-color: rgba(99, 102, 241, 0.14);
-
   color: var(--text);
+  border-color: var(--border);
 }
 
-/* =========================================================
-   32. CHAT HISTORY ICON
-   ========================================================= */
+
+/* History icon */
 
 .chat-history-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
 
-  width: 25px;
-  height: 25px;
-  flex: 0 0 25px;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
 
   border-radius: var(--radius-sm);
 
@@ -890,86 +565,55 @@ html[data-animations="false"] * {
   font-size: 10px;
 }
 
-.chat-history-item.active .chat-history-icon {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
 
-/* =========================================================
-   33. CHAT HISTORY INFO
-   ========================================================= */
+/* History information */
 
 .chat-history-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  flex: 1 1 auto;
-
+  flex: 1;
   min-width: 0;
-
-  overflow: hidden;
 }
 
 .chat-history-info .chat-history-title {
   display: block;
-
-  width: 100%;
 
   overflow: hidden;
 
   color: inherit;
 
   font-size: 11px;
-  font-weight: var(--font-weight-medium);
 
-  line-height: 1.3;
-
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .chat-history-time {
   display: block;
 
-  margin-top: 1px;
-
   color: var(--text-dim);
 
   font-size: 8px;
-
-  line-height: 1.2;
-
-  white-space: nowrap;
 }
 
-/* =========================================================
-   34. DELETE CHAT
-   ========================================================= */
+
+/* Delete */
 
 .chat-history-delete {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
 
   width: 24px;
   height: 24px;
-  flex: 0 0 24px;
 
-  border: 0;
   border-radius: var(--radius-sm);
 
-  background: transparent;
   color: var(--text-dim);
 
   opacity: 0;
 
-  cursor: pointer;
-
   transition:
-    opacity var(--transition-fast),
-    background-color var(--transition-fast),
-    color var(--transition-fast);
+    opacity 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .chat-history-item:hover .chat-history-delete,
@@ -978,16 +622,13 @@ html[data-animations="false"] * {
 }
 
 .chat-history-delete:hover {
-  background: var(--danger-soft);
   color: var(--danger);
+  background: var(--danger-soft);
 }
 
-.chat-history-delete i {
-  font-size: 9px;
-}
 
 /* =========================================================
-   35. EMPTY CHAT HISTORY
+   EMPTY HISTORY
    ========================================================= */
 
 .chat-history-empty {
@@ -996,10 +637,9 @@ html[data-animations="false"] * {
   align-items: center;
   justify-content: center;
 
-  width: 100%;
-  min-height: 90px;
+  min-height: 80px;
 
-  padding: 12px;
+  padding: 10px;
 
   border: 1px dashed var(--border);
   border-radius: var(--radius-md);
@@ -1010,163 +650,93 @@ html[data-animations="false"] * {
 }
 
 .chat-history-empty i {
-  margin-bottom: 5px;
-
+  margin-bottom: 4px;
   color: var(--text-dim);
-
-  font-size: 15px;
 }
 
 .chat-history-empty span {
   color: var(--text-secondary);
-
   font-size: 10px;
-  font-weight: var(--font-weight-medium);
 }
 
 .chat-history-empty small {
-  max-width: 160px;
-
-  margin-top: 3px;
-
+  margin-top: 2px;
   color: var(--text-dim);
-
   font-size: 8px;
-
-  line-height: 1.35;
 }
 
+
 /* =========================================================
-   36. ACCOUNT SECTION
+   SIDEBAR ACCOUNT
    ========================================================= */
 
-.sidebar-account {
-  width: 100%;
-
+.sidebar-account,
+.sidebar-footer {
   margin-top: 7px;
-  padding-top: 9px;
+
+  padding-top: 8px;
 
   border-top: 1px solid var(--border-light);
 }
 
-/* =========================================================
-   37. ACCOUNT LABEL
-   ========================================================= */
-
 .sidebar-section-label {
-  padding: 0 7px 5px;
+  padding: 0 6px 4px;
 
   color: var(--text-dim);
 
   font-size: 8px;
   font-weight: var(--font-weight-semibold);
 
-  line-height: 1.2;
-
   letter-spacing: 0.08em;
 }
-
-/* =========================================================
-   38. ACCOUNT LINK
-   ========================================================= */
 
 .sidebar-account-link {
   display: flex;
   align-items: center;
 
   width: 100%;
-  min-width: 0;
   min-height: 36px;
 
-  gap: 9px;
+  gap: 8px;
 
-  padding: 0 9px;
+  padding: 0 8px;
 
-  border: 1px solid transparent;
   border-radius: var(--radius-md);
 
-  background: transparent;
   color: var(--text-secondary);
 
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
 
-  cursor: pointer;
+  text-decoration: none;
 
   transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast);
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .sidebar-account-link:hover {
   background: var(--surface-hover);
-  border-color: var(--border-light);
-
   color: var(--text);
 }
-
-.sidebar-account-link i {
-  width: 18px;
-  flex: 0 0 18px;
-
-  text-align: center;
-
-  color: var(--muted);
-
-  font-size: 12px;
-}
-
-.sidebar-account-link:hover i {
-  color: var(--primary);
-}
-
-/* =========================================================
-   39. SIDEBAR FOOTER
-   ========================================================= */
-
-.sidebar-footer {
-  width: 100%;
-
-  margin-top: 7px;
-  padding-top: 9px;
-
-  border-top: 1px solid var(--border-light);
-}
-
-/* =========================================================
-   40. SIDEBAR STATUS
-   ========================================================= */
 
 .sidebar-status {
   display: flex;
   align-items: center;
 
-  width: 100%;
-  min-width: 0;
-  min-height: 30px;
-
   gap: 7px;
 
-  padding: 0 7px;
+  min-height: 28px;
+
+  padding: 0 6px;
 
   color: var(--muted);
 
-  font-size: 10px;
-  font-weight: var(--font-weight-medium);
+  font-size: 9px;
 }
 
-.sidebar-status > span:last-child {
-  min-width: 0;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 /* =========================================================
-   41. NAVIGATION OVERLAY
+   NAVIGATION OVERLAY
    ========================================================= */
 
 .navigation-overlay {
@@ -1181,31 +751,33 @@ html[data-animations="false"] * {
   visibility: hidden;
   pointer-events: none;
 
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-
   transition:
-    opacity var(--transition-normal),
-    visibility var(--transition-normal);
+    opacity 0.25s ease,
+    visibility 0.25s ease;
 }
-
-/* =========================================================
-   42. NAVIGATION OVERLAY OPEN
-   ========================================================= */
 
 .orbit-app.nav-open .navigation-overlay,
 .navigation-overlay.active {
   opacity: 1;
-
   visibility: visible;
-  pointer-events: auto;
+
+  /*
+   * Keep the overlay from blocking the
+   * chat composer and sidebar controls.
+   */
+  pointer-events: none;
 }
 
+
 /* =========================================================
-   43. MENU TOGGLE
+   MENU TOGGLE
    ========================================================= */
 
 .menu-toggle {
+  position: relative;
+
+  z-index: calc(var(--z-navigation) + 2);
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1220,133 +792,61 @@ html[data-animations="false"] * {
   background: var(--surface);
   color: var(--text-secondary);
 
-  box-shadow: var(--shadow-xs);
-
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-
-  cursor: pointer;
-
   transition:
-    opacity var(--transition-fast),
-    visibility var(--transition-fast),
-    background-color var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+    opacity 0.2s ease,
+    visibility 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
-
-/* =========================================================
-   44. MENU TOGGLE HOVER
-   ========================================================= */
 
 .menu-toggle:hover {
   background: var(--surface-hover);
-
   color: var(--text);
-
-  box-shadow: var(--shadow-sm);
 }
 
-.menu-toggle:active {
-  transform: scale(0.95);
-}
 
-.menu-toggle i {
-  font-size: 14px;
-
-  pointer-events: none;
-}
-
-/* =========================================================
-   45. HIDE MENU WHEN SIDEBAR IS OPEN
-   ========================================================= */
+/* Hide menu button while sidebar is open */
 
 .orbit-app.nav-open .menu-toggle {
   opacity: 0;
-
   visibility: hidden;
-
   pointer-events: none;
 
   transform: scale(0.9);
 }
 
-/* =========================================================
-   PART 3
-   TOPBAR / HEADER SYSTEM
-   ========================================================= */
 
 /* =========================================================
-   46. TOPBAR FOUNDATION
-   ========================================================= */
-
-/* =========================================================
-   52. TOPBAR FOUNDATION
+   TOP BAR
    ========================================================= */
 
 .orbit-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: relative;
+
+  z-index: 50;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   width: 100%;
-  min-width: 0;
-  min-height: 64px;
+  min-height: 58px;
+  flex: 0 0 58px;
 
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-md);
 
   background: var(--bg);
+
   border-bottom: 1px solid var(--border);
 
-  /*
-    Keeps the header visible while the dashboard
-    content scrolls underneath it.
-  */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  transition:
-    background-color var(--transition-normal),
-    border-color var(--transition-normal),
-    box-shadow var(--transition-normal);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* =========================================================
-   47. TOPBAR LEFT
-   ========================================================= */
-
-.topbar-left {
-  display: flex;
-  align-items: center;
-
-  min-width: 0;
-
-  gap: var(--spacing-sm);
-}
 
 /* =========================================================
-   48. TOPBAR RIGHT
-   ========================================================= */
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-
-  min-width: 0;
-
-  gap: var(--spacing-sm);
-}
-
-/* =========================================================
-   49. TOPBAR TITLE
+   TOPBAR TITLE
    ========================================================= */
 
 .topbar-title {
@@ -1354,18 +854,20 @@ html[data-animations="false"] * {
   flex-direction: column;
 
   min-width: 0;
+
+  margin-left: var(--spacing-sm);
+
+  margin-right: auto;
 }
 
 .topbar-title > span {
-  min-width: 0;
-
   overflow: hidden;
 
   color: var(--text);
 
   font-family: var(--font-secondary);
 
-  font-size: var(--font-size-md);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
 
   line-height: 1.2;
@@ -1374,11 +876,12 @@ html[data-animations="false"] * {
   white-space: nowrap;
 }
 
-/* =========================================================
-   50. TOPBAR SUBTITLE
-   ========================================================= */
 
-.topbar-subtitle {
+/* IMPORTANT:
+   Your HTML uses <small> directly inside .topbar-title
+*/
+
+.topbar-title > small {
   margin-top: 2px;
 
   color: var(--text-dim);
@@ -1386,46 +889,27 @@ html[data-animations="false"] * {
   font-size: var(--font-size-xs);
 
   line-height: 1.2;
-
-  white-space: nowrap;
 }
 
+
 /* =========================================================
-   51. TOPBAR STATUS
+   TOPBAR ACTIONS
+   Exact class from index.html
    ========================================================= */
 
-.topbar-status {
-  display: inline-flex;
+.topbar-actions {
+  display: flex;
   align-items: center;
+  justify-content: flex-end;
 
-  gap: 7px;
+  gap: var(--spacing-sm);
 
   min-width: 0;
-
-  padding: 5px 9px;
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-
-  background: var(--surface-soft);
-
-  color: var(--text-secondary);
-
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-
-  white-space: nowrap;
 }
 
-.topbar-status .status-dot {
-  width: 6px;
-  height: 6px;
-
-  flex: 0 0 6px;
-}
 
 /* =========================================================
-   52. TOPBAR BUTTON
+   TOPBAR BUTTON
    ========================================================= */
 
 .topbar-btn {
@@ -1445,614 +929,148 @@ html[data-animations="false"] * {
 
   box-shadow: var(--shadow-xs);
 
-  cursor: pointer;
-
   transition:
-    background-color var(--transition-fast),
-    color var(--transition-fast),
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .topbar-btn:hover {
   background: var(--surface-hover);
-
   color: var(--text);
 
   box-shadow: var(--shadow-sm);
 }
 
-.topbar-btn:active {
+.topbar-btn:active,
+.menu-toggle:active {
   transform: scale(0.95);
 }
 
-.topbar-btn i {
+.topbar-btn i,
+.menu-toggle i {
   font-size: 14px;
 }
 
-/* =========================================================
-   53. TOPBAR MENU BUTTON
-   ========================================================= */
-
-.topbar-left .menu-toggle {
-  flex: 0 0 38px;
-}
 
 /* =========================================================
-   54. MAIN CONTENT COMPATIBILITY
-   =========================================================
-
-   The sidebar no longer permanently occupies space.
-
-   The dashboard always uses the full available width.
-   ========================================================= */
-
-/* =========================================================
-   44. DASHBOARD NAVIGATION RESIZE
-   ========================================================= */
-
-/*
-   CLOSED STATE
-   The dashboard uses the full available width.
-*/
-
-.orbit-main {
-  width: 100%;
-  min-width: 0;
-  margin-left: 0;
-
-  transition:
-    width var(--transition-normal),
-    margin-left var(--transition-normal);
-}
-
-/*
-   OPEN STATE
-   When the sidebar opens, the dashboard makes room for it.
-*/
-
-.orbit-app.nav-open .orbit-main {
-  width: calc(100% - var(--navigation-width));
-  margin-left: var(--navigation-width);
-}
-
-/* =========================================================
-   55. DARK THEME
-   ========================================================= */
-
-html[data-theme="dark"] .orbit-sidebar {
-  box-shadow: var(--shadow-navigation);
-}
-
-html[data-theme="dark"] .orbit-topbar {
-  background: var(--bg);
-  border-bottom-color: var(--border);
-}
-
-html[data-theme="dark"] .chat-history-item.active {
-  background: rgba(99, 102, 241, 0.12);
-
-  border-color: rgba(129, 140, 248, 0.14);
-}
-
-/* =========================================================
-   56. SYSTEM DARK THEME
-   ========================================================= */
-
-@media (prefers-color-scheme: dark) {
-  html[data-theme="system"] .orbit-sidebar {
-    box-shadow: var(--shadow-navigation);
-  }
-
-  html[data-theme="system"] .orbit-topbar {
-    background: var(--bg);
-    border-bottom-color: var(--border);
-  }
-
-  html[data-theme="system"] .chat-history-item.active {
-    background: rgba(99, 102, 241, 0.12);
-
-    border-color: rgba(129, 140, 248, 0.14);
-  }
-}
-
-/* =========================================================
-   57. REDUCED MOTION
-   ========================================================= */
-
-html[data-reduced-motion="true"] .orbit-sidebar,
-html[data-reduced-motion="true"] .navigation-overlay,
-html[data-reduced-motion="true"] .menu-toggle,
-html[data-reduced-motion="true"] .sidebar-close,
-html[data-reduced-motion="true"] .orbit-topbar,
-html[data-reduced-motion="true"] .topbar-btn {
-  transition: none !important;
-}
-
-/* =========================================================
-   58. ANIMATIONS DISABLED
-   ========================================================= */
-
-html[data-animations="false"] .orbit-sidebar,
-html[data-animations="false"] .navigation-overlay,
-html[data-animations="false"] .menu-toggle,
-html[data-animations="false"] .sidebar-close,
-html[data-animations="false"] .orbit-topbar,
-html[data-animations="false"] .topbar-btn {
-  transition: none !important;
-}
-
-  /* -----------------------------------------
-     SIDEBAR HEADER
-     ----------------------------------------- */
-
-  .sidebar-header {
-    min-height: 40px;
-
-    margin-bottom: 12px;
-  }
-
-  /* -----------------------------------------
-     CHAT ACTIONS
-     ----------------------------------------- */
-
-  .sidebar-chat-actions {
-    margin-bottom: 10px;
-  }
-
-  /* -----------------------------------------
-     NEW CHAT
-     ----------------------------------------- */
-
-  .new-chat-btn {
-    min-height: 40px;
-  }
-
-  /* -----------------------------------------
-     SEARCH
-     ----------------------------------------- */
-
-  .search-chat-btn {
-    min-height: 38px;
-  }
-
-  /* -----------------------------------------
-     TOPBAR
-     ----------------------------------------- */
-
-  .orbit-topbar {
-    position: sticky;
-    top: 0;
-
-    min-height: 56px;
-    padding: 0 12px;
-  }
-
-  .topbar-left {
-    gap: 7px;
-  }
-
-  .topbar-right {
-    gap: 6px;
-  }
-
-  .topbar-btn,
-  .menu-toggle {
-    width: 36px;
-    height: 36px;
-    flex-basis: 36px;
-  }
-
-  .topbar-status {
-    padding: 4px 7px;
-    font-size: 9px;
-  }
-
-  /* -----------------------------------------
-     TOPBAR BUTTONS
-     ----------------------------------------- */
-
-  .topbar-btn,
-  .menu-toggle {
-    width: 36px;
-    height: 36px;
-
-    flex-basis: 36px;
-  }
-
-  /* -----------------------------------------
-     STATUS
-     ----------------------------------------- */
-
-  .topbar-status {
-    padding: 4px 7px;
-
-    font-size: 9px;
-  }
-}
-
-/* =========================================================
-   61. VERY SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 360px) {
-  /* -----------------------------------------
-     SIDEBAR
-     ----------------------------------------- */
-
-  .orbit-sidebar {
-    width: 90vw;
-
-    min-width: 90vw;
-
-    max-width: 90vw;
-
-    padding: 10px;
-  }
-
-  /* -----------------------------------------
-     SIDEBAR HEADER
-     ----------------------------------------- */
-
-  .sidebar-header {
-    margin-bottom: 10px;
-  }
-
-  /* -----------------------------------------
-     CHAT BUTTONS
-     ----------------------------------------- */
-
-  .new-chat-btn {
-    min-height: 38px;
-  }
-
-  .search-chat-btn {
-    min-height: 36px;
-  }
-
-  /* -----------------------------------------
-     TOPBAR
-     ----------------------------------------- */
-
-  .orbit-topbar {
-    position: sticky;
-    top: 0;
-    padding: 0 9px;
-  }
-
-  .topbar-status {
-    display: none;
-  }
-}
-
-/* =========================================================
-   END OF PART 4
-   CHAT INTRO / WELCOME SCREEN
-   ========================================================= */
-
-
-/* =========================================================
-   ORBIT AI — PART 5
-   CONVERSATION / MESSAGE SYSTEM
-
-   Exact classes:
-   .chat-window
-   .message
-   .message.user
-   .message.orbit
-   .typing-indicator
-
-   CHAT DESIGN RULES:
-   - Chat window scrolls.
-   - Intro scrolls away naturally.
-   - Quick prompts scroll away naturally.
-   - Command area remains fixed at the bottom.
-   - Chat and command area share the same max width.
-   ========================================================= */
-
-
-/* =========================================================
-   77. CHAT WINDOW
+   CHAT WINDOW
    ========================================================= */
 
 .chat-window {
-  flex: 1 1 auto;
+  position: relative;
 
-  /* IMPORTANT:
-     Allows the chat window to shrink inside .orbit-main
-     so its own scrollbar can activate. */
-  min-height: 0;
-
-  width: 100%;
-  max-width: 100%;
+  z-index: 2;
 
   display: flex;
+  flex: 1 1 auto;
+
   flex-direction: column;
+  align-items: center;
+
+  gap: 14px;
+
+  width: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
+  padding: 28px 24px 36px;
 
   overflow-x: hidden;
   overflow-y: auto;
 
-  padding: 1.25rem;
-  gap: 1rem;
-
-  box-sizing: border-box;
-
   scroll-behavior: smooth;
+
   overscroll-behavior: contain;
 
-  /* Better touch scrolling on mobile */
   -webkit-overflow-scrolling: touch;
-
-  /* Prevent flex children from forcing the container taller */
-  contain: layout paint;
 }
 
 
 /* =========================================================
-   78. CHAT WINDOW SCROLLBAR
-   ========================================================= */
-
-.chat-window::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-window::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-window::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: var(--radius-full);
-}
-
-.chat-window::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
-}
-
-
-/* =========================================================
-   79. CHAT CONTENT
+   CHAT CONTENT WIDTH
+   ChatGPT / Grok style reading width
    ========================================================= */
 
 .chat-window > * {
-  flex-shrink: 0;
-}
-
-
-/* =========================================================
-   79A. CHAT INTRO INSIDE CHAT WINDOW
-   ========================================================= */
-
-.chat-window .chat-intro {
-  /*
-   * The intro is part of the scrollable content.
-   */
-  flex: 0 0 auto;
-
-  width: 100%;
+  width: min(100%, 760px);
   max-width: 760px;
 
-  margin-left: auto;
-  margin-right: auto;
-
   box-sizing: border-box;
-
-  /*
-   * DO NOT make the intro sticky.
-   */
-  position: relative;
-
-  top: auto;
-  bottom: auto;
-
-  /*
-   * Allow the intro to occupy its natural height.
-   */
-  max-height: none;
-
-  overflow: visible;
 }
 
 
 /* =========================================================
-   79B. INTRO CHILDREN
+   USER MESSAGE
    ========================================================= */
 
-.chat-window .chat-intro,
-.chat-window .chat-intro * {
-  max-height: none;
-}
-
-
-/* =========================================================
-   79C. QUICK PROMPTS
-
-   Quick prompts remain inside the chat window.
-
-   When messages are added and the chat scrolls,
-   the quick prompts scroll away together with
-   the intro.
-   ========================================================= */
-
-.chat-window .quick-prompts {
-  flex-shrink: 0;
-}
-
-
-/* =========================================================
-   80. BASE MESSAGE
-   ========================================================= */
-
-.chat-window .message {
-  display: block;
+.chat-window .message.user {
+  align-self: center;
 
   width: fit-content;
+  max-width: min(78%, 680px);
 
-  max-width: min(78%, 760px);
+  margin-left: auto;
+  margin-right: 0;
 
-  margin-bottom: 12px;
+  padding: 10px 15px;
 
-  padding: 11px 14px;
+  background: var(--primary);
+  color: #fff;
 
-  border: 1px solid var(--border);
+  border: 1px solid var(--primary);
 
-  border-radius: var(--radius-lg);
+  border-radius: 18px;
+  border-bottom-right-radius: 5px;
 
-  background: var(--surface);
+  box-shadow: var(--shadow-xs);
 
+  font-size: var(--font-size-md);
+
+  line-height: 1.55;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   ORBIT MESSAGE
+   ========================================================= */
+
+.chat-window .message.orbit {
+  align-self: center;
+
+  width: min(100%, 760px);
+  max-width: 760px;
+
+  margin: 0;
+
+  padding: 10px 0 18px;
+
+  background: transparent;
   color: var(--text);
+
+  border: 0;
+  border-radius: 0;
+
+  box-shadow: none;
 
   font-size: var(--font-size-md);
 
   line-height: 1.65;
 
   overflow-wrap: anywhere;
-
   word-break: break-word;
-
-  flex-shrink: 0;
-
-  transition:
-    background-color var(--transition-normal),
-    border-color var(--transition-normal),
-    color var(--transition-normal),
-    box-shadow var(--transition-normal),
-    transform var(--transition-fast);
 }
 
 
-/* =========================================================
-   81. USER MESSAGE
-   ========================================================= */
-
-.chat-window .message.user {
-  align-self: flex-end;
-
-  margin-left: auto;
-  margin-right: 0;
-
-  background: var(--primary);
-
-  border-color: var(--primary);
-
-  color: #ffffff;
-
-  border-bottom-right-radius: var(--radius-sm);
-
-  box-shadow: var(--shadow-xs);
-}
-
-
-/* =========================================================
-   82. USER MESSAGE HOVER
-   ========================================================= */
-
-.chat-window .message.user:hover {
-  box-shadow: var(--shadow-sm);
-}
-
-
-/* =========================================================
-   83. ORBIT MESSAGE
-   ========================================================= */
-
-.chat-window .message.orbit {
-  align-self: flex-start;
-
-  margin-left: 0;
-  margin-right: auto;
-
-  background: var(--surface);
-
-  border-color: var(--border);
-
-  color: var(--text);
-
-  border-bottom-left-radius: var(--radius-sm);
-
-  box-shadow: var(--shadow-xs);
-}
-
-
-/* =========================================================
-   84. ORBIT MESSAGE HOVER
-   ========================================================= */
-
-.chat-window .message.orbit:hover {
-  border-color: var(--border);
-
-  box-shadow: var(--shadow-sm);
-}
-
-
-/* =========================================================
-   85. MESSAGE FIRST / LAST SPACING
-   ========================================================= */
-
-.chat-window .message:first-child {
-  margin-top: 0;
-}
-
-.chat-window .message:last-child {
-  margin-bottom: var(--spacing-md);
-}
-
-
-/* =========================================================
-   86. MESSAGE TEXT
-   ========================================================= */
-
-.chat-window .message {
-  white-space: pre-wrap;
-}
-
-
-/* =========================================================
-   87. USER MESSAGE TEXT
-   ========================================================= */
-
-.chat-window .message.user {
-  white-space: pre-wrap;
-}
-
-
-/* =========================================================
-   88. ORBIT MESSAGE TEXT
-   ========================================================= */
-
-.chat-window .message.orbit {
-  white-space: normal;
-}
-
-
-/* =========================================================
-   89. ORBIT RESPONSE LINKS
-   ========================================================= */
-
-.chat-window .message.orbit a {
-  color: var(--primary);
-
-  font-weight: var(--font-weight-medium);
-
-  text-decoration: underline;
-
-  text-decoration-thickness: 1px;
-
-  text-underline-offset: 2px;
-}
-
-.chat-window .message.orbit a:hover {
-  color: var(--primary-dark);
-}
-
-
-/* =========================================================
-   90. ORBIT RESPONSE PARAGRAPHS
-   ========================================================= */
+/* Orbit paragraphs */
 
 .chat-window .message.orbit p {
-  margin-bottom: 10px;
+  margin: 0 0 10px;
 }
 
 .chat-window .message.orbit p:last-child {
@@ -2060,199 +1078,65 @@ html[data-animations="false"] .topbar-btn {
 }
 
 
-/* =========================================================
-   91. ORBIT RESPONSE HEADINGS
-   ========================================================= */
+/* Orbit headings */
 
 .chat-window .message.orbit h1,
 .chat-window .message.orbit h2,
 .chat-window .message.orbit h3,
 .chat-window .message.orbit h4 {
-  margin-top: 14px;
-
-  margin-bottom: 7px;
+  margin-top: 18px;
+  margin-bottom: 8px;
 
   color: var(--text);
 
   font-family: var(--font-secondary);
-
-  font-weight: var(--font-weight-semibold);
-
-  line-height: 1.3;
-}
-
-.chat-window .message.orbit h1 {
-  font-size: var(--font-size-xl);
-}
-
-.chat-window .message.orbit h2 {
-  font-size: var(--font-size-lg);
-}
-
-.chat-window .message.orbit h3,
-.chat-window .message.orbit h4 {
-  font-size: var(--font-size-md);
 }
 
 
-/* =========================================================
-   92. ORBIT RESPONSE LISTS
-   ========================================================= */
+/* Orbit lists */
 
 .chat-window .message.orbit ul,
 .chat-window .message.orbit ol {
-  margin: 8px 0 10px;
+  margin: 8px 0 12px;
 
   padding-left: 22px;
 }
 
-.chat-window .message.orbit ul {
-  list-style: disc;
-}
-
-.chat-window .message.orbit ol {
-  list-style: decimal;
-}
-
-.chat-window .message.orbit li {
-  margin-bottom: 5px;
-}
-
-.chat-window .message.orbit li:last-child {
-  margin-bottom: 0;
-}
-
 
 /* =========================================================
-   93. INLINE CODE
-   ========================================================= */
-
-.chat-window .message.orbit code {
-  padding: 2px 5px;
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-xs);
-
-  background: var(--surface-soft);
-
-  color: var(--primary-dark);
-
-  font-family:
-    "SFMono-Regular",
-    Consolas,
-    "Liberation Mono",
-    monospace;
-
-  font-size: 0.88em;
-}
-
-
-/* =========================================================
-   94. CODE BLOCKS
+   CODE BLOCK
    ========================================================= */
 
 .chat-window .message.orbit pre {
   width: 100%;
-
   max-width: 100%;
 
   margin: 12px 0;
 
-  padding: 13px;
+  padding: 14px;
 
   overflow-x: auto;
 
   border: 1px solid var(--border);
-
   border-radius: var(--radius-md);
 
   background: var(--surface-soft);
 
   color: var(--text);
 
-  font-family:
-    "SFMono-Regular",
-    Consolas,
-    "Liberation Mono",
-    monospace;
-
-  font-size: var(--font-size-xs);
-
-  line-height: 1.6;
-
-  scrollbar-width: thin;
-
   box-sizing: border-box;
 }
 
-.chat-window .message.orbit pre code {
-  display: block;
-
-  padding: 0;
-
-  border: 0;
-
-  border-radius: 0;
-
-  background: transparent;
-
-  color: inherit;
-
-  font-size: inherit;
-}
-
 
 /* =========================================================
-   95. BLOCKQUOTES
-   ========================================================= */
-
-.chat-window .message.orbit blockquote {
-  margin: 10px 0;
-
-  padding: 8px 12px;
-
-  border-left: 3px solid var(--primary);
-
-  background: var(--primary-soft);
-
-  color: var(--text-secondary);
-}
-
-
-/* =========================================================
-   96. HORIZONTAL RULE
-   ========================================================= */
-
-.chat-window .message.orbit hr {
-  height: 1px;
-
-  margin: 14px 0;
-
-  border: 0;
-
-  background: var(--border);
-}
-
-
-/* =========================================================
-   97. TABLES
+   TABLE
    ========================================================= */
 
 .chat-window .message.orbit table {
-  display: block;
-
   width: 100%;
-
   max-width: 100%;
 
-  margin: 12px 0;
-
-  overflow-x: auto;
-
   border-collapse: collapse;
-
-  font-size: var(--font-size-sm);
 }
 
 .chat-window .message.orbit th,
@@ -2262,150 +1146,43 @@ html[data-animations="false"] .topbar-btn {
   border: 1px solid var(--border);
 
   text-align: left;
-
-  white-space: nowrap;
-}
-
-.chat-window .message.orbit th {
-  background: var(--surface-soft);
-
-  color: var(--text);
-
-  font-weight: var(--font-weight-semibold);
-}
-
-.chat-window .message.orbit td {
-  color: var(--text-secondary);
 }
 
 
 /* =========================================================
-   98. STRONG / EMPHASIS
-   ========================================================= */
-
-.chat-window .message.orbit strong {
-  color: var(--text);
-
-  font-weight: var(--font-weight-semibold);
-}
-
-.chat-window .message.orbit em {
-  color: var(--text-secondary);
-}
-
-
-/* =========================================================
-   99. USER MESSAGE LINKS
-   ========================================================= */
-
-.chat-window .message.user a {
-  color: #ffffff;
-
-  text-decoration: underline;
-
-  text-underline-offset: 2px;
-}
-
-
-/* =========================================================
-   100. CONVERSATION EMPTY STATE
-   ========================================================= */
-
-.chat-window:empty {
-  display: none;
-}
-
-
-/* =========================================================
-   101. MESSAGE ENTRY ANIMATION
-   ========================================================= */
-
-.chat-window .message {
-  animation: orbit-message-enter 0.22s ease both;
-}
-
-@keyframes orbit-message-enter {
-  from {
-    opacity: 0;
-
-    transform: translateY(5px);
-  }
-
-  to {
-    opacity: 1;
-
-    transform: translateY(0);
-  }
-}
-
-
-/* =========================================================
-   102. ORBIT TYPING INDICATOR
+   TYPING INDICATOR
    ========================================================= */
 
 .typing-indicator {
+  align-self: center;
+
   display: flex;
-
   align-items: center;
-
-  align-self: flex-start;
-
-  width: fit-content;
-
-  margin-left: 0;
-  margin-right: auto;
-
-  margin-bottom: 12px;
-
-  padding: 10px 13px;
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-lg);
-
-  border-bottom-left-radius: var(--radius-sm);
-
-  background: var(--surface);
-
-  box-shadow: var(--shadow-xs);
-
-  flex-shrink: 0;
 
   gap: 4px;
 
-  animation: orbit-typing-enter 0.2s ease both;
+  width: fit-content !important;
+
+  padding: 9px 12px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius-full);
+
+  box-shadow: var(--shadow-xs);
 }
 
-
-/* =========================================================
-   103. TYPING DOT
-   ========================================================= */
-
 .typing-indicator span {
-  display: block;
-
   width: 6px;
-
   height: 6px;
 
   border-radius: var(--radius-full);
 
-  background: var(--muted);
+  background: var(--primary);
 
-  animation:
-    orbit-typing-bounce
-    1.2s
-    infinite
-    ease-in-out;
-}
-
-
-/* =========================================================
-   104. TYPING DOT DELAY
-   ========================================================= */
-
-.typing-indicator span:nth-child(1) {
-  animation-delay: 0s;
+  animation: orbitTyping 1.2s infinite ease-in-out;
 }
 
 .typing-indicator span:nth-child(2) {
@@ -2416,177 +1193,96 @@ html[data-animations="false"] .topbar-btn {
   animation-delay: 0.3s;
 }
 
-
-/* =========================================================
-   105. TYPING ANIMATION
-   ========================================================= */
-
-@keyframes orbit-typing-bounce {
+@keyframes orbitTyping {
   0%,
   60%,
   100% {
-    opacity: 0.35;
-
+    opacity: 0.3;
     transform: translateY(0);
   }
 
   30% {
     opacity: 1;
-
     transform: translateY(-3px);
   }
 }
 
 
 /* =========================================================
-   106. TYPING ENTRY
-   ========================================================= */
-
-@keyframes orbit-typing-enter {
-  from {
-    opacity: 0;
-
-    transform: translateY(4px);
-  }
-
-  to {
-    opacity: 1;
-
-    transform: translateY(0);
-  }
-}
-
-
-/* =========================================================
-   107. DASHBOARD CHAT LAYOUT
-   ========================================================= */
-
-.orbit-main {
-  display: flex;
-
-  flex-direction: column;
-
-  min-width: 0;
-
-  min-height: 0;
-
-  width: 100%;
-
-  height: 100vh;
-
-  overflow: hidden;
-}
-
-
-/* =========================================================
-   108. COMMAND AREA
-
-   The command area stays at the bottom of the
-   application while the chat window scrolls.
+   COMMAND AREA
+   Always below the chat window
    ========================================================= */
 
 .command-area {
-  position: sticky;
+  position: relative;
 
-  bottom: 0;
-
-  z-index: 20;
+  z-index: calc(var(--z-navigation) + 3);
 
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
+
+  width: 100%;
+
+  min-width: 0;
 
   flex: 0 0 auto;
 
-  width: min(100%, 900px);
+  margin: 0;
 
-  max-width: 900px;
-
-  margin: 0 auto;
-
-  padding:
-    0
-    var(--spacing-lg)
-    var(--spacing-md);
+  padding: 10px 24px 8px;
 
   background: var(--bg);
+
+  isolation: isolate;
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+
+/* Composer content uses same width as chat */
+
+.command-area > * {
+  width: min(100%, 760px);
+  max-width: 760px;
 
   box-sizing: border-box;
 }
 
 
 /* =========================================================
-   109. COMMAND AREA TOP SEPARATION
-   ========================================================= */
-
-.command-area::before {
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  right: 0;
-
-  top: -24px;
-
-  height: 24px;
-
-  pointer-events: none;
-
-  background:
-    linear-gradient(
-      to top,
-      var(--bg),
-      transparent
-    );
-}
-
-
-/* =========================================================
-   110. COMMAND BOX
+   COMMAND BOX
    ========================================================= */
 
 .command-box {
   display: flex;
-
   align-items: flex-end;
 
   width: 100%;
 
-  min-width: 0;
+  min-height: 54px;
 
-  min-height: 58px;
+  padding: 7px 8px;
 
-  padding: 8px;
-
-  gap: 7px;
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius-xl);
+  gap: 8px;
 
   background: var(--surface);
 
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
 
-  box-sizing: border-box;
+  border-radius: 22px;
+
+  box-shadow: var(--shadow-sm);
 
   transition:
     border-color var(--transition-fast),
-    background-color var(--transition-normal),
-    box-shadow var(--transition-fast);
-}
-
-.command-box:hover {
-  border-color: var(--border);
-
-  box-shadow: var(--shadow);
+    box-shadow var(--transition-fast),
+    background-color var(--transition-normal);
 }
 
 .command-box:focus-within {
-  border-color: rgba(99, 102, 241, 0.55);
+  border-color: var(--primary);
 
   box-shadow:
     0 0 0 3px var(--primary-soft),
@@ -2595,91 +1291,83 @@ html[data-animations="false"] .topbar-btn {
 
 
 /* =========================================================
-   111. ATTACHMENT BUTTON
+   COMMAND ATTACHMENT / TOOLS BUTTON
    ========================================================= */
 
-.command-attachment {
+.command-attachment,
+.send-btn {
+  width: 38px;
+  height: 38px;
+
+  min-width: 38px;
+  flex: 0 0 38px;
+
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
 
-  width: 40px;
+  border-radius: var(--radius-full);
+}
 
-  height: 40px;
-
-  flex: 0 0 40px;
-
-  border: 1px solid transparent;
-
-  border-radius: var(--radius-md);
-
+.command-attachment {
   background: transparent;
-
   color: var(--muted);
-
-  cursor: pointer;
-
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast);
 }
 
 .command-attachment:hover {
   background: var(--surface-hover);
-
-  border-color: var(--border-light);
-
-  color: var(--text-secondary);
-}
-
-.command-attachment:active {
-  transform: scale(0.94);
-}
-
-.command-attachment i {
-  font-size: 14px;
+  color: var(--text);
 }
 
 
 /* =========================================================
-   112. COMMAND INPUT
+   SEND BUTTON
+   ========================================================= */
 
-   The textarea grows automatically through JS.
+.send-btn {
+  background: var(--primary);
+  color: #fff;
 
-   CSS controls the allowed range:
-   - normal height: 40px
-   - maximum height: 150px
+  box-shadow: var(--shadow-xs);
+}
 
-   Once 150px is reached, the textarea itself
-   becomes scrollable.
+.send-btn:hover {
+  background: var(--primary-dark);
+}
+
+.send-btn:disabled {
+  background: var(--surface-soft);
+  color: var(--text-dim);
+
+  border: 1px solid var(--border);
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   COMMAND INPUT
    ========================================================= */
 
 #command-input {
-  display: block;
-
   flex: 1 1 auto;
 
   width: 100%;
 
   min-width: 0;
 
-  min-height: 40px;
-
+  min-height: 38px;
   max-height: 150px;
 
-  padding:
-    9px
-    5px;
+  padding: 9px 4px;
 
   border: 0;
-
   outline: 0;
 
   resize: none;
+
+  overflow-x: hidden;
+  overflow-y: auto;
 
   background: transparent;
 
@@ -2689,26 +1377,13 @@ html[data-animations="false"] .topbar-btn {
 
   font-size: var(--font-size-md);
 
-  font-weight: var(--font-weight-normal);
-
   line-height: 1.45;
 
-  overflow-x: hidden;
-
-  overflow-y: auto;
-
-  scrollbar-width: thin;
-
-  scrollbar-color:
-    var(--border)
-    transparent;
-
-  box-sizing: border-box;
+  pointer-events: auto;
 }
 
 #command-input::placeholder {
   color: var(--muted);
-
   opacity: 1;
 }
 
@@ -2718,70 +1393,8 @@ html[data-animations="false"] .topbar-btn {
 
 
 /* =========================================================
-   113. SEND BUTTON
-   ========================================================= */
-
-.send-btn {
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  width: 40px;
-
-  height: 40px;
-
-  flex: 0 0 40px;
-
-  border: 1px solid transparent;
-
-  border-radius: var(--radius-md);
-
-  background: var(--primary);
-
-  color: #ffffff;
-
-  cursor: pointer;
-
-  box-shadow: var(--shadow-xs);
-
-  transition:
-    background-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast),
-    opacity var(--transition-fast);
-}
-
-.send-btn:hover {
-  background: var(--primary-dark);
-
-  box-shadow: var(--shadow-sm);
-}
-
-.send-btn:active {
-  transform: scale(0.94);
-}
-
-.send-btn i {
-  font-size: 14px;
-}
-
-.send-btn:disabled {
-  background: var(--surface-soft);
-
-  color: var(--text-dim);
-
-  border-color: var(--border);
-
-  box-shadow: none;
-
-  cursor: not-allowed;
-}
-
-/* =========================================================
-   114. COMMAND FOOTER
-   Small status information below the command input
+   COMMAND FOOTER
+   Exact class from index.html
    ========================================================= */
 
 .command-footer {
@@ -2790,22 +1403,22 @@ html[data-animations="false"] .topbar-btn {
   justify-content: space-between;
 
   width: 100%;
-  min-width: 0;
 
-  margin-top: 7px;
-  padding: 0 4px;
+  min-height: 24px;
 
-  color: var(--muted);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-normal);
-  line-height: 1.4;
+  gap: 12px;
 
-  box-sizing: border-box;
+  padding: 6px 4px 0;
+
+  color: var(--text-dim);
+
+  font-size: 9px;
+
+  line-height: 1.35;
 }
 
-/* =========================================================
-   115. COMMAND FOOTER GROUPS
-   ========================================================= */
+
+/* Footer groups */
 
 .command-footer > span {
   display: inline-flex;
@@ -2813,1094 +1426,334 @@ html[data-animations="false"] .topbar-btn {
 
   min-width: 0;
 
-  white-space: nowrap;
+  gap: 5px;
 }
 
-/* =========================================================
-   116. READY STATUS
-   ========================================================= */
+
+/* First footer message */
 
 .command-footer > span:first-child {
-  gap: 6px;
-
   color: var(--text-secondary);
-  font-weight: var(--font-weight-medium);
-}
 
-.command-footer > span:first-child i {
-  color: var(--primary);
-  font-size: 11px;
-}
-
-/* =========================================================
-   117. RESPONSE INFORMATION
-   ========================================================= */
-
-.command-footer > span:last-child {
-  justify-content: flex-end;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#response-time {
-  min-width: 0;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* =========================================================
-   118. FOOTER SEPARATOR
-   ========================================================= */
 
-.command-footer > span:last-child > span[aria-hidden="true"] {
-  flex: 0 0 auto;
+/* Shield icon */
 
-  margin: 0 6px;
+.command-footer > span:first-child i {
+  color: var(--success);
 
-  color: var(--border);
+  font-size: 9px;
 }
 
-/* =========================================================
-   119. COMMAND FOOTER HOVER
-   ========================================================= */
 
-.command-footer > span:first-child:hover {
-  color: var(--text);
-}
+/* Response time / information */
 
-.command-footer > span:first-child:hover i {
-  color: var(--primary-dark);
-}
-
-/* =========================================================
-   120. TABLET COMMAND FOOTER
-   ========================================================= */
-
-@media (max-width: 900px) {
-
-  .command-footer {
-    padding: 0 3px;
-
-    font-size: 11px;
-  }
-}
-
-/* =========================================================
-   121. MOBILE COMMAND FOOTER
-   ========================================================= */
-
-@media (max-width: 600px) {
-
-  .command-footer {
-    align-items: flex-start;
-
-    margin-top: 6px;
-    padding: 0 2px;
-
-    font-size: 10px;
-    line-height: 1.35;
-  }
-
-  .command-footer > span:first-child {
-    gap: 5px;
-  }
-
-  .command-footer > span:first-child i {
-    font-size: 10px;
-  }
-
-  .command-footer > span:last-child {
-    max-width: 68%;
-  }
-
-  #response-time {
-    max-width: 100%;
-  }
-}
-
-/* =========================================================
-   122. SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 480px) {
-
-  .command-footer {
-    margin-top: 5px;
-
-    font-size: 9px;
-  }
-
-  .command-footer > span:first-child {
-    max-width: 32%;
-  }
-
-  .command-footer > span:last-child {
-    max-width: 65%;
-  }
-
-  /* Hide the longer response information when space
-     becomes very limited, while keeping the status useful. */
-
-  #response-time {
-    max-width: 120px;
-  }
-}
-
-/* =========================================================
-   123. VERY SMALL SCREENS
-   ========================================================= */
-
-@media (max-width: 360px) {
-
-  .command-footer {
-    font-size: 8.5px;
-  }
-
-  .command-footer > span:first-child {
-    max-width: 35%;
-  }
-
-  .command-footer > span:last-child {
-    max-width: 62%;
-  }
-
-  #response-time {
-    max-width: 85px;
-  }
-
-  .command-footer > span:last-child > span[aria-hidden="true"] {
-    margin: 0 4px;
-  }
-}
-
-/* =========================================================
-   END OF PART 5
-   CONVERSATION / MESSAGE SYSTEM
-   ========================================================= */
-
-
-
-/* =========================================================
-   ORBIT AI — RESPONSIVE / MEDIA QUERIES
-   ========================================================= */
-
-
-/* =========================================================
-   45. DESKTOP NAVIGATION
-   ========================================================= */
-
-@media (min-width: 769px) {
-
-  .menu-toggle,
-  .sidebar-close,
-  .topbar-btn {
-    touch-action: manipulation;
-  }
-
-  .sidebar-close,
-  .menu-toggle {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-
-  /* -----------------------------------------
-     MAIN CONTENT
-     ----------------------------------------- */
-
-  .orbit-main {
-  width: 100%;
-  margin-left: 0;
-
-  height: 100dvh;
-  min-height: 0;
+#response-time {
   overflow: hidden;
 
-  display: flex;
-  flex-direction: column;
-}
+  text-overflow: ellipsis;
 
-  .orbit-app.nav-open .orbit-main {
-    width: 100%;
-
-    margin-left: 0;
-  }
-
-
-  /* -----------------------------------------
-     DESKTOP SIDEBAR — CLOSED
-     ----------------------------------------- */
-
-  .orbit-sidebar {
-    width: var(--navigation-width);
-
-    min-width: var(--navigation-width);
-
-    max-width: var(--navigation-width);
-
-    transform: translateX(-100%);
-
-    visibility: hidden;
-
-    opacity: 0;
-
-    pointer-events: none;
-
-    box-shadow: none;
-  }
-
-
-  /* -----------------------------------------
-     DESKTOP SIDEBAR — OPEN
-     ----------------------------------------- */
-
-  .orbit-app.nav-open .orbit-sidebar {
-    transform: translateX(0);
-
-    visibility: visible;
-
-    opacity: 1;
-
-    pointer-events: auto;
-
-    box-shadow: var(--shadow-navigation);
-  }
-
-
-  /* -----------------------------------------
-     MAIN CONTENT WHEN SIDEBAR IS OPEN
-     ----------------------------------------- */
-
-  .orbit-app.nav-open .orbit-main {
-    width:
-      calc(
-        100% -
-        var(--navigation-width)
-      );
-
-    margin-left: var(--navigation-width);
-  }
-
-
-  /* -----------------------------------------
-     TOPBAR
-     ----------------------------------------- */
-
-  .orbit-topbar {
-    position: sticky;
-
-    top: 0;
-
-    z-index: 100;
-
-    min-height: 58px;
-
-    padding:
-      0
-      var(--spacing-md);
-
-    backdrop-filter: blur(12px);
-
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-
-  /* -----------------------------------------
-     TOPBAR TEXT
-     ----------------------------------------- */
-
-  .topbar-subtitle {
-    display: none;
-  }
-
-  .topbar-title > span {
-    font-size: var(--font-size-sm);
-  }
-
-
-  /* -----------------------------------------
-     NAVIGATION BUTTONS
-     ----------------------------------------- */
-
-  .menu-toggle {
-    display: inline-flex;
-  }
-
-  .sidebar-close {
-    display: inline-flex;
-  }
-
-
-  /* -----------------------------------------
-     NAVIGATION OVERLAY
-     ----------------------------------------- */
-
-  .navigation-overlay {
-    display: block;
-  }
-
-
-  /* -----------------------------------------
-     DESKTOP CHAT WIDTH
-     ----------------------------------------- */
-
-     /* -----------------------------------------
-   MOBILE CHAT SCROLLING
-   ----------------------------------------- */
-
-.chat-window {
-  flex: 1 1 0;
-  min-height: 0;
-  height: 0;
-
-  overflow-x: hidden;
-  overflow-y: auto;
-
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-}
-
-  .chat-window,
-  .command-area {
-    width: min(100%, 900px);
-
-    max-width: 900px;
-  }
+  white-space: nowrap;
 }
 
 
 /* =========================================================
-   46. TABLET / SMALL DESKTOP
+   SIDEBAR OPEN — KEEP COMPOSER USABLE
+   ========================================================= */
+
+.orbit-app.nav-open .chat-window,
+.orbit-app.nav-open .command-area {
+  position: relative;
+}
+
+.orbit-app.nav-open .command-area {
+  pointer-events: auto;
+}
+
+.orbit-app.nav-open .command-box,
+.orbit-app.nav-open #command-input,
+.orbit-app.nav-open .command-attachment,
+.orbit-app.nav-open .send-btn {
+  pointer-events: auto;
+}
+
+
+/* =========================================================
+   MOBILE — 900PX
    ========================================================= */
 
 @media (max-width: 900px) {
 
-  /* -----------------------------------------
-     CHAT INTRO
-     ----------------------------------------- */
-
-  .chat-intro {
-    width: min(100%, 680px);
-
-    padding:
-      var(--spacing-xl)
-      var(--spacing-md);
-  }
-
-
-  /* -----------------------------------------
-     CHAT WINDOW
-     ----------------------------------------- */
-
   .chat-window {
-    width: 100%;
-
-    max-width: 900px;
-
-    padding: 1rem;
-
-    gap: 0.85rem;
+    padding: 22px 16px 28px;
   }
-
-
-  /* -----------------------------------------
-     MESSAGE WIDTH
-     ----------------------------------------- */
-
-  .chat-window .message {
-    max-width:
-      min(82%, 700px);
-  }
-
-
-  /* -----------------------------------------
-     COMMAND AREA
-     ----------------------------------------- */
 
   .command-area {
-    width: 100%;
-
-    max-width: 900px;
-
-    padding-left: var(--spacing-md);
-
-    padding-right: var(--spacing-md);
+    padding: 9px 16px 7px;
   }
 
+  .chat-window > *,
+  .command-area > *,
+  .chat-window .message.orbit {
+    max-width: 100%;
+  }
 
-  /* -----------------------------------------
-     COMMAND BOX
-     ----------------------------------------- */
+  .chat-window .message.user {
+    max-width: 82%;
+  }
 
-  .command-box {
-    width: 100%;
+  .command-footer {
+    font-size: 8px;
   }
 }
 
 
 /* =========================================================
-   47. TABLET NAVIGATION
+   MOBILE — 768PX
    ========================================================= */
 
 @media (max-width: 768px) {
 
-  /* -----------------------------------------
-     MAIN CONTENT
-     ----------------------------------------- */
-
-  .orbit-main {
-    width: 100%;
-
-    margin-left: 0;
-  }
-
-  .orbit-app.nav-open .orbit-main {
-    width: 100%;
-
-    margin-left: 0;
-  }
-
-
-  /* -----------------------------------------
-     SIDEBAR
-     ----------------------------------------- */
-
   .orbit-sidebar {
     width: var(--navigation-mobile-width);
-
-    min-width: var(--navigation-mobile-width);
-
-    max-width: var(--navigation-mobile-width);
-
-    transform: translateX(-100%);
-
-    visibility: hidden;
-
-    opacity: 0;
-
-    pointer-events: none;
+    max-width: 90vw;
   }
-
-  .orbit-app.nav-open .orbit-sidebar {
-    transform: translateX(0);
-
-    visibility: visible;
-
-    opacity: 1;
-
-    pointer-events: auto;
-
-    box-shadow: var(--shadow-navigation);
-  }
-
-
-  /* -----------------------------------------
-     TOPBAR
-     ----------------------------------------- */
 
   .orbit-topbar {
-    min-height: 56px;
-
-    padding:
-      0
-      var(--spacing-md);
-  }
-
-
-  /* -----------------------------------------
-     NAVIGATION BUTTONS
-     ----------------------------------------- */
-
-  .menu-toggle {
-    display: inline-flex;
-  }
-
-  .sidebar-close {
-    display: inline-flex;
-  }
-
-
-  /* -----------------------------------------
-     OVERLAY
-     ----------------------------------------- */
-
-  .navigation-overlay {
-    display: block;
-  }
-
-
-  /* -----------------------------------------
-     CHAT WINDOW
-     ----------------------------------------- */
-
-  .chat-window {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      1rem
-      0.85rem;
-
-    gap: 0.8rem;
-  }
-
-
-  /* -----------------------------------------
-     MESSAGE WIDTH
-     ----------------------------------------- */
-
-  .chat-window .message {
-    max-width: 86%;
-  }
-
-
-  /* -----------------------------------------
-     COMMAND AREA
-     ----------------------------------------- */
-
-  .command-area {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      0
-      var(--spacing-md)
-      var(--spacing-md);
-  }
-
-
-  /* -----------------------------------------
-     COMMAND BOX
-     ----------------------------------------- */
-
-  .command-box {
-    width: 100%;
-  }
-}
-
-
-/* =========================================================
-   48. CHAT INTRO + MOBILE CHAT
-   ========================================================= */
-
-@media (max-width: 600px) {
-
-  /* -----------------------------------------
-     CHAT INTRO
-     ----------------------------------------- */
-
-  .chat-intro {
-    width: 100%;
-
-    padding:
-      var(--spacing-xl)
-      var(--spacing-md);
-  }
-
-
-  /* -----------------------------------------
-     INTRO ICON
-     ----------------------------------------- */
-
-  .chat-intro-icon {
-    width: 48px;
-
-    height: 48px;
-
-    margin-bottom: 13px;
-
-    border-radius: var(--radius-lg);
-  }
-
-  .chat-intro-icon i {
-    font-size: 18px;
-  }
-
-
-  /* -----------------------------------------
-     INTRO HEADING
-     ----------------------------------------- */
-
-  .chat-intro h1 {
-    font-size: 1.65rem;
-  }
-
-
-  /* -----------------------------------------
-     INTRO DESCRIPTION
-     ----------------------------------------- */
-
-  .chat-intro p {
-    max-width: 420px;
-
-    font-size: var(--font-size-sm);
-
-    line-height: 1.55;
-  }
-
-
-  /* -----------------------------------------
-     QUICK PROMPTS
-     ----------------------------------------- */
-
-  .quick-prompts {
-    gap: 6px;
-
-    margin-top: var(--spacing-md);
-  }
-
-  .quick-prompt {
-    min-height: 36px;
-
-    padding:
-      0
-      11px;
-  }
-
-
-  /* -----------------------------------------
-     CHAT WINDOW
-     ----------------------------------------- */
-
-  .chat-window {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      0.85rem
-      0.7rem;
-
-    gap: 0.75rem;
-  }
-
-
-  /* -----------------------------------------
-     CHAT MESSAGES
-     ----------------------------------------- */
-
-  .chat-window .message {
-    max-width: 90%;
-
-    padding:
-      10px
-      13px;
-
-    font-size: var(--font-size-sm);
-
-    line-height: 1.6;
-  }
-
-
-  /* -----------------------------------------
-     COMMAND AREA
-     ----------------------------------------- */
-
-  .command-area {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      0
-      10px
-      10px;
-  }
-
-
-  /* -----------------------------------------
-     COMMAND BOX
-     ----------------------------------------- */
-
-  .command-box {
     min-height: 54px;
+    flex-basis: 54px;
 
-    padding: 7px;
-
-    gap: 5px;
+    padding: 0 var(--spacing-sm);
   }
 
+  .topbar-title {
+    margin-left: 8px;
+  }
 
-  /* -----------------------------------------
-     COMMAND INPUT
-     ----------------------------------------- */
+  .topbar-title > small {
+    display: none;
+  }
 
-  #command-input {
-    min-height: 38px;
+  .chat-window {
+    padding: 16px 12px 24px;
 
-    max-height: 150px;
+    gap: 10px;
+  }
 
-    padding:
-      8px
-      4px;
+  .chat-window .message.user {
+    max-width: 88%;
+
+    padding: 9px 12px;
+  }
+
+  .chat-window .message.orbit {
+    width: 100%;
+    max-width: 100%;
 
     font-size: var(--font-size-sm);
   }
 
-
-  /* -----------------------------------------
-     BUTTONS
-     ----------------------------------------- */
-
-  .command-attachment,
-  .send-btn {
-    width: 38px;
-
-    height: 38px;
-
-    flex: 0 0 38px;
-  }
-}
-
-
-/* =========================================================
-   49. SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 480px) {
-
-  /* -----------------------------------------
-     SIDEBAR
-     ----------------------------------------- */
-
-  .orbit-sidebar {
-    width:
-      min(
-        var(--navigation-mobile-width),
-        92vw
-      );
-
-    min-width:
-      min(
-        var(--navigation-mobile-width),
-        92vw
-      );
-
-    max-width: 92vw;
-
-    padding: 12px;
-  }
-
-
-  /* -----------------------------------------
-     CHAT INTRO
-     ----------------------------------------- */
-
-  .chat-intro {
-    width: 100%;
-
-    padding:
-      var(--spacing-lg)
-      12px;
-  }
-
-  .chat-intro .eyebrow {
-    font-size: 10px;
-  }
-
-  .chat-intro h1 {
-    font-size: 1.45rem;
-  }
-
-  .chat-intro p {
-    font-size: var(--font-size-xs);
-  }
-
-
-  /* -----------------------------------------
-     QUICK PROMPTS
-     ----------------------------------------- */
-
-  .quick-prompts {
-    display: grid;
-
-    grid-template-columns: 1fr;
-
-    width: min(100%, 300px);
-  }
-
-  .quick-prompt {
-    width: 100%;
-
-    justify-content: flex-start;
-
-    padding:
-      0
-      13px;
-  }
-
-
-  /* -----------------------------------------
-     CHAT WINDOW
-     ----------------------------------------- */
-
-  .chat-window {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      0.75rem
-      0.55rem;
-
-    gap: 0.7rem;
-  }
-
-
-  /* -----------------------------------------
-     MESSAGE WIDTH
-     ----------------------------------------- */
-
-  .chat-window .message {
-    max-width: 92%;
-
-    padding:
-      9px
-      12px;
-  }
-
-
-  /* -----------------------------------------
-     COMMAND AREA
-     ----------------------------------------- */
-
   .command-area {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      0
-      8px
-      8px;
+    padding: 7px 10px 7px;
   }
-
-
-  /* -----------------------------------------
-     COMMAND BOX
-     ----------------------------------------- */
 
   .command-box {
     min-height: 52px;
 
-    padding: 6px;
-
-    border-radius: var(--radius-lg);
+    border-radius: 20px;
   }
 
-
-  /* -----------------------------------------
-     COMMAND INPUT
-     ----------------------------------------- */
-
   #command-input {
-    min-height: 38px;
-
-    max-height: 150px;
-
     font-size: var(--font-size-sm);
   }
 
+  .command-footer {
+    gap: 8px;
 
-  /* -----------------------------------------
-     COMMAND BUTTONS
-     ----------------------------------------- */
-
-  .command-attachment,
-  .send-btn {
-    width: 36px;
-
-    height: 36px;
-
-    flex: 0 0 36px;
+    padding-top: 5px;
   }
 }
 
 
 /* =========================================================
-   50. VERY SMALL SCREENS
+   MOBILE — 600PX
    ========================================================= */
 
-@media (max-width: 360px) {
-
-  /* -----------------------------------------
-     SIDEBAR
-     ----------------------------------------- */
+@media (max-width: 600px) {
 
   .orbit-sidebar {
-    width: 88vw;
-
-    min-width: 88vw;
-
-    max-width: 88vw;
+    width: min(var(--navigation-mobile-width), 88vw);
   }
 
+  .topbar-btn,
+  .menu-toggle {
+    width: 36px;
+    height: 36px;
 
-  /* -----------------------------------------
-     CHAT INTRO
-     ----------------------------------------- */
-
-  .chat-intro {
-    width: 100%;
-
-    padding:
-      var(--spacing-md)
-      10px;
+    flex-basis: 36px;
   }
 
-  .chat-intro-icon {
-    width: 44px;
-
-    height: 44px;
+  .topbar-actions {
+    gap: 5px;
   }
-
-  .chat-intro h1 {
-    font-size: 1.3rem;
-  }
-
-  .chat-intro p {
-    margin-top: 8px;
-  }
-
-
-  /* -----------------------------------------
-     QUICK PROMPTS
-     ----------------------------------------- */
-
-  .quick-prompts {
-    margin-top: 14px;
-  }
-
-
-  /* -----------------------------------------
-     CHAT WINDOW
-     ----------------------------------------- */
 
   .chat-window {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      0.65rem
-      0.45rem;
+    padding: 12px 9px 20px;
   }
 
-
-  /* -----------------------------------------
-     MESSAGES
-     ----------------------------------------- */
-
-  .chat-window .message {
-    max-width: 94%;
-
-    padding:
-      8px
-      10px;
-
-    font-size: var(--font-size-xs);
+  .chat-window .message.user {
+    max-width: 92%;
   }
-
-
-  /* -----------------------------------------
-     COMMAND AREA
-     ----------------------------------------- */
 
   .command-area {
-    width: 100%;
-
-    max-width: 100%;
-
-    padding:
-      0
-      6px
-      6px;
+    padding: 6px 8px 6px;
   }
-
-
-  /* -----------------------------------------
-     COMMAND BOX
-     ----------------------------------------- */
 
   .command-box {
     min-height: 50px;
 
     padding: 5px;
 
-    gap: 4px;
+    border-radius: 19px;
   }
 
+  .command-attachment,
+  .send-btn {
+    width: 36px;
+    height: 36px;
 
-  /* -----------------------------------------
-     COMMAND INPUT
-     ----------------------------------------- */
+    min-width: 36px;
+    flex-basis: 36px;
+  }
 
   #command-input {
     min-height: 36px;
 
-    max-height: 150px;
+    font-size: var(--font-size-sm);
+  }
 
-    padding:
-      7px
-      3px;
+  /*
+   * Compact mobile footer.
+   * The detailed warning is still available,
+   * but the layout doesn't consume chat space.
+   */
 
+  .command-footer {
+    min-height: 20px;
+
+    padding: 4px 2px 0;
+
+    font-size: 7px;
+  }
+
+  .command-footer > span:last-child {
+    justify-content: flex-end;
+
+    text-align: right;
+  }
+
+  #response-time {
+    max-width: 170px;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES — 400PX
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+  .orbit-sidebar {
+    width: 86vw;
+  }
+
+  .orbit-topbar {
+    padding: 0 8px;
+  }
+
+  .topbar-title {
+    margin-left: 6px;
+  }
+
+  .topbar-actions {
+    gap: 4px;
+  }
+
+  .chat-window {
+    padding: 9px 7px 16px;
+  }
+
+  .chat-window .message {
     font-size: var(--font-size-xs);
   }
 
+  .chat-window .message.user {
+    max-width: 94%;
+  }
 
-  /* -----------------------------------------
-     BUTTONS
-     ----------------------------------------- */
+  .command-area {
+    padding: 5px 6px 5px;
+  }
+
+  .command-box {
+    gap: 4px;
+  }
 
   .command-attachment,
   .send-btn {
     width: 34px;
-
     height: 34px;
 
-    flex: 0 0 34px;
+    min-width: 34px;
+    flex-basis: 34px;
   }
 
   .command-attachment i,
   .send-btn i {
     font-size: 12px;
   }
+
+  .command-footer {
+    font-size: 6.5px;
+
+    gap: 4px;
+  }
+
+  .command-footer > span:first-child {
+    display: none;
+  }
+
+  .command-footer > span:last-child {
+    width: 100%;
+
+    justify-content: center;
+
+    text-align: center;
+  }
+
+  #response-time {
+    max-width: 135px;
+  }
 }
 
 
 /* =========================================================
-   51. REDUCED MOTION
+   REDUCED MOTION
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
 
-  .chat-window {
+  html {
     scroll-behavior: auto;
   }
 
-  .chat-window .message,
-  .chat-intro,
-  .typing-indicator {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
-
-
-/* =========================================================
-   52. APPLICATION ANIMATIONS DISABLED
-   ========================================================= */
-
-html[data-animations="false"] .chat-window .message,
-html[data-animations="false"] .chat-intro,
-html[data-animations="false"] .typing-indicator {
-  animation: none;
-}
-
-
-/* =========================================================
-   END OF RESPONSIVE / MEDIA QUERIES
-   ========================================================= */
