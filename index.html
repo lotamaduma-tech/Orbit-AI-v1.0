@@ -3,21 +3,61 @@
 
 <head>
   <meta charset="UTF-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <meta name="description" content="Orbit AI — Your intelligent personal AI workspace." />
+
+  <meta name="theme-color" content="#6366F1" />
+
   <title>Orbit AI</title>
 
-  <!-- GOOGLE FONTS -->
+  <!-- Orbit AI branding -->
+
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg" />
+
+  <link rel="apple-touch-icon" href="images/logo.jpg" />
+
+  <!-- Social sharing -->
+
+  <meta property="og:type" content="website" />
+
+  <meta property="og:title" content="Orbit AI" />
+
+  <meta property="og:description" content="Your intelligent personal AI workspace." />
+
+  <meta property="og:image" content="https://YOUR-VERCEL-DOMAIN.vercel.app/images/logo.jpg" />
+
+  <meta property="og:image:alt" content="Orbit AI logo" />
+
+  <meta property="og:url" content="https://YOUR-VERCEL-DOMAIN.vercel.app/" />
+
+  <!-- X / Twitter -->
+
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <meta name="twitter:title" content="Orbit AI" />
+
+  <meta name="twitter:description" content="Your intelligent personal AI workspace." />
+
+  <meta name="twitter:image" content="https://orbit-ai-self.vercel.app/images/logo.jpg" />
+
+  <!-- Google Fonts -->
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
 
-  <!-- FONT AWESOME -->
+  <!-- Font Awesome -->
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
-  <!-- ORBIT AI STYLES -->
+  <!-- Orbit AI styles -->
+
   <link rel="stylesheet" href="css/reset.css" />
   <link rel="stylesheet" href="css/variables.css" />
   <link rel="stylesheet" href="css/style.css" />
@@ -84,6 +124,10 @@
           <i class="fa-solid fa-gear"></i>
           <span>Settings</span>
         </a>
+
+        <button type="button" class="sidebar-account-link sidebar-logout-btn" id="logout-btn">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Log out</span>
       </section>
 
       <div class="sidebar-footer">
@@ -194,7 +238,7 @@
               spellcheck="true" aria-label="Ask Orbit AI"></textarea>
 
             <button id="send-btn" type="button" class="send-btn" aria-label="Send message" title="Send message">
-              <i class="fa-solid fa-paper-plane"></i>
+              <i class="fa-solid fa-arrow-up"></i>
             </button>
           </div>
 
@@ -217,11 +261,11 @@
       </section>
     </main>
   </div>
-
-<!-- JAVASCRIPT -->
+<!-- JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
-<script src="auth-guard.js"></script>
+<script src="js/logout.js"></script>
+<script src="js/auth-guard.js"></script>
 
 <script src="js/config.js"></script>
 <script src="js/theme.js"></script>

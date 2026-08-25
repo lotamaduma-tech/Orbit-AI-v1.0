@@ -2176,6 +2176,24 @@ button:disabled {
 
 }
 
+.sidebar-logout-btn {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sidebar-logout-btn:hover {
+    background: var(--surface-hover);
+}
+
+.sidebar-logout-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 
 .command-attachment {
 

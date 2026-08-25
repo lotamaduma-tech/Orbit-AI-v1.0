@@ -1,28 +1,41 @@
+/* Orbit AI authentication guard */
+
 "use strict";
 
-(async function protectOrbit() {
+(async function () {
     try {
+        if (typeof supabaseClient === "undefined") {
+            console.error("Supabase client is not available.");
+            window.location.replace("login.html");
+            return;
+        }
+
         const {
-            data: { session },
-            error,
+            data,
+            error
         } = await supabaseClient.auth.getSession();
 
         if (error) {
-            console.error("Authentication check failed:", error);
+            console.error(
+                "Authentication check failed:",
+                error
+            );
+
             window.location.replace("login.html");
             return;
         }
 
-        if (!session) {
+        if (!data || !data.session) {
             window.location.replace("login.html");
             return;
         }
 
-        window.ORBIT_USER = session.user;
-
-        console.log("Orbit user authenticated:", session.user.id);
     } catch (error) {
-        console.error("Authentication guard failed:", error);
+        console.error(
+            "Authentication guard error:",
+            error
+        );
+
         window.location.replace("login.html");
     }
 })();
