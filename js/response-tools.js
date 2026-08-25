@@ -1,83 +1,47 @@
-/* ===========================================================
-   ORBIT AI — RESPONSE TOOLS
-   ===========================================================
-
-   Works alongside:
-   - js/orbit.js
-
-   Loaded only by:
-   - index.html
-   - assistant.html
-
-   IMPORTANT:
-   orbit.js is responsible for formatting AI responses.
-
-   This file ONLY:
-   - Adds code-copy buttons
-   - Adds actions to already-valid links
-   - Converts genuine raw URLs into links
-   - Cleans stray Markdown markers
-
-   It NEVER processes existing HTML attributes as text.
-   It NEVER re-processes links created by orbit.js.
-   =========================================================== */
-
 "use strict";
 
-
-/* ===========================================================
-   CONFIGURATION
-   =========================================================== */
-
 const ORBIT_RESPONSE_TOOLS = {
-
     copyLabel: "Copy",
     copiedLabel: "Copied!",
-
     openLabel: "Open",
-
+    githubLabel: "GitHub",
     codeCopyLabel: "Copy code",
     codeCopiedLabel: "Copied!"
 };
 
+const ORBIT_HIGHLIGHT_CONFIG = {
+    script:
+        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js",
 
-/* ===========================================================
-   COPY TO CLIPBOARD
-   =========================================================== */
+    style:
+        "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"
+};
+
+let orbitHighlightPromise = null;
 
 async function orbitCopyText(
     text,
     button = null,
     originalLabel = "Copy"
 ) {
-
     try {
-
         await navigator.clipboard.writeText(text);
 
         if (button) {
-
             button.textContent =
                 ORBIT_RESPONSE_TOOLS.copiedLabel;
 
             button.classList.add("copied");
 
             setTimeout(() => {
-
-                button.textContent =
-                    originalLabel;
-
+                button.textContent = originalLabel;
                 button.classList.remove("copied");
-
             }, 1600);
         }
 
         return true;
-
     }
-
     catch (error) {
-
         console.error(
             "Orbit could not copy text:",
             error
@@ -87,18 +51,11 @@ async function orbitCopyText(
     }
 }
 
-
-/* ===========================================================
-   FALLBACK COPY
-   =========================================================== */
-
 function orbitFallbackCopy(text) {
-
     const textarea =
         document.createElement("textarea");
 
     textarea.value = text;
-
     textarea.style.position = "fixed";
     textarea.style.left = "-9999px";
     textarea.style.top = "-9999px";
@@ -111,14 +68,10 @@ function orbitFallbackCopy(text) {
     let successful = false;
 
     try {
-
         successful =
             document.execCommand("copy");
-
     }
-
     catch (error) {
-
         console.error(
             "Orbit fallback copy failed:",
             error
@@ -130,24 +83,16 @@ function orbitFallbackCopy(text) {
     return successful;
 }
 
-
-/* ===========================================================
-   SMART COPY
-   =========================================================== */
-
 async function orbitSmartCopy(
     text,
     button = null,
     originalLabel = "Copy"
 ) {
-
     try {
-
         if (
             navigator.clipboard &&
             window.isSecureContext
         ) {
-
             return await orbitCopyText(
                 text,
                 button,
@@ -159,28 +104,20 @@ async function orbitSmartCopy(
             orbitFallbackCopy(text);
 
         if (copied && button) {
-
             button.textContent =
                 ORBIT_RESPONSE_TOOLS.copiedLabel;
 
             button.classList.add("copied");
 
             setTimeout(() => {
-
-                button.textContent =
-                    originalLabel;
-
+                button.textContent = originalLabel;
                 button.classList.remove("copied");
-
             }, 1600);
         }
 
         return copied;
-
     }
-
     catch (error) {
-
         console.error(
             "Orbit copy failed:",
             error
@@ -190,20 +127,273 @@ async function orbitSmartCopy(
     }
 }
 
+function loadOrbitHighlighter() {
+    if (window.hljs) {
+        return Promise.resolve(window.hljs);
+    }
 
-/* ===========================================================
-   CREATE CODE COPY BUTTON
-   =========================================================== */
+    if (orbitHighlightPromise) {
+        return orbitHighlightPromise;
+    }
+
+    orbitHighlightPromise =
+        new Promise((resolve, reject) => {
+
+            if (
+                !document.querySelector(
+                    'link[data-orbit-highlight-style="true"]'
+                )
+            ) {
+                const style =
+                    document.createElement("link");
+
+                style.rel = "stylesheet";
+                style.href =
+                    ORBIT_HIGHLIGHT_CONFIG.style;
+
+                style.dataset.orbitHighlightStyle =
+                    "true";
+
+                document.head.appendChild(style);
+            }
+
+            const existingScript =
+                document.querySelector(
+                    'script[data-orbit-highlight="true"]'
+                );
+
+            if (existingScript) {
+                existingScript.addEventListener(
+                    "load",
+                    () => resolve(window.hljs)
+                );
+
+                existingScript.addEventListener(
+                    "error",
+                    reject
+                );
+
+                return;
+            }
+
+            const script =
+                document.createElement("script");
+
+            script.src =
+                ORBIT_HIGHLIGHT_CONFIG.script;
+
+            script.async = true;
+
+            script.dataset.orbitHighlight =
+                "true";
+
+            script.onload = () => {
+                resolve(window.hljs);
+            };
+
+            script.onerror = () => {
+                console.error(
+                    "Orbit could not load syntax highlighting."
+                );
+
+                reject(
+                    new Error(
+                        "Highlight.js failed to load."
+                    )
+                );
+            };
+
+            document.head.appendChild(script);
+        });
+
+    return orbitHighlightPromise;
+}
+
+function detectOrbitCodeLanguage(
+    codeElement,
+    pre
+) {
+    if (!codeElement) {
+        return null;
+    }
+
+    const classes = [
+        ...codeElement.classList,
+        ...(pre ? [...pre.classList] : [])
+    ];
+
+    for (const className of classes) {
+        const match =
+            className.match(
+                /^(?:language|lang)-(.+)$/i
+            );
+
+        if (match) {
+            return match[1].toLowerCase();
+        }
+    }
+
+    const text =
+        codeElement.textContent || "";
+
+    if (
+        /<(!DOCTYPE|html|head|body|div|section|main|script|style)\b/i.test(
+            text
+        )
+    ) {
+        return "html";
+    }
+
+    if (
+        /(^|\n)\s*(const|let|var|function|import|export|class)\s+/m.test(
+            text
+        )
+    ) {
+        return "javascript";
+    }
+
+    if (
+        /(^|\n)\s*(def|class|import|from|print)\s+/m.test(
+            text
+        )
+    ) {
+        return "python";
+    }
+
+    if (
+        /^\s*[{[][\s\S]*[}\]]\s*$/m.test(text)
+    ) {
+        return "json";
+    }
+
+    return null;
+}
+
+async function highlightOrbitCode(
+    codeElement,
+    pre
+) {
+    if (!codeElement) {
+        return;
+    }
+
+    if (
+        codeElement.dataset.orbitHighlighted === "true"
+    ) {
+        return;
+    }
+
+    try {
+        const hljs =
+            await loadOrbitHighlighter();
+
+        if (!hljs) {
+            return;
+        }
+
+        const language =
+            detectOrbitCodeLanguage(
+                codeElement,
+                pre
+            );
+
+        if (language) {
+            const aliases = {
+                js: "javascript",
+                jsx: "javascript",
+                ts: "typescript",
+                tsx: "typescript",
+                html: "xml",
+                htm: "xml",
+                css: "css",
+                py: "python",
+                sh: "bash",
+                shell: "bash",
+                yml: "yaml",
+                md: "markdown",
+                c: "c",
+                cpp: "cpp",
+                cxx: "cpp",
+                cs: "csharp",
+                java: "java",
+                php: "php",
+                rb: "ruby",
+                rs: "rust",
+                sql: "sql"
+            };
+
+            const normalizedLanguage =
+                aliases[language] ||
+                language;
+
+            if (
+                hljs.getLanguage(
+                    normalizedLanguage
+                )
+            ) {
+                const result =
+                    hljs.highlight(
+                        codeElement.textContent,
+                        {
+                            language:
+                                normalizedLanguage
+                        }
+                    );
+
+                codeElement.innerHTML =
+                    result.value;
+
+                codeElement.classList.add(
+                    "hljs"
+                );
+
+                codeElement.dataset.orbitLanguage =
+                    normalizedLanguage;
+            }
+        }
+        else {
+            const result =
+                hljs.highlightAuto(
+                    codeElement.textContent
+                );
+
+            if (result && result.value) {
+                codeElement.innerHTML =
+                    result.value;
+
+                codeElement.classList.add(
+                    "hljs"
+                );
+
+                if (result.language) {
+                    codeElement.dataset.orbitLanguage =
+                        result.language;
+                }
+            }
+        }
+
+        codeElement.dataset.orbitHighlighted =
+            "true";
+
+        if (pre) {
+            pre.dataset.orbitHighlighted =
+                "true";
+        }
+    }
+    catch (error) {
+        console.warn(
+            "Orbit syntax highlighting skipped:",
+            error
+        );
+    }
+}
 
 function createOrbitCodeCopyButton(code) {
-
     const button =
         document.createElement("button");
 
     button.type = "button";
-
-    button.className =
-        "orbit-code-copy";
+    button.className = "orbit-code-copy";
 
     button.textContent =
         ORBIT_RESPONSE_TOOLS.codeCopyLabel;
@@ -216,47 +406,37 @@ function createOrbitCodeCopyButton(code) {
     button.addEventListener(
         "click",
         async () => {
-
             await orbitSmartCopy(
                 code,
                 button,
                 ORBIT_RESPONSE_TOOLS.codeCopyLabel
             );
-
         }
     );
 
     return button;
 }
 
-
-/* ===========================================================
-   ENHANCE CODE BLOCKS
-   =========================================================== */
-
 function enhanceOrbitCodeBlocks(root) {
-
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     const codeBlocks =
         root.querySelectorAll("pre");
 
     codeBlocks.forEach(pre => {
 
-        /*
-         * Do not process the same block twice.
-         */
-
-        if (
-            pre.dataset.orbitCodeEnhanced === "true"
-        ) {
-            return;
-        }
-
         const code =
             pre.querySelector("code");
 
         if (!code) {
+            return;
+        }
+
+        if (
+            pre.dataset.orbitCodeEnhanced === "true"
+        ) {
             return;
         }
 
@@ -276,30 +456,65 @@ function enhanceOrbitCodeBlocks(root) {
 
         wrapper.appendChild(pre);
 
+        const codeLanguage =
+            detectOrbitCodeLanguage(
+                code,
+                pre
+            );
+
+        if (codeLanguage) {
+            wrapper.dataset.language =
+                codeLanguage;
+        }
+
+        const toolbar =
+            document.createElement("div");
+
+        toolbar.className =
+            "orbit-code-toolbar";
+
+        if (codeLanguage) {
+            const languageLabel =
+                document.createElement("span");
+
+            languageLabel.className =
+                "orbit-code-language";
+
+            languageLabel.textContent =
+                codeLanguage;
+
+            toolbar.appendChild(
+                languageLabel
+            );
+        }
+
         const copyButton =
             createOrbitCodeCopyButton(
                 code.textContent
             );
 
-        wrapper.appendChild(
+        toolbar.appendChild(
             copyButton
+        );
+
+        wrapper.insertBefore(
+            toolbar,
+            pre
+        );
+
+        highlightOrbitCode(
+            code,
+            pre
         );
     });
 }
 
-
-/* ===========================================================
-   VALIDATE URL
-   =========================================================== */
-
 function isOrbitValidUrl(value) {
-
     if (!value) {
         return false;
     }
 
     try {
-
         const url =
             new URL(value);
 
@@ -307,22 +522,46 @@ function isOrbitValidUrl(value) {
             url.protocol === "http:" ||
             url.protocol === "https:"
         );
-
     }
-
     catch {
-
         return false;
     }
 }
 
+function isOrbitGitHubUrl(value) {
+    if (!value) {
+        return false;
+    }
 
-/* ===========================================================
-   CHECK WHETHER LINK ALREADY HAS ORBIT CONTROLS
-   =========================================================== */
+    try {
+        const url =
+            new URL(value);
+
+        return (
+            url.hostname === "github.com" ||
+            url.hostname === "www.github.com" ||
+            url.hostname.endsWith(".github.com")
+        );
+    }
+    catch {
+        return false;
+    }
+}
+
+function getOrbitLinkLabel(
+    url,
+    originalText = ""
+) {
+    if (
+        isOrbitGitHubUrl(url)
+    ) {
+        return ORBIT_RESPONSE_TOOLS.githubLabel;
+    }
+
+    return originalText || url;
+}
 
 function orbitLinkAlreadyEnhanced(link) {
-
     if (!link) {
         return true;
     }
@@ -348,28 +587,25 @@ function orbitLinkAlreadyEnhanced(link) {
     return false;
 }
 
-
-/* ===========================================================
-   CREATE LINK ACTIONS
-   =========================================================== */
-
 function createOrbitLinkActions(url) {
-
     const container =
         document.createElement("span");
 
     container.className =
         "orbit-link-actions";
 
-    /* -------------------------------------------------------
-       OPEN
-       ------------------------------------------------------- */
+    if (
+        isOrbitGitHubUrl(url)
+    ) {
+        container.classList.add(
+            "orbit-github-actions"
+        );
+    }
 
     const openButton =
         document.createElement("button");
 
     openButton.type = "button";
-
     openButton.className =
         "orbit-link-open";
 
@@ -384,26 +620,18 @@ function createOrbitLinkActions(url) {
     openButton.addEventListener(
         "click",
         () => {
-
             window.open(
                 url,
                 "_blank",
                 "noopener,noreferrer"
             );
-
         }
     );
-
-
-    /* -------------------------------------------------------
-       COPY
-       ------------------------------------------------------- */
 
     const copyButton =
         document.createElement("button");
 
     copyButton.type = "button";
-
     copyButton.className =
         "orbit-link-copy";
 
@@ -418,40 +646,29 @@ function createOrbitLinkActions(url) {
     copyButton.addEventListener(
         "click",
         async () => {
-
             await orbitSmartCopy(
                 url,
                 copyButton,
                 ORBIT_RESPONSE_TOOLS.copyLabel
             );
-
         }
     );
 
+    container.appendChild(
+        openButton
+    );
 
-    container.appendChild(openButton);
-    container.appendChild(copyButton);
+    container.appendChild(
+        copyButton
+    );
 
     return container;
 }
 
-
-/* ===========================================================
-   ENHANCE EXISTING LINKS
-   ===========================================================
-
-   IMPORTANT:
-   We ONLY enhance normal <a> elements.
-
-   We do NOT search their innerHTML.
-   We do NOT touch href attributes.
-   We do NOT touch data attributes.
-   We do NOT parse generated HTML as text.
-   =========================================================== */
-
 function enhanceOrbitLinks(root) {
-
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     const links =
         root.querySelectorAll("a");
@@ -473,9 +690,8 @@ function enhanceOrbitLinks(root) {
             return;
         }
 
-        /*
-         * Mark before modifying the DOM.
-         */
+        const isGitHub =
+            isOrbitGitHubUrl(href);
 
         link.dataset.orbitEnhanced =
             "true";
@@ -485,10 +701,26 @@ function enhanceOrbitLinks(root) {
         link.rel =
             "noopener noreferrer";
 
+        link.classList.add(
+            "orbit-link"
+        );
 
-        /*
-         * Create wrapper.
-         */
+        if (isGitHub) {
+            link.classList.add(
+                "orbit-github-link"
+            );
+
+            link.dataset.orbitGithub =
+                "true";
+
+            if (
+                !link.textContent.trim() ||
+                link.textContent.trim() === href
+            ) {
+                link.textContent =
+                    getOrbitLinkLabel(href);
+            }
+        }
 
         const container =
             document.createElement("span");
@@ -496,10 +728,11 @@ function enhanceOrbitLinks(root) {
         container.className =
             "orbit-link-container";
 
-
-        /*
-         * Replace link with wrapper.
-         */
+        if (isGitHub) {
+            container.classList.add(
+                "orbit-github-container"
+            );
+        }
 
         link.parentNode.insertBefore(
             container,
@@ -511,30 +744,13 @@ function enhanceOrbitLinks(root) {
         container.appendChild(
             createOrbitLinkActions(href)
         );
-
     });
 }
 
-
-/* ===========================================================
-   FIND GENUINE RAW URLS
-   ===========================================================
-
-   This function ONLY processes text nodes.
-
-   It completely ignores:
-   - HTML
-   - attributes
-   - existing links
-   - buttons
-   - code
-   - pre blocks
-   - Orbit-generated elements
-   =========================================================== */
-
 function enhanceOrbitRawUrls(root) {
-
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     const walker =
         document.createTreeWalker(
@@ -549,17 +765,12 @@ function enhanceOrbitRawUrls(root) {
     while (
         (node = walker.nextNode())
     ) {
-
         const parent =
             node.parentElement;
 
         if (!parent) {
             continue;
         }
-
-        /*
-         * NEVER process generated Orbit controls.
-         */
 
         if (
             parent.closest(
@@ -572,19 +783,12 @@ function enhanceOrbitRawUrls(root) {
         const text =
             node.nodeValue || "";
 
-        /*
-         * Only process text containing
-         * an actual HTTP/HTTPS URL.
-         */
-
         if (
             /https?:\/\/[^\s<>"']+/i.test(text)
         ) {
-
             nodes.push(node);
         }
     }
-
 
     nodes.forEach(textNode => {
 
@@ -598,39 +802,42 @@ function enhanceOrbitRawUrls(root) {
             document.createDocumentFragment();
 
         let lastIndex = 0;
-
         let match;
-
 
         while (
             (match = urlPattern.exec(text))
         ) {
-
             let url =
                 match[0];
 
-            /*
-             * Remove punctuation accidentally
-             * attached to a URL.
-             */
-
-            url =
-                url.replace(
-                    /[.,!?;:)]+$/,
-                    ""
+            const punctuationMatch =
+                url.match(
+                    /[.,!?;:)]+$/
                 );
 
+            let punctuation = "";
+
+            if (punctuationMatch) {
+                punctuation =
+                    punctuationMatch[0];
+
+                url =
+                    url.slice(
+                        0,
+                        -punctuation.length
+                    );
+            }
+
+            if (
+                !isOrbitValidUrl(url)
+            ) {
+                continue;
+            }
 
             const start =
                 match.index;
 
-
-            /*
-             * Text before URL.
-             */
-
             if (start > lastIndex) {
-
                 fragment.appendChild(
                     document.createTextNode(
                         text.slice(
@@ -641,35 +848,38 @@ function enhanceOrbitRawUrls(root) {
                 );
             }
 
-
-            /*
-             * Create normal link.
-             */
+            const isGitHub =
+                isOrbitGitHubUrl(url);
 
             const link =
                 document.createElement("a");
 
             link.href = url;
-
-            link.textContent = url;
-
             link.target = "_blank";
 
             link.rel =
                 "noopener noreferrer";
 
-
-            /*
-             * Mark as enhanced.
-             */
-
             link.dataset.orbitEnhanced =
                 "true";
 
+            link.className =
+                "orbit-link";
 
-            /*
-             * Create wrapper.
-             */
+            if (isGitHub) {
+                link.classList.add(
+                    "orbit-github-link"
+                );
+
+                link.dataset.orbitGithub =
+                    "true";
+
+                link.textContent =
+                    ORBIT_RESPONSE_TOOLS.githubLabel;
+            }
+            else {
+                link.textContent = url;
+            }
 
             const container =
                 document.createElement("span");
@@ -677,6 +887,11 @@ function enhanceOrbitRawUrls(root) {
             container.className =
                 "orbit-link-container";
 
+            if (isGitHub) {
+                container.classList.add(
+                    "orbit-github-container"
+                );
+            }
 
             container.appendChild(link);
 
@@ -684,34 +899,29 @@ function enhanceOrbitRawUrls(root) {
                 createOrbitLinkActions(url)
             );
 
-
             fragment.appendChild(
                 container
             );
 
+            if (punctuation) {
+                fragment.appendChild(
+                    document.createTextNode(
+                        punctuation
+                    )
+                );
+            }
 
             lastIndex =
                 start + match[0].length;
         }
 
-
-        /*
-         * No valid URL found.
-         */
-
         if (lastIndex === 0) {
             return;
         }
 
-
-        /*
-         * Add remaining text.
-         */
-
         if (
             lastIndex < text.length
         ) {
-
             fragment.appendChild(
                 document.createTextNode(
                     text.slice(lastIndex)
@@ -719,27 +929,17 @@ function enhanceOrbitRawUrls(root) {
             );
         }
 
-
-        /*
-         * Replace original text node.
-         */
-
         textNode.parentNode.replaceChild(
             fragment,
             textNode
         );
-
     });
 }
 
-
-/* ===========================================================
-   CLEAN STRAY MARKDOWN
-   =========================================================== */
-
 function cleanOrbitMarkdown(root) {
-
-    if (!root) return;
+    if (!root) {
+        return;
+    }
 
     const walker =
         document.createTreeWalker(
@@ -754,21 +954,12 @@ function cleanOrbitMarkdown(root) {
     while (
         (node = walker.nextNode())
     ) {
-
         const parent =
             node.parentElement;
 
         if (!parent) {
             continue;
         }
-
-        /*
-         * NEVER clean inside:
-         * - code
-         * - links
-         * - buttons
-         * - generated Orbit controls
-         */
 
         if (
             parent.closest(
@@ -781,17 +972,10 @@ function cleanOrbitMarkdown(root) {
         nodes.push(node);
     }
 
-
     nodes.forEach(textNode => {
 
         let text =
             textNode.nodeValue;
-
-
-        /*
-         * Remove completely isolated
-         * Markdown emphasis markers.
-         */
 
         text =
             text.replace(
@@ -799,18 +983,11 @@ function cleanOrbitMarkdown(root) {
                 "$1"
             );
 
-
         text =
             text.replace(
                 /(^|\s)_{1,3}(?=\s|$)/g,
                 "$1"
             );
-
-
-        /*
-         * Remove stray emphasis markers
-         * surrounding ordinary words.
-         */
 
         text =
             text.replace(
@@ -824,41 +1001,19 @@ function cleanOrbitMarkdown(root) {
                 ""
             );
 
-
         if (
             text !== textNode.nodeValue
         ) {
-
             textNode.nodeValue =
                 text;
         }
-
     });
 }
 
-
-/* ===========================================================
-   ENHANCE RESPONSE
-   =========================================================== */
-
 function enhanceOrbitResponse(messageElement) {
-
     if (!messageElement) {
         return;
     }
-
-
-    /*
-     * IMPORTANT ORDER
-     *
-     * 1. Code blocks
-     * 2. Existing links
-     * 3. Raw URLs
-     * 4. Markdown cleanup
-     *
-     * Each function ignores elements
-     * already processed by the previous one.
-     */
 
     enhanceOrbitCodeBlocks(
         messageElement
@@ -877,13 +1032,7 @@ function enhanceOrbitResponse(messageElement) {
     );
 }
 
-
-/* ===========================================================
-   OBSERVE ORBIT CHAT
-   =========================================================== */
-
 function initializeOrbitResponseTools() {
-
     const chatWindow =
         document.getElementById(
             "chat-window"
@@ -893,27 +1042,15 @@ function initializeOrbitResponseTools() {
         return;
     }
 
-
-    /*
-     * Process existing Orbit messages.
-     */
-
     chatWindow
         .querySelectorAll(
             ".message.orbit"
         )
         .forEach(message => {
-
             enhanceOrbitResponse(
                 message
             );
-
         });
-
-
-    /*
-     * Watch for newly-created messages.
-     */
 
     const observer =
         new MutationObserver(
@@ -932,18 +1069,12 @@ function initializeOrbitResponseTools() {
                                     return;
                                 }
 
-
-                                /*
-                                 * Direct Orbit message.
-                                 */
-
                                 if (
                                     node.matches &&
                                     node.matches(
                                         ".message.orbit"
                                     )
                                 ) {
-
                                     enhanceOrbitResponse(
                                         node
                                     );
@@ -951,39 +1082,26 @@ function initializeOrbitResponseTools() {
                                     return;
                                 }
 
-
-                                /*
-                                 * Orbit message nested
-                                 * inside another element.
-                                 */
-
                                 if (
                                     node.querySelectorAll
                                 ) {
-
                                     node
                                         .querySelectorAll(
                                             ".message.orbit"
                                         )
                                         .forEach(
                                             message => {
-
                                                 enhanceOrbitResponse(
                                                     message
                                                 );
-
                                             }
                                         );
                                 }
-
                             });
-
                     }
                 );
-
             }
         );
-
 
     observer.observe(
         chatWindow,
@@ -993,40 +1111,24 @@ function initializeOrbitResponseTools() {
         }
     );
 
-
     console.log(
         "Orbit response tools initialized."
     );
 }
 
-
-/* ===========================================================
-   START
-   =========================================================== */
-
 if (
     document.readyState === "loading"
 ) {
-
     document.addEventListener(
         "DOMContentLoaded",
         initializeOrbitResponseTools
     );
-
 }
-
 else {
-
     initializeOrbitResponseTools();
 }
 
-
-/* ===========================================================
-   PUBLIC API
-   =========================================================== */
-
 window.OrbitResponseTools = {
-
     enhance:
         enhanceOrbitResponse,
 
@@ -1037,6 +1139,11 @@ window.OrbitResponseTools = {
         enhanceOrbitLinks,
 
     enhanceCode:
-        enhanceOrbitCodeBlocks
+        enhanceOrbitCodeBlocks,
 
+    highlightCode:
+        highlightOrbitCode,
+
+    isGitHub:
+        isOrbitGitHubUrl
 };

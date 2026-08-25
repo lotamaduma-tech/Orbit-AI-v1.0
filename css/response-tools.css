@@ -1,67 +1,27 @@
-/* =========================================================
-   ORBIT AI — COPY & LINK COMPONENTS
-   =========================================================
-
-   Used by:
-   - Orbit AI chat responses
-   - Code blocks
-   - Links
-   - Copy buttons
-   - Shared interface components
-
-   IMPORTANT:
-   This file uses the GLOBAL Orbit AI theme variables.
-   It does NOT define a separate color system.
-
-   Supported themes:
-   - Light
-   - Dark
-   - System
-   ========================================================= */
-
-
-/* =========================================================
-   COPY / LINK CONTAINER
-   ========================================================= */
-
 .orbit-copy-link {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-sm);
-
     margin-top: var(--spacing-sm);
-
     font-family: var(--font-family);
 }
-
-
-/* =========================================================
-   COPY BUTTON
-   ========================================================= */
 
 .orbit-copy-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xs);
-
     min-height: 34px;
     padding: 7px 12px;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-
     background: var(--surface);
     color: var(--text-secondary);
-
     font-family: var(--font-family);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-
     cursor: pointer;
-
     box-shadow: var(--shadow-xs);
-
     transition:
         background-color var(--transition-fast),
         border-color var(--transition-fast),
@@ -70,45 +30,23 @@
         transform var(--transition-fast);
 }
 
-
-/* =========================================================
-   COPY BUTTON — HOVER
-   ========================================================= */
-
 .orbit-copy-btn:hover {
     background: var(--surface-hover);
     border-color: var(--primary);
     color: var(--primary);
-
     box-shadow: var(--shadow-sm);
-
     transform: translateY(-1px);
 }
-
-
-/* =========================================================
-   COPY BUTTON — ACTIVE
-   ========================================================= */
 
 .orbit-copy-btn:active {
     transform: translateY(0);
     box-shadow: var(--shadow-xs);
 }
 
-
-/* =========================================================
-   COPY BUTTON — FOCUS
-   ========================================================= */
-
 .orbit-copy-btn:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
-
-
-/* =========================================================
-   COPY BUTTON — SUCCESS STATE
-   ========================================================= */
 
 .orbit-copy-btn.copied {
     background: var(--success-soft);
@@ -116,21 +54,11 @@
     color: var(--success);
 }
 
-
-/* =========================================================
-   COPY BUTTON — ERROR STATE
-   ========================================================= */
-
 .orbit-copy-btn.copy-error {
     background: var(--danger-soft);
     border-color: var(--danger);
     color: var(--danger);
 }
-
-
-/* =========================================================
-   COPY ICON
-   ========================================================= */
 
 .orbit-copy-btn .copy-icon,
 .orbit-copy-btn .success-icon,
@@ -138,29 +66,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     width: 16px;
     height: 16px;
-
     flex-shrink: 0;
 }
-
-
-/* =========================================================
-   HIDE STATE ICONS
-   ========================================================= */
 
 .orbit-copy-btn .success-icon,
 .orbit-copy-btn .error-icon {
     display: none;
 }
 
-
-/* =========================================================
-   SHOW SUCCESS ICON
-   ========================================================= */
-
-.orbit-copy-btn.copied .copy-icon {
+.orbit-copy-btn.copied .copy-icon,
+.orbit-copy-btn.copy-error .copy-icon {
     display: none;
 }
 
@@ -168,120 +85,77 @@
     display: inline-flex;
 }
 
-
-/* =========================================================
-   SHOW ERROR ICON
-   ========================================================= */
-
-.orbit-copy-btn.copy-error .copy-icon {
-    display: none;
-}
-
 .orbit-copy-btn.copy-error .error-icon {
     display: inline-flex;
 }
-
-
-/* =========================================================
-   COPY BUTTON TEXT
-   ========================================================= */
 
 .orbit-copy-btn .copy-text {
     white-space: nowrap;
 }
 
-
-/* =========================================================
-   CODE BLOCK WRAPPER
-   ========================================================= */
-
 .orbit-code-wrapper {
     position: relative;
-
     width: 100%;
-
     margin: var(--spacing-md) 0;
-
     overflow: hidden;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-
     background: var(--surface-soft);
-
     box-shadow: var(--shadow-xs);
 }
 
-
-/* =========================================================
-   CODE BLOCK HEADER
-   ========================================================= */
-
+.orbit-code-toolbar,
 .orbit-code-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    min-height: 42px;
+    gap: var(--spacing-sm);
+    min-height: 40px;
     padding: 6px var(--spacing-sm) 6px var(--spacing-md);
-
     border-bottom: 1px solid var(--border);
-
     background: var(--surface);
 }
 
-
-/* =========================================================
-   CODE LANGUAGE LABEL
-   ========================================================= */
-
 .orbit-code-language {
+    min-width: 0;
+    overflow: hidden;
     color: var(--muted);
-
-    font-family: var(--font-secondary);
+    font-family: var(
+        --font-secondary,
+        "Space Grotesk",
+        sans-serif
+    );
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
-
     letter-spacing: 0.04em;
+    line-height: 1;
+    text-overflow: ellipsis;
     text-transform: uppercase;
+    white-space: nowrap;
 }
-
-
-/* =========================================================
-   CODE COPY BUTTON
-   ========================================================= */
 
 .orbit-code-copy {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-
     min-height: 30px;
     padding: 5px 9px;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-
     background: var(--surface-soft);
     color: var(--text-secondary);
-
     font-family: var(--font-family);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
-
+    line-height: 1;
     cursor: pointer;
-
     transition:
         background-color var(--transition-fast),
         border-color var(--transition-fast),
-        color var(--transition-fast);
+        color var(--transition-fast),
+        transform var(--transition-fast);
 }
-
-
-/* =========================================================
-   CODE COPY BUTTON — HOVER
-   ========================================================= */
 
 .orbit-code-copy:hover {
     background: var(--surface-hover);
@@ -289,10 +163,14 @@
     color: var(--primary);
 }
 
+.orbit-code-copy:active {
+    transform: translateY(1px);
+}
 
-/* =========================================================
-   CODE COPY BUTTON — SUCCESS
-   ========================================================= */
+.orbit-code-copy:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
 
 .orbit-code-copy.copied {
     background: var(--success-soft);
@@ -300,145 +178,262 @@
     color: var(--success);
 }
 
-
-/* =========================================================
-   CODE COPY BUTTON — ERROR
-   ========================================================= */
-
 .orbit-code-copy.copy-error {
     background: var(--danger-soft);
     border-color: var(--danger);
     color: var(--danger);
 }
 
-
-/* =========================================================
-   ORBIT CODE BLOCK
-   ========================================================= */
-
-.orbit-code-block {
+.orbit-code-block,
+.orbit-code-wrapper pre {
     display: block;
-
+    width: 100%;
     margin: 0;
     padding: var(--spacing-md);
-
     overflow-x: auto;
-
+    border: 0;
+    border-radius: 0;
     background: var(--surface-soft);
     color: var(--text);
-
     font-family:
         "SFMono-Regular",
         Consolas,
         "Liberation Mono",
         Menlo,
         monospace;
-
     font-size: var(--font-size-sm);
     line-height: 1.65;
-
     white-space: pre;
     tab-size: 4;
-
     scrollbar-width: thin;
 }
 
+.orbit-code-wrapper pre code {
+    display: block;
+    min-width: max-content;
+    margin: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
 
-/* =========================================================
-   CODE BLOCK SCROLLBAR
-   ========================================================= */
+.orbit-code-wrapper .hljs {
+    padding: 0;
+    background: transparent;
+}
 
-.orbit-code-block::-webkit-scrollbar {
+.orbit-code-wrapper pre code.hljs {
+    background: transparent;
+}
+
+.orbit-code-block::-webkit-scrollbar,
+.orbit-code-wrapper pre::-webkit-scrollbar {
+    width: 7px;
     height: 7px;
 }
 
-
-.orbit-code-block::-webkit-scrollbar-track {
+.orbit-code-block::-webkit-scrollbar-track,
+.orbit-code-wrapper pre::-webkit-scrollbar-track {
     background: var(--surface);
 }
 
-
-.orbit-code-block::-webkit-scrollbar-thumb {
+.orbit-code-block::-webkit-scrollbar-thumb,
+.orbit-code-wrapper pre::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: var(--radius-full);
 }
 
-
-.orbit-code-block::-webkit-scrollbar-thumb:hover {
+.orbit-code-block::-webkit-scrollbar-thumb:hover,
+.orbit-code-wrapper pre::-webkit-scrollbar-thumb:hover {
     background: var(--muted);
 }
 
-
-/* =========================================================
-   INLINE CODE
-   ========================================================= */
-
 .message.orbit code:not(.orbit-code-block code) {
     display: inline-block;
-
     padding: 2px 6px;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-xs);
-
     background: var(--surface-soft);
     color: var(--primary);
-
     font-family:
         "SFMono-Regular",
         Consolas,
         "Liberation Mono",
         Menlo,
         monospace;
-
     font-size: 0.88em;
 }
 
-
-/* =========================================================
-   ORBIT RESPONSE LINKS
-   ========================================================= */
-
 .message.orbit a {
     color: var(--primary);
-
     font-weight: var(--font-weight-medium);
-
     text-decoration: underline;
     text-decoration-color: transparent;
     text-underline-offset: 3px;
-
     transition:
         color var(--transition-fast),
         text-decoration-color var(--transition-fast);
 }
-
-
-/* =========================================================
-   LINKS — HOVER
-   ========================================================= */
 
 .message.orbit a:hover {
     color: var(--primary-dark);
     text-decoration-color: currentColor;
 }
 
-
-/* =========================================================
-   LINKS — FOCUS
-   ========================================================= */
-
 .message.orbit a:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
-
     border-radius: var(--radius-xs);
 }
 
+.orbit-link-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    margin: 3px 0;
+    vertical-align: middle;
+}
 
-/* =========================================================
-   EXTERNAL LINK INDICATOR
-   ========================================================= */
+.orbit-link {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: 100%;
+    color: var(--primary) !important;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    text-decoration: none !important;
+    overflow-wrap: anywhere;
+}
+
+.orbit-link:hover {
+    color: var(--primary-dark) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+}
+
+.orbit-link-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.orbit-link-open,
+.orbit-link-copy {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 26px;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast),
+        opacity var(--transition-fast);
+}
+
+.orbit-link-open:hover,
+.orbit-link-copy:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.orbit-link-open:active,
+.orbit-link-copy:active {
+    transform: translateY(1px);
+}
+
+.orbit-link-open:focus-visible,
+.orbit-link-copy:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.orbit-link-copy.copied {
+    border-color: var(--success);
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.orbit-link-actions .orbit-link-open,
+.orbit-link-actions .orbit-link-copy {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(2px);
+}
+
+.orbit-link-container:hover
+.orbit-link-actions .orbit-link-open,
+.orbit-link-container:hover
+.orbit-link-actions .orbit-link-copy,
+.orbit-link-container:focus-within
+.orbit-link-actions .orbit-link-open,
+.orbit-link-container:focus-within
+.orbit-link-actions .orbit-link-copy {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.orbit-github-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+.orbit-github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    color: var(--primary) !important;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.orbit-github-link::before {
+    content: "GitHub";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 3px 7px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+}
+
+.orbit-github-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
 
 .orbit-external-link {
     display: inline-flex;
@@ -446,33 +441,21 @@
     gap: 4px;
 }
 
-
-/* =========================================================
-   LINK BUTTON
-   ========================================================= */
-
 .orbit-link-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-
     padding: 7px 11px;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-
     background: var(--surface);
     color: var(--text-secondary);
-
     font-family: var(--font-family);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-
     text-decoration: none;
-
     cursor: pointer;
-
     transition:
         background-color var(--transition-fast),
         border-color var(--transition-fast),
@@ -481,211 +464,333 @@
         box-shadow var(--transition-fast);
 }
 
-
-/* =========================================================
-   LINK BUTTON — HOVER
-   ========================================================= */
-
 .orbit-link-btn:hover {
     background: var(--primary-soft);
     border-color: var(--primary);
     color: var(--primary);
-
     box-shadow: var(--shadow-xs);
-
     transform: translateY(-1px);
 }
-
-
-/* =========================================================
-   LINK BUTTON — ACTIVE
-   ========================================================= */
 
 .orbit-link-btn:active {
     transform: translateY(0);
 }
-
-
-/* =========================================================
-   LINK BUTTON — FOCUS
-   ========================================================= */
 
 .orbit-link-btn:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
 
-
-/* =========================================================
-   LINK GROUP
-   ========================================================= */
-
 .orbit-link-group {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: var(--spacing-sm);
-
     margin-top: var(--spacing-sm);
 }
-
-
-/* =========================================================
-   COPY FEEDBACK
-   ========================================================= */
 
 .orbit-copy-feedback {
     display: inline-flex;
     align-items: center;
-
     min-height: 20px;
-
     color: var(--success);
-
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
-
     opacity: 0;
-
     transform: translateY(2px);
-
     pointer-events: none;
-
     transition:
         opacity var(--transition-fast),
         transform var(--transition-fast);
 }
-
-
-/* =========================================================
-   COPY FEEDBACK — VISIBLE
-   ========================================================= */
 
 .orbit-copy-feedback.visible {
     opacity: 1;
     transform: translateY(0);
 }
 
-
-/* =========================================================
-   TOOLTIP
-   ========================================================= */
-
 .orbit-copy-btn[data-tooltip],
 .orbit-code-copy[data-tooltip] {
     position: relative;
 }
 
-
-/* =========================================================
-   TOOLTIP CONTENT
-   ========================================================= */
-
 .orbit-copy-btn[data-tooltip]::after,
 .orbit-code-copy[data-tooltip]::after {
     content: attr(data-tooltip);
-
     position: absolute;
-
     bottom: calc(100% + 8px);
     left: 50%;
-
-    transform:
-        translateX(-50%)
-        translateY(3px);
-
     padding: 5px 8px;
-
     border: 1px solid var(--border);
     border-radius: var(--radius-xs);
-
     background: var(--surface);
     color: var(--text);
-
     box-shadow: var(--shadow-sm);
-
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
-
     white-space: nowrap;
-
     opacity: 0;
     visibility: hidden;
-
     pointer-events: none;
-
+    transform: translateX(-50%) translateY(3px);
     transition:
         opacity var(--transition-fast),
         transform var(--transition-fast),
         visibility var(--transition-fast);
-
     z-index: var(--z-tooltip, 3000);
 }
-
-
-/* =========================================================
-   TOOLTIP — SHOW
-   ========================================================= */
 
 .orbit-copy-btn[data-tooltip]:hover::after,
 .orbit-code-copy[data-tooltip]:hover::after {
     opacity: 1;
     visibility: visible;
-
-    transform:
-        translateX(-50%)
-        translateY(0);
+    transform: translateX(-50%) translateY(0);
 }
 
+.orbit-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: var(--spacing-md) 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-xs);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
+.orbit-table {
+    width: 100%;
+    min-width: 560px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.orbit-table th,
+.orbit-table td {
+    min-width: 100px;
+    padding: 11px 14px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.orbit-table th {
+    position: relative;
+    background: var(--surface-soft);
+    color: var(--text);
+    font-family: var(
+        --font-secondary,
+        "Space Grotesk",
+        sans-serif
+    );
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.01em;
+}
+
+.orbit-table td {
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-regular);
+}
+
+.orbit-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.orbit-table th:last-child,
+.orbit-table td:last-child {
+    border-right: 0;
+}
+
+.orbit-table tbody tr {
+    transition: background-color var(--transition-fast);
+}
+
+.orbit-table tbody tr:hover td {
+    background: var(--surface-hover);
+}
+
+.orbit-table tbody tr:nth-child(even) td {
+    background: var(--surface-soft);
+}
+
+.orbit-table tbody tr:nth-child(even):hover td {
+    background: var(--surface-hover);
+}
+
+.orbit-table td:first-child {
+    color: var(--text);
+    font-weight: var(--font-weight-medium);
+}
+
+.orbit-table a {
+    color: var(--primary);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+}
+
+.orbit-table a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.orbit-table a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+}
+
+.orbit-table code {
+    display: inline-block;
+    max-width: 100%;
+    padding: 2px 5px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: var(--surface-soft);
+    color: var(--primary);
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        Menlo,
+        monospace;
+    font-size: 0.86em;
+    overflow-wrap: anywhere;
+}
+
+.orbit-table th:empty,
+.orbit-table td:empty {
+    min-width: 70px;
+}
+
+.orbit-table-wrapper::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+.orbit-table-wrapper::-webkit-scrollbar-track {
+    background: var(--surface-soft);
+    border-radius: var(--radius-full);
+}
+
+.orbit-table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
+
+.orbit-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+.message.orbit p {
+    margin: 0 0 var(--spacing-md);
+    line-height: 1.65;
+}
+
+.message.orbit p:last-child {
+    margin-bottom: 0;
+}
+
+.message.orbit ul,
+.message.orbit ol {
+    margin: var(--spacing-sm) 0 var(--spacing-md);
+    padding-left: 22px;
+}
+
+.message.orbit li {
+    margin: 5px 0;
+    line-height: 1.6;
+}
+
+.message.orbit h1,
+.message.orbit h2,
+.message.orbit h3,
+.message.orbit h4 {
+    margin: var(--spacing-lg) 0 var(--spacing-sm);
+    line-height: 1.3;
+}
+
+.message.orbit h1:first-child,
+.message.orbit h2:first-child,
+.message.orbit h3:first-child,
+.message.orbit h4:first-child {
+    margin-top: 0;
+}
 
 @media (max-width: 768px) {
-
     .orbit-copy-link {
         width: 100%;
     }
-
 
     .orbit-copy-btn {
         min-height: 36px;
         padding: 8px 11px;
     }
 
-
     .orbit-code-wrapper {
         margin: var(--spacing-sm) 0;
         border-radius: var(--radius-sm);
     }
 
-
+    .orbit-code-toolbar,
     .orbit-code-header {
         min-height: 40px;
         padding-left: var(--spacing-sm);
     }
 
-
-    .orbit-code-block {
+    .orbit-code-block,
+    .orbit-code-wrapper pre {
         padding: var(--spacing-sm);
-
         font-size: var(--font-size-xs);
         line-height: 1.6;
     }
-
 
     .orbit-link-group {
         width: 100%;
     }
 
-
     .orbit-link-btn {
         min-height: 36px;
     }
 
+    .orbit-link-actions .orbit-link-open,
+    .orbit-link-actions .orbit-link-copy {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: none;
+    }
 
-    /* Disable tooltips on touch-sized screens. */
+    .orbit-table {
+        min-width: 520px;
+        font-size: var(--font-size-xs);
+    }
+
+    .orbit-table th,
+    .orbit-table td {
+        min-width: 90px;
+        padding: 9px 11px;
+    }
+
+    .orbit-table th {
+        font-size: 0.72rem;
+    }
 
     .orbit-copy-btn[data-tooltip]::after,
     .orbit-code-copy[data-tooltip]::after {
@@ -693,109 +798,87 @@
     }
 }
 
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
 @media (max-width: 480px) {
-
     .orbit-copy-link {
         gap: 6px;
     }
-
 
     .orbit-copy-btn {
         font-size: var(--font-size-xs);
     }
 
-
+    .orbit-code-toolbar,
     .orbit-code-header {
         gap: var(--spacing-xs);
     }
-
 
     .orbit-code-language {
         font-size: 0.68rem;
     }
 
-
     .orbit-code-copy {
+        min-height: 28px;
         padding: 5px 7px;
     }
 
-
-    .orbit-code-block {
+    .orbit-code-block,
+    .orbit-code-wrapper pre {
         padding: 10px;
-
         font-size: 0.72rem;
     }
+
+    .orbit-link-container {
+        gap: 6px;
+    }
+
+    .orbit-github-container {
+        gap: 6px;
+    }
+
+    .orbit-link-open,
+    .orbit-link-copy {
+        padding: 5px 7px;
+        font-size: 10px;
+    }
+
+    .orbit-table {
+        min-width: 460px;
+        font-size: 12px;
+    }
+
+    .orbit-table th,
+    .orbit-table td {
+        min-width: 82px;
+        padding: 8px 9px;
+    }
+
+    .orbit-table th {
+        font-size: 11px;
+    }
 }
-
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
 
 html[data-reduced-motion="true"] .orbit-copy-btn,
 html[data-reduced-motion="true"] .orbit-code-copy,
 html[data-reduced-motion="true"] .orbit-link-btn,
+html[data-reduced-motion="true"] .orbit-link-open,
+html[data-reduced-motion="true"] .orbit-link-copy,
 html[data-reduced-motion="true"] .orbit-copy-feedback,
 html[data-reduced-motion="true"] .orbit-copy-btn::after,
-html[data-reduced-motion="true"] .orbit-code-copy::after {
+html[data-reduced-motion="true"] .orbit-code-copy::after,
+html[data-reduced-motion="true"] .orbit-table tbody tr {
     transition: none !important;
     transform: none !important;
 }
 
-
-/* =========================================================
-   ANIMATIONS DISABLED
-   ========================================================= */
-
 html[data-animations="false"] .orbit-copy-btn,
 html[data-animations="false"] .orbit-code-copy,
 html[data-animations="false"] .orbit-link-btn,
+html[data-animations="false"] .orbit-link-open,
+html[data-animations="false"] .orbit-link-copy,
 html[data-animations="false"] .orbit-copy-feedback,
 html[data-animations="false"] .orbit-copy-btn::after,
-html[data-animations="false"] .orbit-code-copy::after {
+html[data-animations="false"] .orbit-code-copy::after,
+html[data-animations="false"] .orbit-table tbody tr {
     transition: none !important;
     animation: none !important;
-}
-
-/* ===========================================================
-   ORBIT AI — MARKDOWN TABLES
-   =========================================================== */
-
-.orbit-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    margin: 14px 0;
-    border-radius: 12px;
-}
-
-.orbit-table {
-    width: 100%;
-    min-width: 520px;
-    border-collapse: collapse;
-    font-size: 14px;
-}
-
-.orbit-table th,
-.orbit-table td {
-    padding: 11px 13px;
-    text-align: left;
-    border: 1px solid var(--border);
-}
-
-.orbit-table th {
-    font-weight: 700;
-    background: var(--card-hover);
-}
-
-.orbit-table td {
-    background: var(--card);
-}
-
-.orbit-table tr:hover td {
-    background: var(--card-hover);
 }

@@ -1,3 +1,5 @@
+/* Orbit AI dashboard */
+
 *,
 *::before,
 *::after {
@@ -12,13 +14,15 @@ html {
 }
 
 body {
+  width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-body);
   font-size: var(--font-size-md);
   line-height: 1.5;
-  color: var(--text);
-  background: var(--bg);
-  overflow-x: hidden;
 }
 
 button,
@@ -30,9 +34,14 @@ select {
 
 button {
   border: 0;
-  background: none;
+  background: transparent;
   color: inherit;
   cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 a {
@@ -60,113 +69,66 @@ ol {
 }
 
 ::selection {
-  color: #fff;
   background: var(--primary);
+  color: #fff;
 }
 
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+select:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
-button:disabled {
-  opacity: .55;
-  cursor: not-allowed;
-}
 
-/* Orbit AI — App, navigation and chat layout */
+/* APP */
 
 .orbit-app {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--bg);
   color: var(--text);
-  overflow: hidden;
 }
 
 .orbit-main {
   position: relative;
-  z-index: 1;
-  width: 100%;
-  min-width: 0;
-  height: 100dvh;
-  min-height: 0;
-  margin-left: 0;
+  z-index: var(--z-content);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-}
-
-.orbit-app.nav-open .orbit-main {
   width: 100%;
-  margin-left: 0;
-}
-
-.orbit-main .chat-workspace {
-  width: 100%;
+  height: 100%;
   min-width: 0;
   min-height: 0;
-  flex: 1 1 auto;
+  background: var(--bg);
+  transition:
+    width var(--transition-normal),
+    margin-left var(--transition-normal);
 }
-
-.orbit-main .chat-window,
-.orbit-main .command-area {
-  width: 100%;
-  min-width: 0;
-}
-
-/* =========================================================
-   ORBIT AI — APP, NAVIGATION & CHAT LAYOUT
-   Uses the exact class names from index.html
-   ========================================================= */
-
-
-
-
-/* =========================================================
-   CHAT WORKSPACE
-   ========================================================= */
 
 .chat-workspace {
   position: relative;
   z-index: 1;
-
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-
   width: 100%;
   min-width: 0;
   min-height: 0;
-
   overflow: hidden;
 }
 
 
-/* =========================================================
-   STATUS DOT
-   ========================================================= */
+/* SCROLLBAR */
 
-.status-dot {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 7px;
-
-  border-radius: var(--radius-full);
-
-  background: var(--success);
-  box-shadow: 0 0 0 3px var(--success-soft);
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
-
-
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -187,14 +149,11 @@ button:disabled {
 }
 
 
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
+/* SIDEBAR */
 
 .orbit-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
-
   z-index: var(--z-navigation);
 
   display: flex;
@@ -206,14 +165,23 @@ button:disabled {
 
   padding: var(--spacing-md);
 
-  background: var(--surface);
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--surface) 96%, var(--primary) 4%),
+      var(--surface)
+    );
+
   color: var(--text);
 
   border-right: 1px solid var(--border);
 
   box-shadow: var(--shadow-navigation);
 
-  overflow: hidden;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 
   transform: translateX(-100%);
   opacity: 0;
@@ -221,13 +189,10 @@ button:disabled {
   pointer-events: none;
 
   transition:
-    transform 0.25s ease,
-    opacity 0.2s ease,
-    visibility 0.25s ease;
+    transform var(--transition-normal),
+    opacity var(--transition-fast),
+    visibility var(--transition-normal);
 }
-
-
-/* Sidebar open */
 
 .orbit-app.nav-open .orbit-sidebar,
 .orbit-sidebar.active {
@@ -238,59 +203,97 @@ button:disabled {
 }
 
 
-/* =========================================================
-   SIDEBAR HEADER
-   ========================================================= */
+/* SIDEBAR HEADER */
 
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  min-height: 40px;
-
+  width: 100%;
+  min-height: 44px;
   margin-bottom: var(--spacing-md);
+
+  flex-shrink: 0;
 }
 
 
-/* =========================================================
-   BRAND
-   ========================================================= */
+/* LOGO */
 
-.brand {
+.sidebar-header .brand {
   display: inline-flex;
-  align-items: baseline;
-  gap: var(--spacing-xs);
+  align-items: center;
+  gap: 9px;
+
+  min-width: 0;
 
   color: var(--text);
 
   font-family: var(--font-secondary);
-  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
-.brand strong {
+.sidebar-header .brand:hover {
+  opacity: 0.88;
+}
+
+.brand-logo {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  object-fit: cover;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: var(--surface-soft);
+
+  box-shadow:
+    0 0 0 4px var(--primary-soft),
+    var(--shadow-xs);
+}
+
+.brand-name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+
+  min-width: 0;
+
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+.brand-name strong {
+  color: var(--text);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
 }
 
-.brand span {
+.brand-name span {
   color: var(--primary);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
 }
 
 
-/* =========================================================
-   SIDEBAR CLOSE BUTTON
-   ========================================================= */
+/* SIDEBAR CLOSE */
 
 .sidebar-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
 
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -305,15 +308,13 @@ button:disabled {
   transform: scale(0.9);
 
   transition:
-    opacity 0.2s ease,
-    visibility 0.2s ease,
-    transform 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
+    opacity var(--transition-fast),
+    visibility var(--transition-fast),
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
-
-
-/* Show close button when sidebar is open */
 
 .orbit-app.nav-open .sidebar-close,
 .orbit-sidebar.active .sidebar-close {
@@ -324,769 +325,250 @@ button:disabled {
 }
 
 .sidebar-close:hover {
-  color: var(--danger);
   background: var(--surface-hover);
+  border-color: var(--primary-light);
+  color: var(--danger);
 }
 
-/* =========================================================
-   ORBIT AI — SIDEBAR CHAT ACTIONS
-   + RECENT CONVERSATIONS
-   ========================================================= */
 
-
-/* =========================================================
-   SIDEBAR CHAT ACTIONS
-   ========================================================= */
+/* SIDEBAR ACTIONS */
 
 .sidebar-chat-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 
-    width: 100%;
+  width: 100%;
+  margin-bottom: var(--spacing-md);
 
-    margin-bottom: var(--spacing-md);
+  flex-shrink: 0;
+}
 
-    flex-shrink: 0;
+.new-chat-btn,
+.search-chat-btn {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-height: 40px;
+
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-sm);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.new-chat-btn:hover,
+.search-chat-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary-light);
+  color: var(--text);
+}
+
+.new-chat-btn:active,
+.search-chat-btn:active {
+  transform: scale(0.98);
+}
+
+.new-chat-btn i,
+.search-chat-btn i {
+  width: 18px;
+  color: var(--primary);
+  text-align: center;
 }
 
 
-/* =========================================================
-   CHAT HISTORY PANEL
-   IMPORTANT:
-   This section takes only the available sidebar space.
-   ========================================================= */
+/* CHAT HISTORY */
 
-#chat-history-panel {
-    width: 100%;
+.chat-history-panel {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
 
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  min-height: 0;
 
-    min-height: 0;
-
-    /*
-       The history panel is allowed to shrink.
-       This prevents it from pushing the sidebar
-       footer/settings downward.
-    */
-    flex: 1 1 auto;
-
-    overflow: hidden;
+  overflow: hidden;
 }
 
+.chat-history-header {
+  display: flex;
+  align-items: center;
 
-/* =========================================================
-   HISTORY HEADER
-   ========================================================= */
+  flex-shrink: 0;
 
-#chat-history-panel .chat-history-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    width: 100%;
-
-    gap: var(--spacing-sm);
-
-    padding:
-        var(--spacing-sm)
-        var(--spacing-sm)
-        var(--spacing-xs);
-
-    flex-shrink: 0;
+  padding:
+    var(--spacing-sm)
+    var(--spacing-xs)
+    var(--spacing-xs);
 }
 
+.chat-history-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 
-#chat-history-panel .chat-history-title {
-    margin: 0;
-
-    font-family: var(--font-family-body);
-
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-
-    color: var(--text-secondary);
+  color: var(--text-secondary);
 }
 
-
-/* =========================================================
-   SEARCH BUTTON
-   ========================================================= */
-
-#chat-search-btn {
-    width: 32px;
-    height: 32px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    flex: 0 0 32px;
-
-    padding: 0;
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: var(--radius-sm);
-
-    background: var(--surface);
-    color: var(--text-secondary);
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
+.chat-history-title > i {
+  color: var(--primary);
+  font-size: var(--font-size-sm);
 }
 
-
-#chat-search-btn:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-    border-color: var(--border-hover);
+.chat-history-title > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-
-#chat-search-btn:active {
-    transform: scale(0.95);
+.chat-history-title span {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.05em;
 }
 
-
-#chat-search-btn i {
-    font-size: var(--font-size-xs);
+.chat-history-title small {
+  margin-top: 2px;
+  color: var(--text-dim);
+  font-size: 9px;
 }
-
-
-/* =========================================================
-   SEARCH AREA
-   ========================================================= */
-
-#orbit-chat-search {
-    position: relative;
-
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-
-    padding:
-        0
-        var(--spacing-sm)
-        var(--spacing-sm);
-
-    flex-shrink: 0;
-}
-
-
-#orbit-chat-search .orbit-chat-search-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-
-/* =========================================================
-   SEARCH INPUT
-   ========================================================= */
-
-.orbit-chat-search-input,
-#orbit-chat-search-input {
-    width: 100%;
-    height: 38px;
-
-    padding:
-        0
-        36px
-        0
-        36px;
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: var(--radius-sm);
-
-    outline: none;
-
-    background: var(--background);
-    color: var(--text);
-
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-xs);
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-
-.orbit-chat-search-input::placeholder,
-#orbit-chat-search-input::placeholder {
-    color: var(--text-tertiary);
-    opacity: 1;
-}
-
-
-.orbit-chat-search-input:focus,
-#orbit-chat-search-input:focus {
-    border-color: var(--primary);
-
-    box-shadow:
-        0 0 0 3px
-        var(--primary-alpha);
-}
-
-
-/* =========================================================
-   SEARCH ICON
-   ========================================================= */
-
-#orbit-chat-search::before {
-    content: "\f002";
-
-    position: absolute;
-
-    left: 25px;
-    top: 50%;
-
-    z-index: 2;
-
-    transform: translateY(-50%);
-
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-
-    font-size: var(--font-size-xs);
-
-    color: var(--text-tertiary);
-
-    pointer-events: none;
-}
-
-
-/* =========================================================
-   CLEAR SEARCH
-   ========================================================= */
-
-#orbit-chat-search-clear {
-    position: absolute;
-
-    right: 18px;
-    top: 50%;
-
-    width: 25px;
-    height: 25px;
-
-    transform: translateY(-50%);
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0;
-
-    border: 0;
-    border-radius: var(--radius-sm);
-
-    background: transparent;
-    color: var(--text-secondary);
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
-}
-
-
-#orbit-chat-search-clear:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-}
-
-
-/* =========================================================
-   RECENT CHAT LIST
-   =========================================================
-
-   THIS IS THE IMPORTANT PART.
-
-   The list:
-   - fills the remaining history-panel space
-   - scrolls internally
-   - cannot push the footer
-   ========================================================= */
 
 .chat-history-list,
 #chat-history-list {
-    width: 100%;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
 
-    display: flex;
-    flex-direction: column;
+  width: 100%;
+  min-height: 0;
 
-    gap: 4px;
+  gap: 4px;
 
-    padding:
-        var(--spacing-xs)
-        var(--spacing-sm)
-        var(--spacing-sm);
+  padding:
+    var(--spacing-xs)
+    var(--spacing-xs)
+    var(--spacing-sm);
 
-    /*
-       Critical flex behaviour
-    */
-    flex: 1 1 auto;
-    min-height: 0;
-
-    /*
-       The list itself scrolls.
-    */
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    /*
-       Prevent the list from expanding
-       beyond the available sidebar space.
-    */
-    max-height: 100%;
-
-    scrollbar-width: thin;
-
-    scrollbar-color:
-        var(--border)
-        transparent;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
-
-
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
-
-.chat-history-list::-webkit-scrollbar,
-#chat-history-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-
-.chat-history-list::-webkit-scrollbar-track,
-#chat-history-list::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-
-.chat-history-list::-webkit-scrollbar-thumb,
-#chat-history-list::-webkit-scrollbar-thumb {
-    background: var(--border);
-
-    border-radius: var(--radius-full);
-}
-
-
-.chat-history-list::-webkit-scrollbar-thumb:hover,
-#chat-history-list::-webkit-scrollbar-thumb:hover {
-    background: var(--text-tertiary);
-}
-
-
-/* =========================================================
-   RECENT CHAT ITEM
-   ========================================================= */
 
 .orbit-recent-chat {
-    position: relative;
+  position: relative;
 
-    width: 100%;
-    min-height: 50px;
+  display: flex;
+  align-items: center;
 
-    display: flex;
-    align-items: center;
+  width: 100%;
+  min-height: 46px;
+  flex-shrink: 0;
 
-    flex-shrink: 0;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs);
 
-    gap: var(--spacing-sm);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
 
-    padding:
-        var(--spacing-xs)
-        var(--spacing-sm);
+  background: transparent;
+  color: var(--text);
 
-    border:
-        1px solid
-        transparent;
+  text-align: left;
 
-    border-radius: var(--radius-md);
-
-    background: transparent;
-
-    color: var(--text);
-
-    cursor: pointer;
-
-    text-align: left;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.15s ease;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
 }
-
 
 .orbit-recent-chat:hover {
-    background: var(--surface-hover);
-    border-color: var(--border);
+  background: var(--surface-hover);
+  border-color: var(--border);
 }
-
 
 .orbit-recent-chat:active {
-    transform: scale(0.985);
+  transform: scale(0.985);
 }
-
-
-/* =========================================================
-   ACTIVE CHAT
-   ========================================================= */
 
 .orbit-recent-chat.active,
 .orbit-recent-chat[aria-current="true"],
 .orbit-recent-chat.is-active {
-    background: var(--primary-alpha);
-
-    border-color:
-        var(--primary-light);
+  background: var(--primary-soft);
+  border-color: color-mix(
+    in srgb,
+    var(--primary) 30%,
+    var(--border)
+  );
 }
-
-
-/* =========================================================
-   CHAT ICON
-   ========================================================= */
 
 .orbit-recent-chat-icon {
-    width: 30px;
-    height: 30px;
+  display: grid;
+  place-items: center;
 
-    flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 
-    border:
-        1px solid
-        var(--border);
+  background: var(--surface);
+  color: var(--primary);
 
-    border-radius: var(--radius-sm);
-
-    background: var(--surface);
-
-    color: var(--primary);
-
-    font-size: var(--font-size-xs);
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease;
+  font-size: var(--font-size-xs);
 }
-
-
-.orbit-recent-chat:hover .orbit-recent-chat-icon {
-    background: var(--primary);
-    border-color: var(--primary);
-
-    color: var(--text-on-primary);
-}
-
-
-/* =========================================================
-   CHAT CONTENT
-   ========================================================= */
 
 .orbit-recent-chat-content {
-    min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
 
-    flex: 1;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    overflow: hidden;
+  min-width: 0;
+  overflow: hidden;
 }
-
-
-/* =========================================================
-   CHAT TITLE
-   ========================================================= */
 
 .orbit-recent-chat-title {
-    width: 100%;
+  width: 100%;
 
-    margin: 0;
+  overflow: hidden;
 
-    overflow: hidden;
+  color: var(--text);
 
-    font-family: var(--font-family-body);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
 
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-
-    line-height: 1.45;
-
-    color: var(--text);
-
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 
-/* =========================================================
-   EMPTY HISTORY
-   ========================================================= */
+/* EMPTY HISTORY */
 
+.chat-history-empty,
 #chat-history-empty {
-    width: 100%;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    flex: 1;
-
-    padding:
-        var(--spacing-xl)
-        var(--spacing-md);
-
-    text-align: center;
-
-    color: var(--text-secondary);
-}
-
-
-#chat-history-empty i {
-    margin-bottom: var(--spacing-sm);
-
-    font-size: var(--font-size-lg);
-
-    color: var(--text-tertiary);
-
-    opacity: 0.7;
-}
-
-
-#chat-history-empty p {
-    margin: 0;
-
-    max-width: 190px;
-
-    font-family: var(--font-family-body);
-
-    font-size: var(--font-size-xs);
-
-    line-height: 1.5;
-
-    color: var(--text-secondary);
-}
-
-
-/* =========================================================
-   NEW CHAT BUTTON
-   ========================================================= */
-
-#chat-history-new {
-    width: calc(100% - (var(--spacing-md) * 2));
-
-    min-height: 40px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    flex-shrink: 0;
-
-    gap: var(--spacing-xs);
-
-    margin:
-        var(--spacing-sm)
-        var(--spacing-md)
-        var(--spacing-md);
-
-    padding: 0 var(--spacing-md);
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: var(--radius-md);
-
-    background: var(--surface);
-    color: var(--text);
-
-    font-family: var(--font-family-body);
-
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.15s ease;
-}
-
-
-#chat-history-new:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-
-    color: var(--text-on-primary);
-}
-
-
-#chat-history-new:active {
-    transform: scale(0.98);
-}
-
-
-#chat-history-new i {
-    font-size: var(--font-size-xs);
-}
-
-
-/* =========================================================
-   SIDEBAR FOOTER PROTECTION
-   =========================================================
-
-   If your sidebar footer contains settings/account links,
-   keep it outside the scrolling history area.
-   ========================================================= */
-
-.orbit-sidebar .sidebar-footer,
-.orbit-sidebar .sidebar-account,
-.orbit-sidebar .sidebar-bottom {
-    flex-shrink: 0;
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 768px) {
-
-    #chat-history-panel {
-        min-height: 0;
-    }
-
-
-    #chat-history-panel .chat-history-header {
-        padding:
-            var(--spacing-sm)
-            var(--spacing-sm)
-            var(--spacing-xs);
-    }
-
-
-    .chat-history-list,
-    #chat-history-list {
-        padding:
-            var(--spacing-xs)
-            var(--spacing-sm)
-            var(--spacing-sm);
-    }
-
-
-    .orbit-recent-chat {
-        min-height: 48px;
-
-        padding:
-            var(--spacing-xs)
-            var(--spacing-sm);
-    }
-
-
-    .orbit-recent-chat-icon {
-        width: 28px;
-        height: 28px;
-
-        flex-basis: 28px;
-    }
-
-
-    .orbit-recent-chat-title {
-        font-size: var(--font-size-xs);
-    }
-
-
-    #chat-history-new {
-        width: calc(100% - (var(--spacing-sm) * 2));
-
-        margin-left: var(--spacing-sm);
-        margin-right: var(--spacing-sm);
-    }
-}
-
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 480px) {
-
-    .orbit-recent-chat {
-        min-height: 46px;
-
-        gap: var(--spacing-xs);
-
-        padding:
-            6px
-            var(--spacing-xs);
-    }
-
-
-    .orbit-recent-chat-icon {
-        width: 27px;
-        height: 27px;
-
-        flex-basis: 27px;
-
-        border-radius: var(--radius-sm);
-    }
-
-
-    .orbit-recent-chat-title {
-        font-size: var(--font-size-xs);
-    }
-
-
-    #chat-history-new {
-        min-height: 38px;
-    }
-}
-
-
-/* =========================================================
-   EMPTY HISTORY
-   ========================================================= */
-
-.chat-history-empty {
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
   min-height: 80px;
-
-  padding: 10px;
+  padding: var(--spacing-md);
 
   border: 1px dashed var(--border);
   border-radius: var(--radius-md);
@@ -1096,38 +578,44 @@ button:disabled {
   text-align: center;
 }
 
-.chat-history-empty i {
-  margin-bottom: 4px;
+.chat-history-empty i,
+#chat-history-empty i {
+  margin-bottom: var(--spacing-xs);
   color: var(--text-dim);
+  font-size: var(--font-size-lg);
 }
 
-.chat-history-empty span {
+.chat-history-empty span,
+#chat-history-empty span {
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
 }
 
-.chat-history-empty small {
+.chat-history-empty small,
+#chat-history-empty small {
   margin-top: 2px;
   color: var(--text-dim);
-  font-size: 8px;
+  font-size: 9px;
 }
 
 
-/* =========================================================
-   SIDEBAR ACCOUNT
-   ========================================================= */
+/* ACCOUNT */
 
 .sidebar-account,
 .sidebar-footer {
-  margin-top: 7px;
+  flex-shrink: 0;
 
-  padding-top: 8px;
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
 
   border-top: 1px solid var(--border-light);
 }
 
 .sidebar-section-label {
-  padding: 0 6px 4px;
+  padding:
+    0
+    var(--spacing-xs)
+    var(--spacing-xs);
 
   color: var(--text-dim);
 
@@ -1144,21 +632,21 @@ button:disabled {
   width: 100%;
   min-height: 36px;
 
-  gap: 8px;
-
-  padding: 0 8px;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-sm);
 
   border-radius: var(--radius-md);
 
+  background: transparent;
   color: var(--text-secondary);
 
   font-size: var(--font-size-sm);
 
-  text-decoration: none;
+  text-align: left;
 
   transition:
-    background 0.2s ease,
-    color 0.2s ease;
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .sidebar-account-link:hover {
@@ -1166,25 +654,50 @@ button:disabled {
   color: var(--text);
 }
 
+.sidebar-account-link i {
+  width: 18px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.sidebar-logout-btn {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sidebar-logout-btn:hover i {
+  color: var(--danger);
+}
+
 .sidebar-status {
   display: flex;
   align-items: center;
 
-  gap: 7px;
+  gap: var(--spacing-sm);
 
   min-height: 28px;
-
-  padding: 0 6px;
+  padding: 0 var(--spacing-xs);
 
   color: var(--muted);
-
   font-size: 9px;
 }
 
+.status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
 
-/* =========================================================
-   NAVIGATION OVERLAY
-   ========================================================= */
+  border-radius: var(--radius-full);
+
+  background: var(--success);
+
+  box-shadow:
+    0 0 0 3px var(--success-soft);
+}
+
+
+/* NAVIGATION OVERLAY */
 
 .navigation-overlay {
   position: fixed;
@@ -1199,30 +712,21 @@ button:disabled {
   pointer-events: none;
 
   transition:
-    opacity 0.25s ease,
-    visibility 0.25s ease;
+    opacity var(--transition-normal),
+    visibility var(--transition-normal);
 }
 
-.orbit-app.nav-open .navigation-overlay,
-.navigation-overlay.active {
+.orbit-app.nav-open .navigation-overlay {
   opacity: 1;
   visibility: visible;
-
-  /*
-   * Keep the overlay from blocking the
-   * chat composer and sidebar controls.
-   */
   pointer-events: none;
 }
 
 
-/* =========================================================
-   MENU TOGGLE
-   ========================================================= */
+/* MENU BUTTON */
 
 .menu-toggle {
   position: relative;
-
   z-index: calc(var(--z-navigation) + 2);
 
   display: inline-flex;
@@ -1236,113 +740,132 @@ button:disabled {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
 
-  background: var(--surface);
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 88%,
+      transparent
+    );
+
   color: var(--text-secondary);
 
+  box-shadow: var(--shadow-xs);
+
   transition:
-    opacity 0.2s ease,
-    visibility 0.2s ease,
-    transform 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease;
+    opacity var(--transition-fast),
+    visibility var(--transition-fast),
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .menu-toggle:hover {
   background: var(--surface-hover);
+  border-color: var(--primary-light);
   color: var(--text);
 }
 
-
-/* Hide menu button while sidebar is open */
+.menu-toggle:active {
+  transform: scale(0.95);
+}
 
 .orbit-app.nav-open .menu-toggle {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-
   transform: scale(0.9);
 }
 
 
-/* =========================================================
-   TOP BAR
-   ========================================================= */
+/* TOPBAR */
 
 .orbit-topbar {
-  position: relative;
+  position: sticky;
+  top: 0;
 
-  z-index: 50;
+  z-index: var(--z-header);
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
 
   width: 100%;
-  min-height: 58px;
-  flex: 0 0 58px;
+  min-height: var(--header-height);
+  flex: 0 0 var(--header-height);
 
   padding: 0 var(--spacing-md);
 
-  background: var(--bg);
+  background:
+    color-mix(
+      in srgb,
+      var(--bg) 82%,
+      transparent
+    );
 
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-light);
 
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
 }
-
-
-/* =========================================================
-   TOPBAR TITLE
-   ========================================================= */
 
 .topbar-title {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
 
   min-width: 0;
 
   margin-left: var(--spacing-sm);
-
   margin-right: auto;
 }
 
-.topbar-title > span {
+.topbar-logo {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  object-fit: cover;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: var(--surface-soft);
+
+  box-shadow:
+    0 0 0 3px var(--primary-soft),
+    var(--shadow-xs);
+}
+
+.topbar-title-text {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.topbar-title-text > span {
   overflow: hidden;
 
   color: var(--text);
 
   font-family: var(--font-secondary);
-
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
 
   line-height: 1.2;
 
-  text-overflow: ellipsis;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-
-/* IMPORTANT:
-   Your HTML uses <small> directly inside .topbar-title
-*/
-
-.topbar-title > small {
-  margin-top: 2px;
+.topbar-title-text > small {
+  margin-top: 3px;
 
   color: var(--text-dim);
 
   font-size: var(--font-size-xs);
-
   line-height: 1.2;
 }
-
-
-/* =========================================================
-   TOPBAR ACTIONS
-   Exact class from index.html
-   ========================================================= */
 
 .topbar-actions {
   display: flex;
@@ -1353,11 +876,6 @@ button:disabled {
 
   min-width: 0;
 }
-
-
-/* =========================================================
-   TOPBAR BUTTON
-   ========================================================= */
 
 .topbar-btn {
   display: inline-flex;
@@ -1371,177 +889,128 @@ button:disabled {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
 
-  background: var(--surface);
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 88%,
+      transparent
+    );
+
   color: var(--text-secondary);
 
   box-shadow: var(--shadow-xs);
 
   transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .topbar-btn:hover {
   background: var(--surface-hover);
+  border-color: var(--primary-light);
   color: var(--text);
-
   box-shadow: var(--shadow-sm);
 }
 
-.topbar-btn:active,
-.menu-toggle:active {
+.topbar-btn:active {
   transform: scale(0.95);
 }
 
-.topbar-btn i,
-.menu-toggle i {
-  font-size: 14px;
-}
 
-/* =========================================================
-   CHAT WINDOW
-   ========================================================= */
+/* CHAT WINDOW */
 
 .chat-window {
-
   position: relative;
-
   z-index: 2;
 
   display: flex;
-
   flex: 1 1 auto;
-
   flex-direction: column;
-
-  align-items: center;
-
-  gap: 14px;
+  align-items: stretch;
 
   width: 100%;
-
   min-width: 0;
-
   min-height: 0;
 
-  padding: 28px 24px 36px;
+  gap: var(--spacing-lg);
+
+  padding:
+    var(--spacing-xl)
+    var(--spacing-lg)
+    var(--spacing-md);
 
   overflow-x: hidden;
-
   overflow-y: auto;
 
   scroll-behavior: smooth;
 
-  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+}
 
-  -webkit-overflow-scrolling: touch;
+.chat-window > *,
+.chat-window .message {
+  width: min(100%, 820px);
+  margin-left: auto;
+  margin-right: auto;
+}
 
+.chat-window .message {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 
-/* =========================================================
-   CHAT CONTENT WIDTH
-   ChatGPT / Grok style reading width
-   ========================================================= */
-
-.chat-window > * {
-
-  width: min(100%, 760px);
-
-  max-width: 760px;
-
-  box-sizing: border-box;
-
-}
-
-
-/* =========================================================
-   QUICK PROMPT INTRO
-   ========================================================= */
+/* CHAT INTRO */
 
 .chat-intro {
-
   display: flex;
-
-  flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
 
-  width: min(100%, 760px);
-
-  max-width: 760px;
-
+  width: 100%;
   min-height: 100%;
 
-  margin: 0 auto;
-
-  padding: 32px 0 40px;
-
-  box-sizing: border-box;
-
-  transition:
-    opacity .25s ease,
-    transform .25s ease,
-    visibility .25s ease;
+  padding: var(--spacing-xl) 0;
 }
-
-
-/* =========================================================
-   QUICK PROMPTS
-   ========================================================= */
 
 .quick-prompts {
-
   display: grid;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  width: min(100%, 820px);
 
-  width: 100%;
-
-  gap: 10px;
-
-  margin-top: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-sm);
 }
 
-
-/* =========================================================
-   QUICK PROMPT BUTTON
-   ========================================================= */
-
 .quick-prompt {
-
-  position: relative;
-
   display: flex;
-
   align-items: center;
 
-  width: 100%;
+  min-height: 76px;
 
-  min-width: 0;
-
-  min-height: 72px;
-
-  gap: 11px;
-
-  padding: 11px 12px;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
 
   border: 1px solid var(--border);
-
   border-radius: var(--radius-lg);
 
-  background: var(--surface);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--surface) 96%,
+        var(--primary) 4%
+      ),
+      var(--surface)
+    );
 
   color: var(--text);
 
   text-align: left;
-
-  cursor: pointer;
 
   box-shadow: var(--shadow-xs);
 
@@ -1552,99 +1021,54 @@ button:disabled {
     transform var(--transition-fast);
 }
 
-
 .quick-prompt:hover {
-
+  border-color: var(--primary-light);
   background: var(--surface-hover);
-
-  border-color: var(--primary);
-
   box-shadow: var(--shadow-sm);
-
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
-
 
 .quick-prompt:active {
-
-  transform: translateY(0) scale(.98);
+  transform: translateY(0) scale(0.98);
 }
-
-
-.quick-prompt:focus-visible {
-
-  outline: 2px solid var(--primary);
-
-  outline-offset: 2px;
-}
-
-
-/* =========================================================
-   QUICK PROMPT ICON
-   ========================================================= */
 
 .quick-prompt-icon {
-
   display: grid;
-
   place-items: center;
 
-  width: 36px;
-
-  height: 36px;
-
-  flex: 0 0 36px;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
 
   border-radius: var(--radius-md);
 
   background: var(--primary-soft);
-
   color: var(--primary);
 
-  font-size: 14px;
+  font-size: var(--font-size-sm);
 }
 
-
-/* =========================================================
-   QUICK PROMPT CONTENT
-   ========================================================= */
-
 .quick-prompt-content {
-
   display: flex;
-
+  flex: 1;
   flex-direction: column;
 
   min-width: 0;
-
-  flex: 1;
 }
 
-
 .quick-prompt-content strong {
-
-  display: block;
-
   overflow: hidden;
 
   color: var(--text);
 
   font-size: var(--font-size-sm);
-
   font-weight: var(--font-weight-semibold);
 
-  line-height: 1.3;
-
   white-space: nowrap;
-
   text-overflow: ellipsis;
 }
 
-
 .quick-prompt-content small {
-
-  display: block;
-
   margin-top: 3px;
 
   overflow: hidden;
@@ -1653,1325 +1077,868 @@ button:disabled {
 
   font-size: var(--font-size-xs);
 
-  line-height: 1.35;
-
   white-space: nowrap;
-
   text-overflow: ellipsis;
 }
 
-
-/* =========================================================
-   QUICK PROMPT ARROW
-   ========================================================= */
-
 .quick-prompt-arrow {
-
   display: grid;
-
   place-items: center;
 
-  width: 26px;
-
-  height: 26px;
-
-  flex: 0 0 26px;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
 
   border-radius: var(--radius-full);
 
   color: var(--text-dim);
 
-  font-size: 10px;
-
   transition:
-    color var(--transition-fast),
     background-color var(--transition-fast),
+    color var(--transition-fast),
     transform var(--transition-fast);
 }
 
-
 .quick-prompt:hover .quick-prompt-arrow {
-
-  color: var(--primary);
-
   background: var(--primary-soft);
-
+  color: var(--primary);
   transform: translateX(2px);
 }
 
 
-/* =========================================================
-   HIDE QUICK PROMPTS AFTER CHAT STARTS
-   ========================================================= */
-
-/*
- * script.js adds .has-messages to .chat-window
- * when the conversation begins.
- *
- * The quick prompts then disappear smoothly.
- */
-
-.chat-window.has-messages .chat-intro {
-
-  opacity: 0;
-
-  visibility: hidden;
-
-  pointer-events: none;
-
-  transform: translateY(-12px);
-
-  height: 0;
-
-  min-height: 0;
-
-  margin: 0;
-
-  padding-top: 0;
-
-  padding-bottom: 0;
-
-  overflow: hidden;
-}
-
-
-/* =========================================================
-   USER MESSAGE
-   ========================================================= */
+/* USER MESSAGE */
 
 .chat-window .message.user {
-
-  align-self: center;
+  align-self: flex-end;
 
   width: fit-content;
-
   max-width: min(78%, 680px);
 
   margin-left: auto;
-
   margin-right: 0;
 
-  padding: 10px 15px;
-
-  background: var(--primary);
-
-  color: #fff;
+  padding:
+    11px
+    16px;
 
   border: 1px solid var(--primary);
+  border-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-sm);
 
-  border-radius: 18px;
-
-  border-bottom-right-radius: 5px;
-
-  box-shadow: var(--shadow-xs);
+  background: var(--primary);
+  color: #fff;
 
   font-size: var(--font-size-md);
-
   line-height: 1.55;
 
-  overflow-wrap: anywhere;
-
-  word-break: break-word;
-
+  box-shadow: var(--shadow-sm);
 }
 
 
-/* =========================================================
-   ORBIT MESSAGE
-   ========================================================= */
+/* AI MESSAGE */
 
 .chat-window .message.orbit {
-
   align-self: center;
 
-  width: min(100%, 760px);
+  width: min(100%, 820px);
+  max-width: 820px;
 
-  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
 
-  margin: 0;
-
-  padding: 10px 0 18px;
+  padding:
+    var(--spacing-sm)
+    0;
 
   background: transparent;
-
   color: var(--text);
 
-  border: 0;
-
-  border-radius: 0;
-
-  box-shadow: none;
-
   font-size: var(--font-size-md);
-
-  line-height: 1.65;
-
-  overflow-wrap: anywhere;
-
-  word-break: break-word;
-
+  line-height: 1.7;
 }
-
-
-/* =========================================================
-   ORBIT PARAGRAPHS
-   ========================================================= */
 
 .chat-window .message.orbit p {
-
-  margin: 0 0 10px;
-
+  margin-bottom: var(--spacing-md);
 }
-
 
 .chat-window .message.orbit p:last-child {
-
   margin-bottom: 0;
-
 }
-
-
-/* =========================================================
-   ORBIT HEADINGS
-   ========================================================= */
 
 .chat-window .message.orbit h1,
 .chat-window .message.orbit h2,
 .chat-window .message.orbit h3,
 .chat-window .message.orbit h4 {
-
-  margin-top: 18px;
-
-  margin-bottom: 8px;
+  margin:
+    var(--spacing-lg)
+    0
+    var(--spacing-sm);
 
   color: var(--text);
 
   font-family: var(--font-secondary);
-
 }
-
-
-/* =========================================================
-   ORBIT LISTS
-   ========================================================= */
 
 .chat-window .message.orbit ul,
 .chat-window .message.orbit ol {
+  margin:
+    var(--spacing-sm)
+    0
+    var(--spacing-md);
 
-  margin: 8px 0 12px;
-
-  padding-left: 22px;
-
+  padding-left: var(--spacing-lg);
 }
 
+.chat-window .message.orbit ul {
+  list-style: disc;
+}
 
-/* =========================================================
-   CODE BLOCK
-   ========================================================= */
+.chat-window .message.orbit ol {
+  list-style: decimal;
+}
+
+.chat-window .message.orbit li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.chat-window .message.orbit a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+
+  transition:
+    color var(--transition-fast),
+    text-decoration-color var(--transition-fast);
+}
+
+.chat-window .message.orbit a:hover {
+  color: var(--primary-dark);
+  text-decoration-color: currentColor;
+}
+
+.chat-window .message.orbit blockquote {
+  margin:
+    var(--spacing-md)
+    0;
+
+  padding:
+    var(--spacing-sm)
+    var(--spacing-md);
+
+  border-left:
+    3px solid
+    var(--primary);
+
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+}
 
 .chat-window .message.orbit pre {
-
   width: 100%;
-
   max-width: 100%;
 
-  margin: 12px 0;
-
-  padding: 14px;
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
 
   overflow-x: auto;
 
   border: 1px solid var(--border);
-
   border-radius: var(--radius-md);
 
   background: var(--surface-soft);
-
   color: var(--text);
 
-  box-sizing: border-box;
-
+  box-shadow: var(--shadow-xs);
 }
 
+.chat-window .message.orbit code {
+  font-family:
+    "SFMono-Regular",
+    Consolas,
+    "Liberation Mono",
+    monospace;
 
-/* =========================================================
-   TABLE
-   ========================================================= */
+  font-size: 0.9em;
+}
+
+.chat-window .message.orbit :not(pre) > code {
+  padding: 2px 6px;
+
+  border-radius: var(--radius-xs);
+
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
 
 .chat-window .message.orbit table {
-
   width: 100%;
-
-  max-width: 100%;
+  margin: var(--spacing-md) 0;
 
   border-collapse: collapse;
 
-}
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 
+  overflow: hidden;
+}
 
 .chat-window .message.orbit th,
 .chat-window .message.orbit td {
-
-  padding: 8px 10px;
+  padding: var(--spacing-sm);
 
   border: 1px solid var(--border);
 
   text-align: left;
+}
 
+.chat-window .message.orbit th {
+  background: var(--surface-soft);
+  font-weight: var(--font-weight-semibold);
 }
 
 
-/* =========================================================
-   TYPING INDICATOR
-   ========================================================= */
-
-/*
- * Kept the original Orbit design.
- *
- * Improved:
- * - stronger visibility
- * - proper minimum size
- * - clear contrast
- * - stable positioning
- * - prevents it from collapsing
- */
+/* TYPING */
 
 .typing-indicator {
-
   align-self: flex-start;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
-  gap: 5px;
-
   width: fit-content !important;
-
   min-width: 48px;
-
   min-height: 34px;
 
+  gap: 5px;
   padding: 8px 12px;
-
   margin: 2px 0 8px;
 
-  background: var(--surface);
-
-  color: var(--text);
-
   border: 1px solid var(--border);
-
   border-radius: var(--radius-full);
 
+  background: var(--surface);
+  color: var(--text);
+
   box-shadow: var(--shadow-sm);
-
-  opacity: 1;
-
-  visibility: visible;
-
 }
 
-
-/* =========================================================
-   TYPING DOTS
-   ========================================================= */
-
 .typing-indicator span {
-
   display: block;
 
   width: 6px;
-
   height: 6px;
-
   flex: 0 0 6px;
 
   border-radius: var(--radius-full);
 
   background: var(--primary);
 
-  opacity: .45;
+  opacity: 0.45;
 
   animation: orbitTyping 1.2s infinite ease-in-out;
-
 }
-
-
-/* =========================================================
-   TYPING DOT DELAYS
-   ========================================================= */
-
-.typing-indicator span:nth-child(1) {
-
-  animation-delay: 0s;
-
-}
-
 
 .typing-indicator span:nth-child(2) {
-
-  animation-delay: .15s;
-
+  animation-delay: 0.15s;
 }
-
 
 .typing-indicator span:nth-child(3) {
-
-  animation-delay: .3s;
-
+  animation-delay: 0.3s;
 }
 
-
-/* =========================================================
-   TYPING ANIMATION
-   ========================================================= */
-
 @keyframes orbitTyping {
-
   0%,
   60%,
   100% {
-
-    opacity: .35;
-
+    opacity: 0.35;
     transform: translateY(0);
-
   }
-
 
   30% {
-
     opacity: 1;
-
     transform: translateY(-4px);
-
   }
-
 }
 
 
-/* =========================================================
-   COMMAND AREA
-   Always below the chat window
-   ========================================================= */
+/* COMMAND AREA */
 
 .command-area {
-
   position: relative;
-
-  z-index: calc(var(--z-navigation) + 3);
+  z-index: var(--z-header);
 
   display: flex;
-
+  flex: 0 0 auto;
   flex-direction: column;
-
   align-items: center;
 
   width: 100%;
-
   min-width: 0;
 
-  flex: 0 0 auto;
+  padding:
+    var(--spacing-sm)
+    var(--spacing-lg)
+    var(--spacing-md);
 
-  margin: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(
+        in srgb,
+        var(--bg) 96%,
+        transparent
+      ) 25%
+    );
 
-  padding: 10px 24px 8px;
-
-  background: var(--bg);
-
-  isolation: isolate;
-
-  backdrop-filter: blur(12px);
-
-  -webkit-backdrop-filter: blur(12px);
-
+  transition:
+    background-color var(--transition-normal),
+    width var(--transition-normal);
 }
-
-
-/* =========================================================
-   COMPOSER CONTENT USES SAME WIDTH AS CHAT
-   ========================================================= */
-
-.command-area > * {
-
-  width: min(100%, 760px);
-
-  max-width: 760px;
-
-  box-sizing: border-box;
-
-}
-
-
-/* =========================================================
-   COMMAND BOX
-   ========================================================= */
 
 .command-box {
-
   display: flex;
-
   align-items: flex-end;
 
-  width: 100%;
+  width: min(100%, 820px);
+  min-height: 52px;
 
-  min-height: 54px;
-
-  padding: 7px 8px;
-
-  gap: 8px;
-
-  background: var(--surface);
+  gap: var(--spacing-sm);
+  padding:
+    6px
+    7px
+    6px
+    var(--spacing-sm);
 
   border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
 
-  border-radius: 22px;
+  background:
+    color-mix(
+      in srgb,
+      var(--surface) 96%,
+      var(--primary) 4%
+    );
 
-  box-shadow: var(--shadow-sm);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 0 1px var(--border-light);
 
   transition:
     border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    background-color var(--transition-normal);
-
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
-
 
 .command-box:focus-within {
-
   border-color: var(--primary);
-
   box-shadow:
     0 0 0 3px var(--primary-soft),
-    var(--shadow-sm);
-
+    var(--shadow);
 }
-
-
-/* =========================================================
-   COMMAND ATTACHMENT / TOOLS BUTTON
-   ========================================================= */
 
 .command-attachment,
 .send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
   width: 38px;
-
   height: 38px;
-
   min-width: 38px;
-
   flex: 0 0 38px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
 
   border-radius: var(--radius-full);
 
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
 }
-
-.sidebar-logout-btn {
-    width: 100%;
-    border: 0;
-    background: transparent;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-}
-
-.sidebar-logout-btn:hover {
-    background: var(--surface-hover);
-}
-
-.sidebar-logout-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
 
 .command-attachment {
-
   background: transparent;
-
   color: var(--muted);
-
 }
-
 
 .command-attachment:hover {
-
   background: var(--surface-hover);
-
   color: var(--text);
-
 }
 
-
-/* =========================================================
-   SEND BUTTON
-   ========================================================= */
-
 .send-btn {
-
   background: var(--primary);
-
   color: #fff;
 
   box-shadow: var(--shadow-xs);
-
 }
-
 
 .send-btn:hover {
-
   background: var(--primary-dark);
-
 }
 
+.send-btn:active {
+  transform: scale(0.94);
+}
 
 .send-btn:disabled {
-
-  background: var(--surface-soft);
-
-  color: var(--text-dim);
-
   border: 1px solid var(--border);
-
+  background: var(--surface-soft);
+  color: var(--text-dim);
   box-shadow: none;
-
 }
 
-
-/* =========================================================
-   COMMAND INPUT
-   ========================================================= */
-
 #command-input {
-
   flex: 1 1 auto;
 
   width: 100%;
-
   min-width: 0;
-
-  min-height: 38px;
-
+  min-height: 40px;
   max-height: 150px;
 
-  padding: 9px 4px;
+  padding:
+    9px
+    3px;
 
   border: 0;
-
   outline: 0;
 
-  resize: none;
-
-  overflow-x: hidden;
-
-  overflow-y: auto;
-
   background: transparent;
-
   color: var(--text);
 
   font-family: var(--font-body);
-
   font-size: var(--font-size-md);
-
   line-height: 1.45;
 
-  pointer-events: auto;
-
+  overflow-x: hidden;
+  overflow-y: auto;
 }
-
 
 #command-input::placeholder {
-
   color: var(--muted);
-
-  opacity: 1;
-
 }
-
 
 #command-input:focus {
-
   outline: none;
-
 }
 
-
-/* =========================================================
-   COMMAND FOOTER
-   Exact class from index.html
-   ========================================================= */
-
 .command-footer {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
 
-  width: 100%;
-
+  width: min(100%, 820px);
   min-height: 24px;
 
-  gap: 12px;
+  gap: var(--spacing-md);
 
-  padding: 6px 4px 0;
+  padding:
+    var(--spacing-xs)
+    4px
+    0;
 
   color: var(--text-dim);
 
   font-size: 9px;
-
   line-height: 1.35;
-
 }
 
-
-/* =========================================================
-   FOOTER GROUPS
-   ========================================================= */
-
 .command-footer > span {
-
   display: inline-flex;
-
   align-items: center;
 
   min-width: 0;
-
   gap: 5px;
-
 }
-
-
-/* =========================================================
-   FIRST FOOTER MESSAGE
-   ========================================================= */
 
 .command-footer > span:first-child {
-
   color: var(--text-secondary);
-
   white-space: nowrap;
-
 }
-
-
-/* =========================================================
-   SHIELD ICON
-   ========================================================= */
 
 .command-footer > span:first-child i {
-
   color: var(--success);
-
-  font-size: 9px;
-
 }
-
-
-/* =========================================================
-   RESPONSE TIME / INFORMATION
-   ========================================================= */
 
 #response-time {
-
   overflow: hidden;
 
-  text-overflow: ellipsis;
+  max-width: 100%;
 
   white-space: nowrap;
-
+  text-overflow: ellipsis;
 }
 
 
-/* =========================================================
-   SIDEBAR OPEN — KEEP COMPOSER USABLE
-   ========================================================= */
+/* SIDEBAR OPEN */
 
 .orbit-app.nav-open .chat-window,
 .orbit-app.nav-open .command-area {
-
   position: relative;
-
 }
 
-
-.orbit-app.nav-open .command-area {
-
-  pointer-events: auto;
-
-}
-
-
+.orbit-app.nav-open .command-area,
 .orbit-app.nav-open .command-box,
 .orbit-app.nav-open #command-input,
 .orbit-app.nav-open .command-attachment,
 .orbit-app.nav-open .send-btn {
-
   pointer-events: auto;
-
 }
 
 
-/* =========================================================
-   MOBILE — QUICK PROMPTS
-   ========================================================= */
+/* THEME TRANSITIONS */
 
-@media (max-width: 768px) {
+body,
+.orbit-app,
+.orbit-main,
+.orbit-sidebar,
+.orbit-topbar,
+.command-area,
+.command-box,
+.quick-prompt,
+.topbar-btn,
+.menu-toggle,
+.sidebar-close,
+.sidebar-account-link,
+.new-chat-btn,
+.search-chat-btn,
+.chat-window .message.orbit,
+.chat-window .message.user,
+.brand-logo,
+.topbar-logo {
+  transition:
+    background-color var(--transition-normal),
+    border-color var(--transition-normal),
+    color var(--transition-normal),
+    box-shadow var(--transition-normal);
+}
 
-  .chat-intro {
 
+/* DESKTOP SIDEBAR */
+
+@media (min-width: 769px) {
+  .orbit-app.nav-open .orbit-main {
+    width: calc(100% - var(--navigation-width));
+    margin-left: var(--navigation-width);
+  }
+
+  .orbit-app.nav-open .chat-window {
     width: 100%;
-
-    padding: 24px 0 32px;
-
   }
 
-
-  .quick-prompts {
-
-    grid-template-columns: 1fr;
-
-    gap: 8px;
-
-    margin-top: 18px;
-
+  .orbit-app.nav-open .command-area {
+    width: 100%;
   }
-
-
-  .quick-prompt {
-
-    min-height: 64px;
-
-    padding: 10px;
-
-  }
-
-
-  .quick-prompt-icon {
-
-    width: 34px;
-
-    height: 34px;
-
-    flex-basis: 34px;
-
-  }
-
 }
 
 
-/* =========================================================
-   MOBILE — 900PX
-   ========================================================= */
+/* MOBILE */
 
 @media (max-width: 900px) {
-
   .chat-window {
-
-    padding: 22px 16px 28px;
-
+    padding:
+      var(--spacing-lg)
+      var(--spacing-md)
+      var(--spacing-md);
   }
-
 
   .command-area {
-
-    padding: 9px 16px 7px;
-
+    padding:
+      var(--spacing-sm)
+      var(--spacing-md)
+      var(--spacing-sm);
   }
-
-
-  .chat-window > *,
-  .command-area > *,
-  .chat-window .message.orbit {
-
-    max-width: 100%;
-
-  }
-
 
   .chat-window .message.user {
-
     max-width: 82%;
-
   }
 
-
-  .command-footer {
-
-    font-size: 8px;
-
+  .command-box,
+  .command-footer,
+  .chat-window > *,
+  .chat-window .message.orbit {
+    max-width: 100%;
   }
-
 }
-
-
-/* =========================================================
-   MOBILE — 768PX
-   ========================================================= */
 
 @media (max-width: 768px) {
-
-  .orbit-sidebar {
-
-    width: var(--navigation-mobile-width);
-
-    max-width: 90vw;
-
+  body {
+    overflow: hidden;
   }
-
 
   .orbit-topbar {
+    position: sticky;
+    top: 0;
 
-    min-height: 54px;
+    min-height: 58px;
+    flex-basis: 58px;
 
-    flex-basis: 54px;
-
-    padding: 0 var(--spacing-sm);
-
+    padding:
+      0
+      var(--spacing-sm);
   }
-
 
   .topbar-title {
-
-    margin-left: 8px;
-
+    margin-left: var(--spacing-sm);
   }
 
-
-  .topbar-title > small {
-
+  .topbar-title-text > small {
     display: none;
-
   }
 
+  .topbar-logo {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .orbit-sidebar {
+    width: min(
+      var(--navigation-mobile-width),
+      88vw
+    );
+  }
 
   .chat-window {
+    gap: var(--spacing-md);
 
-    padding: 16px 12px 24px;
-
-    gap: 10px;
-
+    padding:
+      var(--spacing-md)
+      var(--spacing-sm)
+      var(--spacing-md);
   }
-
 
   .chat-window .message.user {
-
     max-width: 88%;
 
-    padding: 9px 12px;
-
+    padding:
+      9px
+      13px;
   }
 
-
   .chat-window .message.orbit {
-
     width: 100%;
-
     max-width: 100%;
 
     font-size: var(--font-size-sm);
-
+    line-height: 1.65;
   }
 
+  .quick-prompts {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .quick-prompt {
+    min-height: 64px;
+  }
 
   .command-area {
-
-    padding: 7px 10px 7px;
-
+    padding:
+      7px
+      10px
+      7px;
   }
-
 
   .command-box {
-
     min-height: 52px;
-
     border-radius: 20px;
-
   }
-
 
   #command-input {
-
     font-size: var(--font-size-sm);
-
   }
-
 
   .command-footer {
-
     gap: 8px;
-
     padding-top: 5px;
-
   }
-
 
   .typing-indicator {
-
     min-width: 46px;
-
     min-height: 32px;
-
     padding: 7px 11px;
-
   }
-
 }
 
-
-/* =========================================================
-   MOBILE — 600PX
-   ========================================================= */
-
 @media (max-width: 600px) {
-
   .orbit-sidebar {
-
-    width: min(var(--navigation-mobile-width), 88vw);
-
+    width: min(
+      var(--navigation-mobile-width),
+      90vw
+    );
   }
 
+  .sidebar-header {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .brand-name strong {
+    font-size: var(--font-size-md);
+  }
+
+  .brand-name span {
+    font-size: var(--font-size-xs);
+  }
+
+  .sidebar-chat-actions {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .new-chat-btn,
+  .search-chat-btn {
+    min-height: 38px;
+    font-size: var(--font-size-xs);
+  }
+
+  .chat-history-title small {
+    display: none;
+  }
+
+  .chat-window {
+    padding:
+      var(--spacing-sm)
+      var(--spacing-sm)
+      var(--spacing-md);
+  }
+
+  .chat-window .message.user {
+    max-width: 92%;
+  }
+
+  .command-footer > span:first-child {
+    display: none;
+  }
+
+  .command-footer > span:last-child {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  #response-time {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orbit-sidebar {
+    width: 86vw;
+  }
+
+  .orbit-topbar {
+    padding:
+      0
+      8px;
+  }
+
+  .topbar-title {
+    gap: 6px;
+    margin-left: 6px;
+  }
+
+  .topbar-logo {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+  }
+
+  .topbar-title-text > span {
+    font-size: var(--font-size-sm);
+  }
+
+  .topbar-actions {
+    gap: 4px;
+  }
 
   .topbar-btn,
   .menu-toggle {
-
     width: 36px;
-
     height: 36px;
-
     flex-basis: 36px;
-
   }
-
-
-  .topbar-actions {
-
-    gap: 5px;
-
-  }
-
 
   .chat-window {
-
-    padding: 12px 9px 20px;
-
+    padding:
+      9px
+      7px
+      var(--spacing-md);
   }
 
+  .chat-window .message.user,
+  .chat-window .message.orbit {
+    font-size: var(--font-size-xs);
+  }
 
   .chat-window .message.user {
-
-    max-width: 92%;
-
-  }
-
-
-  .command-area {
-
-    padding: 6px 8px 6px;
-
-  }
-
-
-  .command-box {
-
-    min-height: 50px;
-
-    padding: 5px;
-
-    border-radius: 19px;
-
-  }
-
-
-  .command-attachment,
-  .send-btn {
-
-    width: 36px;
-
-    height: 36px;
-
-    min-width: 36px;
-
-    flex-basis: 36px;
-
-  }
-
-
-  #command-input {
-
-    min-height: 36px;
-
-    font-size: var(--font-size-sm);
-
-  }
-
-
-  /*
-   * Compact mobile footer.
-   * The detailed warning is still available,
-   * but the layout doesn't consume chat space.
-   */
-
-  .command-footer {
-
-    min-height: 20px;
-
-    padding: 4px 2px 0;
-
-    font-size: 7px;
-
-  }
-
-
-  .command-footer > span:last-child {
-
-    justify-content: flex-end;
-
-    text-align: right;
-
-  }
-
-
-  #response-time {
-
-    max-width: 170px;
-
-  }
-
-
-  .quick-prompt {
-
-    min-height: 60px;
-
-    gap: 9px;
-
-    padding: 9px;
-
-  }
-
-
-  .quick-prompt-icon {
-
-    width: 32px;
-
-    height: 32px;
-
-    flex-basis: 32px;
-
-    font-size: 12px;
-
-  }
-
-
-  .quick-prompt-content strong {
-
-    font-size: var(--font-size-xs);
-
-  }
-
-
-  .quick-prompt-content small {
-
-    font-size: 9px;
-
-  }
-
-
-  .quick-prompt-arrow {
-
-    width: 22px;
-
-    height: 22px;
-
-    flex-basis: 22px;
-
-  }
-
-}
-
-
-/* =========================================================
-   SMALL PHONES — 400PX
-   ========================================================= */
-
-@media (max-width: 400px) {
-
-  .orbit-sidebar {
-
-    width: 86vw;
-
-  }
-
-
-  .orbit-topbar {
-
-    padding: 0 8px;
-
-  }
-
-
-  .topbar-title {
-
-    margin-left: 6px;
-
-  }
-
-
-  .topbar-actions {
-
-    gap: 4px;
-
-  }
-
-
-  .chat-window {
-
-    padding: 9px 7px 16px;
-
-  }
-
-
-  .chat-window .message {
-
-    font-size: var(--font-size-xs);
-
-  }
-
-
-  .chat-window .message.user {
-
     max-width: 94%;
-
   }
-
 
   .command-area {
-
-    padding: 5px 6px 5px;
-
+    padding:
+      5px
+      6px
+      5px;
   }
-
 
   .command-box {
-
     gap: 4px;
-
   }
-
 
   .command-attachment,
   .send-btn {
-
     width: 34px;
-
     height: 34px;
-
     min-width: 34px;
-
     flex-basis: 34px;
-
   }
-
 
   .command-attachment i,
   .send-btn i {
-
     font-size: 12px;
-
   }
-
 
   .command-footer {
-
     font-size: 6.5px;
-
     gap: 4px;
-
   }
-
-
-  .command-footer > span:first-child {
-
-    display: none;
-
-  }
-
-
-  .command-footer > span:last-child {
-
-    width: 100%;
-
-    justify-content: center;
-
-    text-align: center;
-
-  }
-
 
   #response-time {
-
     max-width: 135px;
-
   }
-
 
   .typing-indicator {
-
     min-width: 44px;
-
     min-height: 30px;
-
     padding: 6px 10px;
-
   }
-
 
   .typing-indicator span {
-
     width: 5px;
-
     height: 5px;
-
     flex-basis: 5px;
-
   }
-
 }
 
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
-
 @media (prefers-reduced-motion: reduce) {
-
   html {
-
     scroll-behavior: auto;
-
   }
-
 
   *,
   *::before,
   *::after {
-
     animation: none !important;
-
     transition: none !important;
-
   }
-
 }
