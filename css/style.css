@@ -1942,3 +1942,333 @@ body,
     transition: none !important;
   }
 }
+
+
+/* =========================================================
+   ORBIT AI — ANIMATION SYSTEM
+   ========================================================= */
+
+:root {
+  --animation-duration-fast: 0.15s;
+  --animation-duration-normal: 0.25s;
+  --animation-duration-slow: 0.35s;
+  --animation-ease: ease;
+}
+
+/* =========================================================
+   MESSAGE ENTRANCE
+   ========================================================= */
+
+@keyframes orbitMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-window .message {
+  animation:
+    orbitMessageIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+/* =========================================================
+   QUICK PROMPT ENTRANCE
+   ========================================================= */
+
+@keyframes orbitPromptIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-prompt {
+  animation:
+    orbitPromptIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+.quick-prompt:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.quick-prompt:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
+.quick-prompt:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.orbit-sidebar {
+  will-change: transform, opacity;
+}
+
+.orbit-app.nav-open .orbit-sidebar {
+  animation: orbitSidebarIn var(--animation-duration-normal) var(--animation-ease);
+}
+
+@keyframes orbitSidebarIn {
+  from {
+    opacity: 0.7;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   SIDEBAR ITEMS
+   ========================================================= */
+
+.orbit-app.nav-open .sidebar-chat-actions,
+.orbit-app.nav-open .chat-history-panel,
+.orbit-app.nav-open .sidebar-account,
+.orbit-app.nav-open .sidebar-footer {
+  animation:
+    orbitSidebarContentIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitSidebarContentIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   TOPBAR
+   ========================================================= */
+
+.orbit-topbar {
+  animation:
+    orbitTopbarIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitTopbarIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   BUTTON PRESS FEEDBACK
+   ========================================================= */
+
+.menu-toggle:active,
+.sidebar-close:active,
+.topbar-btn:active,
+.new-chat-btn:active,
+.search-chat-btn:active,
+.sidebar-account-link:active {
+  transform: scale(0.95);
+}
+
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
+
+.send-btn {
+  will-change: transform;
+}
+
+.send-btn:hover {
+  transform: translateY(-1px);
+}
+
+.send-btn:active {
+  transform: scale(0.92);
+}
+
+/* =========================================================
+   COMMAND BOX FOCUS
+   ========================================================= */
+
+.command-box {
+  will-change: border-color, box-shadow;
+}
+
+.command-box:focus-within {
+  animation:
+    orbitCommandFocus
+    var(--animation-duration-fast)
+    var(--animation-ease);
+}
+
+@keyframes orbitCommandFocus {
+  from {
+    transform: scale(0.995);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   TYPING INDICATOR
+   ========================================================= */
+
+.typing-indicator {
+  animation:
+    orbitTypingIn
+    var(--animation-duration-fast)
+    var(--animation-ease);
+}
+
+@keyframes orbitTypingIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   CHAT HISTORY ITEMS
+   ========================================================= */
+
+.orbit-recent-chat {
+  animation:
+    orbitHistoryIn
+    var(--animation-duration-fast)
+    var(--animation-ease);
+}
+
+@keyframes orbitHistoryIn {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.brand-logo,
+.topbar-logo {
+  transition:
+    transform var(--animation-duration-fast) var(--animation-ease),
+    box-shadow var(--animation-duration-fast) var(--animation-ease);
+}
+
+.brand:hover .brand-logo,
+.topbar-logo:hover {
+  transform: scale(1.03);
+}
+
+/* =========================================================
+   ACCOUNT / PROFILE EDITOR
+   ========================================================= */
+
+#orbit-profile-editor {
+  transition:
+    opacity var(--animation-duration-normal) var(--animation-ease);
+}
+
+#orbit-profile-editor.is-open .orbit-profile-editor-card {
+  animation:
+    orbitProfileIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitProfileIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   HOVER LIFT
+   ========================================================= */
+
+.quick-prompt:hover,
+.topbar-btn:hover,
+.new-chat-btn:hover,
+.search-chat-btn:hover {
+  transition:
+    transform var(--animation-duration-fast) var(--animation-ease),
+    background-color var(--animation-duration-fast) var(--animation-ease),
+    border-color var(--animation-duration-fast) var(--animation-ease),
+    box-shadow var(--animation-duration-fast) var(--animation-ease);
+}
+
+/* =========================================================
+   ANIMATIONS ENABLE / DISABLE
+   ========================================================= */
+
+html[data-animations="false"] *,
+html[data-animations="false"] *::before,
+html[data-animations="false"] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

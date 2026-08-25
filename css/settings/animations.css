@@ -1,0 +1,254 @@
+/* Orbit AI animations */
+
+:root {
+    --animation-fast: 0.15s;
+    --animation-normal: 0.25s;
+    --animation-slow: 0.35s;
+    --animation-ease: ease;
+}
+
+/* Global */
+
+html[data-animations="true"] *,
+html[data-animations="true"] *::before,
+html[data-animations="true"] *::after {
+    animation-duration: var(--animation-normal);
+    animation-timing-function: var(--animation-ease);
+}
+
+
+/* Fade in */
+
+@keyframes orbit-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* Fade up */
+
+@keyframes orbit-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Fade down */
+
+@keyframes orbit-fade-down {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Scale in */
+
+@keyframes orbit-scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* Slide from left */
+
+@keyframes orbit-slide-left {
+    from {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+
+/* Slide from right */
+
+@keyframes orbit-slide-right {
+    from {
+        opacity: 0;
+        transform: translateX(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+
+/* Pulse */
+
+@keyframes orbit-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.55;
+    }
+}
+
+
+/* Spin */
+
+@keyframes orbit-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* Button interaction */
+
+@keyframes orbit-button-press {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.97);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+/* Utility classes */
+
+.orbit-animate-fade-in {
+    animation: orbit-fade-in var(--animation-normal) var(--animation-ease);
+}
+
+.orbit-animate-fade-up {
+    animation: orbit-fade-up var(--animation-normal) var(--animation-ease);
+}
+
+.orbit-animate-fade-down {
+    animation: orbit-fade-down var(--animation-normal) var(--animation-ease);
+}
+
+.orbit-animate-scale-in {
+    animation: orbit-scale-in var(--animation-normal) var(--animation-ease);
+}
+
+.orbit-animate-slide-left {
+    animation: orbit-slide-left var(--animation-normal) var(--animation-ease);
+}
+
+.orbit-animate-slide-right {
+    animation: orbit-slide-right var(--animation-normal) var(--animation-ease);
+}
+
+
+/* Interactive elements */
+
+html[data-animations="true"] button,
+html[data-animations="true"] a,
+html[data-animations="true"] input,
+html[data-animations="true"] select,
+html[data-animations="true"] textarea {
+    transition:
+        background-color var(--animation-fast) var(--animation-ease),
+        border-color var(--animation-fast) var(--animation-ease),
+        color var(--animation-fast) var(--animation-ease),
+        box-shadow var(--animation-fast) var(--animation-ease),
+        transform var(--animation-fast) var(--animation-ease),
+        opacity var(--animation-fast) var(--animation-ease);
+}
+
+
+/* Button press */
+
+html[data-animations="true"] button:active {
+    transform: scale(0.98);
+}
+
+
+/* Loading */
+
+.orbit-loading {
+    animation: orbit-pulse 1.2s ease-in-out infinite;
+}
+
+.orbit-spinner {
+    animation: orbit-spin 0.8s linear infinite;
+}
+
+
+/* Disabled */
+
+html[data-animations="true"] button:disabled {
+    transition: opacity var(--animation-fast) var(--animation-ease);
+}
+
+
+/* Animations disabled */
+
+html[data-animations="false"] *,
+html[data-animations="false"] *::before,
+html[data-animations="false"] *::after {
+    animation: none !important;
+    transition: none !important;
+}
+
+
+/* Reduced motion */
+
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

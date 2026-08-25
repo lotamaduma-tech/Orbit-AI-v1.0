@@ -1,1503 +1,745 @@
-/* =========================================================
-   ORBIT AI — SETTINGS
-   Professional Settings Interface
-   Uses Global Orbit Theme Variables
-   ========================================================= */
+/* Orbit AI — Settings */
 
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
 
-/* =========================================================
-   SETTINGS APP
-   ========================================================= */
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+}
 
 .settings-app {
-
-    min-height: 100vh;
-
+    position: relative;
+    display: block;
     width: 100%;
-
+    min-height: 100vh;
+    height: auto !important;
+    overflow: visible !important;
     background: var(--bg);
-
     color: var(--text);
-
-    font-family: var(--font-family);
-
-    transition:
-        background-color var(--transition-normal),
-        color var(--transition-normal);
-
 }
-
-
-/* =========================================================
-   SETTINGS TOPBAR
-   ========================================================= */
 
 .settings-topbar {
-
-    width: 100%;
-
-    height: var(--header-height);
-
-    display: flex;
-
-    align-items: center;
-
-    padding:
-        0 var(--spacing-xl);
-
-    border-bottom: 1px solid var(--border);
-
-    background: var(--surface);
-
     position: sticky;
-
     top: 0;
-
     z-index: var(--z-header);
-
-    transition:
-        background-color var(--transition-normal),
-        border-color var(--transition-normal);
-
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: var(--header-height);
+    padding: 0 var(--spacing-lg);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    border-bottom: 1px solid var(--border-light);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 }
-
-
-/* =========================================================
-   RETURN BUTTON
-   ========================================================= */
 
 .settings-return-btn {
-
     display: inline-flex;
-
     align-items: center;
-
+    justify-content: center;
     gap: var(--spacing-sm);
-
-    padding:
-        9px 14px;
-
+    min-height: 40px;
+    padding: 0 var(--spacing-md);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
-
+    background: var(--surface);
     color: var(--text-secondary);
-
-    text-decoration: none;
-
+    font-family: var(--font-body);
     font-size: var(--font-size-sm);
-
-    font-weight: var(--font-weight-medium);
-
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    cursor: pointer;
     transition:
-        background-color var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast),
         color var(--transition-fast),
         transform var(--transition-fast);
-
 }
-
-
-.settings-return-btn i {
-
-    font-size: 0.85rem;
-
-}
-
 
 .settings-return-btn:hover {
-
     background: var(--surface-hover);
-
+    border-color: var(--primary-light);
     color: var(--text);
-
 }
-
 
 .settings-return-btn:active {
-
     transform: scale(0.97);
-
 }
-
-
-/* =========================================================
-   SETTINGS PAGE
-   ========================================================= */
 
 .settings-page {
-
-    width: min(
-        100%,
-        var(--content-max-width)
-    );
-
-    max-width: 1000px;
-
+    position: relative;
+    display: block;
+    width: min(100%, 1180px);
+    min-width: 0;
+    min-height: auto !important;
+    height: auto !important;
     margin: 0 auto;
-
-    padding:
-        var(--spacing-3xl)
-        var(--spacing-xl)
-        80px;
-
+    padding: var(--spacing-3xl) var(--spacing-lg) 80px;
+    overflow: visible !important;
 }
 
-
-/* =========================================================
-   SETTINGS HEADER
-   ========================================================= */
+/* Header */
 
 .settings-header {
-
+    max-width: 760px;
     margin-bottom: var(--spacing-2xl);
-
 }
-
 
 .settings-header .eyebrow {
-
-    display: inline-block;
-
+    display: inline-flex;
+    align-items: center;
     margin-bottom: var(--spacing-sm);
-
     color: var(--primary);
-
+    font-family: var(--font-secondary);
     font-size: var(--font-size-xs);
-
     font-weight: var(--font-weight-bold);
-
     letter-spacing: 0.12em;
-
 }
-
 
 .settings-header h1 {
-
     margin: 0;
-
     color: var(--text);
-
     font-family: var(--font-secondary);
-
-    font-size: clamp(
-        2rem,
-        4vw,
-        2.5rem
-    );
-
+    font-size: clamp(2rem, 5vw, 3rem);
     font-weight: var(--font-weight-bold);
-
-    line-height: 1.15;
-
+    line-height: 1.05;
+    letter-spacing: -0.04em;
 }
-
 
 .settings-header p {
-
-    max-width: 600px;
-
-    margin:
-        var(--spacing-sm)
-        0 0;
-
+    max-width: 620px;
+    margin: var(--spacing-md) 0 0;
     color: var(--text-secondary);
-
+    font-family: var(--font-body);
     font-size: var(--font-size-md);
-
     line-height: 1.6;
-
 }
 
-
-/* =========================================================
-   SETTINGS NAVIGATION
-   ========================================================= */
+/* Navigation */
 
 .settings-navigation {
-
     display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--spacing-sm);
-
-    margin-bottom: var(--spacing-2xl);
-
+    width: 100%;
+    margin-bottom: var(--spacing-3xl);
 }
 
-
-/* =========================================================
-   NAV ITEM
-   ========================================================= */
-
 .settings-nav-item {
-
-    min-width: 0;
-
     display: flex;
-
     align-items: center;
-
     gap: var(--spacing-md);
-
+    min-width: 0;
+    min-height: 72px;
     padding: var(--spacing-md);
-
     border: 1px solid var(--border);
-
     border-radius: var(--radius-lg);
-
     background: var(--surface);
-
     color: var(--text);
-
     text-decoration: none;
-
     box-shadow: var(--shadow-xs);
-
     transition:
-        background-color var(--transition-fast),
+        background var(--transition-fast),
         border-color var(--transition-fast),
         box-shadow var(--transition-fast),
         transform var(--transition-fast);
-
 }
-
 
 .settings-nav-item:hover {
-
     background: var(--surface-hover);
-
     border-color: var(--primary-light);
-
     box-shadow: var(--shadow-sm);
-
     transform: translateY(-1px);
-
 }
 
+.settings-nav-item:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
 
 .settings-nav-item.active {
-
     background: var(--primary-soft);
-
-    border-color: rgba(
-        99,
-        102,
-        241,
-        0.28
+    border-color: color-mix(
+        in srgb,
+        var(--primary) 30%,
+        var(--border)
     );
-
 }
 
-
-/* =========================================================
-   NAV ICON
-   ========================================================= */
-
 .settings-nav-icon {
-
-    flex: 0 0 40px;
-
-    width: 40px;
-
-    height: 40px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
     border-radius: var(--radius-md);
-
     background: var(--surface-soft);
-
-    color: var(--primary);
-
-    font-size: 0.95rem;
-
+    color: var(--text-secondary);
 }
 
-
-.settings-nav-item.active
-.settings-nav-icon {
-
+.settings-nav-item.active .settings-nav-icon {
     background: var(--primary);
-
-    color: #FFFFFF;
-
+    color: #fff;
 }
-
-
-/* =========================================================
-   NAV CONTENT
-   ========================================================= */
 
 .settings-nav-content {
-
-    min-width: 0;
-
-    flex: 1;
-
     display: flex;
-
+    flex: 1;
+    min-width: 0;
     flex-direction: column;
-
     gap: 3px;
-
 }
-
 
 .settings-nav-content strong {
-
+    overflow: hidden;
     color: var(--text);
-
+    font-family: var(--font-body);
     font-size: var(--font-size-sm);
-
     font-weight: var(--font-weight-semibold);
-
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
-
 
 .settings-nav-content small {
-
+    overflow: hidden;
     color: var(--muted);
-
+    font-family: var(--font-body);
     font-size: var(--font-size-xs);
-
-    line-height: 1.4;
-
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
-
 
 .settings-nav-item > .fa-chevron-right {
-
-    flex-shrink: 0;
-
+    flex: 0 0 auto;
     color: var(--text-dim);
-
     font-size: 0.7rem;
-
 }
 
-
-/* =========================================================
-   SETTINGS SECTION
-   ========================================================= */
+/* Sections */
 
 .settings-section {
-
-    margin-bottom: var(--spacing-xl);
-
+    position: relative;
+    scroll-margin-top: 88px;
+    width: 100%;
+    margin-bottom: var(--spacing-2xl);
     padding: var(--spacing-xl);
-
     border: 1px solid var(--border);
-
     border-radius: var(--radius-xl);
-
     background: var(--surface);
-
     box-shadow: var(--shadow-xs);
-
-    scroll-margin-top: 90px;
-
-    transition:
-        background-color var(--transition-normal),
-        border-color var(--transition-normal),
-        box-shadow var(--transition-normal);
-
 }
-
-
-.settings-section:hover {
-
-    box-shadow: var(--shadow-sm);
-
-}
-
-
-/* =========================================================
-   SECTION HEADING
-   ========================================================= */
 
 .settings-section-heading {
-
     display: flex;
-
     align-items: flex-start;
-
     gap: var(--spacing-md);
-
-    margin-bottom: var(--spacing-lg);
-
+    margin-bottom: var(--spacing-xl);
 }
-
-
-/* =========================================================
-   SECTION ICON
-   ========================================================= */
 
 .settings-section-icon {
-
-    flex: 0 0 42px;
-
-    width: 42px;
-
-    height: 42px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
     border-radius: var(--radius-md);
-
     background: var(--primary-soft);
-
     color: var(--primary);
-
-    font-size: 0.95rem;
-
 }
-
 
 .settings-section-heading h2 {
-
     margin: 0;
-
     color: var(--text);
-
-    font-size: var(--font-size-lg);
-
-    font-weight: var(--font-weight-semibold);
-
+    font-family: var(--font-secondary);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
 }
-
 
 .settings-section-heading p {
-
-    margin:
-        4px 0 0;
-
+    margin: 5px 0 0;
     color: var(--text-secondary);
-
     font-size: var(--font-size-sm);
-
     line-height: 1.5;
-
 }
 
-
-/* =========================================================
-   PROFILE CARD
-   ========================================================= */
+/* Profile */
 
 .profile-card {
-
     display: flex;
-
     align-items: center;
-
     gap: var(--spacing-md);
-
-    padding: var(--spacing-md);
-
+    width: 100%;
+    padding: var(--spacing-lg);
     border: 1px solid var(--border-light);
-
     border-radius: var(--radius-lg);
-
     background: var(--surface-soft);
-
 }
-
-
-/* =========================================================
-   PROFILE AVATAR
-   ========================================================= */
 
 .profile-avatar {
-
-    flex: 0 0 52px;
-
-    width: 52px;
-
-    height: 52px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
     border-radius: var(--radius-full);
-
-    background: var(--primary-soft);
-
-    color: var(--primary);
-
-    font-size: 1.05rem;
-
+    background: var(--primary);
+    color: #fff;
 }
-
 
 .profile-info {
-
-    min-width: 0;
-
     flex: 1;
-
+    min-width: 0;
 }
-
 
 .profile-info h3 {
-
     margin: 0;
-
+    overflow: hidden;
     color: var(--text);
-
     font-size: var(--font-size-md);
-
     font-weight: var(--font-weight-semibold);
-
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
-
 
 .profile-info p {
-
-    margin:
-        4px 0 0;
-
-    color: var(--text-secondary);
-
-    font-size: var(--font-size-sm);
-
+    margin: 4px 0 0;
     overflow: hidden;
-
-    text-overflow: ellipsis;
-
+    color: var(--muted);
+    font-size: var(--font-size-sm);
     white-space: nowrap;
-
+    text-overflow: ellipsis;
 }
-
-
-/* =========================================================
-   ACTION BUTTON
-   ========================================================= */
 
 .settings-action-btn {
-
-    flex-shrink: 0;
-
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0 var(--spacing-md);
     border: 1px solid var(--border);
-
     border-radius: var(--radius-md);
-
-    padding:
-        8px 14px;
-
     background: var(--surface);
-
     color: var(--text);
-
-    font-family: inherit;
-
+    font-family: var(--font-body);
     font-size: var(--font-size-sm);
-
-    font-weight: var(--font-weight-medium);
-
+    font-weight: var(--font-weight-semibold);
     cursor: pointer;
-
     transition:
-        background-color var(--transition-fast),
+        background var(--transition-fast),
         border-color var(--transition-fast),
         color var(--transition-fast);
-
 }
-
 
 .settings-action-btn:hover {
-
     background: var(--surface-hover);
-
-    border-color: var(--primary);
-
+    border-color: var(--primary-light);
     color: var(--primary);
-
 }
 
-
-/* =========================================================
-   SETTINGS OPTION
-   ========================================================= */
+/* Options */
 
 .settings-option {
-
-    min-height: 64px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: var(--spacing-lg);
-
-    padding:
-        var(--spacing-md) 0;
-
-    border-top: 1px solid var(--border-light);
-
+    min-height: 72px;
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--border-light);
 }
 
-
-.settings-option:first-of-type {
-
-    border-top: 0;
-
+.settings-option:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
 }
-
 
 .settings-option-info {
-
-    min-width: 0;
-
     flex: 1;
-
+    min-width: 0;
 }
-
 
 .settings-option-info h3 {
-
     margin: 0;
-
     color: var(--text);
-
     font-size: var(--font-size-sm);
-
     font-weight: var(--font-weight-semibold);
-
 }
-
 
 .settings-option-info p {
-
     max-width: 650px;
-
-    margin:
-        4px 0 0;
-
-    color: var(--text-secondary);
-
+    margin: 5px 0 0;
+    color: var(--muted);
     font-size: var(--font-size-xs);
-
     line-height: 1.5;
-
 }
 
-
-/* =========================================================
-   SELECT
-   ========================================================= */
+/* Select */
 
 .theme-select {
-
-    flex-shrink: 0;
-
-    min-width: 130px;
-
-    padding:
-        9px 34px 9px 12px;
-
+    flex: 0 0 auto;
+    min-width: 125px;
+    min-height: 40px;
+    padding: 0 var(--spacing-md);
     border: 1px solid var(--border);
-
     border-radius: var(--radius-md);
-
-    outline: none;
-
-    background-color: var(--surface);
-
+    background: var(--surface);
     color: var(--text);
-
-    font-family: inherit;
-
+    font-family: var(--font-body);
     font-size: var(--font-size-sm);
-
     cursor: pointer;
-
-    transition:
-        border-color var(--transition-fast),
-        background-color var(--transition-fast),
-        color var(--transition-fast);
-
+    outline: none;
 }
-
 
 .theme-select:hover {
-
     border-color: var(--primary-light);
-
 }
-
 
 .theme-select:focus {
-
     border-color: var(--primary);
-
-    box-shadow:
-        0 0 0 3px var(--primary-soft);
-
+    box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
-
-.theme-select option {
-
-    background: var(--surface);
-
-    color: var(--text);
-
-}
-
-
-/* =========================================================
-   TOGGLE
-   ========================================================= */
+/* Toggle */
 
 .settings-toggle {
-
     position: relative;
-
-    flex-shrink: 0;
-
-    width: 44px;
-
-    height: 24px;
-
-    display: block;
-
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 26px;
     cursor: pointer;
-
 }
-
 
 .settings-toggle input {
-
     position: absolute;
-
+    width: 1px;
+    height: 1px;
     opacity: 0;
-
-    pointer-events: none;
-
 }
-
 
 .toggle-slider {
-
     position: absolute;
-
     inset: 0;
-
     border-radius: var(--radius-full);
-
     background: var(--border);
-
     transition:
-        background-color var(--transition-fast);
-
+        background var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
-
 
 .toggle-slider::before {
-
     content: "";
-
     position: absolute;
-
-    width: 18px;
-
-    height: 18px;
-
-    left: 3px;
-
     top: 3px;
-
+    left: 3px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-
     background: var(--surface);
-
     box-shadow: var(--shadow-xs);
-
-    transition:
-        transform var(--transition-fast);
-
+    transition: transform var(--transition-fast);
 }
 
-
-.settings-toggle input:checked
-+ .toggle-slider {
-
+.settings-toggle input:checked + .toggle-slider {
     background: var(--primary);
-
 }
 
-
-.settings-toggle input:checked
-+ .toggle-slider::before {
-
+.settings-toggle input:checked + .toggle-slider::before {
     transform: translateX(20px);
-
 }
 
+.settings-toggle input:focus-visible + .toggle-slider {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
 
-/* =========================================================
-   SETTINGS LINKS
-   ========================================================= */
+/* Links */
 
 .settings-links {
-
     display: flex;
-
     flex-direction: column;
-
-    border-top: 1px solid var(--border-light);
-
+    width: 100%;
 }
-
 
 .settings-link {
-
-    width: 100%;
-
-    min-height: 58px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: var(--spacing-md);
-
-    padding:
-        var(--spacing-md) 0;
-
+    width: 100%;
+    min-height: 58px;
+    padding: var(--spacing-md) 0;
     border: 0;
-
     border-bottom: 1px solid var(--border-light);
-
     background: transparent;
-
     color: var(--text);
-
-    font-family: inherit;
-
+    font-family: var(--font-body);
     font-size: var(--font-size-sm);
-
     text-decoration: none;
-
     text-align: left;
-
     cursor: pointer;
-
-    transition:
-        color var(--transition-fast),
-        background-color var(--transition-fast);
-
 }
-
 
 .settings-link:last-child {
-
     border-bottom: 0;
-
 }
-
 
 .settings-link > span {
-
-    min-width: 0;
-
     display: flex;
-
     align-items: center;
-
     gap: var(--spacing-md);
-
+    min-width: 0;
 }
-
 
 .settings-link > span > i {
-
-    width: 22px;
-
+    flex: 0 0 18px;
+    width: 18px;
     color: var(--text-secondary);
-
     text-align: center;
-
 }
-
 
 .settings-link > .fa-chevron-right {
-
-    flex-shrink: 0;
-
+    flex: 0 0 auto;
     color: var(--text-dim);
-
     font-size: 0.7rem;
-
 }
-
 
 .settings-link:hover {
-
     color: var(--primary);
-
 }
 
-
-.settings-link:hover
-> span > i {
-
+.settings-link:hover > span > i {
     color: var(--primary);
-
 }
-
-
-/* =========================================================
-   DANGER LINK
-   ========================================================= */
 
 .settings-danger-link {
-
     color: var(--danger);
-
 }
 
-
-.settings-danger-link
-> span > i {
-
+.settings-danger-link > span > i,
+.settings-danger-link > .fa-chevron-right {
     color: var(--danger);
-
 }
 
-
-.settings-danger-link:hover {
-
-    color: var(--danger-dark);
-
-    background: var(--danger-soft);
-
-}
-
-
-/* =========================================================
-   ABOUT
-   ========================================================= */
+/* About */
 
 .settings-about-section {
-
     margin-bottom: 0;
-
 }
-
 
 .settings-about {
-
     display: flex;
-
     flex-direction: column;
-
     align-items: center;
-
-    justify-content: center;
-
-    gap: var(--spacing-xs);
-
-    padding:
-        var(--spacing-xl)
-        var(--spacing-md);
-
+    padding: var(--spacing-xl);
+    border: 1px solid var(--border-light);
     border-radius: var(--radius-lg);
-
     background: var(--surface-soft);
-
     text-align: center;
-
 }
-
 
 .settings-about strong {
-
     color: var(--text);
-
     font-family: var(--font-secondary);
-
     font-size: var(--font-size-lg);
-
     font-weight: var(--font-weight-bold);
-
 }
-
 
 .settings-about span {
-
+    margin-top: 5px;
     color: var(--text-secondary);
-
     font-size: var(--font-size-sm);
-
 }
-
 
 .settings-about small {
-
-    margin-top: var(--spacing-xs);
-
+    margin-top: var(--spacing-md);
     color: var(--text-dim);
-
     font-size: var(--font-size-xs);
-
 }
 
+/* Scrollbar */
 
-/* =========================================================
-   FOCUS ACCESSIBILITY
-   ========================================================= */
-
-.settings-return-btn:focus-visible,
-.settings-nav-item:focus-visible,
-.settings-action-btn:focus-visible,
-.settings-link:focus-visible,
-.theme-select:focus-visible,
-.settings-toggle:focus-within {
-
-    outline: 2px solid var(--primary);
-
-    outline-offset: 2px;
-
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
 }
 
+html::-webkit-scrollbar {
+    width: 7px;
+}
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
+html::-webkit-scrollbar-track {
+    background: transparent;
+}
 
-@media (max-width: 768px) {
+html::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
 
+html::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
     .settings-topbar {
-
-        height: 60px;
-
-        padding:
-            0 var(--spacing-md);
-
+        min-height: 60px;
+        padding: 0 var(--spacing-md);
     }
 
+    .settings-return-btn {
+        min-height: 38px;
+        padding: 0 12px;
+    }
 
     .settings-page {
-
         width: 100%;
-
-        padding:
-            var(--spacing-xl)
-            var(--spacing-md)
-            48px;
-
+        padding: var(--spacing-xl) var(--spacing-md) 60px;
     }
-
 
     .settings-header {
-
         margin-bottom: var(--spacing-xl);
-
     }
-
 
     .settings-header h1 {
-
-        font-size: 1.9rem;
-
+        font-size: 2rem;
     }
-
 
     .settings-header p {
-
         font-size: var(--font-size-sm);
-
     }
-
-
-    /* -----------------------------------------
-       MOBILE SETTINGS NAV
-       ----------------------------------------- */
 
     .settings-navigation {
-
-        display: flex;
-
-        flex-direction: column;
-
-        gap: var(--spacing-xs);
-
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
         margin-bottom: var(--spacing-xl);
-
-        padding: var(--spacing-xs);
-
-        border: 1px solid var(--border);
-
-        border-radius: var(--radius-lg);
-
-        background: var(--surface);
-
     }
-
 
     .settings-nav-item {
-
-        border: 0;
-
-        border-radius: var(--radius-md);
-
-        padding:
-            11px var(--spacing-sm);
-
-        box-shadow: none;
-
+        min-height: 64px;
+        padding: 12px;
     }
-
-
-    .settings-nav-item:hover {
-
-        transform: none;
-
-        box-shadow: none;
-
-    }
-
-
-    .settings-nav-icon {
-
-        flex-basis: 36px;
-
-        width: 36px;
-
-        height: 36px;
-
-    }
-
-
-    .settings-nav-content small {
-
-        display: none;
-
-    }
-
-
-    /* -----------------------------------------
-       MOBILE SECTIONS
-       ----------------------------------------- */
 
     .settings-section {
-
-        padding: var(--spacing-md);
-
+        margin-bottom: var(--spacing-lg);
+        padding: var(--spacing-lg);
         border-radius: var(--radius-lg);
-
-        margin-bottom: var(--spacing-md);
-
     }
-
 
     .settings-section-heading {
-
-        gap: var(--spacing-sm);
-
-        margin-bottom: var(--spacing-md);
-
+        gap: 12px;
+        margin-bottom: var(--spacing-lg);
     }
-
 
     .settings-section-icon {
-
         flex-basis: 38px;
-
         width: 38px;
-
         height: 38px;
-
     }
-
 
     .settings-section-heading h2 {
-
-        font-size: var(--font-size-md);
-
+        font-size: var(--font-size-lg);
     }
-
 
     .settings-section-heading p {
-
         font-size: var(--font-size-xs);
-
     }
-
-
-    /* -----------------------------------------
-       MOBILE PROFILE
-       ----------------------------------------- */
 
     .profile-card {
-
+        align-items: flex-start;
         flex-wrap: wrap;
-
-        padding: var(--spacing-sm);
-
+        padding: var(--spacing-md);
     }
-
-
-    .profile-avatar {
-
-        flex-basis: 44px;
-
-        width: 44px;
-
-        height: 44px;
-
-    }
-
 
     .profile-info {
-
-        flex: 1;
-
-        min-width: 120px;
-
+        padding-top: 3px;
     }
-
 
     .settings-action-btn {
-
         width: 100%;
-
-        margin-top: var(--spacing-xs);
-
     }
 
-
-    /* -----------------------------------------
-       MOBILE OPTIONS
-       ----------------------------------------- */
-
     .settings-option {
-
         align-items: flex-start;
-
         gap: var(--spacing-md);
-
-        padding:
-            var(--spacing-md) 0;
-
+        min-height: 70px;
+        padding: var(--spacing-md) 0;
     }
-
-
-    .settings-option-info p {
-
-        padding-right: var(--spacing-sm);
-
-    }
-
-
-    .theme-select {
-
-        min-width: 105px;
-
-    }
-
-
-    /* -----------------------------------------
-       MOBILE LINKS
-       ----------------------------------------- */
-
-    .settings-link {
-
-        min-height: 54px;
-
-        font-size: var(--font-size-sm);
-
-    }
-
-
-    /* -----------------------------------------
-       MOBILE ABOUT
-       ----------------------------------------- */
-
-    .settings-about {
-
-        padding:
-            var(--spacing-lg)
-            var(--spacing-md);
-
-    }
-
-}
-
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
-@media (max-width: 480px) {
-
-    .settings-page {
-
-        padding:
-            var(--spacing-lg)
-            12px
-            40px;
-
-    }
-
-
-    .settings-header h1 {
-
-        font-size: 1.7rem;
-
-    }
-
-
-    .settings-navigation {
-
-        border-radius: var(--radius-md);
-
-    }
-
-
-    .settings-nav-item {
-
-        padding:
-            10px 8px;
-
-    }
-
-
-    .settings-nav-icon {
-
-        flex-basis: 34px;
-
-        width: 34px;
-
-        height: 34px;
-
-    }
-
-
-    .settings-section {
-
-        padding: 14px;
-
-    }
-
-
-    .settings-option {
-
-        gap: 10px;
-
-    }
-
 
     .settings-option-info {
-
-        padding-right: 4px;
-
+        flex: 1;
     }
 
+    .settings-option-info p {
+        font-size: 0.7rem;
+    }
 
     .theme-select {
-
-        min-width: 100px;
-
-        padding:
-            8px 28px 8px 9px;
-
-        font-size: var(--font-size-xs);
-
+        min-width: 105px;
+        min-height: 40px;
     }
 
-
-    .settings-toggle {
-
-        width: 42px;
-
-        height: 23px;
-
+    .settings-link {
+        min-height: 54px;
+        padding: 13px 0;
     }
 
-
-    .toggle-slider::before {
-
-        width: 17px;
-
-        height: 17px;
-
+    .settings-about {
+        padding: var(--spacing-lg);
     }
-
-
-    .settings-toggle input:checked
-    + .toggle-slider::before {
-
-        transform: translateX(19px);
-
-    }
-
-
-    .settings-link > span {
-
-        gap: var(--spacing-sm);
-
-    }
-
 }
 
+@media (max-width: 420px) {
+    .settings-page {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
 
-/* =========================================================
-   VERY SMALL SCREENS
-   ========================================================= */
-
-@media (max-width: 360px) {
+    .settings-section {
+        padding: 14px;
+    }
 
     .settings-header h1 {
-
-        font-size: 1.55rem;
-
+        font-size: 1.8rem;
     }
 
-
-    .settings-section-heading {
-
-        align-items: center;
-
+    .settings-nav-item {
+        min-height: 60px;
     }
 
-
-    .settings-section-heading p {
-
-        display: none;
-
+    .settings-nav-icon {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
     }
-
 
     .settings-option {
-
-        flex-direction: column;
-
-        align-items: flex-start;
-
+        gap: 10px;
     }
-
 
     .theme-select {
-
-        width: 100%;
-
+        min-width: 96px;
     }
+}
 
+@media (prefers-reduced-motion: reduce) {
+    .settings-return-btn,
+    .settings-nav-item,
+    .settings-action-btn,
+    .settings-toggle,
+    .toggle-slider,
+    .toggle-slider::before {
+        transition: none;
+    }
 }
