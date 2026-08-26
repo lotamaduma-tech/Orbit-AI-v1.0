@@ -83,7 +83,7 @@ select:focus-visible {
 }
 
 
-/* APP */
+/* App */
 
 .orbit-app {
   position: relative;
@@ -123,7 +123,7 @@ select:focus-visible {
 }
 
 
-/* SCROLLBAR */
+/* Scrollbar */
 
 * {
   scrollbar-width: thin;
@@ -149,45 +149,34 @@ select:focus-visible {
 }
 
 
-/* SIDEBAR */
+/* Sidebar */
 
 .orbit-sidebar {
   position: fixed;
   inset: 0 auto 0 0;
   z-index: var(--z-navigation);
-
   display: flex;
   flex-direction: column;
-
   width: var(--navigation-width);
   height: 100vh;
   height: 100dvh;
-
   padding: var(--spacing-md);
-
   overflow: hidden;
-
   background:
     linear-gradient(
       145deg,
       color-mix(in srgb, var(--surface) 96%, var(--primary) 4%),
       var(--surface)
     );
-
   color: var(--text);
-
   border-right: 1px solid var(--border);
-
   box-shadow: var(--shadow-navigation);
-
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-
   transform: translateX(-100%);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-
   transition:
     transform var(--transition-normal),
     opacity var(--transition-fast),
@@ -203,36 +192,30 @@ select:focus-visible {
 }
 
 
-/* SIDEBAR HEADER */
+/* Sidebar header */
 
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   width: 100%;
   min-height: 44px;
   margin-bottom: var(--spacing-md);
-
   flex-shrink: 0;
 }
 
 
-/* LOGO */
+/* Logo */
 
 .sidebar-header .brand {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-
   min-width: 0;
-
   color: var(--text);
-
   font-family: var(--font-secondary);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.04em;
-
   transition:
     opacity var(--transition-fast),
     transform var(--transition-fast);
@@ -246,14 +229,10 @@ select:focus-visible {
   width: 34px;
   height: 34px;
   flex: 0 0 34px;
-
   object-fit: cover;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   background: var(--surface-soft);
-
   box-shadow:
     0 0 0 4px var(--primary-soft),
     var(--shadow-xs);
@@ -263,9 +242,7 @@ select:focus-visible {
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
-
   min-width: 0;
-
   font-family: var(--font-secondary);
   font-weight: var(--font-weight-bold);
   line-height: 1;
@@ -284,29 +261,23 @@ select:focus-visible {
 }
 
 
-/* SIDEBAR CLOSE */
+/* Sidebar close */
 
 .sidebar-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 36px;
   height: 36px;
   flex: 0 0 36px;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   background: var(--surface-soft);
   color: var(--text-secondary);
-
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-
   transform: scale(0.9);
-
   transition:
     opacity var(--transition-fast),
     visibility var(--transition-fast),
@@ -331,16 +302,14 @@ select:focus-visible {
 }
 
 
-/* SIDEBAR ACTIONS */
+/* Sidebar actions */
 
 .sidebar-chat-actions {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
-
   width: 100%;
   margin-bottom: var(--spacing-md);
-
   flex-shrink: 0;
 }
 
@@ -348,22 +317,16 @@ select:focus-visible {
 .search-chat-btn {
   display: flex;
   align-items: center;
-
   width: 100%;
   min-height: 40px;
-
   gap: var(--spacing-sm);
   padding: 0 var(--spacing-sm);
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   background: var(--surface-soft);
   color: var(--text-secondary);
-
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -391,25 +354,21 @@ select:focus-visible {
 }
 
 
-/* CHAT HISTORY */
+/* Chat history */
 
 .chat-history-panel {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-
   width: 100%;
   min-height: 0;
-
   overflow: hidden;
 }
 
 .chat-history-header {
   display: flex;
   align-items: center;
-
   flex-shrink: 0;
-
   padding:
     var(--spacing-sm)
     var(--spacing-xs)
@@ -420,7 +379,6 @@ select:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-
   color: var(--text-secondary);
 }
 
@@ -452,42 +410,31 @@ select:focus-visible {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-
   width: 100%;
   min-height: 0;
-
   gap: 4px;
-
   padding:
     var(--spacing-xs)
     var(--spacing-xs)
     var(--spacing-sm);
-
   overflow-x: hidden;
   overflow-y: auto;
 }
 
 .orbit-recent-chat {
   position: relative;
-
   display: flex;
   align-items: center;
-
   width: 100%;
   min-height: 46px;
   flex-shrink: 0;
-
   gap: var(--spacing-sm);
   padding: var(--spacing-xs);
-
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-
   background: transparent;
   color: var(--text);
-
   text-align: left;
-
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -517,17 +464,13 @@ select:focus-visible {
 .orbit-recent-chat-icon {
   display: grid;
   place-items: center;
-
   width: 30px;
   height: 30px;
   flex: 0 0 30px;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-
   background: var(--surface);
   color: var(--primary);
-
   font-size: var(--font-size-xs);
 }
 
@@ -536,28 +479,23 @@ select:focus-visible {
   flex: 1;
   flex-direction: column;
   justify-content: center;
-
   min-width: 0;
   overflow: hidden;
 }
 
 .orbit-recent-chat-title {
   width: 100%;
-
   overflow: hidden;
-
   color: var(--text);
-
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   line-height: 1.4;
-
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 
-/* EMPTY HISTORY */
+/* Empty history */
 
 .chat-history-empty,
 #chat-history-empty {
@@ -566,15 +504,11 @@ select:focus-visible {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   min-height: 80px;
   padding: var(--spacing-md);
-
   border: 1px dashed var(--border);
   border-radius: var(--radius-md);
-
   background: var(--surface-soft);
-
   text-align: center;
 }
 
@@ -599,15 +533,13 @@ select:focus-visible {
 }
 
 
-/* ACCOUNT */
+/* Account */
 
 .sidebar-account,
 .sidebar-footer {
   flex-shrink: 0;
-
   margin-top: var(--spacing-sm);
   padding-top: var(--spacing-sm);
-
   border-top: 1px solid var(--border-light);
 }
 
@@ -616,34 +548,24 @@ select:focus-visible {
     0
     var(--spacing-xs)
     var(--spacing-xs);
-
   color: var(--text-dim);
-
   font-size: 8px;
   font-weight: var(--font-weight-semibold);
-
   letter-spacing: 0.08em;
 }
 
 .sidebar-account-link {
   display: flex;
   align-items: center;
-
   width: 100%;
   min-height: 36px;
-
   gap: var(--spacing-sm);
   padding: 0 var(--spacing-sm);
-
   border-radius: var(--radius-md);
-
   background: transparent;
   color: var(--text-secondary);
-
   font-size: var(--font-size-sm);
-
   text-align: left;
-
   transition:
     background-color var(--transition-fast),
     color var(--transition-fast);
@@ -673,12 +595,9 @@ select:focus-visible {
 .sidebar-status {
   display: flex;
   align-items: center;
-
   gap: var(--spacing-sm);
-
   min-height: 28px;
   padding: 0 var(--spacing-xs);
-
   color: var(--muted);
   font-size: 9px;
 }
@@ -687,30 +606,23 @@ select:focus-visible {
   width: 7px;
   height: 7px;
   flex: 0 0 7px;
-
   border-radius: var(--radius-full);
-
   background: var(--success);
-
   box-shadow:
     0 0 0 3px var(--success-soft);
 }
 
 
-/* NAVIGATION OVERLAY */
+/* Navigation overlay */
 
 .navigation-overlay {
   position: fixed;
   inset: 0;
-
   z-index: calc(var(--z-navigation) - 1);
-
   background: var(--overlay);
-
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-
   transition:
     opacity var(--transition-normal),
     visibility var(--transition-normal);
@@ -723,34 +635,27 @@ select:focus-visible {
 }
 
 
-/* MENU BUTTON */
+/* Menu button */
 
 .menu-toggle {
   position: relative;
   z-index: calc(var(--z-navigation) + 2);
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   background:
     color-mix(
       in srgb,
       var(--surface) 88%,
       transparent
     );
-
   color: var(--text-secondary);
-
   box-shadow: var(--shadow-xs);
-
   transition:
     opacity var(--transition-fast),
     visibility var(--transition-fast),
@@ -778,32 +683,25 @@ select:focus-visible {
 }
 
 
-/* TOPBAR */
+/* Topbar */
 
 .orbit-topbar {
   position: sticky;
   top: 0;
-
   z-index: var(--z-header);
-
   display: flex;
   align-items: center;
-
   width: 100%;
   min-height: var(--header-height);
   flex: 0 0 var(--header-height);
-
   padding: 0 var(--spacing-md);
-
   background:
     color-mix(
       in srgb,
       var(--bg) 82%,
       transparent
     );
-
   border-bottom: 1px solid var(--border-light);
-
   backdrop-filter: blur(22px) saturate(140%);
   -webkit-backdrop-filter: blur(22px) saturate(140%);
 }
@@ -812,9 +710,7 @@ select:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-
   min-width: 0;
-
   margin-left: var(--spacing-sm);
   margin-right: auto;
 }
@@ -823,14 +719,10 @@ select:focus-visible {
   width: 34px;
   height: 34px;
   flex: 0 0 34px;
-
   object-fit: cover;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   background: var(--surface-soft);
-
   box-shadow:
     0 0 0 3px var(--primary-soft),
     var(--shadow-xs);
@@ -839,30 +731,23 @@ select:focus-visible {
 .topbar-title-text {
   display: flex;
   flex-direction: column;
-
   min-width: 0;
 }
 
 .topbar-title-text > span {
   overflow: hidden;
-
   color: var(--text);
-
   font-family: var(--font-secondary);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
-
   line-height: 1.2;
-
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .topbar-title-text > small {
   margin-top: 3px;
-
   color: var(--text-dim);
-
   font-size: var(--font-size-xs);
   line-height: 1.2;
 }
@@ -871,9 +756,7 @@ select:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
   gap: var(--spacing-sm);
-
   min-width: 0;
 }
 
@@ -881,25 +764,19 @@ select:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   background:
     color-mix(
       in srgb,
       var(--surface) 88%,
       transparent
     );
-
   color: var(--text-secondary);
-
   box-shadow: var(--shadow-xs);
-
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -920,33 +797,26 @@ select:focus-visible {
 }
 
 
-/* CHAT WINDOW */
+/* Chat window */
 
 .chat-window {
   position: relative;
   z-index: 2;
-
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   align-items: stretch;
-
   width: 100%;
   min-width: 0;
   min-height: 0;
-
   gap: var(--spacing-lg);
-
   padding:
     var(--spacing-xl)
     var(--spacing-lg)
     var(--spacing-md);
-
   overflow-x: hidden;
   overflow-y: auto;
-
   scroll-behavior: smooth;
-
   overscroll-behavior-y: contain;
 }
 
@@ -963,24 +833,20 @@ select:focus-visible {
 }
 
 
-/* CHAT INTRO */
+/* Chat intro */
 
 .chat-intro {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 100%;
   min-height: 100%;
-
   padding: var(--spacing-xl) 0;
 }
 
 .quick-prompts {
   display: grid;
-
   width: min(100%, 820px);
-
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-sm);
 }
@@ -988,15 +854,11 @@ select:focus-visible {
 .quick-prompt {
   display: flex;
   align-items: center;
-
   min-height: 76px;
-
   gap: var(--spacing-sm);
   padding: var(--spacing-sm);
-
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-
   background:
     linear-gradient(
       145deg,
@@ -1007,13 +869,9 @@ select:focus-visible {
       ),
       var(--surface)
     );
-
   color: var(--text);
-
   text-align: left;
-
   box-shadow: var(--shadow-xs);
-
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -1035,16 +893,12 @@ select:focus-visible {
 .quick-prompt-icon {
   display: grid;
   place-items: center;
-
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
-
   border-radius: var(--radius-md);
-
   background: var(--primary-soft);
   color: var(--primary);
-
   font-size: var(--font-size-sm);
 }
 
@@ -1052,31 +906,23 @@ select:focus-visible {
   display: flex;
   flex: 1;
   flex-direction: column;
-
   min-width: 0;
 }
 
 .quick-prompt-content strong {
   overflow: hidden;
-
   color: var(--text);
-
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .quick-prompt-content small {
   margin-top: 3px;
-
   overflow: hidden;
-
   color: var(--text-dim);
-
   font-size: var(--font-size-xs);
-
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1084,15 +930,11 @@ select:focus-visible {
 .quick-prompt-arrow {
   display: grid;
   place-items: center;
-
   width: 28px;
   height: 28px;
   flex: 0 0 28px;
-
   border-radius: var(--radius-full);
-
   color: var(--text-dim);
-
   transition:
     background-color var(--transition-fast),
     color var(--transition-fast),
@@ -1106,53 +948,37 @@ select:focus-visible {
 }
 
 
-/* USER MESSAGE */
+/* User message */
 
 .chat-window .message.user {
   align-self: flex-end;
-
   width: fit-content;
   max-width: min(78%, 680px);
-
   margin-left: auto;
   margin-right: 0;
-
-  padding:
-    11px
-    16px;
-
+  padding: 11px 16px;
   border: 1px solid var(--primary);
   border-radius: var(--radius-lg);
   border-bottom-right-radius: var(--radius-sm);
-
   background: var(--primary);
   color: #fff;
-
   font-size: var(--font-size-md);
   line-height: 1.55;
-
   box-shadow: var(--shadow-sm);
 }
 
 
-/* AI MESSAGE */
+/* AI message */
 
 .chat-window .message.orbit {
   align-self: center;
-
   width: min(100%, 820px);
   max-width: 820px;
-
   margin-left: auto;
   margin-right: auto;
-
-  padding:
-    var(--spacing-sm)
-    0;
-
+  padding: var(--spacing-sm) 0;
   background: transparent;
   color: var(--text);
-
   font-size: var(--font-size-md);
   line-height: 1.7;
 }
@@ -1173,9 +999,7 @@ select:focus-visible {
     var(--spacing-lg)
     0
     var(--spacing-sm);
-
   color: var(--text);
-
   font-family: var(--font-secondary);
 }
 
@@ -1185,7 +1009,6 @@ select:focus-visible {
     var(--spacing-sm)
     0
     var(--spacing-md);
-
   padding-left: var(--spacing-lg);
 }
 
@@ -1205,7 +1028,6 @@ select:focus-visible {
   color: var(--primary);
   text-decoration: underline;
   text-decoration-color: transparent;
-
   transition:
     color var(--transition-fast),
     text-decoration-color var(--transition-fast);
@@ -1220,17 +1042,13 @@ select:focus-visible {
   margin:
     var(--spacing-md)
     0;
-
   padding:
     var(--spacing-sm)
     var(--spacing-md);
-
   border-left:
     3px solid
     var(--primary);
-
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-
   background: var(--surface-soft);
   color: var(--text-secondary);
 }
@@ -1238,18 +1056,13 @@ select:focus-visible {
 .chat-window .message.orbit pre {
   width: 100%;
   max-width: 100%;
-
   margin: var(--spacing-md) 0;
   padding: var(--spacing-md);
-
   overflow-x: auto;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   background: var(--surface-soft);
   color: var(--text);
-
   box-shadow: var(--shadow-xs);
 }
 
@@ -1259,15 +1072,12 @@ select:focus-visible {
     Consolas,
     "Liberation Mono",
     monospace;
-
   font-size: 0.9em;
 }
 
 .chat-window .message.orbit :not(pre) > code {
   padding: 2px 6px;
-
   border-radius: var(--radius-xs);
-
   background: var(--primary-soft);
   color: var(--primary-dark);
 }
@@ -1275,21 +1085,16 @@ select:focus-visible {
 .chat-window .message.orbit table {
   width: 100%;
   margin: var(--spacing-md) 0;
-
   border-collapse: collapse;
-
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-
   overflow: hidden;
 }
 
 .chat-window .message.orbit th,
 .chat-window .message.orbit td {
   padding: var(--spacing-sm);
-
   border: 1px solid var(--border);
-
   text-align: left;
 }
 
@@ -1299,90 +1104,21 @@ select:focus-visible {
 }
 
 
-/* TYPING */
-
-.typing-indicator {
-  align-self: flex-start;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: fit-content !important;
-  min-width: 48px;
-  min-height: 34px;
-
-  gap: 5px;
-  padding: 8px 12px;
-  margin: 2px 0 8px;
-
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-
-  background: var(--surface);
-  color: var(--text);
-
-  box-shadow: var(--shadow-sm);
-}
-
-.typing-indicator span {
-  display: block;
-
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-
-  border-radius: var(--radius-full);
-
-  background: var(--primary);
-
-  opacity: 0.45;
-
-  animation: orbitTyping 1.2s infinite ease-in-out;
-}
-
-.typing-indicator span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.typing-indicator span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes orbitTyping {
-  0%,
-  60%,
-  100% {
-    opacity: 0.35;
-    transform: translateY(0);
-  }
-
-  30% {
-    opacity: 1;
-    transform: translateY(-4px);
-  }
-}
-
-
-/* COMMAND AREA */
+/* Command area */
 
 .command-area {
   position: relative;
   z-index: var(--z-header);
-
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
-
   width: 100%;
   min-width: 0;
-
   padding:
     var(--spacing-sm)
     var(--spacing-lg)
     var(--spacing-md);
-
   background:
     linear-gradient(
       to bottom,
@@ -1393,7 +1129,6 @@ select:focus-visible {
         transparent
       ) 25%
     );
-
   transition:
     background-color var(--transition-normal),
     width var(--transition-normal);
@@ -1402,31 +1137,25 @@ select:focus-visible {
 .command-box {
   display: flex;
   align-items: flex-end;
-
   width: min(100%, 820px);
   min-height: 52px;
-
   gap: var(--spacing-sm);
   padding:
     6px
     7px
     6px
     var(--spacing-sm);
-
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-
   background:
     color-mix(
       in srgb,
       var(--surface) 96%,
       var(--primary) 4%
     );
-
   box-shadow:
     var(--shadow-sm),
     0 0 0 1px var(--border-light);
-
   transition:
     border-color var(--transition-fast),
     background-color var(--transition-fast),
@@ -1445,14 +1174,11 @@ select:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 38px;
   height: 38px;
   min-width: 38px;
   flex: 0 0 38px;
-
   border-radius: var(--radius-full);
-
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -1473,7 +1199,6 @@ select:focus-visible {
 .send-btn {
   background: var(--primary);
   color: #fff;
-
   box-shadow: var(--shadow-xs);
 }
 
@@ -1494,26 +1219,20 @@ select:focus-visible {
 
 #command-input {
   flex: 1 1 auto;
-
   width: 100%;
   min-width: 0;
   min-height: 40px;
   max-height: 150px;
-
   padding:
     9px
     3px;
-
   border: 0;
   outline: 0;
-
   background: transparent;
   color: var(--text);
-
   font-family: var(--font-body);
   font-size: var(--font-size-md);
   line-height: 1.45;
-
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -1530,19 +1249,14 @@ select:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   width: min(100%, 820px);
   min-height: 24px;
-
   gap: var(--spacing-md);
-
   padding:
     var(--spacing-xs)
     4px
     0;
-
   color: var(--text-dim);
-
   font-size: 9px;
   line-height: 1.35;
 }
@@ -1550,7 +1264,6 @@ select:focus-visible {
 .command-footer > span {
   display: inline-flex;
   align-items: center;
-
   min-width: 0;
   gap: 5px;
 }
@@ -1566,15 +1279,13 @@ select:focus-visible {
 
 #response-time {
   overflow: hidden;
-
   max-width: 100%;
-
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 
-/* SIDEBAR OPEN */
+/* Sidebar open */
 
 .orbit-app.nav-open .chat-window,
 .orbit-app.nav-open .command-area {
@@ -1590,7 +1301,7 @@ select:focus-visible {
 }
 
 
-/* THEME TRANSITIONS */
+/* Theme transitions */
 
 body,
 .orbit-app,
@@ -1618,7 +1329,245 @@ body,
 }
 
 
-/* DESKTOP SIDEBAR */
+/* Animations */
+
+:root {
+  --animation-duration-fast: 0.15s;
+  --animation-duration-normal: 0.25s;
+  --animation-duration-slow: 0.35s;
+  --animation-ease: ease;
+}
+
+@keyframes orbitMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-window .message {
+  animation:
+    orbitMessageIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitPromptIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.quick-prompt {
+  animation:
+    orbitPromptIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+.quick-prompt:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.quick-prompt:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
+.quick-prompt:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+.orbit-sidebar {
+  will-change: transform, opacity;
+}
+
+.orbit-app.nav-open .orbit-sidebar {
+  animation:
+    orbitSidebarIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitSidebarIn {
+  from {
+    opacity: 0.7;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.orbit-app.nav-open .sidebar-chat-actions,
+.orbit-app.nav-open .chat-history-panel,
+.orbit-app.nav-open .sidebar-account,
+.orbit-app.nav-open .sidebar-footer {
+  animation:
+    orbitSidebarContentIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitSidebarContentIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.orbit-topbar {
+  animation:
+    orbitTopbarIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitTopbarIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.menu-toggle:active,
+.sidebar-close:active,
+.topbar-btn:active,
+.new-chat-btn:active,
+.search-chat-btn:active,
+.sidebar-account-link:active {
+  transform: scale(0.95);
+}
+
+.send-btn {
+  will-change: transform;
+}
+
+.send-btn:hover {
+  transform: translateY(-1px);
+}
+
+.send-btn:active {
+  transform: scale(0.92);
+}
+
+.command-box {
+  will-change: border-color, box-shadow;
+}
+
+.command-box:focus-within {
+  animation:
+    orbitCommandFocus
+    var(--animation-duration-fast)
+    var(--animation-ease);
+}
+
+@keyframes orbitCommandFocus {
+  from {
+    transform: scale(0.995);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+.orbit-recent-chat {
+  animation:
+    orbitHistoryIn
+    var(--animation-duration-fast)
+    var(--animation-ease);
+}
+
+@keyframes orbitHistoryIn {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.brand-logo,
+.topbar-logo {
+  transition:
+    transform var(--animation-duration-fast) var(--animation-ease),
+    box-shadow var(--animation-duration-fast) var(--animation-ease);
+}
+
+.brand:hover .brand-logo,
+.topbar-logo:hover {
+  transform: scale(1.03);
+}
+
+#orbit-profile-editor {
+  transition:
+    opacity var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+#orbit-profile-editor.is-open .orbit-profile-editor-card {
+  animation:
+    orbitProfileIn
+    var(--animation-duration-normal)
+    var(--animation-ease);
+}
+
+@keyframes orbitProfileIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.quick-prompt:hover,
+.topbar-btn:hover,
+.new-chat-btn:hover,
+.search-chat-btn:hover {
+  transition:
+    transform var(--animation-duration-fast) var(--animation-ease),
+    background-color var(--animation-duration-fast) var(--animation-ease),
+    border-color var(--animation-duration-fast) var(--animation-ease),
+    box-shadow var(--animation-duration-fast) var(--animation-ease);
+}
+
+html[data-animations="false"] *,
+html[data-animations="false"] *::before,
+html[data-animations="false"] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+
+/* Desktop */
 
 @media (min-width: 769px) {
   .orbit-app.nav-open .orbit-main {
@@ -1636,7 +1585,7 @@ body,
 }
 
 
-/* MOBILE */
+/* Tablet */
 
 @media (max-width: 900px) {
   .chat-window {
@@ -1665,6 +1614,9 @@ body,
   }
 }
 
+
+/* Mobile */
+
 @media (max-width: 768px) {
   body {
     overflow: hidden;
@@ -1673,10 +1625,8 @@ body,
   .orbit-topbar {
     position: sticky;
     top: 0;
-
     min-height: 58px;
     flex-basis: 58px;
-
     padding:
       0
       var(--spacing-sm);
@@ -1705,7 +1655,6 @@ body,
 
   .chat-window {
     gap: var(--spacing-md);
-
     padding:
       var(--spacing-md)
       var(--spacing-sm)
@@ -1714,7 +1663,6 @@ body,
 
   .chat-window .message.user {
     max-width: 88%;
-
     padding:
       9px
       13px;
@@ -1723,7 +1671,6 @@ body,
   .chat-window .message.orbit {
     width: 100%;
     max-width: 100%;
-
     font-size: var(--font-size-sm);
     line-height: 1.65;
   }
@@ -1756,12 +1703,6 @@ body,
   .command-footer {
     gap: 8px;
     padding-top: 5px;
-  }
-
-  .typing-indicator {
-    min-width: 46px;
-    min-height: 32px;
-    padding: 7px 11px;
   }
 }
 
@@ -1916,19 +1857,10 @@ body,
   #response-time {
     max-width: 135px;
   }
-
-  .typing-indicator {
-    min-width: 44px;
-    min-height: 30px;
-    padding: 6px 10px;
-  }
-
-  .typing-indicator span {
-    width: 5px;
-    height: 5px;
-    flex-basis: 5px;
-  }
 }
+
+
+/* Reduced motion */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -1939,335 +1871,9 @@ body,
   *::before,
   *::after {
     animation: none !important;
-    transition: none !important;
-  }
-}
-
-
-/* =========================================================
-   ORBIT AI — ANIMATION SYSTEM
-   ========================================================= */
-
-:root {
-  --animation-duration-fast: 0.15s;
-  --animation-duration-normal: 0.25s;
-  --animation-duration-slow: 0.35s;
-  --animation-ease: ease;
-}
-
-/* =========================================================
-   MESSAGE ENTRANCE
-   ========================================================= */
-
-@keyframes orbitMessageIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.chat-window .message {
-  animation:
-    orbitMessageIn
-    var(--animation-duration-normal)
-    var(--animation-ease);
-}
-
-/* =========================================================
-   QUICK PROMPT ENTRANCE
-   ========================================================= */
-
-@keyframes orbitPromptIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.quick-prompt {
-  animation:
-    orbitPromptIn
-    var(--animation-duration-normal)
-    var(--animation-ease);
-}
-
-.quick-prompt:nth-child(2) {
-  animation-delay: 0.04s;
-}
-
-.quick-prompt:nth-child(3) {
-  animation-delay: 0.08s;
-}
-
-.quick-prompt:nth-child(4) {
-  animation-delay: 0.12s;
-}
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
-
-.orbit-sidebar {
-  will-change: transform, opacity;
-}
-
-.orbit-app.nav-open .orbit-sidebar {
-  animation: orbitSidebarIn var(--animation-duration-normal) var(--animation-ease);
-}
-
-@keyframes orbitSidebarIn {
-  from {
-    opacity: 0.7;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-/* =========================================================
-   SIDEBAR ITEMS
-   ========================================================= */
-
-.orbit-app.nav-open .sidebar-chat-actions,
-.orbit-app.nav-open .chat-history-panel,
-.orbit-app.nav-open .sidebar-account,
-.orbit-app.nav-open .sidebar-footer {
-  animation:
-    orbitSidebarContentIn
-    var(--animation-duration-normal)
-    var(--animation-ease);
-}
-
-@keyframes orbitSidebarContentIn {
-  from {
-    opacity: 0;
-    transform: translateX(-6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* =========================================================
-   TOPBAR
-   ========================================================= */
-
-.orbit-topbar {
-  animation:
-    orbitTopbarIn
-    var(--animation-duration-normal)
-    var(--animation-ease);
-}
-
-@keyframes orbitTopbarIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* =========================================================
-   BUTTON PRESS FEEDBACK
-   ========================================================= */
-
-.menu-toggle:active,
-.sidebar-close:active,
-.topbar-btn:active,
-.new-chat-btn:active,
-.search-chat-btn:active,
-.sidebar-account-link:active {
-  transform: scale(0.95);
-}
-
-/* =========================================================
-   SEND BUTTON
-   ========================================================= */
-
-.send-btn {
-  will-change: transform;
-}
-
-.send-btn:hover {
-  transform: translateY(-1px);
-}
-
-.send-btn:active {
-  transform: scale(0.92);
-}
-
-/* =========================================================
-   COMMAND BOX FOCUS
-   ========================================================= */
-
-.command-box {
-  will-change: border-color, box-shadow;
-}
-
-.command-box:focus-within {
-  animation:
-    orbitCommandFocus
-    var(--animation-duration-fast)
-    var(--animation-ease);
-}
-
-@keyframes orbitCommandFocus {
-  from {
-    transform: scale(0.995);
-  }
-
-  to {
-    transform: scale(1);
-  }
-}
-
-/* =========================================================
-   TYPING INDICATOR
-   ========================================================= */
-
-.typing-indicator {
-  animation:
-    orbitTypingIn
-    var(--animation-duration-fast)
-    var(--animation-ease);
-}
-
-@keyframes orbitTypingIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* =========================================================
-   CHAT HISTORY ITEMS
-   ========================================================= */
-
-.orbit-recent-chat {
-  animation:
-    orbitHistoryIn
-    var(--animation-duration-fast)
-    var(--animation-ease);
-}
-
-@keyframes orbitHistoryIn {
-  from {
-    opacity: 0;
-    transform: translateX(-4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* =========================================================
-   LOGO
-   ========================================================= */
-
-.brand-logo,
-.topbar-logo {
-  transition:
-    transform var(--animation-duration-fast) var(--animation-ease),
-    box-shadow var(--animation-duration-fast) var(--animation-ease);
-}
-
-.brand:hover .brand-logo,
-.topbar-logo:hover {
-  transform: scale(1.03);
-}
-
-/* =========================================================
-   ACCOUNT / PROFILE EDITOR
-   ========================================================= */
-
-#orbit-profile-editor {
-  transition:
-    opacity var(--animation-duration-normal) var(--animation-ease);
-}
-
-#orbit-profile-editor.is-open .orbit-profile-editor-card {
-  animation:
-    orbitProfileIn
-    var(--animation-duration-normal)
-    var(--animation-ease);
-}
-
-@keyframes orbitProfileIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* =========================================================
-   HOVER LIFT
-   ========================================================= */
-
-.quick-prompt:hover,
-.topbar-btn:hover,
-.new-chat-btn:hover,
-.search-chat-btn:hover {
-  transition:
-    transform var(--animation-duration-fast) var(--animation-ease),
-    background-color var(--animation-duration-fast) var(--animation-ease),
-    border-color var(--animation-duration-fast) var(--animation-ease),
-    box-shadow var(--animation-duration-fast) var(--animation-ease);
-}
-
-/* =========================================================
-   ANIMATIONS ENABLE / DISABLE
-   ========================================================= */
-
-html[data-animations="false"] *,
-html[data-animations="false"] *::before,
-html[data-animations="false"] *::after {
-  animation: none !important;
-  transition: none !important;
-}
-
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    transition: none !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
