@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -8,756 +7,432 @@
 
     <title>Settings — Orbit AI</title>
 
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/settings/animations.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/settings/account.css">
-
 </head>
 
 <body>
 
-
     <div class="settings-app">
 
-        <!-- Topbar -->
+        <!-- Top Bar -->
         <header class="settings-topbar">
-
             <a href="index.html" class="settings-return-btn" aria-label="Return to Orbit">
-
                 <i class="fa-solid fa-arrow-left"></i>
-
                 <span>Back to Orbit</span>
-
             </a>
-
         </header>
 
-
-        <!-- Main -->
+        <!-- Main Page Content -->
         <main class="settings-page">
 
-            <!-- Header -->
+            <!-- Page Header -->
             <header class="settings-header">
-
-                <span class="eyebrow">
-                    ORBIT AI
-                </span>
-
-                <h1>
-                    Settings
-                </h1>
-
-                <p>
-                    Personalize how Orbit looks, thinks, and works for you.
-                </p>
-
+                <div class="settings-header-content">
+                    <span class="eyebrow">ORBIT AI</span>
+                    <h1>Settings</h1>
+                    <p>Customize your Orbit experience.</p>
+                </div>
             </header>
 
-
-            <!-- Settings Shell -->
+            <!-- Layout Shell -->
             <div class="settings-shell">
 
-
-                <!-- Navigation -->
+                <!-- Sidebar Navigation -->
                 <aside class="settings-sidebar">
-
-                    <div class="settings-sidebar-label">
-                        SETTINGS
-                    </div>
+                    <div class="settings-sidebar-label">Settings</div>
 
                     <nav class="settings-navigation" aria-label="Settings sections">
 
-
+                        <!-- Account Link -->
                         <a href="#account" class="settings-nav-item">
-
                             <span class="settings-nav-icon">
                                 <i class="fa-solid fa-user"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>Account</strong>
-
-                                <small>
-                                    Your Orbit account
-                                </small>
-
+                                <small>Profile and account</small>
                             </span>
-
                         </a>
 
-
+                        <!-- Appearance Link -->
                         <a href="#appearance" class="settings-nav-item active">
-
                             <span class="settings-nav-icon">
-                                <i class="fa-solid fa-palette"></i>
+                                <i class="fa-solid fa-sun"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>Appearance</strong>
-
-                                <small>
-                                    Look and feel
-                                </small>
-
+                                <small>Theme and display</small>
                             </span>
-
                         </a>
 
-
+                        <!-- Chat Link -->
                         <a href="#chat" class="settings-nav-item">
-
                             <span class="settings-nav-icon">
-                                <i class="fa-solid fa-message"></i>
+                                <i class="fa-regular fa-message"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>Chat</strong>
-
-                                <small>
-                                    Conversation controls
-                                </small>
-
+                                <small>Conversation preferences</small>
                             </span>
-
                         </a>
 
-
+                        <!-- AI & Memory Link -->
                         <a href="#ai-memory" class="settings-nav-item">
-
                             <span class="settings-nav-icon">
                                 <i class="fa-solid fa-brain"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>AI & Memory</strong>
-
-                                <small>
-                                    Intelligence preferences
-                                </small>
-
+                                <small>Personalization</small>
                             </span>
-
                         </a>
 
-
+                        <!-- Privacy Link -->
                         <a href="#privacy" class="settings-nav-item">
-
                             <span class="settings-nav-icon">
                                 <i class="fa-solid fa-shield-halved"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>Privacy</strong>
-
-                                <small>
-                                    Data and security
-                                </small>
-
+                                <small>Data and security</small>
                             </span>
-
                         </a>
 
-
+                        <!-- Notifications Link -->
                         <a href="#notifications" class="settings-nav-item">
-
                             <span class="settings-nav-icon">
-                                <i class="fa-solid fa-bell"></i>
+                                <i class="fa-regular fa-bell"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>Notifications</strong>
-
-                                <small>
-                                    Alerts and updates
-                                </small>
-
+                                <small>Alerts and updates</small>
                             </span>
-
                         </a>
 
-
+                        <!-- Language Link -->
                         <a href="#language" class="settings-nav-item">
-
                             <span class="settings-nav-icon">
                                 <i class="fa-solid fa-language"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>Language</strong>
-
-                                <small>
-                                    Interface language
-                                </small>
-
+                                <small>Language preferences</small>
                             </span>
-
                         </a>
 
-
+                        <!-- About Link -->
                         <a href="#about" class="settings-nav-item">
-
                             <span class="settings-nav-icon">
                                 <i class="fa-solid fa-circle-info"></i>
                             </span>
-
                             <span class="settings-nav-content">
-
                                 <strong>About</strong>
-
-                                <small>
-                                    Orbit information
-                                </small>
-
+                                <small>About Orbit</small>
                             </span>
-
                         </a>
 
                     </nav>
-
                 </aside>
 
-
-                <!-- Content -->
+                <!-- Settings Panels -->
                 <div class="settings-content">
 
-
-                    <!-- Account -->
+                    <!-- Account Section -->
                     <section id="account" class="settings-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
                                 <i class="fa-solid fa-user"></i>
                             </div>
-
                             <div>
-
                                 <h2>Account</h2>
-
-                                <p>
-                                    Manage your Orbit account.
-                                </p>
-
+                                <p>Manage your Orbit profile and account.</p>
                             </div>
-
                         </div>
 
-
                         <div class="profile-card">
-
                             <div class="profile-avatar">
                                 <i class="fa-solid fa-user"></i>
                             </div>
-
                             <div class="profile-info">
-
                                 <h3 id="account-name">Your Name</h3>
-
                                 <p id="account-email">your@email.com</p>
-
-                                <span>
-                                    Orbit account
-                                </span>
-
+                                <span>Orbit account</span>
                             </div>
-
                             <button type="button" class="settings-action-btn" id="edit-profile-btn">
-
                                 Edit profile
-
                             </button>
-
                         </div>
-
                     </section>
 
-
-                    <!-- Appearance -->
+                    <!-- Appearance Section -->
                     <section id="appearance" class="settings-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
-                                <i class="fa-solid fa-palette"></i>
+                                <i class="fa-solid fa-sun"></i>
                             </div>
-
                             <div>
-
                                 <h2>Appearance</h2>
-
-                                <p>
-                                    Customize how Orbit looks and feels.
-                                </p>
-
+                                <p>Choose how Orbit looks on your device.</p>
                             </div>
-
                         </div>
 
-
-                        <div class="settings-option">
-
-                            <div class="settings-option-info">
-
-                                <h3>Theme</h3>
-
-                                <p>
-                                    Choose how Orbit appears on your device.
-                                </p>
-
+                        <div class="settings-options">
+                            <!-- Theme Option -->
+                            <div class="settings-option">
+                                <div class="settings-option-info">
+                                    <h3>Theme</h3>
+                                    <p>Choose between light, dark, or your system appearance.</p>
+                                </div>
+                                <select id="theme-select" class="theme-select" aria-label="Theme">
+                                    <option value="system">System</option>
+                                    <option value="light">Light</option>
+                                    <option value="dark">Dark</option>
+                                </select>
                             </div>
 
-
-                            <select id="theme-select" class="theme-select" aria-label="Theme">
-
-                                <option value="system">
-                                    System
-                                </option>
-
-                                <option value="light">
-                                    Light
-                                </option>
-
-                                <option value="dark">
-                                    Dark
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="settings-option">
-
-                            <div class="settings-option-info">
-
-                                <h3>Animations</h3>
-
-                                <p>
-                                    Use smooth transitions throughout Orbit.
-                                </p>
-
+                            <!-- Animations Option -->
+                            <div class="settings-option">
+                                <div class="settings-option-info">
+                                    <h3>Animations</h3>
+                                    <p>Use smooth transitions and interface animations.</p>
+                                </div>
+                                <label class="settings-toggle">
+                                    <input type="checkbox" id="animations-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
-
-
-                            <label class="settings-toggle">
-
-                                <input type="checkbox" id="animations-toggle" checked>
-
-                                <span class="toggle-slider"></span>
-
-                            </label>
-
                         </div>
-
                     </section>
 
-
-                    <!-- Chat -->
+                    <!-- Chat Section -->
                     <section id="chat" class="settings-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
-                                <i class="fa-solid fa-message"></i>
+                                <i class="fa-regular fa-message"></i>
                             </div>
-
                             <div>
-
-                                <h2>Conversation</h2>
-
-                                <p>
-                                    Control how your conversations behave.
-                                </p>
-
+                                <h2>Chat</h2>
+                                <p>Control how your conversations work.</p>
                             </div>
-
                         </div>
 
-
-                        <div class="settings-option">
-
-                            <div class="settings-option-info">
-
-                                <h3>Enter to send</h3>
-
-                                <p>
-                                    Press Enter to send a message.
-                                </p>
-
+                        <div class="settings-options">
+                            <!-- Enter to Send Toggle -->
+                            <div class="settings-option">
+                                <div class="settings-option-info">
+                                    <h3>Enter to send</h3>
+                                    <p>Press Enter to send your message.</p>
+                                </div>
+                                <label class="settings-toggle">
+                                    <input type="checkbox" id="enter-send-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
 
-
-                            <label class="settings-toggle">
-
-                                <input type="checkbox" id="enter-send-toggle" checked>
-
-                                <span class="toggle-slider"></span>
-
-                            </label>
-
-                        </div>
-
-
-                        <div class="settings-option">
-
-                            <div class="settings-option-info">
-
-                                <h3>Message timestamps</h3>
-
-                                <p>
-                                    Show the time beside messages.
-                                </p>
-
+                            <!-- Timestamps Toggle -->
+                            <div class="settings-option">
+                                <div class="settings-option-info">
+                                    <h3>Message timestamps</h3>
+                                    <p>Show timestamps beside messages.</p>
+                                </div>
+                                <label class="settings-toggle">
+                                    <input type="checkbox" id="timestamps-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
-
-
-                            <label class="settings-toggle">
-
-                                <input type="checkbox" id="timestamps-toggle">
-
-                                <span class="toggle-slider"></span>
-
-                            </label>
-
                         </div>
-
                     </section>
 
-
-                    <!-- AI -->
+                    <!-- AI & Memory Section -->
                     <section id="ai-memory" class="settings-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
                                 <i class="fa-solid fa-brain"></i>
                             </div>
-
                             <div>
-
                                 <h2>AI & Memory</h2>
-
-                                <p>
-                                    Control how Orbit remembers and assists you.
-                                </p>
-
+                                <p>Personalize how Orbit remembers and assists you.</p>
                             </div>
-
                         </div>
 
-
-                        <div class="settings-option">
-
-                            <div class="settings-option-info">
-
-                                <h3>Memory</h3>
-
-                                <p>
-                                    Allow Orbit to remember useful information
-                                    between conversations.
-                                </p>
-
+                        <div class="settings-options">
+                            <!-- Memory Toggle -->
+                            <div class="settings-option">
+                                <div class="settings-option-info">
+                                    <h3>Memory</h3>
+                                    <p>Allow Orbit to remember useful information between conversations.</p>
+                                </div>
+                                <label class="settings-toggle">
+                                    <input type="checkbox" id="memory-toggle" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
 
-
-                            <label class="settings-toggle">
-
-                                <input type="checkbox" id="memory-toggle" checked>
-
-                                <span class="toggle-slider"></span>
-
-                            </label>
-
-                        </div>
-
-
-                        <a href="#" class="settings-link" id="manage-memory">
-
-                            <span>
-
-                                <i class="fa-solid fa-database"></i>
-
+                            <!-- Manage Memory Link -->
+                            <a href="#" class="settings-link" id="manage-memory">
                                 <span>
-                                    Manage saved memory
+                                    <i class="fa-solid fa-database"></i>
+                                    <span>Manage saved memory</span>
                                 </span>
-
-                            </span>
-
-                            <i class="fa-solid fa-arrow-right"></i>
-
-                        </a>
-
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        </div>
                     </section>
 
-
-                    <!-- Privacy -->
+                    <!-- Privacy Section -->
                     <section id="privacy" class="settings-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
                                 <i class="fa-solid fa-shield-halved"></i>
                             </div>
-
                             <div>
-
                                 <h2>Privacy & Data</h2>
-
-                                <p>
-                                    Manage your information and conversation data.
-                                </p>
-
+                                <p>Manage your data and account privacy.</p>
                             </div>
-
                         </div>
 
-
-                        <div class="settings-links">
-
+                        <div class="settings-options">
+                            <!-- Privacy Policy Link -->
                             <a href="privacy.html" class="settings-link">
-
                                 <span>
-
                                     <i class="fa-solid fa-lock"></i>
-
-                                    <span>
-                                        Privacy Policy
-                                    </span>
-
+                                    <span>Privacy Policy</span>
                                 </span>
-
-                                <i class="fa-solid fa-arrow-right"></i>
-
+                                <i class="fa-solid fa-chevron-right"></i>
                             </a>
 
-
+                            <!-- Terms Link -->
                             <a href="terms.html" class="settings-link">
-
                                 <span>
-
                                     <i class="fa-solid fa-file-lines"></i>
-
-                                    <span>
-                                        Terms of Service
-                                    </span>
-
+                                    <span>Terms of Service</span>
                                 </span>
-
-                                <i class="fa-solid fa-arrow-right"></i>
-
+                                <i class="fa-solid fa-chevron-right"></i>
                             </a>
 
-                        </div>
-
-
-                        <div class="settings-danger-area">
-
-                            <div>
-
-                                <h3>Danger zone</h3>
-
-                                <p>
-                                    Permanently remove your saved conversation
-                                    history from this device.
-                                </p>
-
+                            <!-- Clear History Option -->
+                            <div class="settings-danger-area">
+                                <div>
+                                    <h3>Clear conversation history</h3>
+                                    <p>Remove your saved conversation history from this device.</p>
+                                </div>
+                                <button type="button" class="settings-danger-btn" id="clear-history-btn">
+                                    <i class="fa-solid fa-trash"></i>
+                                    Clear history
+                                </button>
                             </div>
-
-
-                            <button type="button" class="settings-danger-btn" id="clear-history-btn">
-
-                                <i class="fa-solid fa-trash"></i>
-
-                                Clear history
-
-                            </button>
-
                         </div>
-
                     </section>
 
-
-                    <!-- Notifications -->
+                    <!-- Notifications Section -->
                     <section id="notifications" class="settings-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
-                                <i class="fa-solid fa-bell"></i>
+                                <i class="fa-regular fa-bell"></i>
                             </div>
-
                             <div>
-
                                 <h2>Notifications</h2>
-
-                                <p>
-                                    Choose how Orbit keeps you updated.
-                                </p>
-
+                                <p>Choose how Orbit keeps you updated.</p>
                             </div>
-
                         </div>
 
-
-                        <div class="settings-option">
-
-                            <div class="settings-option-info">
-
-                                <h3>Browser notifications</h3>
-
-                                <p>
-                                    Receive notifications when supported.
-                                </p>
-
+                        <div class="settings-options">
+                            <!-- Browser Notifications Toggle -->
+                            <div class="settings-option">
+                                <div class="settings-option-info">
+                                    <h3>Browser notifications</h3>
+                                    <p>Allow Orbit to send supported browser notifications.</p>
+                                </div>
+                                <label class="settings-toggle">
+                                    <input type="checkbox" id="notifications-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
                             </div>
-
-
-                            <label class="settings-toggle">
-
-                                <input type="checkbox" id="notifications-toggle">
-
-                                <span class="toggle-slider"></span>
-
-                            </label>
-
                         </div>
-
                     </section>
 
-
-                    <!-- Language -->
+                    <!-- Language Section -->
                     <section id="language" class="settings-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
                                 <i class="fa-solid fa-language"></i>
                             </div>
-
                             <div>
-
                                 <h2>Language</h2>
-
-                                <p>
-                                    Choose the language used by Orbit.
-                                </p>
-
+                                <p>Choose the language used throughout Orbit.</p>
                             </div>
-
                         </div>
 
-
-                        <div class="settings-option">
-
-                            <div class="settings-option-info">
-
-                                <h3>Interface language</h3>
-
-                                <p>
-                                    Select your preferred language.
-                                </p>
-
+                        <div class="settings-options">
+                            <!-- Language Selector -->
+                            <div class="settings-option">
+                                <div class="settings-option-info">
+                                    <h3>Interface language</h3>
+                                    <p>Select your preferred language.</p>
+                                </div>
+                                <select id="language-select" class="theme-select" aria-label="Interface language">
+                                    <option value="en">English</option>
+                                </select>
                             </div>
-
-
-                            <select id="language-select" class="theme-select" aria-label="Interface language">
-
-                                <option value="en">
-                                    English
-                                </option>
-
-                            </select>
-
                         </div>
-
                     </section>
 
-
-                    <!-- About -->
+                    <!-- About Section -->
                     <section id="about" class="settings-section settings-about-section">
-
                         <div class="settings-section-heading">
-
                             <div class="settings-section-icon">
                                 <i class="fa-solid fa-circle-info"></i>
                             </div>
-
                             <div>
-
                                 <h2>About Orbit</h2>
-
-                                <p>
-                                    Learn more about your AI workspace.
-                                </p>
-
+                                <p>Information about your Orbit workspace.</p>
                             </div>
-
                         </div>
 
-
                         <div class="settings-about">
-
                             <div class="settings-about-logo">
                                 <i class="fa-solid fa-circle-nodes"></i>
                             </div>
-
-                            <strong>
-                                Orbit AI
-                            </strong>
-
-                            <span>
-                                Your intelligent workspace.
-                            </span>
-
-                            <small>
-                                Version 1.0.0
-                            </small>
-
+                            <strong>Orbit AI</strong>
+                            <span>Your intelligent workspace.</span>
+                            <small>Version 1.0.0</small>
                         </div>
-
                     </section>
 
-
                 </div>
-
             </div>
 
-
-            <!-- Footer -->
+            <!-- Page Footer -->
             <footer class="settings-footer">
-
-                <span>
-                    Orbit AI
-                </span>
-
-                <span>
-                    Built for better thinking.
-                </span>
-
+                <span>Orbit AI</span>
+                <span>Built for better thinking.</span>
             </footer>
 
         </main>
-
     </div>
 
-
+    <!-- Scripts -->
     <script src="js/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/shared.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/settings/navigation.js"></script>
+    <script src="js/settings/auth-theme.js"></script>
     <script src="js/settings/account.js"></script>
+    <script src="js/settings/ai-memory.js"></script>
+    <script src="js/settings/clear-history.js"></script>
+    <script src="js/settings/chat-settings.js"></script>
+</body>
 
+</html>
 
 </body>
 
