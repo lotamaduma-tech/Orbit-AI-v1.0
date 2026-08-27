@@ -38,16 +38,16 @@ const MAX_CONTEXT_CHARS = 100000;
 
 const groq = GROQ_API_KEY
   ? new Groq({
-    apiKey: GROQ_API_KEY,
-  })
+      apiKey: GROQ_API_KEY
+    })
   : null;
 
 const supabase =
   SUPABASE_URL && SUPABASE_SECRET_KEY
     ? createClient(
-      SUPABASE_URL,
-      SUPABASE_SECRET_KEY
-    )
+        SUPABASE_URL,
+        SUPABASE_SECRET_KEY
+      )
     : null;
 
 const allowedOrigins = [
@@ -60,13 +60,17 @@ const allowedOrigins = [
   "http://127.0.0.1:5500",
   "http://127.0.0.1:5501",
   "https://orbit-ai-self.vercel.app",
-  "https://orbit-ai-v1-0.netlify.app",
+  "https://orbit-ai-v1-0.netlify.app"
 ];
 
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
@@ -77,19 +81,19 @@ app.use(
       "GET",
       "POST",
       "DELETE",
-      "OPTIONS",
+      "OPTIONS"
     ],
     allowedHeaders: [
       "Content-Type",
-      "Authorization",
+      "Authorization"
     ],
-    credentials: false,
+    credentials: false
   })
 );
 
 app.use(
   express.json({
-    limit: "100kb",
+    limit: "100kb"
   })
 );
 
@@ -145,7 +149,7 @@ function cleanHistory(history) {
     )
     .map((item) => ({
       role: item.role,
-      content: item.content.trim(),
+      content: item.content.trim()
     }))
     .slice(-HISTORY_LIMIT);
 }
@@ -164,7 +168,7 @@ function cleanMemory(memory) {
             item.trim()
         )
         .map((item) => item.trim())
-    ),
+    )
   ].slice(-MEMORY_LIMIT);
 }
 
@@ -184,7 +188,7 @@ function normalizeConversationMessages(messages) {
     )
     .map((item) => ({
       role: item.role,
-      content: item.content.trim(),
+      content: item.content.trim()
     }));
 }
 
@@ -198,7 +202,7 @@ function classifyRequest(message, history = []) {
     `${message} ${recentContext}`.toLowerCase();
 
   const codingSignals =
-    /\b(code|coding|program|programming|javascript|js|typescript|html|css|node|nodejs|express|backend|frontend|api|database|supabase|sql|postgres|github|git|python|java|c\+\+|react|function|class|bug|error|debug|debugging|server|authentication|auth|login|signup|route|endpoint|component|variable|array|object|json|npm|package|deploy|deployment|vercel|render|netlify|schema|query|async|await|promise|dom|fetch|event|listener|element|div|button|form|input|navbar|sidebar|responsive|media query)\b/i;
+    /\b(code|coding|program|programming|javascript|js|typescript|html|css|node|nodejs|express|backend|frontend|api|database|supabase|sql|postgres|github|git|python|java|c\+\+|react|function|class|bug|error|debug|debugging|server|authentication|auth|login|signup|route|endpoint|component|variable|array|object|json|npm|package|deploy|deployment|vercel|render|netlify|schema|query|async|await|promise|dom|fetch|event|listener|element|div|button|form|navbar|sidebar|responsive|media query)\b/i;
 
   const debuggingSignals =
     /\b(error|bug|broken|doesn't work|does not work|not working|failed|failure|exception|crash|crashing|fix this|fix it|why isn't|why is not|undefined|null|syntax error|cors|401|403|404|500|stack trace|issue|problem)\b/i;
@@ -293,7 +297,7 @@ function buildOptimizedContext(
 
     selectedMessages = [
       ...olderRelevant,
-      ...recentMessages.slice(-24),
+      ...recentMessages.slice(-24)
     ];
   }
 
@@ -310,7 +314,7 @@ function buildOptimizedContext(
 
     if (
       totalCharacters +
-      item.content.length >
+        item.content.length >
       MAX_CONTEXT_CHARS
     ) {
       break;
@@ -336,7 +340,7 @@ async function getUserMemory(userId) {
       .select("memory")
       .eq("user_id", userId)
       .order("created_at", {
-        ascending: false,
+        ascending: false
       })
       .limit(MEMORY_LIMIT);
 
@@ -380,7 +384,7 @@ async function saveUserMemory(
             item.trim().length > 0
         )
         .map((item) => item.trim())
-    ),
+    )
   ].slice(-MEMORY_LIMIT);
 
   if (!cleanMemories.length) {
@@ -403,12 +407,13 @@ async function saveUserMemory(
     return;
   }
 
-  const rows = newMemories.map(
-    (memory) => ({
-      user_id: userId,
-      memory,
-    })
-  );
+  const rows =
+    newMemories.map(
+      (memory) => ({
+        user_id: userId,
+        memory
+      })
+    );
 
   const { error } =
     await supabase
@@ -433,7 +438,7 @@ async function createConversation(
       .from("conversations")
       .insert({
         user_id: userId,
-        title: title || "New Chat",
+        title: title || "New Chat"
       })
       .select(
         "id, user_id, title, created_at, updated_at"
@@ -501,7 +506,7 @@ async function getConversationMessages(
         conversationId
       )
       .order("created_at", {
-        ascending: true,
+        ascending: true
       });
 
   if (error) {
@@ -510,9 +515,10 @@ async function getConversationMessages(
 
   return {
     conversation,
-    messages: Array.isArray(data)
-      ? data
-      : [],
+    messages:
+      Array.isArray(data)
+        ? data
+        : []
   };
 }
 
@@ -540,7 +546,7 @@ async function saveConversationMessage(
         conversation_id:
           conversationId,
         role,
-        content: content.trim(),
+        content: content.trim()
       })
       .select(
         "id, conversation_id, role, content, created_at"
@@ -566,9 +572,12 @@ async function updateConversationTime(
       .from("conversations")
       .update({
         updated_at:
-          new Date().toISOString(),
+          new Date().toISOString()
       })
-      .eq("id", conversationId);
+      .eq(
+        "id",
+        conversationId
+      );
 
   if (error) {
     console.error(
@@ -645,9 +654,8 @@ function sendSSE(
   }
 
   res.write(
-    `event: ${event}\ndata: ${JSON.stringify(
-      data
-    )}\n\n`
+    `event: ${event}\n` +
+    `data: ${JSON.stringify(data)}\n\n`
   );
 
   return true;
@@ -688,7 +696,7 @@ function createRequestAbortController(
   return {
     controller,
     isDisconnected: () =>
-      disconnected,
+      disconnected
   };
 }
 
@@ -699,20 +707,20 @@ function getSystemPrompt(
   const memoryText =
     memory.length > 0
       ? `\n\nUser memory:\n${memory
-        .map(
-          (item) => `- ${item}`
-        )
-        .join("\n")}`
+          .map(
+            (item) => `- ${item}`
+          )
+          .join("\n")}`
       : "";
 
   const basePrompt = `
 You are Orbit AI, a highly capable general-purpose AI assistant.
 
-Your job is to give accurate, useful, direct, natural responses.
+Give accurate, useful, direct, natural responses.
 
 Understand the user's actual request before answering.
 
-Never say that you received a request but no response was returned.
+Never claim that a response was not returned when you have enough information to answer.
 
 Never produce an empty response when the user has provided a valid request.
 
@@ -735,35 +743,36 @@ For coding requests:
 - If the user asks to update existing code, return the complete updated version when that is the most useful approach.
 - Do not omit important sections of code just to make the response shorter.
 - Make sure syntax is valid.
-- Pay attention to quotation marks, brackets, parentheses, semicolons where appropriate, imports, exports, asynchronous functions, and variable names.
+- Check quotation marks, brackets, parentheses, imports, exports, asynchronous functions, variable names, and dependencies.
 - If HTML is requested, provide valid HTML.
 - If CSS is requested, provide valid CSS.
 - If JavaScript is requested, provide valid JavaScript.
 - If multiple technologies are requested, clearly separate each file or section.
-- Do not wrap code in unnecessary explanation when the user only wants the code.
+- Do not put important code outside its code block.
 
 For debugging requests:
 - Identify the most likely cause.
 - Explain the cause briefly.
 - Give the exact correction.
-- Check the surrounding code for related problems.
-- Do not pretend that code works if there is an obvious issue.
+- Check surrounding code for related problems.
+- Do not pretend code works if there is an obvious issue.
 - Prefer a complete corrected version when the user provides a complete file.
 
 For larger coding tasks:
 - Think through the architecture before producing the solution.
 - Keep existing functionality unless the user explicitly asks to remove it.
 - Avoid unnecessary dependencies.
-- Make the implementation consistent across frontend and backend.
-- Ensure endpoints, request formats, response formats, and database field names agree.
+- Keep frontend and backend request and response formats consistent.
+- Keep existing database field names consistent.
+- Do not invent database structures.
 
 For code formatting:
 - Always use Markdown fenced code blocks for code.
 - Specify the language after the opening fence when known.
-- Never put important code outside the code block.
-- Do not replace code with placeholders such as "rest of code here" unless the user explicitly asks for a shortened example.
+- Never replace important code with placeholders such as "rest of code here" unless the user explicitly asks for a shortened example.
 
 Request category: ${requestType}
+
 ${memoryText}
 `;
 
@@ -779,7 +788,7 @@ function getModelConfig(
         model: LARGE_CODING_MODEL,
         maxTokens:
           LARGE_CODING_MAX_TOKENS,
-        temperature: 0.2,
+        temperature: 0.2
       };
 
     case "CODING":
@@ -787,7 +796,7 @@ function getModelConfig(
         model: CODING_MODEL,
         maxTokens:
           CODING_MAX_TOKENS,
-        temperature: 0.2,
+        temperature: 0.2
       };
 
     case "DEBUGGING":
@@ -795,7 +804,7 @@ function getModelConfig(
         model: CODING_MODEL,
         maxTokens:
           CODING_MAX_TOKENS,
-        temperature: 0.15,
+        temperature: 0.15
       };
 
     case "EXPLANATION":
@@ -803,7 +812,7 @@ function getModelConfig(
         model: SIMPLE_MODEL,
         maxTokens:
           SIMPLE_MAX_TOKENS,
-        temperature: 0.35,
+        temperature: 0.35
       };
 
     default:
@@ -811,7 +820,7 @@ function getModelConfig(
         model: SIMPLE_MODEL,
         maxTokens:
           SIMPLE_MAX_TOKENS,
-        temperature: 0.4,
+        temperature: 0.4
       };
   }
 }
@@ -819,8 +828,7 @@ function getModelConfig(
 app.get("/", (req, res) => {
   res.json({
     status: "online",
-    message:
-      "Orbit AI backend is running.",
+    message: "Orbit AI backend is running.",
     provider: "Groq",
     model: MODEL,
     streaming: true,
@@ -835,7 +843,7 @@ app.get("/", (req, res) => {
       : "Disabled",
     database: supabase
       ? "Supabase PostgreSQL"
-      : "Not configured",
+      : "Not configured"
   });
 });
 
@@ -846,7 +854,7 @@ app.get(
       return res.status(503).json({
         success: false,
         error:
-          "Groq API key is not configured.",
+          "Groq API key is not configured."
       });
     }
 
@@ -858,11 +866,11 @@ app.get(
             {
               role: "user",
               content:
-                "Reply with exactly: Orbit AI is working.",
-            },
+                "Reply with exactly: Orbit AI is working."
+            }
           ],
           temperature: 0,
-          max_tokens: 20,
+          max_tokens: 20
         });
 
       const response =
@@ -870,7 +878,8 @@ app.get(
 
       return res.json({
         success: true,
-        response: response || null,
+        response:
+          response || null
       });
     } catch (error) {
       console.error(
@@ -881,7 +890,7 @@ app.get(
       return res.status(502).json({
         success: false,
         error:
-          "Groq connection failed.",
+          "Groq connection failed."
       });
     }
   }
@@ -894,7 +903,7 @@ app.get(
       return res.status(503).json({
         success: false,
         error:
-          "Supabase is not configured.",
+          "Supabase is not configured."
       });
     }
 
@@ -916,7 +925,7 @@ app.get(
         rowsFound:
           Array.isArray(data)
             ? data.length
-            : 0,
+            : 0
       });
     } catch (error) {
       console.error(
@@ -927,7 +936,7 @@ app.get(
       return res.status(502).json({
         success: false,
         error:
-          "Supabase connection failed.",
+          "Supabase connection failed."
       });
     }
   }
@@ -944,17 +953,19 @@ app.get(
     if (!supabase) {
       return res.json({
         userId,
-        memory: [],
+        memory: []
       });
     }
 
     try {
       const memory =
-        await getUserMemory(userId);
+        await getUserMemory(
+          userId
+        );
 
       return res.json({
         userId,
-        memory,
+        memory
       });
     } catch (error) {
       console.error(
@@ -964,7 +975,7 @@ app.get(
 
       return res.status(500).json({
         error:
-          "Could not load user memory.",
+          "Could not load user memory."
       });
     }
   }
@@ -981,7 +992,7 @@ app.get(
     if (!supabase) {
       return res.json({
         userId,
-        conversations: [],
+        conversations: []
       });
     }
 
@@ -992,9 +1003,12 @@ app.get(
           .select(
             "id, user_id, title, created_at, updated_at"
           )
-          .eq("user_id", userId)
+          .eq(
+            "user_id",
+            userId
+          )
           .order("updated_at", {
-            ascending: false,
+            ascending: false
           })
           .limit(HISTORY_LIMIT);
 
@@ -1007,7 +1021,7 @@ app.get(
         conversations:
           Array.isArray(data)
             ? data
-            : [],
+            : []
       });
     } catch (error) {
       console.error(
@@ -1017,7 +1031,7 @@ app.get(
 
       return res.status(500).json({
         error:
-          "Could not load conversations.",
+          "Could not load conversations."
       });
     }
   }
@@ -1029,7 +1043,7 @@ app.post(
     if (!supabase) {
       return res.status(503).json({
         error:
-          "Supabase is not configured.",
+          "Supabase is not configured."
       });
     }
 
@@ -1043,10 +1057,10 @@ app.post(
 
     const title =
       typeof rawTitle === "string" &&
-        rawTitle.trim()
+      rawTitle.trim()
         ? rawTitle
-          .trim()
-          .slice(0, 100)
+            .trim()
+            .slice(0, 100)
         : "New Chat";
 
     try {
@@ -1057,7 +1071,7 @@ app.post(
         );
 
       return res.status(201).json({
-        conversation,
+        conversation
       });
     } catch (error) {
       console.error(
@@ -1067,7 +1081,7 @@ app.post(
 
       return res.status(500).json({
         error:
-          "Could not create conversation.",
+          "Could not create conversation."
       });
     }
   }
@@ -1089,14 +1103,14 @@ app.get(
     if (!conversationId) {
       return res.status(400).json({
         error:
-          "Conversation ID is required.",
+          "Conversation ID is required."
       });
     }
 
     if (!supabase) {
       return res.status(503).json({
         error:
-          "Supabase is not configured.",
+          "Supabase is not configured."
       });
     }
 
@@ -1110,7 +1124,7 @@ app.get(
       if (!result) {
         return res.status(404).json({
           error:
-            "Conversation not found.",
+            "Conversation not found."
         });
       }
 
@@ -1123,7 +1137,7 @@ app.get(
 
       return res.status(500).json({
         error:
-          "Could not load conversation.",
+          "Could not load conversation."
       });
     }
   }
@@ -1145,14 +1159,14 @@ app.delete(
     if (!conversationId) {
       return res.status(400).json({
         error:
-          "Conversation ID is required.",
+          "Conversation ID is required."
       });
     }
 
     if (!supabase) {
       return res.status(503).json({
         error:
-          "Supabase is not configured.",
+          "Supabase is not configured."
       });
     }
 
@@ -1166,7 +1180,7 @@ app.delete(
       if (!conversation) {
         return res.status(404).json({
           error:
-            "Conversation not found.",
+            "Conversation not found."
         });
       }
 
@@ -1174,8 +1188,14 @@ app.delete(
         await supabase
           .from("conversations")
           .delete()
-          .eq("id", conversationId)
-          .eq("user_id", userId);
+          .eq(
+            "id",
+            conversationId
+          )
+          .eq(
+            "user_id",
+            userId
+          );
 
       if (error) {
         throw error;
@@ -1183,7 +1203,7 @@ app.delete(
 
       return res.json({
         success: true,
-        conversationId,
+        conversationId
       });
     } catch (error) {
       console.error(
@@ -1193,7 +1213,7 @@ app.delete(
 
       return res.status(500).json({
         error:
-          "Could not delete conversation.",
+          "Could not delete conversation."
       });
     }
   }
@@ -1205,7 +1225,7 @@ app.post(
     if (!groq) {
       return res.status(503).json({
         error:
-          "Groq API is not configured.",
+          "Groq API is not configured."
       });
     }
 
@@ -1217,7 +1237,7 @@ app.post(
     if (!message) {
       return res.status(400).json({
         error:
-          "Message is required.",
+          "Message is required."
       });
     }
 
@@ -1227,7 +1247,7 @@ app.post(
     ) {
       return res.status(413).json({
         error:
-          "Message is too long.",
+          "Message is too long."
       });
     }
 
@@ -1236,7 +1256,7 @@ app.post(
         req.body?.userId
       );
 
-    const conversationId =
+    let conversationId =
       cleanConversationId(
         req.body?.conversationId
       );
@@ -1250,6 +1270,31 @@ app.post(
       cleanMemory(
         req.body?.memory
       );
+
+    if (
+      supabase &&
+      !conversationId
+    ) {
+      try {
+        const conversation =
+          await createConversation(
+            userId,
+            createConversationTitle(
+              message
+            )
+          );
+
+        conversationId =
+          conversation?.id || "";
+      } catch (error) {
+        console.error(
+          "Automatic conversation creation failed:",
+          error?.message || error
+        );
+
+        conversationId = "";
+      }
+    }
 
     let databaseHistory = [];
 
@@ -1320,18 +1365,36 @@ app.post(
     const messages = [
       {
         role: "system",
-        content: systemPrompt,
+        content: systemPrompt
       },
       ...context,
       {
         role: "user",
-        content: message,
-      },
+        content: message
+      }
     ];
+
+    if (
+      supabase &&
+      conversationId
+    ) {
+      try {
+        await saveConversationMessage(
+          conversationId,
+          "user",
+          message
+        );
+      } catch (error) {
+        console.error(
+          "User message save failed:",
+          error?.message || error
+        );
+      }
+    }
 
     const {
       controller,
-      isDisconnected,
+      isDisconnected
     } =
       createRequestAbortController(
         req,
@@ -1348,6 +1411,8 @@ app.post(
         requestType,
         model:
           modelConfig.model,
+        conversationId:
+          conversationId || null
       }
     );
 
@@ -1364,11 +1429,11 @@ app.post(
               modelConfig.temperature,
             max_tokens:
               modelConfig.maxTokens,
-            stream: true,
+            stream: true
           },
           {
             signal:
-              controller.signal,
+              controller.signal
           }
         );
 
@@ -1411,12 +1476,6 @@ app.post(
           try {
             await saveConversationMessage(
               conversationId,
-              "user",
-              message
-            );
-
-            await saveConversationMessage(
-              conversationId,
               "assistant",
               fullResponse
             );
@@ -1426,7 +1485,7 @@ app.post(
             );
           } catch (error) {
             console.error(
-              "Conversation save failed:",
+              "Assistant message save failed:",
               error?.message || error
             );
           }
@@ -1442,6 +1501,8 @@ app.post(
             conversationId:
               conversationId || null,
             requestType,
+            model:
+              modelConfig.model
           }
         );
       } else if (
@@ -1453,6 +1514,8 @@ app.post(
           {
             error:
               "Orbit did not receive a response from the AI.",
+            conversationId:
+              conversationId || null
           }
         );
       }
@@ -1461,6 +1524,10 @@ app.post(
         error?.name ===
         "AbortError"
       ) {
+        console.log(
+          "Chat request aborted by client."
+        );
+
         return;
       }
 
@@ -1480,6 +1547,8 @@ app.post(
             error:
               error?.message ||
               "Orbit could not generate a response.",
+            conversationId:
+              conversationId || null
           }
         );
       }
@@ -1497,8 +1566,10 @@ app.post(
 app.use(
   (req, res) => {
     res.status(404).json({
-      error: "Route not found.",
-      path: req.originalUrl,
+      error:
+        "Route not found.",
+      path:
+        req.originalUrl
     });
   }
 );
@@ -1516,29 +1587,36 @@ app.use(
 
     return res.status(500).json({
       error:
-        "Internal server error.",
+        "Internal server error."
     });
   }
 );
 
-app.listen(PORT, () => {
-  console.log(
-    `Orbit AI backend running on port ${PORT}`
-  );
+app.listen(
+  PORT,
+  () => {
+    console.log(
+      `Orbit AI backend running on port ${PORT}`
+    );
 
-  console.log(
-    `Groq: ${groq ? "configured" : "not configured"
-    }`
-  );
+    console.log(
+      `Groq: ${
+        groq
+          ? "configured"
+          : "not configured"
+      }`
+    );
 
-  console.log(
-    `Supabase: ${supabase
-      ? "configured"
-      : "not configured"
-    }`
-  );
+    console.log(
+      `Supabase: ${
+        supabase
+          ? "configured"
+          : "not configured"
+      }`
+    );
 
-  console.log(
-    `Model: ${MODEL}`
-  );
-});
+    console.log(
+      `Model: ${MODEL}`
+    );
+  }
+);

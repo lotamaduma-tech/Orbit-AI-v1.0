@@ -1,0 +1,615 @@
+.orbit-tools-menu {
+    position: absolute;
+    left: var(--spacing-sm);
+    bottom: calc(100% + 12px);
+    width: 300px;
+    max-width: min(300px, calc(100vw - 32px));
+    height: 344px;
+    max-height: calc(100vh - 110px);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px) scale(0.97);
+    transform-origin: bottom left;
+    transition:
+        opacity var(--transition-fast),
+        visibility var(--transition-fast),
+        transform var(--transition-fast);
+    z-index: var(--z-modal);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.orbit-tools-menu.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+
+.orbit-tools-header {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 10px 12px 8px;
+}
+
+.orbit-tools-title {
+    font-family: var(--font-secondary);
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.3;
+    color: var(--text);
+    letter-spacing: -0.01em;
+}
+
+.orbit-tools-description {
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-secondary);
+}
+
+.orbit-tools-options {
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 4px;
+    padding: 2px 4px 4px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.orbit-tools-options::-webkit-scrollbar {
+    width: 5px;
+}
+
+.orbit-tools-options::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.orbit-tools-options::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
+
+.orbit-tools-options::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+.orbit-tool-option {
+    width: 100%;
+    min-height: 66px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast);
+    box-sizing: border-box;
+}
+
+.orbit-tool-option:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-light);
+}
+
+.orbit-tool-option:active {
+    transform: scale(0.985);
+}
+
+.orbit-tool-option:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+.orbit-tool-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 14px;
+}
+
+.orbit-tool-content {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.orbit-tool-content strong {
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.35;
+    color: var(--text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.orbit-tool-content small {
+    overflow: hidden;
+    font-size: 10px;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.4;
+    color: var(--text-secondary);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.orbit-tool-arrow {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 9px;
+    border-radius: var(--radius-full);
+    transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.orbit-tool-option:hover .orbit-tool-arrow {
+    background: var(--surface-soft);
+    color: var(--text);
+    transform: translateX(2px);
+}
+
+.command-area {
+    position: relative;
+    min-width: 0;
+    z-index: 2;
+}
+
+.command-box {
+    position: relative;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: end;
+    gap: 0;
+    padding: var(--spacing-sm);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background-color var(--transition-fast);
+    box-sizing: border-box;
+}
+
+.command-box:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.command-box.tools-open {
+    z-index: var(--z-modal);
+}
+
+.orbit-attachments {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 0 var(--spacing-sm);
+    padding: 8px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.orbit-attachments[hidden] {
+    display: none;
+}
+
+.orbit-attachments-header {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: 3px 5px 7px;
+    box-sizing: border-box;
+}
+
+.orbit-attachments-title {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.orbit-attachments-clear {
+    flex: 0 0 auto;
+    padding: 4px 7px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 10px;
+    cursor: pointer;
+    transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.orbit-attachments-clear:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.orbit-attachments-list {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 8px;
+    padding: 2px 2px 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    box-sizing: border-box;
+}
+
+.orbit-attachments-list::-webkit-scrollbar {
+    height: 5px;
+}
+
+.orbit-attachments-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.orbit-attachments-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
+}
+
+.orbit-attachments-list::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+.orbit-attachment-item {
+    position: relative;
+    flex: 0 0 190px;
+    width: 190px;
+    min-width: 190px;
+    height: 62px;
+    min-height: 62px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-sizing: border-box;
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.orbit-attachment-item:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+}
+
+.orbit-attachment-preview {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 9px;
+    background: var(--surface-soft);
+    color: var(--primary);
+    font-size: var(--font-size-lg);
+}
+
+.orbit-attachment-preview img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.orbit-attachment-info {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+}
+
+.orbit-attachment-info strong {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.orbit-attachment-info small {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.orbit-attachment-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 21px;
+    height: 21px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    color: var(--muted);
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.orbit-attachment-remove:hover {
+    background: var(--surface-hover);
+    border-color: var(--border);
+    color: var(--text);
+    transform: scale(1.05);
+}
+
+#command-input {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    min-height: 72px;
+    max-height: 220px;
+    resize: none;
+    overflow-y: auto;
+    align-self: stretch;
+    box-sizing: border-box;
+}
+
+#send-btn {
+    grid-column: 3;
+    grid-row: 2;
+    align-self: end;
+}
+
+html[data-theme="dark"] .orbit-tools-menu {
+    background: var(--surface-soft);
+    border-color: var(--border);
+    box-shadow: var(--shadow-lg);
+}
+
+html[data-theme="dark"] .orbit-tools-options::-webkit-scrollbar-thumb {
+    background: var(--border);
+}
+
+html[data-theme="dark"] .orbit-tools-options::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+}
+
+html[data-theme="dark"] .orbit-attachments {
+    background: var(--bg2);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .orbit-attachment-item {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .orbit-attachment-preview {
+    background: var(--surface-soft);
+}
+
+html[data-theme="dark"] .orbit-attachment-remove {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+@media (max-width: 600px) {
+    .orbit-tools-menu {
+        left: 0;
+        bottom: calc(100% + 8px);
+        width: min(280px, calc(100vw - 28px));
+        max-width: calc(100vw - 28px);
+        height: 310px;
+        max-height: calc(100vh - 90px);
+        padding: 6px;
+        border-radius: 16px;
+    }
+
+    .orbit-tools-header {
+        padding: 8px 9px 6px;
+    }
+
+    .orbit-tools-title {
+        font-size: 13px;
+    }
+
+    .orbit-tools-description {
+        font-size: 9px;
+    }
+
+    .orbit-tools-options {
+        gap: 2px;
+        margin-top: 3px;
+        padding: 2px;
+    }
+
+    .orbit-tool-option {
+        min-height: 57px;
+        gap: 9px;
+        padding: 7px;
+        border-radius: 11px;
+    }
+
+    .orbit-tool-icon {
+        width: 32px;
+        height: 32px;
+        flex-basis: 32px;
+        border-radius: 9px;
+        font-size: 12px;
+    }
+
+    .orbit-tool-content strong {
+        font-size: 10px;
+    }
+
+    .orbit-tool-content small {
+        font-size: 8px;
+    }
+
+    .orbit-tool-arrow {
+        width: 21px;
+        height: 21px;
+        font-size: 8px;
+    }
+
+    .command-box {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-rows: auto auto;
+        padding: 7px;
+        border-radius: var(--radius-md);
+    }
+
+    .orbit-attachments {
+        max-height: 145px;
+        margin-bottom: 7px;
+        padding: 5px;
+        border-radius: 11px;
+    }
+
+    .orbit-attachments-header {
+        padding: 2px 4px 5px;
+    }
+
+    .orbit-attachments-title {
+        font-size: 10px;
+    }
+
+    .orbit-attachments-clear {
+        padding: 3px 6px;
+        font-size: 9px;
+    }
+
+    .orbit-attachments-list {
+        gap: 6px;
+        padding: 2px 2px 5px;
+    }
+
+    .orbit-attachments-list::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .orbit-attachment-item {
+        flex: 0 0 150px;
+        width: 150px;
+        min-width: 150px;
+        height: 48px;
+        min-height: 48px;
+        gap: 6px;
+        padding: 5px;
+        border-radius: 9px;
+    }
+
+    .orbit-attachment-preview {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        border-radius: 7px;
+        font-size: var(--font-size-md);
+    }
+
+    .orbit-attachment-info strong {
+        font-size: 9px;
+    }
+
+    .orbit-attachment-info small {
+        font-size: 8px;
+    }
+
+    .orbit-attachment-remove {
+        width: 18px;
+        height: 18px;
+        top: 4px;
+        right: 4px;
+        font-size: 8px;
+    }
+
+    #command-input {
+        min-height: 58px;
+        max-height: 180px;
+    }
+}

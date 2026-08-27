@@ -1,61 +1,23 @@
-/* =========================================
-   ORBIT AI — DESIGN VARIABLES
-   GLOBAL THEME SYSTEM
-   SOFT SLATE + INDIGO
-   ========================================= */
-
-/* =========================================
-   ROOT / DEFAULT THEME
-
-   Light theme is the default.
-   Dark theme is activated through
-   html[data-theme="dark"].
-   ========================================= */
-
 :root {
-  /* =====================================
-       BACKGROUND
-       ===================================== */
-
   --bg: #f7f7f5;
   --bg2: #f1f1ef;
-
-  /* =====================================
-       SURFACES
-       ===================================== */
 
   --surface: #ffffff;
   --surface-soft: #f4f4f2;
   --surface-hover: #ededeb;
 
-  /* =====================================
-       BORDERS
-       ===================================== */
-
   --border: #e2e2de;
   --border-light: #ebebe8;
-
-  /* =====================================
-       PRIMARY
-       ===================================== */
 
   --primary: #6366f1;
   --primary-dark: #4f46e5;
   --primary-light: #818cf8;
   --primary-soft: rgba(99, 102, 241, 0.08);
 
-  /* =====================================
-       TEXT
-       ===================================== */
-
   --text: #2d2d2d;
   --text-secondary: #5f6368;
   --muted: #777b80;
   --text-dim: #9a9da1;
-
-  /* =====================================
-       STATUS
-       ===================================== */
 
   --success: #16a34a;
   --success-dark: #15803d;
@@ -72,30 +34,14 @@
   --info: #2563eb;
   --info-soft: rgba(37, 99, 235, 0.08);
 
-  /* =====================================
-       OVERLAY
-       ===================================== */
-
   --overlay: rgba(0, 0, 0, 0.2);
   --overlay-light: rgba(0, 0, 0, 0.08);
 
-  /* =====================================
-       SHADOWS
-       ===================================== */
-
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
-
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.1);
-
   --shadow-navigation: 4px 0 24px rgba(0, 0, 0, 0.08);
-
-  /* =====================================
-       SPACING
-       ===================================== */
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -105,10 +51,6 @@
   --spacing-2xl: 48px;
   --spacing-3xl: 64px;
 
-  /* =====================================
-       BORDER RADIUS
-       ===================================== */
-
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -117,17 +59,9 @@
   --radius-2xl: 24px;
   --radius-full: 999px;
 
-  /* =====================================
-       TYPOGRAPHY
-       ===================================== */
-
   --font-family: "Inter", sans-serif;
   --font-body: "Inter", sans-serif;
   --font-secondary: "Space Grotesk", sans-serif;
-
-  /* =====================================
-       FONT SIZES
-       ===================================== */
 
   --font-size-xs: 0.72rem;
   --font-size-sm: 0.82rem;
@@ -137,41 +71,21 @@
   --font-size-2xl: 2rem;
   --font-size-3xl: 2.5rem;
 
-  /* =====================================
-       FONT WEIGHTS
-       ===================================== */
-
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  /* =====================================
-       LAYOUT
-       ===================================== */
-
   --sidebar-width: 250px;
   --header-height: 68px;
   --content-max-width: 1400px;
 
-  /* =====================================
-       NAVIGATION
-       ===================================== */
-
   --navigation-width: 270px;
   --navigation-mobile-width: 290px;
-
-  /* =====================================
-       TRANSITIONS
-       ===================================== */
 
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
   --transition-slow: 0.35s ease;
-
-  /* =====================================
-       Z-INDEX
-       ===================================== */
 
   --z-content: 1;
   --z-header: 900;
@@ -179,11 +93,12 @@
   --z-navigation: 1100;
   --z-modal: 2000;
   --z-toast: 3000;
-}
 
-/* =========================================
-   ORBIT AI — DARK THEME
-   ========================================= */
+  --animation-duration-fast: 0.15s;
+  --animation-duration-normal: 0.25s;
+  --animation-duration-slow: 0.35s;
+  --animation-ease: ease;
+}
 
 html[data-theme="dark"] {
   --bg: #1c1e22;
@@ -224,64 +139,31 @@ html[data-theme="dark"] {
   --overlay-light: rgba(15, 18, 24, 0.18);
 
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
-
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
-
   --shadow-navigation: 4px 0 24px rgba(0, 0, 0, 0.1);
 }
 
-/* =========================================
-   ORBIT AI — LIGHT THEME
-   Soft, comfortable light appearance
-   ========================================= */
-
 html[data-theme="light"] {
-  /* =====================================
-       BACKGROUND
-       ===================================== */
-
   --bg: #f7f7f5;
   --bg2: #f1f1ef;
-
-  /* =====================================
-       SURFACES
-       ===================================== */
 
   --surface: #ffffff;
   --surface-soft: #f4f4f2;
   --surface-hover: #ededeb;
 
-  /* =====================================
-       BORDERS
-       ===================================== */
-
   --border: #e2e2de;
   --border-light: #ebebe8;
-
-  /* =====================================
-       PRIMARY
-       ===================================== */
 
   --primary: #6366f1;
   --primary-dark: #4f46e5;
   --primary-light: #818cf8;
 
-  /* =====================================
-       TEXT
-       ===================================== */
-
   --text: #2d2d2d;
   --text-secondary: #5f6368;
   --muted: #777b80;
   --text-dim: #9a9da1;
-
-  /* =====================================
-       STATUS
-       ===================================== */
 
   --success: #16a34a;
   --success-dark: #15803d;
@@ -298,31 +180,15 @@ html[data-theme="light"] {
   --info: #2563eb;
   --info-soft: rgba(37, 99, 235, 0.08);
 
-  /* =====================================
-       OVERLAY
-       ===================================== */
-
   --overlay: rgba(0, 0, 0, 0.2);
   --overlay-light: rgba(0, 0, 0, 0.08);
 
-  /* =====================================
-       SOFT LIGHT SHADOWS
-       ===================================== */
-
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
-
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.1);
-
   --shadow-navigation: 4px 0 24px rgba(0, 0, 0, 0.08);
 }
-
-/* =========================================
-   SYSTEM THEME — LIGHT
-   ========================================= */
 
 @media (prefers-color-scheme: light) {
   html[data-theme="system"] {
@@ -350,10 +216,6 @@ html[data-theme="light"] {
   }
 }
 
-/* =========================================
-   SYSTEM THEME — DARK
-   ========================================= */
-
 @media (prefers-color-scheme: dark) {
   html[data-theme="system"] {
     --bg: #1c1e22;
@@ -380,10 +242,6 @@ html[data-theme="light"] {
   }
 }
 
-/* =========================================
-   GLOBAL PAGE THEME
-   ========================================= */
-
 html,
 body {
   background-color: var(--bg);
@@ -395,10 +253,6 @@ body {
     background-color var(--transition-normal),
     color var(--transition-normal);
 }
-
-/* =========================================
-   GLOBAL THEME TRANSITIONS
-   ========================================= */
 
 body,
 .app-header,
@@ -429,18 +283,10 @@ button {
     box-shadow var(--transition-normal);
 }
 
-/* =========================================
-   SELECTION
-   ========================================= */
-
 ::selection {
   background: var(--primary);
   color: #ffffff;
 }
-
-/* =========================================
-   FORM CONTROLS
-   ========================================= */
 
 input,
 textarea,
@@ -461,17 +307,9 @@ select:focus {
   border-color: var(--primary);
 }
 
-/* =========================================
-   BUTTON BASE
-   ========================================= */
-
 button {
   color: inherit;
 }
-
-/* =========================================
-   REDUCED MOTION
-   ========================================= */
 
 html[data-reduced-motion="true"] *,
 html[data-reduced-motion="true"] *::before,
@@ -482,21 +320,6 @@ html[data-reduced-motion="true"] *::after {
   scroll-behavior: auto !important;
 }
 
-/* =========================================================
-   ORBIT AI — ANIMATION SYSTEM
-   ========================================================= */
-
-:root {
-  --animation-duration-fast: 0.15s;
-  --animation-duration-normal: 0.25s;
-  --animation-duration-slow: 0.35s;
-  --animation-ease: ease;
-}
-
-/* =========================================================
-   ANIMATIONS DISABLED
-   ========================================================= */
-
 html[data-animations="false"] *,
 html[data-animations="false"] *::before,
 html[data-animations="false"] *::after {
@@ -504,10 +327,6 @@ html[data-animations="false"] *::after {
   transition: none !important;
   scroll-behavior: auto !important;
 }
-
-/* =========================================================
-   ANIMATIONS ENABLED
-   ========================================================= */
 
 html[data-animations="true"] body {
   transition:

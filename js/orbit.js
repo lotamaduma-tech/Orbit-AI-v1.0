@@ -1,9 +1,5 @@
 "use strict";
 
-/* =========================================================
-   ORBIT AI — CHAT ENGINE
-   ========================================================= */
-
 const ORBIT_API_URL =
     window.ORBIT_API_URL ||
     "https://orbit-ai-v1-0.onrender.com/api/chat";
@@ -16,114 +12,147 @@ const ORBIT_MEMORY_LIMIT = 100;
 const ORBIT_REQUEST_TIMEOUT = 120000;
 const ORBIT_MAX_TOKENS = 8192;
 const ORBIT_MAX_CONTEXT_CHARS = 120000;
-const ORBIT_RENDER_INTERVAL = 32;
 
 const ORBIT_USER_ID_KEY = "orbit-user-id";
 const ORBIT_MEMORY_CACHE_KEY = "orbit-memory-cache";
-const ORBIT_RECENT_CHATS_KEY = "orbit-recent-chats";
 const ORBIT_CHAT_PREFIX = "orbit-chat-";
+const ORBIT_RECENT_CHATS_KEY = "orbit-recent-chats";
 const ORBIT_ACTIVE_CHAT_KEY = "orbit-active-chat";
 
-/*
- * IMPORTANT:
- * Conversations are still saved to sidebar history.
- *
- * However, the active conversation is NOT automatically restored
- * into the main AI chat area after a page refresh.
- *
- * A user must intentionally click a history item to reopen it.
- */
-
 const ORBIT_SYSTEM_PROMPT = `
-You are Orbit AI, a highly capable general-purpose AI assistant.
+You are Orbit AI, a highly capable general-purpose AI assistant with a strong specialization in software engineering and programming.
 
-Your strongest specialization is software engineering, programming,
-debugging, architecture, web development, frontend development,
-backend development, databases, APIs, authentication, deployment,
-performance optimization, and technical problem solving.
+PROGRAMMING SPECIALIZATION:
+
+You must be highly capable of working with programming languages, frameworks, libraries, APIs, databases, development tools, debugging, architecture, deployment, and technical problem solving.
+
+You should confidently handle:
+
+HTML
+CSS
+JavaScript
+TypeScript
+Python
+Java
+C
+C++
+C#
+Go
+Rust
+PHP
+Ruby
+Kotlin
+Swift
+Dart
+SQL
+Bash
+PowerShell
+JSON
+YAML
+XML
+Markdown
+Node.js
+Express
+React
+Next.js
+Vue
+Angular
+Supabase
+Firebase
+MongoDB
+PostgreSQL
+MySQL
+REST APIs
+Git
+GitHub
+Authentication
+Cloud deployment
+Frontend development
+Backend development
+
+When a user provides code:
+
+- Inspect the existing code carefully before changing it.
+- Understand the current architecture first.
+- Preserve working functionality.
+- Do not invent IDs, classes, APIs, database tables, columns, endpoints, variables, or files.
+- Do not rewrite an entire project unnecessarily.
+- Identify the actual problem before proposing a fix.
+- Explain important changes when appropriate.
+- Provide complete replacement sections when code needs to be replaced.
+- Make code syntactically valid and internally consistent.
+- Keep code secure, maintainable, readable, and performant.
+- Consider edge cases and error handling.
+- When debugging, explain the likely cause and provide a practical fix.
+- When the user asks for a complete file, provide the complete file.
+- When multiple files are required, clearly separate them.
+- Keep frontend code compatible with the user's existing HTML and CSS unless a change is explicitly requested.
+
+CODE FORMATTING:
+
+Always put programming code inside fenced Markdown code blocks with the appropriate language identifier.
+
+Examples:
+
+\`\`\`javascript
+console.log("Hello");
+\`\`\`
+
+\`\`\`python
+print("Hello")
+\`\`\`
+
+\`\`\`html
+<h1>Hello</h1>
+\`\`\`
+
+Use the correct language identifier whenever the language is known.
 
 GENERAL BEHAVIOR:
 
 - Understand the user's actual goal before answering.
 - Answer naturally and conversationally.
-- Be accurate, practical, and direct.
-- Maintain conversation context.
-- Never invent information.
-- If the user provides code, inspect it carefully before suggesting changes.
-- Do not unnecessarily rewrite working code.
-- When asked to modify a project, preserve the existing architecture unless a change is necessary.
-
-CODING:
-
-- Treat programming as a primary specialization.
-- Be especially strong with HTML, CSS, JavaScript, Node.js, Express, APIs,
-  databases, authentication, Supabase, GitHub, deployment and debugging.
-- Handle large codebases carefully.
-- When providing replacement code, provide complete working sections.
-- Explain important changes clearly.
-- Keep code secure, maintainable, readable and performant.
-- Never intentionally remove existing functionality without explaining why.
-
-FORMATTING:
-
-- Use Markdown when useful.
-- Always use fenced code blocks for code.
-- Use Markdown tables for structured tabular information.
-- Use normal clickable Markdown links where appropriate.
-- Keep responses readable.
+- Be accurate and practical.
+- Never knowingly invent information.
+- Maintain useful conversation context.
+- Follow the user's existing project structure.
+- Do not unnecessarily complicate simple tasks.
+- If information is missing, clearly state what is missing.
 `;
-
-
-/* =========================================================
-   GLOBAL STATE
-   ========================================================= */
 
 let orbitConversationHistory = [];
 let orbitUserMemory = [];
-
 let orbitIsWaiting = false;
 let orbitInitialized = false;
-
 let orbitAuthSessionCache = null;
 let orbitAuthSessionCacheTime = 0;
-
+let orbitResponseStartedAt = 0;
+let orbitCurrentResponseRow = null;
 let orbitStreamBuffer = "";
 let orbitStreamRenderTimer = null;
-
-
-/* =========================================================
-   USER IDENTITY
-   ========================================================= */
+let orbitStreamRenderElement = null;
+let orbitUserHasStartedTyping = false;
 
 function getOrbitUserId() {
     try {
-        let userId = localStorage.getItem(
-            ORBIT_USER_ID_KEY
-        );
+        const existing = localStorage.getItem(ORBIT_USER_ID_KEY);
 
-        if (userId) {
-            return userId;
+        if (existing) {
+            return existing;
         }
 
-        if (
+        const id =
             window.crypto &&
             typeof window.crypto.randomUUID === "function"
-        ) {
-            userId = window.crypto.randomUUID();
-        } else {
-            userId =
-                "orbit-" +
-                Date.now().toString(36) +
-                "-" +
-                Math.random().toString(36).slice(2, 12);
-        }
+                ? window.crypto.randomUUID()
+                : "orbit-" +
+                  Date.now().toString(36) +
+                  "-" +
+                  Math.random().toString(36).slice(2, 12);
 
-        localStorage.setItem(
-            ORBIT_USER_ID_KEY,
-            userId
-        );
+        localStorage.setItem(ORBIT_USER_ID_KEY, id);
 
-        return userId;
+        return id;
     } catch {
         return "orbit-temporary-" + Date.now();
     }
@@ -131,10 +160,18 @@ function getOrbitUserId() {
 
 let ORBIT_USER_ID = getOrbitUserId();
 
-
-/* =========================================================
-   SUPABASE AUTHENTICATION
-   ========================================================= */
+function getOrbitElements() {
+    return {
+        chatWindow: document.getElementById("chat-window"),
+        commandInput: document.getElementById("command-input"),
+        sendButton: document.getElementById("send-btn"),
+        commandForm:
+            document.getElementById("command-form") ||
+            document.querySelector(".command-area form") ||
+            document.querySelector(".command-box form"),
+        responseTime: document.getElementById("response-time")
+    };
+}
 
 function getOrbitSupabaseClient() {
     if (
@@ -172,16 +209,13 @@ async function getOrbitAuthSession(forceRefresh = false) {
     }
 
     try {
-        const { data, error } =
-            await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
 
         if (error) {
             return null;
         }
 
-        orbitAuthSessionCache =
-            data?.session || null;
-
+        orbitAuthSessionCache = data?.session || null;
         orbitAuthSessionCacheTime = now;
 
         return orbitAuthSessionCache;
@@ -191,130 +225,103 @@ async function getOrbitAuthSession(forceRefresh = false) {
 }
 
 async function getOrbitAuthToken() {
-    const session =
-        await getOrbitAuthSession();
-
+    const session = await getOrbitAuthSession();
     return session?.access_token || null;
 }
 
 async function syncOrbitAuthenticatedUser() {
-    const session =
-        await getOrbitAuthSession();
+    const session = await getOrbitAuthSession();
 
     if (session?.user?.id) {
-        ORBIT_USER_ID =
-            String(session.user.id);
+        ORBIT_USER_ID = String(session.user.id);
     }
 
     return session;
 }
 
 async function logoutOrbitUser() {
-    const supabase =
-        getOrbitSupabaseClient();
+    const supabase = getOrbitSupabaseClient();
 
     try {
         if (supabase) {
             await supabase.auth.signOut();
         }
-    } catch { }
+    } catch {}
 
-    localStorage.removeItem(
-        ORBIT_USER_ID_KEY
-    );
+    try {
+        localStorage.removeItem(ORBIT_USER_ID_KEY);
+    } catch {}
 
     orbitAuthSessionCache = null;
+    orbitAuthSessionCacheTime = 0;
+
+    ORBIT_USER_ID = getOrbitUserId();
 
     clearOrbitConversation();
 }
 
+function setOrbitResponseStatus(status) {
+    const { responseTime } = getOrbitElements();
 
-/* =========================================================
-   DOM ELEMENTS
-   ========================================================= */
-
-function getOrbitElements() {
-    return {
-        chatWindow:
-            document.getElementById("chat-window"),
-
-        commandInput:
-            document.getElementById("command-input"),
-
-        sendButton:
-            document.getElementById("send-btn"),
-
-        commandForm:
-            document.getElementById("command-form") ||
-            document.querySelector(".command-area form") ||
-            document.querySelector(".command-box form")
-    };
+    if (responseTime) {
+        responseTime.textContent = status;
+    }
 }
 
+function startOrbitResponseTimer() {
+    orbitResponseStartedAt = performance.now();
+    setOrbitResponseStatus("Thinking…");
+}
 
-/* =========================================================
-   INPUT / TYPING MANAGEMENT
-   ========================================================= */
+function finishOrbitResponseTimer() {
+    if (!orbitResponseStartedAt) {
+        setOrbitResponseStatus("Ready");
+        return;
+    }
+
+    const elapsed =
+        (performance.now() - orbitResponseStartedAt) / 1000;
+
+    const value =
+        elapsed < 10
+            ? elapsed.toFixed(1) + "s"
+            : Math.round(elapsed) + "s";
+
+    setOrbitResponseStatus(value);
+    orbitResponseStartedAt = 0;
+}
 
 function clearOrbitInput() {
-    const { commandInput } =
-        getOrbitElements();
+    const { commandInput } = getOrbitElements();
 
     if (!commandInput) {
         return;
     }
 
     commandInput.value = "";
+    commandInput.classList.remove("is-typing");
 
-    triggerOrbitInputUpdate();
+    updateOrbitTypingState();
 }
 
 function focusOrbitInput() {
-    const { commandInput } =
-        getOrbitElements();
+    const { commandInput } = getOrbitElements();
 
-    if (
-        !commandInput ||
-        commandInput.disabled
-    ) {
+    if (!commandInput || commandInput.disabled) {
         return;
     }
 
     requestAnimationFrame(() => {
         try {
-            commandInput.focus({
-                preventScroll: true
-            });
+            commandInput.focus({ preventScroll: true });
         } catch {
             commandInput.focus();
         }
     });
 }
 
-function triggerOrbitInputUpdate() {
-    const { commandInput } =
-        getOrbitElements();
-
-    if (!commandInput) {
-        return;
-    }
-
-    commandInput.dispatchEvent(
-        new Event("input", {
-            bubbles: true
-        })
-    );
-}
-
-/*
- * Keeps the send button synchronized with
- * whatever the user is typing.
- */
 function updateOrbitTypingState() {
-    const {
-        commandInput,
-        sendButton
-    } = getOrbitElements();
+    const { commandInput, sendButton } = getOrbitElements();
 
     if (!commandInput) {
         return;
@@ -323,70 +330,17 @@ function updateOrbitTypingState() {
     const hasText =
         String(commandInput.value || "").trim().length > 0;
 
+    commandInput.classList.toggle("is-typing", hasText);
+
     if (sendButton) {
-        sendButton.disabled =
-            orbitIsWaiting || !hasText;
+        sendButton.disabled = orbitIsWaiting || !hasText;
     }
 
-    commandInput.classList.toggle(
-        "is-typing",
-        hasText
-    );
+    orbitUserHasStartedTyping = hasText;
 }
 
-function insertOrbitTypedCharacter(character) {
-    const { commandInput } =
-        getOrbitElements();
-
-    if (
-        !commandInput ||
-        commandInput.disabled
-    ) {
-        return;
-    }
-
-    const value =
-        commandInput.value;
-
-    const start =
-        typeof commandInput.selectionStart === "number"
-            ? commandInput.selectionStart
-            : value.length;
-
-    const end =
-        typeof commandInput.selectionEnd === "number"
-            ? commandInput.selectionEnd
-            : value.length;
-
-    commandInput.value =
-        value.slice(0, start) +
-        character +
-        value.slice(end);
-
-    const position =
-        start + character.length;
-
-    try {
-        commandInput.setSelectionRange(
-            position,
-            position
-        );
-    } catch { }
-
-    triggerOrbitInputUpdate();
-    updateOrbitTypingState();
-}
-
-
-/* =========================================================
-   CHAT SCROLLING
-   ========================================================= */
-
-function scrollOrbitChat(
-    behavior = "auto"
-) {
-    const { chatWindow } =
-        getOrbitElements();
+function scrollOrbitChat(behavior = "auto") {
+    const { chatWindow } = getOrbitElements();
 
     if (!chatWindow) {
         return;
@@ -400,17 +354,8 @@ function scrollOrbitChat(
     });
 }
 
-/*
- * Scrolls the response to the START of Orbit's
- * response instead of automatically jumping
- * to the very bottom.
- */
-function scrollToOrbitResponse(
-    row,
-    behavior = "smooth"
-) {
-    const { chatWindow } =
-        getOrbitElements();
+function scrollToOrbitResponse(row, behavior = "smooth") {
+    const { chatWindow } = getOrbitElements();
 
     if (!chatWindow || !row) {
         return;
@@ -436,52 +381,8 @@ function scrollToOrbitResponse(
     });
 }
 
-
-/*
- * When a response begins, position the screen
- * at the beginning of that response.
- */
-function scrollToBeginningOfOrbitResponse(
-    row,
-    behavior = "smooth"
-) {
-    const { chatWindow } =
-        getOrbitElements();
-
-    if (!chatWindow || !row) {
-        return;
-    }
-
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            const containerRect =
-                chatWindow.getBoundingClientRect();
-
-            const rowRect =
-                row.getBoundingClientRect();
-
-            const target =
-                chatWindow.scrollTop +
-                rowRect.top -
-                containerRect.top -
-                18;
-
-            chatWindow.scrollTo({
-                top: Math.max(0, target),
-                behavior
-            });
-        });
-    });
-}
-
-
-/* =========================================================
-   TYPING INDICATOR
-   ========================================================= */
-
 function showOrbitTypingIndicator() {
-    const { chatWindow } =
-        getOrbitElements();
+    const { chatWindow } = getOrbitElements();
 
     if (!chatWindow) {
         return;
@@ -489,12 +390,10 @@ function showOrbitTypingIndicator() {
 
     hideOrbitTypingIndicator();
 
-    const row =
-        document.createElement("div");
+    const row = document.createElement("div");
 
     row.id = "orbit-typing";
-    row.className =
-        "message-row orbit typing-row";
+    row.className = "message-row orbit typing-row";
 
     row.innerHTML = `
         <div
@@ -511,20 +410,12 @@ function showOrbitTypingIndicator() {
     `;
 
     chatWindow.appendChild(row);
-
     scrollOrbitChat("smooth");
 }
 
 function hideOrbitTypingIndicator() {
-    document
-        .getElementById("orbit-typing")
-        ?.remove();
+    document.getElementById("orbit-typing")?.remove();
 }
-
-
-/* =========================================================
-   QUICK PROMPTS
-   ========================================================= */
 
 function hideOrbitQuickPrompts() {
     [
@@ -532,13 +423,9 @@ function hideOrbitQuickPrompts() {
         ".quick-prompt-container",
         ".suggestion-prompts"
     ].forEach(selector => {
-        document
-            .querySelectorAll(selector)
-            .forEach(element => {
-                element.classList.add(
-                    "is-hidden"
-                );
-            });
+        document.querySelectorAll(selector).forEach(element => {
+            element.classList.add("is-hidden");
+        });
     });
 }
 
@@ -548,109 +435,83 @@ function showOrbitQuickPrompts() {
         ".quick-prompt-container",
         ".suggestion-prompts"
     ].forEach(selector => {
-        document
-            .querySelectorAll(selector)
-            .forEach(element => {
-                element.classList.remove(
-                    "is-hidden"
-                );
-            });
+        document.querySelectorAll(selector).forEach(element => {
+            element.classList.remove("is-hidden");
+        });
     });
 }
-
-
-/* =========================================================
-   MEMORY
-   ========================================================= */
 
 function loadOrbitMemory() {
     try {
         const saved =
-            localStorage.getItem(
-                ORBIT_MEMORY_CACHE_KEY
-            );
+            localStorage.getItem(ORBIT_MEMORY_CACHE_KEY);
 
         if (!saved) {
             orbitUserMemory = [];
             return;
         }
 
-        const parsed =
-            JSON.parse(saved);
+        const parsed = JSON.parse(saved);
 
-        orbitUserMemory =
-            Array.isArray(parsed)
-                ? parsed
-                    .filter(
-                        item =>
-                            typeof item === "string" &&
-                            item.trim()
-                    )
-                    .slice(-ORBIT_MEMORY_LIMIT)
-                : [];
+        orbitUserMemory = Array.isArray(parsed)
+            ? parsed
+                  .filter(
+                      item =>
+                          typeof item === "string" &&
+                          item.trim()
+                  )
+                  .slice(-ORBIT_MEMORY_LIMIT)
+            : [];
     } catch {
         orbitUserMemory = [];
     }
 }
 
-function saveOrbitMemoryCache() {
+function saveOrbitMemory() {
     try {
         localStorage.setItem(
             ORBIT_MEMORY_CACHE_KEY,
-            JSON.stringify(
-                orbitUserMemory
-            )
+            JSON.stringify(orbitUserMemory)
         );
-    } catch { }
+    } catch {}
 }
 
 function rememberOrbitDetail(detail) {
-    if (!detail) {
-        return;
-    }
-
     const cleanDetail =
-        String(detail).trim();
+        String(detail || "").trim();
 
     if (!cleanDetail) {
         return;
     }
 
-    const exists =
-        orbitUserMemory.some(
-            item =>
-                item.toLowerCase() ===
-                cleanDetail.toLowerCase()
-        );
+    const exists = orbitUserMemory.some(
+        item =>
+            item.toLowerCase() ===
+            cleanDetail.toLowerCase()
+    );
 
     if (exists) {
         return;
     }
 
-    orbitUserMemory.push(
-        cleanDetail
-    );
+    orbitUserMemory.push(cleanDetail);
 
     orbitUserMemory =
-        orbitUserMemory.slice(
-            -ORBIT_MEMORY_LIMIT
-        );
+        orbitUserMemory.slice(-ORBIT_MEMORY_LIMIT);
 
-    saveOrbitMemoryCache();
+    saveOrbitMemory();
 }
 
 function detectOrbitMemory(message) {
-    if (!message) {
+    const text = String(message || "").trim();
+
+    if (!text) {
         return;
     }
 
-    const text =
-        String(message).trim();
-
-    const nameMatch =
-        text.match(
-            /(?:my name is|call me|you can call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})/i
-        );
+    const nameMatch = text.match(
+        /(?:my name is|call me|you can call me)\s+([a-zA-Z][a-zA-Z\s'-]{1,40})/i
+    );
 
     if (nameMatch) {
         rememberOrbitDetail(
@@ -658,10 +519,9 @@ function detectOrbitMemory(message) {
         );
     }
 
-    const projectMatch =
-        text.match(
-            /(?:i am working on|i'm working on|i am building|my project is)\s+(.+)/i
-        );
+    const projectMatch = text.match(
+        /(?:i am working on|i'm working on|i am building|my project is)\s+(.+)/i
+    );
 
     if (projectMatch) {
         rememberOrbitDetail(
@@ -676,11 +536,6 @@ function getOrbitMemoryContext() {
         : "";
 }
 
-
-/* =========================================================
-   SECURITY / VALIDATION
-   ========================================================= */
-
 function sanitizeMessage(value) {
     return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -690,6 +545,10 @@ function sanitizeMessage(value) {
         .replace(/'/g, "&#039;");
 }
 
+function escapeAttribute(value) {
+    return sanitizeMessage(value);
+}
+
 function validateMessage(message) {
     return (
         typeof message === "string" &&
@@ -697,22 +556,48 @@ function validateMessage(message) {
     );
 }
 
-function escapeAttribute(value) {
-    return sanitizeMessage(value);
+function normalizeLanguage(language) {
+    const value =
+        String(language || "")
+            .trim()
+            .toLowerCase();
+
+    const aliases = {
+        js: "javascript",
+        jsx: "javascript",
+        mjs: "javascript",
+        cjs: "javascript",
+        ts: "typescript",
+        tsx: "typescript",
+        py: "python",
+        rb: "ruby",
+        rs: "rust",
+        golang: "go",
+        sh: "bash",
+        shell: "bash",
+        zsh: "bash",
+        ps: "powershell",
+        ps1: "powershell",
+        yml: "yaml",
+        md: "markdown",
+        htm: "html",
+        xhtml: "html",
+        cxx: "cpp",
+        cc: "cpp",
+        hpp: "cpp",
+        cs: "csharp",
+        "c#": "csharp",
+        "c++": "cpp",
+        postgres: "sql",
+        postgresql: "sql"
+    };
+
+    return aliases[value] || value || "text";
 }
 
-
-/* =========================================================
-   CODE BLOCK RENDERING
-   ========================================================= */
-
-function createOrbitCodeHTML(
-    language,
-    code
-) {
+function createOrbitCodeHTML(language, code) {
     const safeLanguage =
-        language?.trim().toLowerCase() ||
-        "text";
+        normalizeLanguage(language);
 
     const displayLanguage =
         safeLanguage === "text"
@@ -723,15 +608,11 @@ function createOrbitCodeHTML(
         <div
             class="orbit-code-wrapper orbit-code-container"
             data-orbit-code-block
-            data-language="${escapeAttribute(
-        safeLanguage
-    )}"
+            data-language="${escapeAttribute(safeLanguage)}"
         >
             <div class="orbit-code-toolbar orbit-code-header">
                 <span class="orbit-code-language">
-                    ${sanitizeMessage(
-        displayLanguage
-    )}
+                    ${sanitizeMessage(displayLanguage)}
                 </span>
 
                 <button
@@ -744,113 +625,32 @@ function createOrbitCodeHTML(
                 </button>
             </div>
 
-            <pre class="orbit-code-block">
-                <code class="language-${escapeAttribute(
-        safeLanguage
-    )}">${sanitizeMessage(code)}</code>
-            </pre>
+            <pre class="orbit-code-block"><code class="language-${escapeAttribute(
+                safeLanguage
+            )}">${sanitizeMessage(code)}</code></pre>
         </div>
     `;
 }
-
-
-/* =========================================================
-   MARKDOWN TABLES
-   ========================================================= */
-
-function parseMarkdownTable(lines) {
-    if (lines.length < 2) {
-        return null;
-    }
-
-    const separator =
-        /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$/;
-
-    if (!separator.test(lines[1])) {
-        return null;
-    }
-
-    const parseRow = line =>
-        line
-            .trim()
-            .replace(/^\|/, "")
-            .replace(/\|$/, "")
-            .split("|")
-            .map(cell => cell.trim());
-
-    const headers =
-        parseRow(lines[0]);
-
-    const rows =
-        lines
-            .slice(2)
-            .map(parseRow);
-
-    let html = `
-        <div class="orbit-table-wrapper">
-            <table class="orbit-table">
-                <thead>
-                    <tr>
-    `;
-
-    headers.forEach(header => {
-        html += `<th>${header}</th>`;
-    });
-
-    html += `
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-
-    rows.forEach(row => {
-        html += "<tr>";
-
-        headers.forEach((_, index) => {
-            html += `<td>${row[index] || ""}</td>`;
-        });
-
-        html += "</tr>";
-    });
-
-    html += `
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    return html;
-}
-
-
-/* =========================================================
-   INLINE MARKDOWN
-   ========================================================= */
 
 function renderInlineMarkdown(text) {
-    let result = text;
+    let result = sanitizeMessage(text);
 
     result = result.replace(
         /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-        (_, label, url) => {
-            return `
-                <a
-                    href="${escapeAttribute(url)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >${label}</a>
-            `;
-        }
+        (_, label, url) => `
+            <a
+                href="${escapeAttribute(url)}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >${label}</a>
+        `
     );
 
     result = result.replace(
         /(^|[\s(])(https?:\/\/[^\s<]+)/g,
         (_, prefix, url) => {
             const cleanUrl =
-                url.replace(
-                    /[.,!?;:]+$/,
-                    ""
-                );
+                url.replace(/[.,!?;:]+$/, "");
 
             return `${prefix}
                 <a
@@ -880,10 +680,70 @@ function renderInlineMarkdown(text) {
     return result;
 }
 
+function parseMarkdownTable(lines) {
+    if (lines.length < 2) {
+        return null;
+    }
 
-/* =========================================================
-   MARKDOWN RENDERER
-   ========================================================= */
+    const separator =
+        /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$/;
+
+    if (!separator.test(lines[1])) {
+        return null;
+    }
+
+    const parseRow = line =>
+        line
+            .trim()
+            .replace(/^\|/, "")
+            .replace(/\|$/, "")
+            .split("|")
+            .map(cell => cell.trim());
+
+    const headers = parseRow(lines[0]);
+    const rows = lines.slice(2).map(parseRow);
+
+    let html = `
+        <div class="orbit-table-wrapper">
+            <table class="orbit-table">
+                <thead>
+                    <tr>
+    `;
+
+    headers.forEach(header => {
+        html += `
+            <th>${renderInlineMarkdown(header)}</th>
+        `;
+    });
+
+    html += `
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    rows.forEach(row => {
+        html += "<tr>";
+
+        headers.forEach((_, index) => {
+            html += `
+                <td>${renderInlineMarkdown(
+                    row[index] || ""
+                )}</td>
+            `;
+        });
+
+        html += "</tr>";
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    return html;
+}
 
 function renderMarkdown(text) {
     if (!text) {
@@ -891,10 +751,7 @@ function renderMarkdown(text) {
     }
 
     let source =
-        String(text).replace(
-            /\r\n/g,
-            "\n"
-        );
+        String(text).replace(/\r\n/g, "\n");
 
     const codeBlocks = [];
 
@@ -906,7 +763,7 @@ function renderMarkdown(text) {
 
             codeBlocks.push(
                 createOrbitCodeHTML(
-                    language || "text",
+                    language,
                     code
                         .replace(/^\n/, "")
                         .replace(/\n$/, "")
@@ -917,12 +774,7 @@ function renderMarkdown(text) {
         }
     );
 
-    source =
-        sanitizeMessage(source);
-
-    const lines =
-        source.split("\n");
-
+    const lines = source.split("\n");
     let output = "";
     let tableLines = [];
 
@@ -932,17 +784,13 @@ function renderMarkdown(text) {
         }
 
         const table =
-            parseMarkdownTable(
-                tableLines
-            );
+            parseMarkdownTable(tableLines);
 
         if (table) {
             output += table;
         } else {
             output += tableLines
-                .map(line =>
-                    renderInlineMarkdown(line)
-                )
+                .map(line => renderInlineMarkdown(line))
                 .join("<br>");
         }
 
@@ -950,7 +798,10 @@ function renderMarkdown(text) {
     };
 
     lines.forEach(line => {
-        if (line.includes("|")) {
+        if (
+            line.includes("|") &&
+            !line.includes("@@ORBIT_CODE_")
+        ) {
             tableLines.push(line);
             return;
         }
@@ -961,11 +812,8 @@ function renderMarkdown(text) {
             output += `
                 <h4>
                     ${renderInlineMarkdown(
-                line.replace(
-                    /^###\s+/,
-                    ""
-                )
-            )}
+                        line.replace(/^###\s+/, "")
+                    )}
                 </h4>
             `;
             return;
@@ -975,11 +823,8 @@ function renderMarkdown(text) {
             output += `
                 <h3>
                     ${renderInlineMarkdown(
-                line.replace(
-                    /^##\s+/,
-                    ""
-                )
-            )}
+                        line.replace(/^##\s+/, "")
+                    )}
                 </h3>
             `;
             return;
@@ -989,11 +834,8 @@ function renderMarkdown(text) {
             output += `
                 <h2>
                     ${renderInlineMarkdown(
-                line.replace(
-                    /^#\s+/,
-                    ""
-                )
-            )}
+                        line.replace(/^#\s+/, "")
+                    )}
                 </h2>
             `;
             return;
@@ -1003,11 +845,8 @@ function renderMarkdown(text) {
             output += `
                 <div class="orbit-list-item">
                     • ${renderInlineMarkdown(
-                line.replace(
-                    /^\s*[-*]\s+/,
-                    ""
-                )
-            )}
+                        line.replace(/^\s*[-*]\s+/, "")
+                    )}
                 </div>
             `;
             return;
@@ -1033,15 +872,12 @@ function renderMarkdown(text) {
 
     flushTable();
 
-    codeBlocks.forEach(
-        (codeHTML, index) => {
-            output =
-                output.replace(
-                    `@@ORBIT_CODE_${index}@@`,
-                    codeHTML
-                );
-        }
-    );
+    codeBlocks.forEach((codeHTML, index) => {
+        output = output.replace(
+            `@@ORBIT_CODE_${index}@@`,
+            codeHTML
+        );
+    });
 
     return output.replace(
         /(<br>){3,}/g,
@@ -1049,32 +885,18 @@ function renderMarkdown(text) {
     );
 }
 
-
-/* =========================================================
-   MESSAGE RENDERING
-   ========================================================= */
-
-function renderUserMessage(
-    text,
-    group
-) {
+function renderUserMessage(text, group) {
     const row =
         document.createElement("div");
 
-    row.className =
-        "message-row user";
-
-    row.dataset.sender =
-        "user";
+    row.className = "message-row user";
+    row.dataset.sender = "user";
 
     const message =
         document.createElement("div");
 
-    message.className =
-        "message user";
-
-    message.textContent =
-        String(text ?? "");
+    message.className = "message user";
+    message.textContent = String(text ?? "");
 
     row.appendChild(message);
     group.appendChild(row);
@@ -1082,27 +904,18 @@ function renderUserMessage(
     return row;
 }
 
-function renderAIMessage(
-    text,
-    group
-) {
+function renderAIMessage(text, group) {
     const row =
         document.createElement("div");
 
-    row.className =
-        "message-row orbit";
-
-    row.dataset.sender =
-        "orbit";
+    row.className = "message-row orbit";
+    row.dataset.sender = "orbit";
 
     const message =
         document.createElement("div");
 
-    message.className =
-        "message orbit";
-
-    message.innerHTML =
-        renderMarkdown(text);
+    message.className = "message orbit";
+    message.innerHTML = renderMarkdown(text);
 
     row.appendChild(message);
     group.appendChild(row);
@@ -1110,29 +923,23 @@ function renderAIMessage(
     return row;
 }
 
-function createOrbitStreamingMessage(
-    group
-) {
+function createOrbitStreamingMessage(group) {
     const row =
         document.createElement("div");
 
-    row.className =
-        "message-row orbit";
-
-    row.dataset.sender =
-        "orbit";
+    row.className = "message-row orbit";
+    row.dataset.sender = "orbit";
 
     const message =
         document.createElement("div");
 
-    message.className =
-        "message orbit";
-
-    message.dataset.orbitStreamingMessage =
-        "true";
+    message.className = "message orbit";
+    message.dataset.orbitStreamingMessage = "true";
 
     row.appendChild(message);
     group.appendChild(row);
+
+    orbitCurrentResponseRow = row;
 
     return {
         row,
@@ -1140,10 +947,7 @@ function createOrbitStreamingMessage(
     };
 }
 
-function updateOrbitStreamingMessage(
-    element,
-    text
-) {
+function updateOrbitStreamingMessage(element, text) {
     if (!element) {
         return;
     }
@@ -1152,14 +956,57 @@ function updateOrbitStreamingMessage(
         renderMarkdown(text);
 }
 
+function normalizeOrbitMessages(messages) {
+    if (!Array.isArray(messages)) {
+        return [];
+    }
 
-/* =========================================================
-   CONVERSATION RENDERING
-   ========================================================= */
+    return messages
+        .filter(
+            item =>
+                item &&
+                (item.role === "user" ||
+                    item.role === "assistant") &&
+                typeof item.content === "string" &&
+                item.content.trim()
+        )
+        .map(item => ({
+            role: item.role,
+            content: item.content.trim()
+        }))
+        .slice(-ORBIT_HISTORY_LIMIT);
+}
 
-function renderOrbitConversation(
-    messages
-) {
+function limitOrbitContext(messages) {
+    const normalized =
+        normalizeOrbitMessages(messages);
+
+    let total = 0;
+    const result = [];
+
+    for (
+        let index = normalized.length - 1;
+        index >= 0;
+        index--
+    ) {
+        const message = normalized[index];
+
+        if (
+            total +
+                message.content.length >
+            ORBIT_MAX_CONTEXT_CHARS
+        ) {
+            break;
+        }
+
+        result.unshift(message);
+        total += message.content.length;
+    }
+
+    return result;
+}
+
+function renderOrbitConversation(messages) {
     const { chatWindow } =
         getOrbitElements();
 
@@ -1171,7 +1018,7 @@ function renderOrbitConversation(
         .querySelectorAll(
             ".conversation-group, #orbit-typing"
         )
-        .forEach(el => el.remove());
+        .forEach(element => element.remove());
 
     if (
         !Array.isArray(messages) ||
@@ -1183,9 +1030,7 @@ function renderOrbitConversation(
     const group =
         document.createElement("div");
 
-    group.className =
-        "conversation-group";
-
+    group.className = "conversation-group";
     chatWindow.appendChild(group);
 
     messages.forEach(item => {
@@ -1201,9 +1046,9 @@ function renderOrbitConversation(
                 item.content,
                 group
             );
-        } else if (
-            item.role === "assistant"
-        ) {
+        }
+
+        if (item.role === "assistant") {
             renderAIMessage(
                 item.content,
                 group
@@ -1214,75 +1059,6 @@ function renderOrbitConversation(
     scrollOrbitChat("auto");
 }
 
-
-/* =========================================================
-   MESSAGE NORMALIZATION
-   ========================================================= */
-
-function normalizeOrbitMessages(
-    messages
-) {
-    if (!Array.isArray(messages)) {
-        return [];
-    }
-
-    return messages
-        .filter(
-            item =>
-                item &&
-                (
-                    item.role === "user" ||
-                    item.role === "assistant"
-                ) &&
-                typeof item.content === "string" &&
-                item.content.trim()
-        )
-        .map(item => ({
-            role: item.role,
-            content: item.content.trim()
-        }))
-        .slice(-ORBIT_HISTORY_LIMIT);
-}
-
-function limitOrbitContext(
-    messages
-) {
-    const normalized =
-        normalizeOrbitMessages(messages);
-
-    let total = 0;
-    const result = [];
-
-    for (
-        let i = normalized.length - 1;
-        i >= 0;
-        i--
-    ) {
-        const message =
-            normalized[i];
-
-        if (
-            total +
-            message.content.length >
-            ORBIT_MAX_CONTEXT_CHARS
-        ) {
-            break;
-        }
-
-        result.unshift(message);
-
-        total +=
-            message.content.length;
-    }
-
-    return result;
-}
-
-
-/* =========================================================
-   CHAT STORAGE
-   ========================================================= */
-
 function createOrbitChatId() {
     return (
         "chat-" +
@@ -1290,7 +1066,7 @@ function createOrbitChatId() {
         "-" +
         Math.random()
             .toString(36)
-            .substring(2, 10)
+            .slice(2, 10)
     );
 }
 
@@ -1301,9 +1077,7 @@ function saveOrbitChatData(chat) {
 
     try {
         localStorage.setItem(
-            ORBIT_CHAT_PREFIX +
-            String(chat.id),
-
+            ORBIT_CHAT_PREFIX + String(chat.id),
             JSON.stringify({
                 id: chat.id,
                 title: chat.title,
@@ -1313,8 +1087,7 @@ function saveOrbitChatData(chat) {
                         chat.messages
                     ),
                 updatedAt:
-                    chat.updatedAt ||
-                    Date.now()
+                    chat.updatedAt || Date.now()
             })
         );
 
@@ -1324,9 +1097,7 @@ function saveOrbitChatData(chat) {
     }
 }
 
-function loadOrbitChatData(
-    chatId
-) {
+function loadOrbitChatData(chatId) {
     if (!chatId) {
         return null;
     }
@@ -1334,8 +1105,7 @@ function loadOrbitChatData(
     try {
         const saved =
             localStorage.getItem(
-                ORBIT_CHAT_PREFIX +
-                String(chatId)
+                ORBIT_CHAT_PREFIX + String(chatId)
             );
 
         return saved
@@ -1354,9 +1124,7 @@ function getCachedConversations() {
             );
 
         const parsed =
-            saved
-                ? JSON.parse(saved)
-                : [];
+            saved ? JSON.parse(saved) : [];
 
         return Array.isArray(parsed)
             ? parsed
@@ -1373,12 +1141,11 @@ function cacheConversation(chat) {
 
     try {
         const chats =
-            getCachedConversations()
-                .filter(
-                    item =>
-                        String(item.id) !==
-                        String(chat.id)
-                );
+            getCachedConversations().filter(
+                item =>
+                    String(item.id) !==
+                    String(chat.id)
+            );
 
         chats.unshift({
             id: chat.id,
@@ -1396,17 +1163,10 @@ function cacheConversation(chat) {
                 )
             )
         );
-    } catch { }
+    } catch {}
 }
 
-
-/* =========================================================
-   LOAD / DELETE CONVERSATIONS
-   ========================================================= */
-
-function loadConversation(
-    chatId
-) {
+function loadConversation(chatId) {
     const chat =
         loadOrbitChatData(chatId);
 
@@ -1422,10 +1182,12 @@ function loadConversation(
     window.orbitActiveChatId =
         String(chatId);
 
-    localStorage.setItem(
-        ORBIT_ACTIVE_CHAT_KEY,
-        String(chatId)
-    );
+    try {
+        localStorage.setItem(
+            ORBIT_ACTIVE_CHAT_KEY,
+            String(chatId)
+        );
+    } catch {}
 
     renderOrbitConversation(
         orbitConversationHistory
@@ -1436,9 +1198,7 @@ function loadConversation(
     return true;
 }
 
-function deleteConversation(
-    chatId
-) {
+function deleteConversation(chatId) {
     if (!chatId) {
         return false;
     }
@@ -1450,12 +1210,11 @@ function deleteConversation(
         );
 
         const chats =
-            getCachedConversations()
-                .filter(
-                    chat =>
-                        String(chat.id) !==
-                        String(chatId)
-                );
+            getCachedConversations().filter(
+                chat =>
+                    String(chat.id) !==
+                    String(chatId)
+            );
 
         localStorage.setItem(
             ORBIT_RECENT_CHATS_KEY,
@@ -1463,9 +1222,8 @@ function deleteConversation(
         );
 
         if (
-            String(
-                window.orbitActiveChatId
-            ) === String(chatId)
+            String(window.orbitActiveChatId) ===
+            String(chatId)
         ) {
             clearOrbitConversation();
         }
@@ -1478,43 +1236,25 @@ function deleteConversation(
     }
 }
 
-function searchChats(
-    query = ""
-) {
-    const clean =
-        String(query)
-            .toLowerCase()
-            .trim();
+function clearOrbitConversation() {
+    orbitConversationHistory = [];
+    orbitCurrentResponseRow = null;
+    orbitStreamBuffer = "";
+    orbitUserHasStartedTyping = false;
 
-    const chats =
-        getCachedConversations();
+    window.orbitActiveChatId = null;
 
-    if (!clean) {
-        return chats;
-    }
-
-    return chats.filter(chat => {
-        const title =
-            String(
-                chat.title || ""
-            ).toLowerCase();
-
-        const message =
-            String(
-                chat.message || ""
-            ).toLowerCase();
-
-        return (
-            title.includes(clean) ||
-            message.includes(clean)
+    try {
+        localStorage.removeItem(
+            ORBIT_ACTIVE_CHAT_KEY
         );
-    });
+    } catch {}
+
+    renderOrbitConversation([]);
+    showOrbitQuickPrompts();
+    updateOrbitTypingState();
+    setOrbitResponseStatus("Ready");
 }
-
-
-/* =========================================================
-   SIDEBAR HISTORY
-   ========================================================= */
 
 function refreshRecentChats() {
     const container =
@@ -1542,7 +1282,6 @@ function refreshRecentChats() {
             "No recent chats";
 
         container.appendChild(empty);
-
         return;
     }
 
@@ -1551,7 +1290,6 @@ function refreshRecentChats() {
             document.createElement("button");
 
         item.type = "button";
-
         item.className =
             "chat-history-item";
 
@@ -1559,59 +1297,56 @@ function refreshRecentChats() {
             chat.id;
 
         item.textContent =
-            chat.title ||
-            "New chat";
+            chat.title || "New chat";
 
         item.addEventListener(
             "click",
-            () => {
-                loadConversation(
-                    chat.id
-                );
-            }
+            () => loadConversation(chat.id)
         );
 
         container.appendChild(item);
     });
 }
 
+function searchChats(query = "") {
+    const clean =
+        String(query)
+            .toLowerCase()
+            .trim();
 
-/* =========================================================
-   CLEAR CURRENT CHAT
-   ========================================================= */
+    const chats =
+        getCachedConversations();
 
-function clearOrbitConversation() {
-    orbitConversationHistory = [];
+    if (!clean) {
+        return chats;
+    }
 
-    window.orbitActiveChatId = null;
+    return chats.filter(chat => {
+        const title =
+            String(chat.title || "")
+                .toLowerCase();
 
-    localStorage.removeItem(
-        ORBIT_ACTIVE_CHAT_KEY
-    );
+        const message =
+            String(chat.message || "")
+                .toLowerCase();
 
-    renderOrbitConversation([]);
-
-    showOrbitQuickPrompts();
-
-    updateOrbitTypingState();
+        return (
+            title.includes(clean) ||
+            message.includes(clean)
+        );
+    });
 }
-
-
-/* =========================================================
-   API REQUEST
-   ========================================================= */
 
 async function apiRequest(
     body,
-    signal
+    signal,
+    apiUrl = ORBIT_API_URL
 ) {
     const token =
         await getOrbitAuthToken();
 
     const headers = {
-        "Content-Type":
-            "application/json",
-
+        "Content-Type": "application/json",
         Accept:
             "text/event-stream, application/json"
     };
@@ -1621,22 +1356,34 @@ async function apiRequest(
             `Bearer ${token}`;
     }
 
-    return fetch(
-        ORBIT_API_URL,
-        {
-            method: "POST",
-            headers,
-            body: JSON.stringify(body),
-            signal,
-            cache: "no-store"
-        }
-    );
+    return fetch(apiUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+        signal,
+        cache: "no-store",
+        keepalive: false
+    });
 }
 
+function extractOrbitToken(data) {
+    if (!data) {
+        return "";
+    }
 
-/* =========================================================
-   STREAM RESPONSE READER
-   ========================================================= */
+    if (typeof data === "string") {
+        return data;
+    }
+
+    return String(
+        data.token ??
+        data.content ??
+        data.text ??
+        data.reply ??
+        data.response ??
+        ""
+    );
+}
 
 async function readOrbitResponse(
     response,
@@ -1647,9 +1394,6 @@ async function readOrbitResponse(
             "content-type"
         ) || "";
 
-    /*
-     * Normal JSON response.
-     */
     if (
         contentType.includes(
             "application/json"
@@ -1666,17 +1410,12 @@ async function readOrbitResponse(
             "";
 
         if (reply) {
-            onToken(
-                String(reply)
-            );
+            onToken(String(reply));
         }
 
         return String(reply);
     }
 
-    /*
-     * No streaming body.
-     */
     if (!response.body) {
         const text =
             await response.text();
@@ -1698,10 +1437,8 @@ async function readOrbitResponse(
     let fullText = "";
 
     while (true) {
-        const {
-            done,
-            value
-        } = await reader.read();
+        const { done, value } =
+            await reader.read();
 
         if (done) {
             break;
@@ -1709,9 +1446,7 @@ async function readOrbitResponse(
 
         buffer += decoder.decode(
             value,
-            {
-                stream: true
-            }
+            { stream: true }
         );
 
         const events =
@@ -1724,9 +1459,7 @@ async function readOrbitResponse(
 
         for (const event of events) {
             const lines =
-                event.split(
-                    /\r?\n/
-                );
+                event.split(/\r?\n/);
 
             for (const line of lines) {
                 if (
@@ -1750,15 +1483,10 @@ async function readOrbitResponse(
                 let token = "";
 
                 try {
-                    const parsed =
-                        JSON.parse(data);
-
                     token =
-                        parsed?.token ??
-                        parsed?.content ??
-                        parsed?.text ??
-                        parsed?.reply ??
-                        "";
+                        extractOrbitToken(
+                            JSON.parse(data)
+                        );
                 } catch {
                     token = data;
                 }
@@ -1767,27 +1495,18 @@ async function readOrbitResponse(
                     continue;
                 }
 
-                token =
-                    String(token);
-
+                token = String(token);
                 fullText += token;
-
                 onToken(token);
             }
         }
     }
 
-    /*
-     * Process any final incomplete event.
-     */
-    buffer +=
-        decoder.decode();
+    buffer += decoder.decode();
 
     if (buffer.trim()) {
         const lines =
-            buffer.split(
-                /\r?\n/
-            );
+            buffer.split(/\r?\n/);
 
         for (const line of lines) {
             if (
@@ -1811,25 +1530,17 @@ async function readOrbitResponse(
             let token = "";
 
             try {
-                const parsed =
-                    JSON.parse(data);
-
                 token =
-                    parsed?.token ??
-                    parsed?.content ??
-                    parsed?.text ??
-                    parsed?.reply ??
-                    "";
+                    extractOrbitToken(
+                        JSON.parse(data)
+                    );
             } catch {
                 token = data;
             }
 
             if (token) {
-                token =
-                    String(token);
-
+                token = String(token);
                 fullText += token;
-
                 onToken(token);
             }
         }
@@ -1838,35 +1549,116 @@ async function readOrbitResponse(
     return fullText;
 }
 
-
-/* =========================================================
-   STREAM RENDERING
-   ========================================================= */
-
 function scheduleOrbitStreamRender(
     element,
     getText
 ) {
+    orbitStreamRenderElement = element;
+
     if (orbitStreamRenderTimer) {
         return;
     }
 
     orbitStreamRenderTimer =
         requestAnimationFrame(() => {
-            orbitStreamRenderTimer =
-                null;
+            orbitStreamRenderTimer = null;
+
+            if (
+                orbitStreamRenderElement !==
+                element
+            ) {
+                return;
+            }
 
             updateOrbitStreamingMessage(
                 element,
                 getText()
             );
+
+            scrollOrbitChat("auto");
         });
 }
 
+function flushOrbitStreamRender(
+    element,
+    text
+) {
+    if (orbitStreamRenderTimer) {
+        cancelAnimationFrame(
+            orbitStreamRenderTimer
+        );
 
-/* =========================================================
-   SEND MESSAGE
-   ========================================================= */
+        orbitStreamRenderTimer = null;
+    }
+
+    orbitStreamRenderElement = null;
+
+    updateOrbitStreamingMessage(
+        element,
+        text
+    );
+}
+
+function getOrbitSettings() {
+    const settings =
+        window.OrbitSettings ||
+        window.orbitSettings;
+
+    return settings &&
+        typeof settings === "object"
+        ? settings
+        : {};
+}
+
+function buildOrbitRequestBody(message) {
+    const settings =
+        getOrbitSettings();
+
+    const history =
+        limitOrbitContext(
+            orbitConversationHistory
+        );
+
+    const body = {
+        message,
+        history,
+        memory:
+            getOrbitMemoryContext(),
+        userId:
+            ORBIT_USER_ID,
+        systemPrompt:
+            ORBIT_SYSTEM_PROMPT,
+        max_tokens:
+            ORBIT_MAX_TOKENS,
+        stream: true
+    };
+
+    if (
+        typeof settings.model === "string" &&
+        settings.model.trim()
+    ) {
+        body.model =
+            settings.model.trim();
+    }
+
+    if (
+        typeof settings.temperature ===
+        "number"
+    ) {
+        body.temperature =
+            settings.temperature;
+    }
+
+    if (
+        typeof settings.maxTokens ===
+        "number"
+    ) {
+        body.max_tokens =
+            settings.maxTokens;
+    }
+
+    return body;
+}
 
 async function orbitSendMessage(
     suppliedMessage = null
@@ -1887,11 +1679,11 @@ async function orbitSendMessage(
     const message =
         suppliedMessage !== null
             ? String(
-                suppliedMessage
-            ).trim()
+                  suppliedMessage
+              ).trim()
             : String(
-                commandInput.value || ""
-            ).trim();
+                  commandInput.value || ""
+              ).trim();
 
     if (!validateMessage(message)) {
         updateOrbitTypingState();
@@ -1900,27 +1692,25 @@ async function orbitSendMessage(
 
     await syncOrbitAuthenticatedUser();
 
-    /*
-     * Create a chat only when the user actually
-     * sends a message.
-     */
     if (!window.orbitActiveChatId) {
         window.orbitActiveChatId =
             createOrbitChatId();
 
-        localStorage.setItem(
-            ORBIT_ACTIVE_CHAT_KEY,
-            window.orbitActiveChatId
-        );
+        try {
+            localStorage.setItem(
+                ORBIT_ACTIVE_CHAT_KEY,
+                window.orbitActiveChatId
+            );
+        } catch {}
     }
 
     detectOrbitMemory(message);
 
     clearOrbitInput();
-
     hideOrbitQuickPrompts();
 
     orbitIsWaiting = true;
+    orbitUserHasStartedTyping = false;
 
     commandInput.disabled = true;
 
@@ -1930,11 +1720,8 @@ async function orbitSendMessage(
 
     if (!chatWindow) {
         orbitIsWaiting = false;
-
         commandInput.disabled = false;
-
         updateOrbitTypingState();
-
         return false;
     }
 
@@ -1953,9 +1740,6 @@ async function orbitSendMessage(
         chatWindow.appendChild(group);
     }
 
-    /*
-     * Render user's message immediately.
-     */
     renderUserMessage(
         message,
         group
@@ -1971,13 +1755,9 @@ async function orbitSendMessage(
             orbitConversationHistory
         );
 
-    /*
-     * Keep the user message visible before
-     * Orbit begins responding.
-     */
     scrollOrbitChat("smooth");
-
     showOrbitTypingIndicator();
+    startOrbitResponseTimer();
 
     const controller =
         new AbortController();
@@ -1989,35 +1769,35 @@ async function orbitSendMessage(
         );
 
     try {
-        const contextHistory =
-            limitOrbitContext(
-                orbitConversationHistory
+        const body =
+            buildOrbitRequestBody(
+                message
             );
 
-        const response =
-            await apiRequest(
-                {
-                    message,
+        let response;
 
-                    history:
-                        contextHistory,
+        try {
+            response =
+                await apiRequest(
+                    body,
+                    controller.signal,
+                    ORBIT_API_URL
+                );
+        } catch (primaryError) {
+            if (
+                !ORBIT_FALLBACK_API_URL ||
+                controller.signal.aborted
+            ) {
+                throw primaryError;
+            }
 
-                    memory:
-                        getOrbitMemoryContext(),
-
-                    userId:
-                        ORBIT_USER_ID,
-
-                    systemPrompt:
-                        ORBIT_SYSTEM_PROMPT,
-
-                    max_tokens:
-                        ORBIT_MAX_TOKENS,
-
-                    stream: true
-                },
-                controller.signal
-            );
+            response =
+                await apiRequest(
+                    body,
+                    controller.signal,
+                    ORBIT_FALLBACK_API_URL
+                );
+        }
 
         if (!response.ok) {
             let errorMessage =
@@ -2031,7 +1811,7 @@ async function orbitSendMessage(
                     errorData?.error ||
                     errorData?.message ||
                     errorMessage;
-            } catch { }
+            } catch {}
 
             throw new Error(
                 errorMessage
@@ -2045,12 +1825,7 @@ async function orbitSendMessage(
                 group
             );
 
-        /*
-         * IMPORTANT:
-         * Put the user's view at the beginning
-         * of Orbit's response.
-         */
-        scrollToBeginningOfOrbitResponse(
+        scrollToOrbitResponse(
             streaming.row,
             "smooth"
         );
@@ -2061,7 +1836,8 @@ async function orbitSendMessage(
             await readOrbitResponse(
                 response,
                 token => {
-                    orbitStreamBuffer += token;
+                    orbitStreamBuffer +=
+                        token;
 
                     scheduleOrbitStreamRender(
                         streaming.message,
@@ -2071,45 +1847,25 @@ async function orbitSendMessage(
                 }
             );
 
-        /*
-         * Make sure the last scheduled render
-         * completes before finalizing the message.
-         */
-        if (orbitStreamRenderTimer) {
-            cancelAnimationFrame(
-                orbitStreamRenderTimer
-            );
-
-            orbitStreamRenderTimer =
-                null;
-        }
-
-        /*
-         * Use whichever valid response exists.
-         */
-        const receivedReply =
+        const finalReply =
             String(
                 reply ||
                 orbitStreamBuffer ||
                 ""
             ).trim();
 
-        /*
-         * Only use the fallback if the server
-         * genuinely returned no content.
-         */
-        const finalReply =
-            receivedReply ||
+        const responseText =
+            finalReply ||
             "I received the request, but the server returned an empty response.";
 
-        updateOrbitStreamingMessage(
+        flushOrbitStreamRender(
             streaming.message,
-            finalReply
+            responseText
         );
 
         orbitConversationHistory.push({
             role: "assistant",
-            content: finalReply
+            content: responseText
         });
 
         orbitConversationHistory =
@@ -2124,7 +1880,7 @@ async function orbitSendMessage(
             title:
                 message.length > 60
                     ? message.slice(0, 60) +
-                    "..."
+                      "..."
                     : message,
 
             message,
@@ -2136,9 +1892,6 @@ async function orbitSendMessage(
                 Date.now()
         };
 
-        /*
-         * Save complete conversation to history.
-         */
         saveOrbitChatData(
             chatData
         );
@@ -2149,61 +1902,71 @@ async function orbitSendMessage(
 
         refreshRecentChats();
 
-        /*
-         * Return the viewport to the beginning
-         * of Orbit's response after rendering.
-         */
-        scrollToBeginningOfOrbitResponse(
+        orbitCurrentResponseRow =
+            streaming.row;
+
+        scrollToOrbitResponse(
             streaming.row,
             "smooth"
         );
 
-        return true;
+        finishOrbitResponseTimer();
 
+        return true;
     } catch (error) {
         hideOrbitTypingIndicator();
 
         const errorMessage =
             error?.name === "AbortError"
                 ? "The request took too long and was cancelled. Please try again."
-                : `I couldn't complete that request. ${error?.message ||
-                "Unknown error"
-                }`;
+                : `I couldn't complete that request. ${
+                      error?.message ||
+                      "Unknown error"
+                  }`;
 
         renderAIMessage(
             errorMessage,
             group
         );
 
-        return false;
+        setOrbitResponseStatus(
+            "Error"
+        );
 
+        return false;
     } finally {
         clearTimeout(timeoutId);
 
         orbitIsWaiting = false;
-
         commandInput.disabled = false;
 
         orbitStreamBuffer = "";
+        orbitStreamRenderElement = null;
+
+        if (orbitStreamRenderTimer) {
+            cancelAnimationFrame(
+                orbitStreamRenderTimer
+            );
+
+            orbitStreamRenderTimer = null;
+        }
 
         if (sendButton) {
             sendButton.disabled = false;
         }
 
         updateOrbitTypingState();
-
         focusOrbitInput();
+
+        if (!orbitResponseStartedAt) {
+            setOrbitResponseStatus(
+                "Ready"
+            );
+        }
     }
 }
 
-
-/* =========================================================
-   QUICK PROMPT HANDLER
-   ========================================================= */
-
-function handleOrbitQuickPrompt(
-    event
-) {
+function handleOrbitQuickPrompt(event) {
     const button =
         event.target.closest(
             "[data-prompt], .quick-prompt, .quick-prompt-btn"
@@ -2227,21 +1990,90 @@ function handleOrbitQuickPrompt(
     );
 }
 
+async function handleOrbitCopyCode(event) {
+    const button =
+        event.target.closest(
+            "[data-orbit-copy-code]"
+        );
 
-/* =========================================================
-   EVENT LISTENERS
-   ========================================================= */
+    if (!button) {
+        return;
+    }
 
-function bindEventListeners() {
+    const wrapper =
+        button.closest(
+            "[data-orbit-code-block]"
+        );
+
+    const code =
+        wrapper?.querySelector(
+            "pre code"
+        )?.textContent || "";
+
+    if (!code) {
+        return;
+    }
+
+    const original =
+        button.textContent;
+
+    try {
+        if (
+            navigator.clipboard &&
+            typeof navigator.clipboard.writeText ===
+                "function"
+        ) {
+            await navigator.clipboard.writeText(
+                code
+            );
+        } else {
+            const textarea =
+                document.createElement(
+                    "textarea"
+                );
+
+            textarea.value = code;
+            textarea.style.position =
+                "fixed";
+            textarea.style.opacity = "0";
+
+            document.body.appendChild(
+                textarea
+            );
+
+            textarea.select();
+            document.execCommand(
+                "copy"
+            );
+
+            textarea.remove();
+        }
+
+        button.textContent =
+            "Copied";
+
+        setTimeout(() => {
+            button.textContent =
+                original;
+        }, 1200);
+    } catch {
+        button.textContent =
+            "Copy failed";
+
+        setTimeout(() => {
+            button.textContent =
+                original;
+        }, 1200);
+    }
+}
+
+function bindOrbitEvents() {
     const {
         commandForm,
         sendButton,
         commandInput
     } = getOrbitElements();
 
-    /*
-     * FORM SUBMISSION
-     */
     if (commandForm) {
         commandForm.addEventListener(
             "submit",
@@ -2255,9 +2087,6 @@ function bindEventListeners() {
         );
     }
 
-    /*
-     * SEND BUTTON
-     */
     if (sendButton) {
         sendButton.addEventListener(
             "click",
@@ -2271,18 +2100,10 @@ function bindEventListeners() {
         );
     }
 
-    /*
-     * KEYBOARD HANDLING
-     */
     if (commandInput) {
         commandInput.addEventListener(
             "keydown",
             event => {
-                /*
-                 * ENTER = SEND
-                 *
-                 * SHIFT + ENTER = NEW LINE
-                 */
                 if (
                     event.key === "Enter" &&
                     !event.shiftKey &&
@@ -2297,274 +2118,61 @@ function bindEventListeners() {
             }
         );
 
-        /*
-         * Detect every keyboard/input change.
-         *
-         * This catches:
-         * - normal keyboard typing
-         * - paste
-         * - autofill
-         * - mobile keyboard
-         * - drag/drop text
-         * - programmatic input events
-         */
         commandInput.addEventListener(
             "input",
-            () => {
-                updateOrbitTypingState();
-            }
+            updateOrbitTypingState
         );
 
-        /*
-         * Keyboard typing detection.
-         */
-        commandInput.addEventListener(
-            "keyup",
-            () => {
-                updateOrbitTypingState();
-            }
-        );
-
-        /*
-         * Pasting text.
-         */
-        commandInput.addEventListener(
-            "paste",
-            () => {
-                requestAnimationFrame(
-                    updateOrbitTypingState
-                );
-            }
-        );
-
-        /*
-         * Cut/delete.
-         */
-        commandInput.addEventListener(
-            "cut",
-            () => {
-                requestAnimationFrame(
-                    updateOrbitTypingState
-                );
-            }
-        );
-
-        /*
-         * Focus.
-         */
         commandInput.addEventListener(
             "focus",
-            () => {
-                updateOrbitTypingState();
-            }
+            updateOrbitTypingState
         );
 
-        /*
-         * Initial state.
-         */
         updateOrbitTypingState();
     }
 
-
-    /*
-     * QUICK PROMPTS
-     */
     document.addEventListener(
         "click",
         handleOrbitQuickPrompt
     );
 
-
-    /*
-     * COPY CODE BUTTONS
-     */
     document.addEventListener(
         "click",
-        event => {
-            const button =
-                event.target.closest(
-                    "[data-orbit-copy-code]"
-                );
-
-            if (!button) {
-                return;
-            }
-
-            const wrapper =
-                button.closest(
-                    "[data-orbit-code-block]"
-                );
-
-            const code =
-                wrapper?.querySelector(
-                    "pre code"
-                )?.textContent || "";
-
-            if (!code) {
-                return;
-            }
-
-            navigator.clipboard
-                ?.writeText(code)
-                .then(() => {
-                    const original =
-                        button.textContent;
-
-                    button.textContent =
-                        "Copied";
-
-                    setTimeout(() => {
-                        button.textContent =
-                            original;
-                    }, 1200);
-                })
-                .catch(() => {
-                    button.textContent =
-                        "Copy failed";
-
-                    setTimeout(() => {
-                        button.textContent =
-                            "Copy";
-                    }, 1200);
-                });
-        }
-    );
-
-
-    /*
-     * CHAT SEARCH
-     */
-    document.addEventListener(
-        "input",
-        event => {
-            if (
-                event.target.matches(
-                    ".chat-search-input, [data-chat-search]"
-                )
-            ) {
-                const results =
-                    searchChats(
-                        event.target.value
-                    );
-
-                renderChatSearchResults(
-                    results
-                );
-            }
-        }
+        handleOrbitCopyCode
     );
 }
 
-
-/* =========================================================
-   SEARCH RESULTS
-   ========================================================= */
-
-function renderChatSearchResults(
-    chats
-) {
-    const container =
-        document.querySelector(
-            ".chat-history-list"
-        );
-
-    if (!container) {
-        return;
-    }
-
-    container.innerHTML = "";
-
-    chats.forEach(chat => {
-        const item =
-            document.createElement(
-                "button"
-            );
-
-        item.type = "button";
-
-        item.className =
-            "chat-history-item";
-
-        item.dataset.chatId =
-            chat.id;
-
-        item.textContent =
-            chat.title ||
-            "New chat";
-
-        item.addEventListener(
-            "click",
-            () => {
-                loadConversation(
-                    chat.id
-                );
-            }
-        );
-
-        container.appendChild(item);
-    });
-}
-
-
-/* =========================================================
-   FRESH PAGE INITIALIZATION
-   ========================================================= */
-
-async function initializeOrbit() {
+function initializeOrbit() {
     if (orbitInitialized) {
         return;
     }
 
     loadOrbitMemory();
-
-    await syncOrbitAuthenticatedUser();
-
-    bindEventListeners();
-
+    bindOrbitEvents();
     refreshRecentChats();
 
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT automatically restore the previous
-     * conversation into the main chat window.
-     *
-     * This means:
-     *
-     * Refresh page
-     *      ↓
-     * Main AI area is empty
-     *      ↓
-     * Sidebar history remains
-     *      ↓
-     * User clicks a history item if they want
-     * to reopen an old conversation.
-     */
     orbitConversationHistory = [];
+    orbitCurrentResponseRow = null;
 
     window.orbitActiveChatId = null;
 
-    localStorage.removeItem(
-        ORBIT_ACTIVE_CHAT_KEY
-    );
+    try {
+        localStorage.removeItem(
+            ORBIT_ACTIVE_CHAT_KEY
+        );
+    } catch {}
 
     renderOrbitConversation([]);
-
     showOrbitQuickPrompts();
-
     updateOrbitTypingState();
+    setOrbitResponseStatus("Ready");
 
     orbitInitialized = true;
 
-    console.log(
-        "Orbit AI initialized successfully."
+    window.dispatchEvent(
+        new CustomEvent("orbit:ready")
     );
 }
-
-
-/* =========================================================
-   PUBLIC ORBIT API
-   ========================================================= */
 
 window.OrbitAI = {
     initialize:
@@ -2594,14 +2202,21 @@ window.OrbitAI = {
     getAuthSession:
         getOrbitAuthSession,
 
+    getAuthToken:
+        getOrbitAuthToken,
+
     logoutUser:
-        logoutOrbitUser
+        logoutOrbitUser,
+
+    getMemory:
+        () => [...orbitUserMemory],
+
+    remember:
+        rememberOrbitDetail,
+
+    getSettings:
+        getOrbitSettings
 };
-
-
-/* =========================================================
-   AUTO INITIALIZATION
-   ========================================================= */
 
 if (
     document.readyState ===
@@ -2610,9 +2225,7 @@ if (
     document.addEventListener(
         "DOMContentLoaded",
         initializeOrbit,
-        {
-            once: true
-        }
+        { once: true }
     );
 } else {
     initializeOrbit();

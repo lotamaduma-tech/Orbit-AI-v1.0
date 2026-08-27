@@ -1,1203 +1,1059 @@
-/* ===========================================================
-   ORBIT AI — TOOLS & ATTACHMENTS
-   ===========================================================
-
-   Handles:
-
-   - Orbit tools button
-   - Image uploads
-   - File uploads
-   - Multiple attachments
-   - Attachment previews
-   - Removing attachments
-   - File validation
-   - Image validation
-   - Attachment state
-
-   IMPORTANT:
-
-   This file handles the FRONTEND attachment system.
-
-   The backend/API must later be updated to actually
-   process image and document contents.
-
-   =========================================================== */
-
 "use strict";
 
-
-/* ===========================================================
-   CONFIGURATION
-   =========================================================== */
-
-/*
-   Maximum number of files that can be attached
-   to one message.
-*/
-
-const ORBIT_MAX_ATTACHMENTS = 5;
-
-
-/*
-   Maximum size for a single attachment.
-
-   20 MB is a reasonable frontend limit.
-*/
-
-const ORBIT_MAX_FILE_SIZE = 20 * 1024 * 1024;
-
-
-/*
-   Supported image types.
-*/
-
-const ORBIT_IMAGE_TYPES = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-    "image/svg+xml",
-];
-
-
-/*
-   Supported document/file types.
-
-   We can expand this later when the backend
-   supports additional formats.
-*/
-
-const ORBIT_DOCUMENT_TYPES = [
-    "application/pdf",
-
-    "text/plain",
-    "text/csv",
-    "text/html",
-    "text/css",
-    "text/javascript",
-    "application/javascript",
-    "application/json",
-
-    "application/rtf",
-
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-];
-
-
-/*
-   All supported MIME types.
-*/
-
-const ORBIT_ALLOWED_FILE_TYPES = [
-    ...ORBIT_IMAGE_TYPES,
-    ...ORBIT_DOCUMENT_TYPES,
-];
-
-
-/* ===========================================================
-   STATE
-   =========================================================== */
-
-let orbitAttachments = [];
-
-
-/* ===========================================================
-   GET ELEMENTS
-   =========================================================== */
-
-function getOrbitToolsElements() {
-
-    return {
-        toolsButton: document.getElementById("orbit-tools-btn"),
-        commandBox: document.querySelector(".command-box"),
-    };
-
-}
-
-
-/* ===========================================================
-   CREATE FILE INPUT
-   =========================================================== */
-
-function createOrbitFileInput() {
-
-    const existingInput =
-        document.getElementById("orbit-file-input");
-
-    if (existingInput) {
-        return existingInput;
-    }
-
-
-    const input = document.createElement("input");
-
-    input.type = "file";
-
-    input.id = "orbit-file-input";
-
-    input.multiple = true;
-
-    input.hidden = true;
-
-    /*
-       Allow common images and documents.
-    */
-
-    input.accept = [
-        "image/*",
-
-        ".pdf",
-        ".txt",
-        ".csv",
-        ".html",
-        ".css",
-        ".js",
-        ".json",
-        ".rtf",
-        ".doc",
-        ".docx",
-        ".xls",
-        ".xlsx",
-        ".ppt",
-        ".pptx",
-    ].join(",");
-
-
-    document.body.appendChild(input);
-
-    return input;
-
-}
-
-
-/* ===========================================================
-   VALIDATE FILE
-   =========================================================== */
-
-function validateOrbitFile(file) {
-
-    if (!file) {
-        return {
-            valid: false,
-            reason: "Invalid file.",
-        };
-    }
-
-
-    /*
-       Check file size.
-    */
-
-    if (file.size > ORBIT_MAX_FILE_SIZE) {
-
-        return {
-            valid: false,
-            reason: `"${file.name}" is larger than 20 MB.`,
-        };
-
-    }
-
-
-    /*
-       Check MIME type.
-    */
-
-    if (
-        file.type &&
-        ORBIT_ALLOWED_FILE_TYPES.includes(file.type)
-    ) {
-
-        return {
-            valid: true,
-            reason: "",
-        };
-
-    }
-
-
-    /*
-       Some browsers don't provide a MIME type
-       for certain files.
-  
-       Fall back to extension checking.
-    */
-
-    const extension =
-        file.name
-            .split(".")
-            .pop()
-            ?.toLowerCase();
-
-
-    const allowedExtensions = [
-        "jpg",
-        "jpeg",
-        "png",
-        "webp",
-        "gif",
-        "svg",
-
-        "pdf",
-        "txt",
-        "csv",
-        "html",
-        "css",
-        "js",
-        "json",
-        "rtf",
-
-        "doc",
-        "docx",
-        "xls",
-        "xlsx",
-        "ppt",
-        "pptx",
-    ];
-
-
-    if (extension && allowedExtensions.includes(extension)) {
-
-        return {
-            valid: true,
-            reason: "",
-        };
-
-    }
-
-
-    return {
-        valid: false,
-        reason: `"${file.name}" is not a supported file type.`,
-    };
-
-}
-
-
-/* ===========================================================
-   CHECK DUPLICATE FILE
-   =========================================================== */
-
-function orbitAttachmentExists(file) {
-
-    return orbitAttachments.some((attachment) => {
-
-        return (
-            attachment.name === file.name &&
-            attachment.size === file.size &&
-            attachment.lastModified === file.lastModified
-        );
-
-    });
-
-}
-
-
-/* ===========================================================
-   ADD ATTACHMENT
-   =========================================================== */
-
-function addOrbitAttachment(file) {
-
-    if (!file) {
-        return false;
-    }
-
-
-    /*
-       Maximum attachment count.
-    */
-
-    if (
-        orbitAttachments.length >=
-        ORBIT_MAX_ATTACHMENTS
-    ) {
-
-        showOrbitToolsNotice(
-            `You can attach up to ${ORBIT_MAX_ATTACHMENTS} files.`
-        );
-
-        return false;
-
-    }
-
-
-    /*
-       Validate file.
-    */
-
-    const validation =
-        validateOrbitFile(file);
-
-
-    if (!validation.valid) {
-
-        showOrbitToolsNotice(
-            validation.reason
-        );
-
-        return false;
-
-    }
-
-
-    /*
-       Prevent duplicates.
-    */
-
-    if (orbitAttachmentExists(file)) {
-
-        showOrbitToolsNotice(
-            `"${file.name}" is already attached.`
-        );
-
-        return false;
-
-    }
-
-
-    /*
-       Create attachment object.
-    */
-
-    const attachment = {
-
-        id:
-            "orbit-attachment-" +
-            Date.now() +
-            "-" +
-            Math.random()
-                .toString(36)
-                .substring(2, 9),
-
-        file: file,
-
-        name: file.name,
-
-        size: file.size,
-
-        type: file.type,
-
-        lastModified: file.lastModified,
-
-        isImage:
-            file.type.startsWith("image/"),
-
-        previewUrl:
-            file.type.startsWith("image/")
-                ? URL.createObjectURL(file)
-                : null,
-
-    };
-
-
-    orbitAttachments.push(attachment);
-
-
-    renderOrbitAttachments();
-
-
-    return true;
-
-}
-
-
-/* ===========================================================
-   REMOVE ATTACHMENT
-   =========================================================== */
-
-function removeOrbitAttachment(id) {
-
-    const index =
-        orbitAttachments.findIndex(
-            (attachment) =>
-                attachment.id === id
-        );
-
-
-    if (index === -1) {
+(() => {
+    const toolsButton = document.getElementById("orbit-tools-btn");
+    const commandArea = document.querySelector(".command-area");
+    const commandBox = document.querySelector(".command-box");
+    const commandInput = document.getElementById("command-input");
+
+    if (!toolsButton || !commandArea || !commandBox || !commandInput) {
         return;
     }
 
+    const MAX_FILES = 10;
 
-    const attachment =
-        orbitAttachments[index];
+    let toolsMenu = null;
+    let fileInput = null;
+    let imageInput = null;
 
+    let selectedFiles = [];
 
-    /*
-       Release image preview memory.
-    */
+    function createElement(tag, className, text = "") {
+        const element = document.createElement(tag);
 
-    if (attachment.previewUrl) {
+        if (className) {
+            element.className = className;
+        }
 
-        URL.revokeObjectURL(
-            attachment.previewUrl
-        );
+        if (text) {
+            element.textContent = text;
+        }
 
+        return element;
     }
 
+    function createFileInput(accept, multiple, handler) {
+        const input = document.createElement("input");
 
-    orbitAttachments.splice(
-        index,
-        1
-    );
+        input.type = "file";
+        input.accept = accept;
+        input.multiple = multiple;
+        input.tabIndex = -1;
+        input.setAttribute("aria-hidden", "true");
 
+        Object.assign(input.style, {
+            position: "fixed",
+            width: "1px",
+            height: "1px",
+            opacity: "0",
+            pointerEvents: "none"
+        });
 
-    renderOrbitAttachments();
+        input.addEventListener("change", handler);
 
-}
+        document.body.appendChild(input);
 
+        return input;
+    }
 
-/* ===========================================================
-   CLEAR ATTACHMENTS
-   =========================================================== */
+    function createAttachmentArea() {
+        let attachmentArea =
+            document.getElementById("orbit-attachments");
 
-function clearOrbitAttachments() {
-
-    orbitAttachments.forEach(
-        (attachment) => {
-
-            if (attachment.previewUrl) {
-
-                URL.revokeObjectURL(
-                    attachment.previewUrl
+        if (attachmentArea) {
+            if (attachmentArea.parentElement !== commandBox) {
+                commandBox.insertBefore(
+                    attachmentArea,
+                    commandInput
                 );
-
             }
 
+            return attachmentArea;
         }
-    );
 
-
-    orbitAttachments = [];
-
-
-    renderOrbitAttachments();
-
-}
-
-
-/* ===========================================================
-   FORMAT FILE SIZE
-   =========================================================== */
-
-function formatOrbitFileSize(bytes) {
-
-    if (!bytes) {
-        return "0 B";
-    }
-
-
-    const units = [
-        "B",
-        "KB",
-        "MB",
-        "GB",
-    ];
-
-
-    const index =
-        Math.floor(
-            Math.log(bytes) /
-            Math.log(1024)
-        );
-
-
-    const size =
-        bytes /
-        Math.pow(1024, index);
-
-
-    return (
-        size.toFixed(
-            index === 0 ? 0 : 1
-        ) +
-        " " +
-        units[index]
-    );
-
-}
-
-
-/* ===========================================================
-   GET FILE ICON
-   =========================================================== */
-
-function getOrbitFileIcon(file) {
-
-    if (!file) {
-        return "fa-file";
-    }
-
-
-    if (file.type === "application/pdf") {
-        return "fa-file-pdf";
-    }
-
-
-    if (
-        file.type.includes("word") ||
-        file.name.endsWith(".doc") ||
-        file.name.endsWith(".docx")
-    ) {
-
-        return "fa-file-word";
-
-    }
-
-
-    if (
-        file.type.includes("sheet") ||
-        file.name.endsWith(".xls") ||
-        file.name.endsWith(".xlsx")
-    ) {
-
-        return "fa-file-excel";
-
-    }
-
-
-    if (
-        file.type.includes("presentation") ||
-        file.name.endsWith(".ppt") ||
-        file.name.endsWith(".pptx")
-    ) {
-
-        return "fa-file-powerpoint";
-
-    }
-
-
-    if (
-        file.type === "text/plain" ||
-        file.name.endsWith(".txt")
-    ) {
-
-        return "fa-file-lines";
-
-    }
-
-
-    if (
-        file.name.endsWith(".js") ||
-        file.name.endsWith(".css") ||
-        file.name.endsWith(".html") ||
-        file.name.endsWith(".json")
-    ) {
-
-        return "fa-file-code";
-
-    }
-
-
-    return "fa-file";
-
-}
-
-
-/* ===========================================================
-   RENDER ATTACHMENTS
-   =========================================================== */
-
-function renderOrbitAttachments() {
-
-    const {
-        commandBox,
-    } = getOrbitToolsElements();
-
-
-    if (!commandBox) {
-        return;
-    }
-
-
-    let container =
-        document.getElementById(
+        attachmentArea = createElement(
+            "div",
             "orbit-attachments"
         );
 
+        attachmentArea.id = "orbit-attachments";
+        attachmentArea.hidden = true;
 
-    /*
-       Create attachment container
-       when it doesn't exist.
-    */
-
-    if (!container) {
-
-        container =
-            document.createElement("div");
-
-        container.id =
-            "orbit-attachments";
-
-        container.className =
-            "orbit-attachments";
-
-
-        commandBox.parentElement.insertBefore(
-            container,
-            commandBox
+        attachmentArea.setAttribute(
+            "aria-label",
+            "Attached files"
         );
 
+        commandBox.insertBefore(
+            attachmentArea,
+            commandInput
+        );
+
+        return attachmentArea;
     }
 
+    function createToolOption(icon, title, description) {
+        const button = createElement(
+            "button",
+            "orbit-tool-option"
+        );
 
-    /*
-       Nothing attached.
-    */
+        button.type = "button";
+        button.setAttribute("role", "menuitem");
 
-    if (orbitAttachments.length === 0) {
+        const iconWrapper = createElement(
+            "span",
+            "orbit-tool-icon"
+        );
 
-        container.innerHTML = "";
+        iconWrapper.appendChild(
+            createElement("i", icon)
+        );
 
-        container.hidden = true;
+        const content = createElement(
+            "span",
+            "orbit-tool-content"
+        );
 
-        return;
+        content.appendChild(
+            createElement(
+                "strong",
+                "",
+                title
+            )
+        );
 
+        content.appendChild(
+            createElement(
+                "small",
+                "",
+                description
+            )
+        );
+
+        const arrow = createElement(
+            "span",
+            "orbit-tool-arrow"
+        );
+
+        arrow.appendChild(
+            createElement(
+                "i",
+                "fa-solid fa-chevron-right"
+            )
+        );
+
+        button.appendChild(iconWrapper);
+        button.appendChild(content);
+        button.appendChild(arrow);
+
+        return button;
     }
 
+    function createToolsMenu() {
+        if (toolsMenu) {
+            return;
+        }
 
-    container.hidden = false;
+        toolsMenu = createElement(
+            "div",
+            "orbit-tools-menu"
+        );
 
+        toolsMenu.setAttribute(
+            "role",
+            "menu"
+        );
 
-    container.innerHTML =
-        orbitAttachments
-            .map((attachment) => {
+        toolsMenu.setAttribute(
+            "aria-label",
+            "Orbit tools"
+        );
 
-                const safeName =
-                    escapeOrbitToolHTML(
-                        attachment.name
-                    );
+        toolsMenu.style.position = "absolute";
 
+        const header = createElement(
+            "div",
+            "orbit-tools-header"
+        );
 
-                /*
-                   Image preview.
-                */
+        header.appendChild(
+            createElement(
+                "strong",
+                "orbit-tools-title",
+                "Orbit tools"
+            )
+        );
 
-                if (
-                    attachment.isImage &&
-                    attachment.previewUrl
-                ) {
+        header.appendChild(
+            createElement(
+                "span",
+                "orbit-tools-description",
+                "Choose what you want to add"
+            )
+        );
 
-                    return `
+        const options = createElement(
+            "div",
+            "orbit-tools-options"
+        );
 
-            <div
-              class="orbit-attachment"
-              data-attachment-id="${attachment.id}"
-            >
+        const uploadFiles = createToolOption(
+            "fa-solid fa-paperclip",
+            "Upload files",
+            "Add documents, code and other files"
+        );
 
-              <div class="orbit-attachment-preview">
+        const uploadImages = createToolOption(
+            "fa-regular fa-image",
+            "Upload images",
+            "Add one or more images"
+        );
 
-                <img
-                  src="${attachment.previewUrl}"
-                  alt="${safeName}"
-                />
+        const analyzeImage = createToolOption(
+            "fa-solid fa-eye",
+            "Analyze image",
+            "Add an image for Orbit to understand"
+        );
 
-              </div>
+        const generateImage = createToolOption(
+            "fa-solid fa-wand-magic-sparkles",
+            "Generate image",
+            "Create an image from a description"
+        );
 
-              <div class="orbit-attachment-info">
+        uploadFiles.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
 
-                <span
-                  class="orbit-attachment-name"
-                  title="${safeName}"
-                >
-                  ${safeName}
-                </span>
+                closeToolsMenu();
 
-                <small>
-                  ${formatOrbitFileSize(
-                        attachment.size
-                    )}
-                </small>
-
-              </div>
-
-              <button
-                type="button"
-                class="orbit-attachment-remove"
-                data-remove-attachment="${attachment.id}"
-                aria-label="Remove ${safeName}"
-                title="Remove attachment"
-              >
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-
-            </div>
-
-          `;
-
+                if (fileInput) {
+                    fileInput.click();
                 }
-
-
-                /*
-                   Normal file preview.
-                */
-
-                return `
-
-          <div
-            class="orbit-attachment"
-            data-attachment-id="${attachment.id}"
-          >
-
-            <div class="orbit-attachment-file-icon">
-
-              <i
-                class="fa-solid ${getOrbitFileIcon(
-                    attachment
-                )}"
-              ></i>
-
-            </div>
-
-            <div class="orbit-attachment-info">
-
-              <span
-                class="orbit-attachment-name"
-                title="${safeName}"
-              >
-                ${safeName}
-              </span>
-
-              <small>
-                ${formatOrbitFileSize(
-                    attachment.size
-                )}
-              </small>
-
-            </div>
-
-            <button
-              type="button"
-              class="orbit-attachment-remove"
-              data-remove-attachment="${attachment.id}"
-              aria-label="Remove ${safeName}"
-              title="Remove attachment"
-            >
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-
-          </div>
-
-        `;
-
-            })
-            .join("");
-
-}
-
-
-/* ===========================================================
-   ESCAPE HTML
-   =========================================================== */
-
-function escapeOrbitToolHTML(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-/* ===========================================================
-   TOOLS NOTICE
-   =========================================================== */
-
-function showOrbitToolsNotice(message) {
-
-    /*
-       For now use a lightweight browser notification.
-  
-       We can replace this with a proper Orbit toast
-       when we style the tools system.
-    */
-
-    console.warn(
-        "Orbit Tools:",
-        message
-    );
-
-}
-
-
-/* ===========================================================
-   HANDLE FILE SELECTION
-   =========================================================== */
-
-function handleOrbitFileSelection(event) {
-
-    const files =
-        Array.from(
-            event.target.files || []
+            }
         );
 
+        uploadImages.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
 
-    files.forEach((file) => {
+                closeToolsMenu();
 
-        addOrbitAttachment(file);
+                if (imageInput) {
+                    imageInput.click();
+                }
+            }
+        );
 
-    });
+        analyzeImage.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
 
+                closeToolsMenu();
 
-    /*
-       Reset input so selecting
-       the same file again works.
-    */
+                if (imageInput) {
+                    imageInput.click();
+                }
+            }
+        );
 
-    event.target.value = "";
+        generateImage.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
 
-}
+                closeToolsMenu();
+                activateImageGeneration();
+            }
+        );
 
+        options.appendChild(uploadFiles);
+        options.appendChild(uploadImages);
+        options.appendChild(analyzeImage);
+        options.appendChild(generateImage);
 
-/* ===========================================================
-   OPEN FILE PICKER
-   =========================================================== */
+        toolsMenu.appendChild(header);
+        toolsMenu.appendChild(options);
 
-function openOrbitFilePicker() {
+        commandBox.appendChild(toolsMenu);
 
-    const input =
-        createOrbitFileInput();
-
-
-    input.click();
-
-}
-
-
-/* ===========================================================
-   TOOLS BUTTON
-   =========================================================== */
-
-function setupOrbitToolsButton() {
-
-    const {
-        toolsButton,
-    } = getOrbitToolsElements();
-
-
-    if (!toolsButton) {
-        return;
+        toolsMenu.addEventListener(
+            "click",
+            event => {
+                event.stopPropagation();
+            }
+        );
     }
 
+    function positionToolsMenu() {
+        if (
+            !toolsMenu ||
+            !toolsMenu.classList.contains("is-open")
+        ) {
+            return;
+        }
 
-    if (
-        toolsButton.dataset.orbitToolsReady ===
-        "true"
-    ) {
+        const buttonRect =
+            toolsButton.getBoundingClientRect();
 
-        return;
+        const commandRect =
+            commandBox.getBoundingClientRect();
 
+        const menuWidth =
+            toolsMenu.offsetWidth;
+
+        const menuHeight =
+            toolsMenu.offsetHeight;
+
+        if (!menuWidth || !menuHeight) {
+            return;
+        }
+
+        const spacing = 10;
+        const viewportPadding = 12;
+
+        let left =
+            buttonRect.left -
+            commandRect.left;
+
+        let top =
+            buttonRect.top -
+            commandRect.top -
+            menuHeight -
+            spacing;
+
+        const maxLeft =
+            commandBox.clientWidth -
+            menuWidth -
+            viewportPadding;
+
+        left = Math.max(
+            viewportPadding,
+            Math.min(
+                left,
+                maxLeft
+            )
+        );
+
+        if (top < viewportPadding) {
+            top =
+                buttonRect.bottom -
+                commandRect.top +
+                spacing;
+        }
+
+        const maxTop =
+            commandBox.clientHeight -
+            menuHeight -
+            viewportPadding;
+
+        if (top > maxTop && maxTop >= viewportPadding) {
+            top = maxTop;
+        }
+
+        toolsMenu.style.left =
+            `${Math.round(left)}px`;
+
+        toolsMenu.style.top =
+            `${Math.round(top)}px`;
     }
 
+    function openToolsMenu() {
+        if (!toolsMenu) {
+            createToolsMenu();
+        }
 
-    toolsButton.dataset.orbitToolsReady =
-        "true";
+        toolsMenu.hidden = false;
 
+        toolsMenu.classList.add("is-open");
+
+        commandBox.classList.add(
+            "tools-open"
+        );
+
+        commandArea.classList.add(
+            "tools-open"
+        );
+
+        toolsButton.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+        requestAnimationFrame(() => {
+            positionToolsMenu();
+
+            requestAnimationFrame(() => {
+                positionToolsMenu();
+            });
+        });
+    }
+
+    function closeToolsMenu() {
+        if (!toolsMenu) {
+            return;
+        }
+
+        toolsMenu.classList.remove(
+            "is-open"
+        );
+
+        toolsMenu.hidden = true;
+
+        commandBox.classList.remove(
+            "tools-open"
+        );
+
+        commandArea.classList.remove(
+            "tools-open"
+        );
+
+        toolsButton.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+    }
+
+    function toggleToolsMenu() {
+        if (
+            toolsMenu &&
+            toolsMenu.classList.contains("is-open")
+        ) {
+            closeToolsMenu();
+        } else {
+            openToolsMenu();
+        }
+    }
+
+    function addFiles(files) {
+        const incoming =
+            Array.from(files || []);
+
+        if (!incoming.length) {
+            return;
+        }
+
+        const remaining =
+            MAX_FILES -
+            selectedFiles.length;
+
+        if (remaining <= 0) {
+            return;
+        }
+
+        selectedFiles.push(
+            ...incoming.slice(
+                0,
+                remaining
+            )
+        );
+
+        renderAttachments();
+
+        commandInput.focus();
+    }
+
+    function addImages(files) {
+        const incoming =
+            Array.from(files || [])
+                .filter(file =>
+                    file.type &&
+                    file.type.startsWith("image/")
+                );
+
+        if (!incoming.length) {
+            return;
+        }
+
+        const remaining =
+            MAX_FILES -
+            selectedFiles.length;
+
+        if (remaining <= 0) {
+            return;
+        }
+
+        selectedFiles.push(
+            ...incoming.slice(
+                0,
+                remaining
+            )
+        );
+
+        renderAttachments();
+
+        commandInput.focus();
+    }
+
+    function renderAttachments() {
+        const attachmentArea =
+            createAttachmentArea();
+
+        attachmentArea.innerHTML = "";
+
+        if (!selectedFiles.length) {
+            attachmentArea.hidden = true;
+
+            commandBox.classList.remove(
+                "has-attachments"
+            );
+
+            commandArea.classList.remove(
+                "has-attachments"
+            );
+
+            return;
+        }
+
+        attachmentArea.hidden = false;
+
+        commandBox.classList.add(
+            "has-attachments"
+        );
+
+        commandArea.classList.add(
+            "has-attachments"
+        );
+
+        const header = createElement(
+            "div",
+            "orbit-attachments-header"
+        );
+
+        const title = createElement(
+            "span",
+            "orbit-attachments-title",
+            `${selectedFiles.length} ${selectedFiles.length === 1
+                ? "attachment"
+                : "attachments"
+            }`
+        );
+
+        const clearButton = createElement(
+            "button",
+            "orbit-attachments-clear",
+            "Clear all"
+        );
+
+        clearButton.type = "button";
+
+        clearButton.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                clearSelectedFiles();
+            }
+        );
+
+        header.appendChild(title);
+        header.appendChild(clearButton);
+
+        const list = createElement(
+            "div",
+            "orbit-attachments-list"
+        );
+
+        list.setAttribute(
+            "role",
+            "list"
+        );
+
+        selectedFiles.forEach(
+            (file, index) => {
+                list.appendChild(
+                    createAttachmentItem(
+                        file,
+                        index
+                    )
+                );
+            }
+        );
+
+        attachmentArea.appendChild(header);
+        attachmentArea.appendChild(list);
+
+        requestAnimationFrame(() => {
+            list.scrollLeft =
+                list.scrollWidth;
+        });
+    }
+
+    function createAttachmentItem(file, index) {
+        const item = createElement(
+            "div",
+            "orbit-attachment-item"
+        );
+
+        item.dataset.index =
+            String(index);
+
+        item.setAttribute(
+            "role",
+            "listitem"
+        );
+
+        const preview =
+            createElement(
+                "div",
+                "orbit-attachment-preview"
+            );
+
+        if (
+            file.type &&
+            file.type.startsWith("image/")
+        ) {
+            const image =
+                document.createElement("img");
+
+            const objectUrl =
+                URL.createObjectURL(file);
+
+            image.src =
+                objectUrl;
+
+            image.alt =
+                file.name;
+
+            image.addEventListener(
+                "load",
+                () => {
+                    URL.revokeObjectURL(
+                        objectUrl
+                    );
+                },
+                {
+                    once: true
+                }
+            );
+
+            image.addEventListener(
+                "error",
+                () => {
+                    URL.revokeObjectURL(
+                        objectUrl
+                    );
+                },
+                {
+                    once: true
+                }
+            );
+
+            preview.appendChild(image);
+        } else {
+            preview.appendChild(
+                createElement(
+                    "i",
+                    getFileIcon(file)
+                )
+            );
+        }
+
+        const information =
+            createElement(
+                "div",
+                "orbit-attachment-info"
+            );
+
+        information.appendChild(
+            createElement(
+                "strong",
+                "",
+                file.name
+            )
+        );
+
+        information.appendChild(
+            createElement(
+                "small",
+                "",
+                formatFileSize(file.size)
+            )
+        );
+
+        const removeButton =
+            createElement(
+                "button",
+                "orbit-attachment-remove"
+            );
+
+        removeButton.type = "button";
+
+        removeButton.setAttribute(
+            "aria-label",
+            `Remove ${file.name}`
+        );
+
+        removeButton.title =
+            `Remove ${file.name}`;
+
+        removeButton.appendChild(
+            createElement(
+                "i",
+                "fa-solid fa-xmark"
+            )
+        );
+
+        removeButton.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                removeSelectedFile(index);
+            }
+        );
+
+        item.appendChild(preview);
+        item.appendChild(information);
+        item.appendChild(removeButton);
+
+        return item;
+    }
+
+    function getFileIcon(file) {
+        const name =
+            file.name.toLowerCase();
+
+        const type =
+            (file.type || "").toLowerCase();
+
+        if (
+            type === "application/pdf" ||
+            name.endsWith(".pdf")
+        ) {
+            return "fa-solid fa-file-pdf";
+        }
+
+        if (
+            name.endsWith(".js") ||
+            name.endsWith(".mjs") ||
+            name.endsWith(".cjs") ||
+            name.endsWith(".ts") ||
+            name.endsWith(".jsx") ||
+            name.endsWith(".tsx") ||
+            name.endsWith(".py") ||
+            name.endsWith(".java") ||
+            name.endsWith(".cpp") ||
+            name.endsWith(".cc") ||
+            name.endsWith(".cxx") ||
+            name.endsWith(".c") ||
+            name.endsWith(".h") ||
+            name.endsWith(".hpp") ||
+            name.endsWith(".cs") ||
+            name.endsWith(".go") ||
+            name.endsWith(".rs") ||
+            name.endsWith(".php") ||
+            name.endsWith(".rb") ||
+            name.endsWith(".swift") ||
+            name.endsWith(".kt") ||
+            name.endsWith(".kts") ||
+            name.endsWith(".sh") ||
+            name.endsWith(".bash") ||
+            name.endsWith(".sql")
+        ) {
+            return "fa-solid fa-file-code";
+        }
+
+        if (
+            name.endsWith(".html") ||
+            name.endsWith(".htm") ||
+            name.endsWith(".css") ||
+            name.endsWith(".scss") ||
+            name.endsWith(".sass") ||
+            name.endsWith(".less") ||
+            name.endsWith(".json") ||
+            name.endsWith(".xml") ||
+            name.endsWith(".yaml") ||
+            name.endsWith(".yml") ||
+            name.endsWith(".toml") ||
+            name.endsWith(".env")
+        ) {
+            return "fa-solid fa-file-code";
+        }
+
+        if (
+            name.endsWith(".doc") ||
+            name.endsWith(".docx")
+        ) {
+            return "fa-solid fa-file-word";
+        }
+
+        if (
+            name.endsWith(".xls") ||
+            name.endsWith(".xlsx") ||
+            name.endsWith(".csv")
+        ) {
+            return "fa-solid fa-file-excel";
+        }
+
+        if (
+            name.endsWith(".ppt") ||
+            name.endsWith(".pptx")
+        ) {
+            return "fa-solid fa-file-powerpoint";
+        }
+
+        if (
+            name.endsWith(".zip") ||
+            name.endsWith(".rar") ||
+            name.endsWith(".7z") ||
+            name.endsWith(".tar") ||
+            name.endsWith(".gz")
+        ) {
+            return "fa-solid fa-file-zipper";
+        }
+
+        if (
+            name.endsWith(".txt") ||
+            name.endsWith(".md") ||
+            name.endsWith(".log")
+        ) {
+            return "fa-solid fa-file-lines";
+        }
+
+        return "fa-regular fa-file";
+    }
+
+    function removeSelectedFile(index) {
+        if (
+            index < 0 ||
+            index >= selectedFiles.length
+        ) {
+            return;
+        }
+
+        selectedFiles.splice(
+            index,
+            1
+        );
+
+        renderAttachments();
+
+        commandInput.focus();
+    }
+
+    function clearSelectedFiles() {
+        selectedFiles = [];
+
+        renderAttachments();
+
+        commandInput.focus();
+    }
+
+    function formatFileSize(bytes) {
+        if (
+            !Number.isFinite(bytes) ||
+            bytes <= 0
+        ) {
+            return "Unknown size";
+        }
+
+        const units = [
+            "B",
+            "KB",
+            "MB",
+            "GB"
+        ];
+
+        const exponent =
+            Math.min(
+                Math.floor(
+                    Math.log(bytes) /
+                    Math.log(1024)
+                ),
+                units.length - 1
+            );
+
+        const size =
+            bytes /
+            Math.pow(
+                1024,
+                exponent
+            );
+
+        return `${size.toFixed(
+            exponent === 0
+                ? 0
+                : 1
+        )} ${units[exponent]}`;
+    }
+
+    function activateImageGeneration() {
+        const input =
+            document.getElementById(
+                "command-input"
+            );
+
+        if (!input) {
+            return;
+        }
+
+        if (!input.value.trim()) {
+            input.value =
+                "Create an image of ";
+        }
+
+        input.focus();
+
+        input.dispatchEvent(
+            new Event(
+                "input",
+                {
+                    bubbles: true
+                }
+            )
+        );
+    }
 
     toolsButton.addEventListener(
         "click",
-        () => {
+        event => {
+            event.preventDefault();
+            event.stopPropagation();
 
-            openOrbitFilePicker();
-
+            toggleToolsMenu();
         }
     );
-
-}
-
-
-/* ===========================================================
-   ATTACHMENT REMOVE ACTIONS
-   =========================================================== */
-
-function setupOrbitAttachmentActions() {
-
-    const {
-        commandBox,
-    } = getOrbitToolsElements();
-
-
-    if (!commandBox) {
-        return;
-    }
-
-
-    if (
-        commandBox.dataset.orbitAttachmentActionsReady ===
-        "true"
-    ) {
-
-        return;
-
-    }
-
-
-    commandBox.dataset.orbitAttachmentActionsReady =
-        "true";
-
 
     document.addEventListener(
         "click",
-        (event) => {
-
-            const removeButton =
-                event.target.closest(
-                    "[data-remove-attachment]"
-                );
-
-
-            if (!removeButton) {
+        event => {
+            if (!toolsMenu) {
                 return;
             }
 
-
-            const id =
-                removeButton.dataset
-                    .removeAttachment;
-
-
-            removeOrbitAttachment(id);
-
+            if (
+                !toolsMenu.contains(event.target) &&
+                !toolsButton.contains(event.target)
+            ) {
+                closeToolsMenu();
+            }
         }
     );
-
-}
-
-
-/* ===========================================================
-   PASTE IMAGE SUPPORT
-   =========================================================== */
-
-function setupOrbitPasteSupport() {
-
-    const {
-        commandBox,
-    } = getOrbitToolsElements();
-
-
-    if (!commandBox) {
-        return;
-    }
-
 
     document.addEventListener(
-        "paste",
-        (event) => {
-
-            const items =
-                Array.from(
-                    event.clipboardData?.items || []
-                );
-
-
-            const imageItem =
-                items.find(
-                    (item) =>
-                        item.type.startsWith("image/")
-                );
-
-
-            if (!imageItem) {
-                return;
+        "keydown",
+        event => {
+            if (event.key === "Escape") {
+                closeToolsMenu();
             }
-
-
-            const file =
-                imageItem.getAsFile();
-
-
-            if (!file) {
-                return;
-            }
-
-
-            addOrbitAttachment(file);
-
         }
     );
 
-}
-
-
-/* ===========================================================
-   DRAG & DROP SUPPORT
-   =========================================================== */
-
-function setupOrbitDragAndDrop() {
-
-    const {
-        commandBox,
-    } = getOrbitToolsElements();
-
-
-    if (!commandBox) {
-        return;
-    }
-
-
-    commandBox.addEventListener(
-        "dragover",
-        (event) => {
-
-            event.preventDefault();
-
-            commandBox.classList.add(
-                "orbit-drag-active"
-            );
-
-        }
-    );
-
-
-    commandBox.addEventListener(
-        "dragleave",
+    window.addEventListener(
+        "resize",
         () => {
-
-            commandBox.classList.remove(
-                "orbit-drag-active"
-            );
-
+            if (
+                toolsMenu &&
+                toolsMenu.classList.contains("is-open")
+            ) {
+                requestAnimationFrame(
+                    positionToolsMenu
+                );
+            }
         }
     );
 
+    window.addEventListener(
+        "scroll",
+        () => {
+            if (
+                toolsMenu &&
+                toolsMenu.classList.contains("is-open")
+            ) {
+                requestAnimationFrame(
+                    positionToolsMenu
+                );
+            }
+        },
+        true
+    );
 
-    commandBox.addEventListener(
-        "drop",
-        (event) => {
-
-            event.preventDefault();
-
-
-            commandBox.classList.remove(
-                "orbit-drag-active"
-            );
-
-
-            const files =
-                Array.from(
-                    event.dataTransfer?.files || []
+    fileInput =
+        createFileInput(
+            "",
+            true,
+            event => {
+                addFiles(
+                    event.target.files
                 );
 
+                event.target.value = "";
+            }
+        );
 
-            files.forEach((file) => {
+    imageInput =
+        createFileInput(
+            "image/*",
+            true,
+            event => {
+                addImages(
+                    event.target.files
+                );
 
-                addOrbitAttachment(file);
+                event.target.value = "";
+            }
+        );
 
-            });
+    createAttachmentArea();
+    createToolsMenu();
 
+    closeToolsMenu();
+
+    window.orbitTools = {
+        getSelectedFiles() {
+            return [
+                ...selectedFiles
+            ];
+        },
+
+        getSelectedImages() {
+            return selectedFiles.filter(
+                file =>
+                    file.type &&
+                    file.type.startsWith("image/")
+            );
+        },
+
+        getAllSelectedFiles() {
+            return [
+                ...selectedFiles
+            ];
+        },
+
+        clearSelectedFiles,
+
+        open() {
+            openToolsMenu();
+        },
+
+        close() {
+            closeToolsMenu();
+        },
+
+        isOpen() {
+            return Boolean(
+                toolsMenu &&
+                toolsMenu.classList.contains("is-open")
+            );
+        },
+
+        getFileCount() {
+            return selectedFiles.length;
+        },
+
+        hasFiles() {
+            return selectedFiles.length > 0;
         }
-    );
-
-}
-
-
-/* ===========================================================
-   GET ATTACHMENTS
-   =========================================================== */
-
-function getOrbitAttachments() {
-
-    return [...orbitAttachments];
-
-}
-
-
-/* ===========================================================
-   CHECK ATTACHMENTS
-   =========================================================== */
-
-function orbitHasAttachments() {
-
-    return orbitAttachments.length > 0;
-
-}
-
-
-/* ===========================================================
-   INITIALIZE ORBIT TOOLS
-   =========================================================== */
-
-function initializeOrbitTools() {
-
-    const fileInput =
-        createOrbitFileInput();
-
-
-    fileInput.addEventListener(
-        "change",
-        handleOrbitFileSelection
-    );
-
-
-    setupOrbitToolsButton();
-
-    setupOrbitAttachmentActions();
-
-    setupOrbitPasteSupport();
-
-    setupOrbitDragAndDrop();
-
-
-    console.log(
-        "Orbit Tools initialized."
-    );
-
-}
-
-
-/* ===========================================================
-   PUBLIC ORBIT TOOLS API
-   =========================================================== */
-
-window.OrbitTools = {
-
-    addAttachment:
-        addOrbitAttachment,
-
-    removeAttachment:
-        removeOrbitAttachment,
-
-    clearAttachments:
-        clearOrbitAttachments,
-
-    getAttachments:
-        getOrbitAttachments,
-
-    hasAttachments:
-        orbitHasAttachments,
-
-    openFilePicker:
-        openOrbitFilePicker,
-
-};
-
-
-/* ===========================================================
-   START
-   =========================================================== */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeOrbitTools
-    );
-
-} else {
-
-    initializeOrbitTools();
-
-}
+    };
+})();
