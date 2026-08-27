@@ -1,4 +1,4 @@
-/* Orbit AI — Sidebar navigation */
+"use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
     const orbitApp = document.querySelector(".orbit-app");
@@ -60,25 +60,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    menuToggle.addEventListener("click", (event) => {
+    menuToggle.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
         toggleNavigation();
     });
 
-    sidebarClose.addEventListener("click", (event) => {
+    sidebarClose.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
         closeNavigation();
     });
 
     if (navigationOverlay) {
-        navigationOverlay.addEventListener("click", (event) => {
+        navigationOverlay.addEventListener("click", event => {
             event.preventDefault();
+            closeNavigation();
         });
     }
 
-    sidebar.addEventListener("click", (event) => {
+    sidebar.addEventListener("click", event => {
         event.stopPropagation();
 
         const link = event.target.closest(".sidebar-account-link");
@@ -89,13 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (commandArea) {
-        commandArea.addEventListener("click", (event) => {
+        commandArea.addEventListener("click", event => {
             event.stopPropagation();
         });
     }
 
     if (commandInput) {
-        commandInput.addEventListener("click", (event) => {
+        commandInput.addEventListener("click", event => {
             event.stopPropagation();
         });
 
@@ -106,11 +107,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            if (orbitApp.classList.contains("nav-open")) {
-                closeNavigation();
-            }
+    document.addEventListener("keydown", event => {
+        if (
+            event.key === "Escape" &&
+            orbitApp.classList.contains("nav-open")
+        ) {
+            closeNavigation();
         }
     });
 

@@ -1,157 +1,129 @@
 "use strict";
 
-/* Clear conversation history */
+const OrbitClearHistory = (() => {
+    const BUTTON_ID = "clear-history-btn";
 
-async function clearOrbitConversationHistory() {
-    const clearButton =
-        document.getElementById("clear-history-btn");
+    async function clearHistory() {
+        const clearButton = document.getElementById(BUTTON_ID);
 
-    if (!clearButton) {
-        return;
-    }
-
-    if (
-        clearButton.dataset.clearing === "true"
-    ) {
-        return;
-    }
-
-    const confirmed = window.confirm(
-        "Are you sure you want to clear your conversation history? This cannot be undone."
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    clearButton.dataset.clearing = "true";
-    clearButton.disabled = true;
-
-    const originalHTML =
-        clearButton.innerHTML;
-
-    clearButton.innerHTML = `
-        <i class="fa-solid fa-spinner fa-spin"></i>
-        Clearing...
-    `;
-
-    try {
-        /* Clear cloud history */
-
-        if (
-            window.OrbitCloud &&
-            typeof window.OrbitCloud
-                .clearConversationHistory ===
-            "function"
-        ) {
-            await window.OrbitCloud
-                .clearConversationHistory();
+        if (!clearButton) {
+            return;
         }
 
-        /* Clear local conversation */
-
-        if (
-            typeof window
-                .clearOrbitConversationHistory ===
-            "function"
-        ) {
-            window.clearOrbitConversationHistory();
+        if (clearButton.dataset.clearing === "true") {
+            return;
         }
 
-        /* Clear active chat */
-
-        if (
-            typeof window
-                .clearOrbitActiveChatId ===
-            "function"
-        ) {
-            window.clearOrbitActiveChatId();
-        }
-
-        /* Refresh chat history */
-
-        if (
-            typeof window
-                .refreshOrbitRecentChats ===
-            "function"
-        ) {
-            await window
-                .refreshOrbitRecentChats();
-        }
-
-        clearButton.innerHTML = `
-            <i class="fa-solid fa-check"></i>
-            History cleared
-        `;
-
-        setTimeout(() => {
-            clearButton.innerHTML =
-                originalHTML;
-
-            clearButton.disabled = false;
-            clearButton.dataset.clearing =
-                "false";
-        }, 1800);
-
-    } catch (error) {
-        console.error(
-            "Orbit history clear error:",
-            error
+        const confirmed = window.confirm(
+            "Are you sure you want to clear your conversation history? This cannot be undone."
         );
 
+        if (!confirmed) {
+            return;
+        }
+
+        clearButton.dataset.clearing = "true";
+        clearButton.disabled = true;
+
+        const originalHTML = clearButton.innerHTML;
+
         clearButton.innerHTML = `
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            Failed to clear
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            Clearing...
         `;
 
-        setTimeout(() => {
-            clearButton.innerHTML =
-                originalHTML;
+        try {
+            if (
+                window.OrbitCloud &&
+                typeof window.OrbitCloud.clearConversationHistory === "function"
+            ) {
+                await window.OrbitCloud.clearConversationHistory();
+            }
 
-            clearButton.disabled = false;
-            clearButton.dataset.clearing =
-                "false";
-        }, 2200);
+            if (
+                typeof window.clearOrbitLocalConversationHistory === "function"
+            ) {
+                window.clearOrbitLocalConversationHistory();
+            }
+
+            if (
+                typeof window.clearOrbitActiveChatId === "function"
+            ) {
+                window.clearOrbitActiveChatId();
+            }
+
+            if (
+                typeof window.refreshOrbitRecentChats === "function"
+            ) {
+                await window.refreshOrbitRecentChats();
+            }
+
+            clearButton.innerHTML = `
+                <i class="fa-solid fa-check"></i>
+                History cleared
+            `;
+
+            window.dispatchEvent(
+                new CustomEvent("orbitHistoryCleared")
+            );
+
+            setTimeout(() => {
+                resetButton(clearButton, originalHTML);
+            }, 1800);
+
+        } catch (error) {
+            console.error("Orbit history clear error:", error);
+
+            clearButton.innerHTML = `
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Failed to clear
+            `;
+
+            setTimeout(() => {
+                resetButton(clearButton, originalHTML);
+            }, 2200);
+        }
     }
-}
 
+    function resetButton(button, originalHTML) {
+        if (!button) {
+            return;
+        }
 
-/* Initialize button */
-
-function setupOrbitClearHistory() {
-    const clearButton =
-        document.getElementById(
-            "clear-history-btn"
-        );
-
-    if (!clearButton) {
-        return;
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+        button.dataset.clearing = "false";
     }
 
-    if (
-        clearButton.dataset
-            .orbitClearHistoryReady ===
-        "true"
-    ) {
-        return;
+    function setup() {
+        const clearButton = document.getElementById(BUTTON_ID);
+
+        if (!clearButton) {
+            return;
+        }
+
+        if (clearButton.dataset.orbitClearHistoryReady === "true") {
+            return;
+        }
+
+        clearButton.dataset.orbitClearHistoryReady = "true";
+
+        clearButton.addEventListener("click", clearHistory);
     }
 
-    clearButton.dataset
-        .orbitClearHistoryReady =
-        "true";
+    return {
+        clear: clearHistory,
+        setup
+    };
+})();
 
-    clearButton.addEventListener(
-        "click",
-        clearOrbitConversationHistory
+window.OrbitClearHistory = OrbitClearHistory;
+
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        OrbitClearHistory.setup
     );
+} else {
+    OrbitClearHistory.setup();
 }
-
-
-/* Start */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        setupOrbitClearHistory();
-    }
-);

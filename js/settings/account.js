@@ -4,12 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentUser = null;
     let currentProfile = null;
 
-    // Elements
     const accountName = document.getElementById("account-name");
     const accountEmail = document.getElementById("account-email");
     const editProfileBtn = document.getElementById("edit-profile-btn");
 
-    // Supabase
     function getSupabase() {
         if (
             typeof window.supabase === "undefined" ||
@@ -30,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return window.orbitSupabase;
     }
 
-    // Load profile
     async function loadProfile() {
         const client = getSupabase();
 
@@ -70,16 +67,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (!profile) {
-                const { data: newProfile, error: createError } =
-                    await client
-                        .from("profiles")
-                        .insert({
-                            id: user.id,
-                            display_name: null,
-                            avatar_url: null
-                        })
-                        .select("display_name, avatar_url")
-                        .single();
+                const {
+                    data: newProfile,
+                    error: createError
+                } = await client
+                    .from("profiles")
+                    .insert({
+                        id: user.id,
+                        display_name: null,
+                        avatar_url: null
+                    })
+                    .select("display_name, avatar_url")
+                    .single();
 
                 if (createError) {
                     throw createError;
@@ -101,36 +100,37 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Render profile
+    function getMetadataName() {
+        return (
+            currentUser?.user_metadata?.full_name?.trim() ||
+            currentUser?.user_metadata?.name?.trim() ||
+            ""
+        );
+    }
+
+    function getDisplayName() {
+        return (
+            currentProfile?.display_name?.trim() ||
+            getMetadataName() ||
+            "Orbit User"
+        );
+    }
+
     function renderProfile() {
         if (!currentUser) {
             return;
         }
 
-        const metadataName =
-            currentUser.user_metadata?.full_name?.trim() ||
-            currentUser.user_metadata?.name?.trim() ||
-            "";
-
-        const displayName =
-            currentProfile?.display_name?.trim() ||
-            metadataName ||
-            "Orbit User";
-
-        const email =
-            currentUser.email ||
-            "No email available";
-
         if (accountName) {
-            accountName.textContent = displayName;
+            accountName.textContent = getDisplayName();
         }
 
         if (accountEmail) {
-            accountEmail.textContent = email;
+            accountEmail.textContent =
+                currentUser.email || "No email available";
         }
     }
 
-    // Show error
     function showError(message) {
         if (accountName) {
             accountName.textContent = message;
@@ -141,7 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Create editor
     function createEditor() {
         const existingEditor =
             document.getElementById("orbit-profile-editor");
@@ -157,15 +156,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         editor.innerHTML = `
             <div class="orbit-profile-editor-card">
-
                 <div class="orbit-profile-editor-header">
                     <div>
                         <span class="orbit-profile-editor-eyebrow">
                             ORBIT ACCOUNT
                         </span>
-
                         <h3>Edit profile</h3>
-
                         <p>
                             Choose the name Orbit should use for you.
                         </p>
@@ -200,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p class="orbit-profile-email"></p>
 
                 <div class="orbit-profile-actions">
-
                     <button
                         type="button"
                         class="orbit-profile-cancel"
@@ -216,9 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     >
                         Save
                     </button>
-
                 </div>
-
             </div>
         `;
 
@@ -227,7 +220,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return editor;
     }
 
-    // Open editor
     function openEditor() {
         if (!currentUser) {
             alert("Please sign in before editing your profile.");
@@ -235,7 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const editor = createEditor();
-
         const input = document.getElementById(
             "orbit-profile-name-input"
         );
@@ -244,14 +235,11 @@ document.addEventListener("DOMContentLoaded", () => {
             ".orbit-profile-email"
         );
 
-        const currentName =
-            currentProfile?.display_name?.trim() ||
-            currentUser.user_metadata?.full_name?.trim() ||
-            currentUser.user_metadata?.name?.trim() ||
-            "";
-
         if (input) {
-            input.value = currentName;
+            input.value =
+                currentProfile?.display_name?.trim() ||
+                getMetadataName() ||
+                "";
         }
 
         if (email) {
@@ -266,18 +254,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Close editor
     function closeEditor() {
-        const editor = document.getElementById(
-            "orbit-profile-editor"
-        );
+        const editor =
+            document.getElementById("orbit-profile-editor");
 
         if (editor) {
             editor.classList.remove("is-open");
         }
     }
 
-    // Save profile
     async function saveProfile() {
         if (!currentUser) {
             return;
@@ -319,15 +304,11 @@ document.addEventListener("DOMContentLoaded", () => {
             } = await client
                 .from("profiles")
                 .update({
-                    display_name:
-                        displayName || null,
-                    updated_at:
-                        new Date().toISOString()
+                    display_name: displayName || null,
+                    updated_at: new Date().toISOString()
                 })
                 .eq("id", currentUser.id)
-                .select(
-                    "display_name, avatar_url"
-                )
+                .select("display_name, avatar_url")
                 .single();
 
             if (error) {
@@ -355,56 +336,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Profile events
     editProfileBtn?.addEventListener(
         "click",
         openEditor
     );
 
-    document.addEventListener(
-        "click",
-        (event) => {
-            if (
-                event.target.closest(
-                    "#orbit-profile-close"
-                ) ||
-                event.target.closest(
-                    "#orbit-profile-cancel"
-                )
-            ) {
-                closeEditor();
-            }
-
-            if (
-                event.target.closest(
-                    "#orbit-profile-save"
-                )
-            ) {
-                saveProfile();
-            }
+    document.addEventListener("click", event => {
+        if (
+            event.target.closest("#orbit-profile-close") ||
+            event.target.closest("#orbit-profile-cancel")
+        ) {
+            closeEditor();
+            return;
         }
-    );
 
-    document.addEventListener(
-        "keydown",
-        (event) => {
-            if (
-                event.key === "Escape"
-            ) {
-                closeEditor();
-            }
-
-            if (
-                event.key === "Enter" &&
-                event.target.id ===
-                "orbit-profile-name-input"
-            ) {
-                event.preventDefault();
-                saveProfile();
-            }
+        if (event.target.closest("#orbit-profile-save")) {
+            saveProfile();
         }
-    );
+    });
 
-    // Start
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeEditor();
+        }
+
+        if (
+            event.key === "Enter" &&
+            event.target.id === "orbit-profile-name-input"
+        ) {
+            event.preventDefault();
+            saveProfile();
+        }
+    });
+
     loadProfile();
 });

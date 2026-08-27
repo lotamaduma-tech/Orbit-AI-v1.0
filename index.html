@@ -3,20 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <meta name="description" content="Orbit AI — Your intelligent personal AI workspace." />
-
   <meta name="theme-color" content="#6366F1" />
 
   <title>Orbit AI</title>
 
-  <!-- Orbit AI branding -->
   <link rel="icon" type="image/jpeg" href="images/logo.jpg" />
   <link rel="apple-touch-icon" href="images/logo.jpg" />
 
-  <!-- Social sharing -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Orbit AI" />
   <meta property="og:description" content="Your intelligent personal AI workspace." />
@@ -24,13 +20,11 @@
   <meta property="og:image:alt" content="Orbit AI logo" />
   <meta property="og:url" content="https://orbit-ai-self.vercel.app/" />
 
-  <!-- X / Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Orbit AI" />
   <meta name="twitter:description" content="Your intelligent personal AI workspace." />
   <meta name="twitter:image" content="https://orbit-ai-self.vercel.app/images/logo.jpg" />
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
@@ -38,26 +32,22 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
     rel="stylesheet" />
 
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
-  <!-- Orbit AI styles -->
   <link rel="stylesheet" href="css/reset.css" />
   <link rel="stylesheet" href="css/variables.css" />
-  <link rel="stylesheet" href="css/settings/animations.css">
+  <link rel="stylesheet" href="css/settings/animations.css" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/quick-replies.css" />
   <link rel="stylesheet" href="css/typing-indicator.css" />
   <link rel="stylesheet" href="css/recent-chats.css" />
   <link rel="stylesheet" href="css/response-tools.css" />
   <link rel="stylesheet" href="css/response-suggestion.css" />
-  <link rel="stylesheet" href="css/chat-history.css" />
 </head>
 
 <body>
   <div class="orbit-app">
 
-    <!-- SIDEBAR -->
     <aside class="orbit-sidebar" id="orbit-sidebar" aria-label="Orbit navigation">
 
       <div class="sidebar-header">
@@ -152,7 +142,6 @@
 
     <div class="navigation-overlay" id="navigation-overlay"></div>
 
-    <!-- MAIN APPLICATION -->
     <main class="orbit-main">
 
       <header class="orbit-topbar">
@@ -311,25 +300,25 @@
 
   </div>
 
-  <!-- JavaScript -->
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/logout.js"></script>
-  <script src="js/auth-guard.js"></script>
 
+  <script src="js/supabase.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/logout.js"></script>
+
   <script src="js/theme.js"></script>
-  <script src="js/orbit-cloud.js"></script>
-  <script src="js/orbit.js"></script>
-  <script src="js/recent-chats.js"></script>
-  <script src="js/quick-replies.js"></script>
-  <script src="js/orbit-tools.js"></script>
-  <script src="js/response-tools.js"></script>
   <script src="js/settings.js"></script>
-  <script src="js/script.js"></script>
+
+  <script src="js/orbit-cloud.js"></script>
+
   <script src="js/navigation.js"></script>
-  <script src="js/chat-history.js"></script>
+  <script src="js/recent-chat.js"></script>
+  <script src="js/quick-replies.js"></script>
+  <script src="js/response-tools.js"></script>
+
+  <script src="js/orbit.js"></script>
+  <script src="js/script.js"></script>
 
 </body>
 

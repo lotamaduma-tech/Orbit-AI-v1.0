@@ -1,6 +1,8 @@
+"use strict";
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Storage keys & defaults
   const SETTINGS_KEY = "orbitAISettings";
+
   const defaultSettings = {
     theme: "system",
     animations: true,
@@ -8,231 +10,535 @@ document.addEventListener("DOMContentLoaded", () => {
     timestamps: false,
     memory: true,
     notifications: false,
-    language: "en",
+    language: "en"
   };
 
   let settings = loadSettings();
 
-  // DOM Elements
-  const themeSelect = document.getElementById("theme-select");
-  const animationsToggle = document.getElementById("animations-toggle");
-  const enterSendToggle = document.getElementById("enter-send-toggle");
-  const timestampsToggle = document.getElementById("timestamps-toggle");
-  const memoryToggle = document.getElementById("memory-toggle");
-  const notificationsToggle = document.getElementById("notifications-toggle");
-  const languageSelect = document.getElementById("language-select");
-  const manageMemory = document.getElementById("manage-memory");
-  const clearDataBtn = document.getElementById("clear-data-button");
+  const themeSelect =
+    document.getElementById("theme-select");
 
-  // Load and save settings helpers
+  const animationsToggle =
+    document.getElementById("animations-toggle");
+
+  const enterSendToggle =
+    document.getElementById("enter-send-toggle");
+
+  const timestampsToggle =
+    document.getElementById("timestamps-toggle");
+
+  const memoryToggle =
+    document.getElementById("memory-toggle");
+
+  const notificationsToggle =
+    document.getElementById("notifications-toggle");
+
+  const languageSelect =
+    document.getElementById("language-select");
+
+  const clearDataBtn =
+    document.getElementById("clear-data-button");
+
+
   function loadSettings() {
     try {
-      const saved = localStorage.getItem(SETTINGS_KEY);
-      if (!saved) return { ...defaultSettings };
-      return { ...defaultSettings, ...JSON.parse(saved) };
-    } catch (error) {
-      console.warn("Orbit settings could not be loaded.", error);
+      const saved =
+        localStorage.getItem(SETTINGS_KEY);
+
+      if (!saved) {
+        return { ...defaultSettings };
+      }
+
+      const parsed = JSON.parse(saved);
+
+      if (
+        !parsed ||
+        typeof parsed !== "object"
+      ) {
+        return { ...defaultSettings };
+      }
+
+      return {
+        ...defaultSettings,
+        ...parsed
+      };
+    } catch {
       return { ...defaultSettings };
     }
   }
 
+
   function saveSettings() {
     try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    } catch (error) {
-      console.warn("Orbit settings could not be saved.", error);
+      localStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify(settings)
+      );
+    } catch {
+      console.warn(
+        "Orbit settings could not be saved."
+      );
     }
   }
 
-  // Theme management
+
   function applyTheme() {
-    const root = document.documentElement;
-    let theme = settings.theme;
+    if (
+      window.OrbitTheme &&
+      typeof window.OrbitTheme.setTheme ===
+      "function"
+    ) {
+      window.OrbitTheme.setTheme(
+        settings.theme
+      );
 
-    if (theme === "system") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      theme = prefersDark ? "dark" : "light";
+      return;
     }
 
-    root.setAttribute("data-theme", theme);
+    document.documentElement.dataset.theme =
+      settings.theme;
   }
 
-  // Animation management
+
   function applyAnimations() {
-    const root = document.documentElement;
+    const root =
+      document.documentElement;
+
+    root.setAttribute(
+      "data-animations",
+      settings.animations
+        ? "true"
+        : "false"
+    );
+
+    root.toggleAttribute(
+      "data-reduced-motion",
+      !settings.animations
+    );
+
     if (settings.animations) {
-      root.setAttribute("data-animations", "true");
-      root.removeAttribute("data-reduced-motion");
-    } else {
-      root.setAttribute("data-animations", "false");
-      root.setAttribute("data-reduced-motion", "true");
+      root.removeAttribute(
+        "data-reduced-motion"
+      );
     }
   }
 
-  // Sync controls with state
+
+  function applyDataPreferences() {
+    const root =
+      document.documentElement;
+
+    root.setAttribute(
+      "data-enter-to-send",
+      settings.enterToSend
+        ? "true"
+        : "false"
+    );
+
+    root.setAttribute(
+      "data-show-timestamps",
+      settings.timestamps
+        ? "true"
+        : "false"
+    );
+
+    root.setAttribute(
+      "data-memory",
+      settings.memory
+        ? "enabled"
+        : "disabled"
+    );
+
+    root.setAttribute(
+      "lang",
+      settings.language
+    );
+  }
+
+
   function syncControls() {
-    if (themeSelect) themeSelect.value = settings.theme;
-    if (animationsToggle) animationsToggle.checked = settings.animations;
-    if (enterSendToggle) enterSendToggle.checked = settings.enterToSend;
-    if (timestampsToggle) timestampsToggle.checked = settings.timestamps;
-    if (memoryToggle) memoryToggle.checked = settings.memory;
-    if (notificationsToggle) notificationsToggle.checked = settings.notifications;
-    if (languageSelect) languageSelect.value = settings.language;
+    if (themeSelect) {
+      themeSelect.value =
+        settings.theme;
+    }
+
+    if (animationsToggle) {
+      animationsToggle.checked =
+        settings.animations;
+    }
+
+    if (enterSendToggle) {
+      enterSendToggle.checked =
+        settings.enterToSend;
+    }
+
+    if (timestampsToggle) {
+      timestampsToggle.checked =
+        settings.timestamps;
+    }
+
+    if (memoryToggle) {
+      memoryToggle.checked =
+        settings.memory;
+    }
+
+    if (notificationsToggle) {
+      notificationsToggle.checked =
+        settings.notifications;
+    }
+
+    if (languageSelect) {
+      languageSelect.value =
+        settings.language;
+    }
   }
 
-  // Event Listeners: Theme
-  if (themeSelect) {
-    themeSelect.addEventListener("change", function () {
-      settings.theme = this.value;
-      saveSettings();
+
+  function updateSetting(key, value) {
+    if (!(key in defaultSettings)) {
+      return;
+    }
+
+    settings[key] = value;
+
+    saveSettings();
+    syncControls();
+    applyDataPreferences();
+
+    if (key === "theme") {
       applyTheme();
-    });
-  }
+    }
 
-  // Event Listeners: Animations
-  if (animationsToggle) {
-    animationsToggle.addEventListener("change", function () {
-      settings.animations = this.checked;
-      saveSettings();
+    if (key === "animations") {
       applyAnimations();
-    });
-  }
+    }
 
-  // Event Listeners: Enter to Send
-  if (enterSendToggle) {
-    enterSendToggle.addEventListener("change", function () {
-      settings.enterToSend = this.checked;
-      saveSettings();
-      document.documentElement.setAttribute(
-        "data-enter-to-send",
-        this.checked ? "true" : "false"
+    if (
+      key === "memory" &&
+      window.OrbitMemory &&
+      typeof window.OrbitMemory.setEnabled ===
+      "function"
+    ) {
+      window.OrbitMemory.setEnabled(
+        value
       );
-    });
-  }
+    }
 
-  // Event Listeners: Timestamps
-  if (timestampsToggle) {
-    timestampsToggle.addEventListener("change", function () {
-      settings.timestamps = this.checked;
-      saveSettings();
-      document.documentElement.setAttribute(
-        "data-show-timestamps",
-        this.checked ? "true" : "false"
-      );
-    });
-  }
-
-  // Event Listeners: Memory
-  if (memoryToggle) {
-    memoryToggle.addEventListener("change", function () {
-      settings.memory = this.checked;
-      saveSettings();
-      document.documentElement.setAttribute(
-        "data-memory",
-        this.checked ? "enabled" : "disabled"
-      );
-    });
-  }
-
-  if (manageMemory) {
-    manageMemory.addEventListener("click", function (event) {
-      event.preventDefault();
-      alert("Memory management will be available here soon.");
-    });
-  }
-
-  // Event Listeners: Notifications
-  if (notificationsToggle) {
-    notificationsToggle.addEventListener("change", async function () {
-      if (!this.checked) {
-        settings.notifications = false;
-        saveSettings();
-        return;
-      }
-
-      if (!("Notification" in window)) {
-        alert("Browser notifications are not supported on this device.");
-        this.checked = false;
-        settings.notifications = false;
-        saveSettings();
-        return;
-      }
-
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === "granted") {
-          settings.notifications = true;
-        } else {
-          settings.notifications = false;
-          this.checked = false;
+    window.dispatchEvent(
+      new CustomEvent(
+        "orbitSettingChanged",
+        {
+          detail: {
+            key,
+            value
+          }
         }
-        saveSettings();
-      } catch (error) {
-        console.warn("Notification permission failed.", error);
-        settings.notifications = false;
-        this.checked = false;
-        saveSettings();
+      )
+    );
+  }
+
+
+  if (themeSelect) {
+    themeSelect.addEventListener(
+      "change",
+      event => {
+        updateSetting(
+          "theme",
+          event.target.value
+        );
       }
-    });
+    );
   }
 
-  // Event Listeners: Language
+
+  if (animationsToggle) {
+    animationsToggle.addEventListener(
+      "change",
+      event => {
+        updateSetting(
+          "animations",
+          event.target.checked
+        );
+      }
+    );
+  }
+
+
+  if (enterSendToggle) {
+    enterSendToggle.addEventListener(
+      "change",
+      event => {
+        updateSetting(
+          "enterToSend",
+          event.target.checked
+        );
+
+        if (
+          window.OrbitChatSettings &&
+          typeof window.OrbitChatSettings.setEnterToSend ===
+          "function"
+        ) {
+          window.OrbitChatSettings.setEnterToSend(
+            event.target.checked
+          );
+        }
+      }
+    );
+  }
+
+
+  if (timestampsToggle) {
+    timestampsToggle.addEventListener(
+      "change",
+      event => {
+        updateSetting(
+          "timestamps",
+          event.target.checked
+        );
+
+        if (
+          window.OrbitChatSettings &&
+          typeof window.OrbitChatSettings.setTimestamps ===
+          "function"
+        ) {
+          window.OrbitChatSettings.setTimestamps(
+            event.target.checked
+          );
+        }
+      }
+    );
+  }
+
+
+  if (memoryToggle) {
+    memoryToggle.addEventListener(
+      "change",
+      event => {
+        updateSetting(
+          "memory",
+          event.target.checked
+        );
+      }
+    );
+  }
+
+
+  if (notificationsToggle) {
+    notificationsToggle.addEventListener(
+      "change",
+      async event => {
+        const enabled =
+          event.target.checked;
+
+        if (!enabled) {
+          updateSetting(
+            "notifications",
+            false
+          );
+
+          return;
+        }
+
+        if (
+          !("Notification" in window)
+        ) {
+          alert(
+            "Browser notifications are not supported on this device."
+          );
+
+          event.target.checked =
+            false;
+
+          updateSetting(
+            "notifications",
+            false
+          );
+
+          return;
+        }
+
+        try {
+          const permission =
+            await Notification.requestPermission();
+
+          if (
+            permission === "granted"
+          ) {
+            updateSetting(
+              "notifications",
+              true
+            );
+          } else {
+            event.target.checked =
+              false;
+
+            updateSetting(
+              "notifications",
+              false
+            );
+          }
+        } catch {
+          event.target.checked =
+            false;
+
+          updateSetting(
+            "notifications",
+            false
+          );
+        }
+      }
+    );
+  }
+
+
   if (languageSelect) {
-    languageSelect.addEventListener("change", function () {
-      settings.language = this.value;
-      saveSettings();
-      document.documentElement.setAttribute("lang", settings.language);
-    });
+    languageSelect.addEventListener(
+      "change",
+      event => {
+        updateSetting(
+          "language",
+          event.target.value
+        );
+      }
+    );
   }
 
-  // Event Listeners: Clear Data
+
   if (clearDataBtn) {
-    clearDataBtn.addEventListener("click", function () {
-      const confirmed = confirm(
-        "Clear your saved Orbit settings and local preferences?"
+    clearDataBtn.addEventListener(
+      "click",
+      () => {
+        const confirmed =
+          window.confirm(
+            "Clear your saved Orbit settings and local preferences?"
+          );
+
+        if (!confirmed) {
+          return;
+        }
+
+        localStorage.removeItem(
+          SETTINGS_KEY
+        );
+
+        settings = {
+          ...defaultSettings
+        };
+
+        syncControls();
+        applyTheme();
+        applyAnimations();
+        applyDataPreferences();
+
+        if (
+          window.OrbitMemory &&
+          typeof window.OrbitMemory.setEnabled ===
+          "function"
+        ) {
+          window.OrbitMemory.setEnabled(
+            true
+          );
+        }
+
+        window.dispatchEvent(
+          new CustomEvent(
+            "orbitSettingsReset"
+          )
+        );
+
+        alert(
+          "Orbit settings have been reset."
+        );
+      }
+    );
+  }
+
+
+  window.addEventListener(
+    "orbitMemoryChanged",
+    event => {
+      if (
+        !event.detail ||
+        typeof event.detail.enabled !==
+        "boolean"
+      ) {
+        return;
+      }
+
+      settings.memory =
+        event.detail.enabled;
+
+      saveSettings();
+      syncControls();
+      applyDataPreferences();
+    }
+  );
+
+
+  const systemTheme =
+    window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    );
+
+  systemTheme.addEventListener(
+    "change",
+    () => {
+      if (
+        settings.theme === "system"
+      ) {
+        applyTheme();
+      }
+    }
+  );
+
+
+  window.OrbitSettings = {
+    get() {
+      return {
+        ...settings
+      };
+    },
+
+    getValue(key) {
+      return settings[key];
+    },
+
+    set(key, value) {
+      updateSetting(
+        key,
+        value
       );
-      if (!confirmed) return;
+    },
 
-      localStorage.removeItem(SETTINGS_KEY);
-      settings = { ...defaultSettings };
+    reset() {
+      settings = {
+        ...defaultSettings
+      };
 
+      saveSettings();
       syncControls();
       applyTheme();
       applyAnimations();
+      applyDataPreferences();
 
-      document.documentElement.setAttribute("data-enter-to-send", "true");
-      document.documentElement.setAttribute("data-show-timestamps", "false");
-      document.documentElement.setAttribute("data-memory", "enabled");
-      document.documentElement.setAttribute("lang", "en");
+      if (
+        window.OrbitMemory &&
+        typeof window.OrbitMemory.setEnabled ===
+        "function"
+      ) {
+        window.OrbitMemory.setEnabled(
+          true
+        );
+      }
 
-      alert("Orbit settings have been reset.");
-    });
-  }
-
-  // System Theme Listener
-  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
-  systemTheme.addEventListener("change", function () {
-    if (settings.theme === "system") {
-      applyTheme();
+      window.dispatchEvent(
+        new CustomEvent(
+          "orbitSettingsReset"
+        )
+      );
     }
-  });
+  };
 
-  // Initialization
-  function applyDataPreferences() {
-    document.documentElement.setAttribute(
-      "data-enter-to-send",
-      settings.enterToSend ? "true" : "false"
-    );
-    document.documentElement.setAttribute(
-      "data-show-timestamps",
-      settings.timestamps ? "true" : "false"
-    );
-    document.documentElement.setAttribute(
-      "data-memory",
-      settings.memory ? "enabled" : "disabled"
-    );
-    document.documentElement.setAttribute("lang", settings.language);
-  }
 
   syncControls();
   applyTheme();

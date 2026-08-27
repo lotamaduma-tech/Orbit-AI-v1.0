@@ -1,156 +1,259 @@
 "use strict";
 
-/* Orbit chat settings */
+(() => {
+    const SETTINGS_KEY = "orbitAISettings";
 
-const ORBIT_ENTER_SEND_KEY =
-    "orbit-enter-to-send";
+    const DEFAULT_CHAT_SETTINGS = {
+        enterToSend: true,
+        timestamps: false
+    };
 
-const ORBIT_TIMESTAMPS_KEY =
-    "orbit-message-timestamps";
+    function getSettings() {
+        try {
+            const saved = localStorage.getItem(SETTINGS_KEY);
 
+            if (!saved) {
+                return {};
+            }
 
-/* Load saved settings */
+            const parsed = JSON.parse(saved);
 
-function loadOrbitChatSettings() {
-    const enterSendToggle =
-        document.getElementById(
-            "enter-send-toggle"
-        );
+            return parsed && typeof parsed === "object"
+                ? parsed
+                : {};
+        } catch {
+            return {};
+        }
+    }
 
-    const timestampsToggle =
-        document.getElementById(
-            "timestamps-toggle"
-        );
+    function getChatSettings() {
+        const settings = getSettings();
 
-    if (enterSendToggle) {
-        const savedEnterSend =
-            localStorage.getItem(
-                ORBIT_ENTER_SEND_KEY
+        return {
+            enterToSend:
+                typeof settings.enterToSend === "boolean"
+                    ? settings.enterToSend
+                    : DEFAULT_CHAT_SETTINGS.enterToSend,
+
+            timestamps:
+                typeof settings.timestamps === "boolean"
+                    ? settings.timestamps
+                    : DEFAULT_CHAT_SETTINGS.timestamps
+        };
+    }
+
+    function saveChatSetting(key, value) {
+        const settings = getSettings();
+
+        settings[key] = Boolean(value);
+
+        try {
+            localStorage.setItem(
+                SETTINGS_KEY,
+                JSON.stringify(settings)
+            );
+        } catch (error) {
+            console.warn(
+                "Orbit chat setting could not be saved.",
+                error
             );
 
-        enterSendToggle.checked =
-            savedEnterSend === null
-                ? true
-                : savedEnterSend === "true";
+            return false;
+        }
+
+        window.dispatchEvent(
+            new CustomEvent("orbitChatSettingChanged", {
+                detail: {
+                    key,
+                    value: Boolean(value)
+                }
+            })
+        );
+
+        return true;
     }
 
-    if (timestampsToggle) {
-        const savedTimestamps =
-            localStorage.getItem(
-                ORBIT_TIMESTAMPS_KEY
+    function isEnterToSendEnabled() {
+        return getChatSettings().enterToSend;
+    }
+
+    function isTimestampsEnabled() {
+        return getChatSettings().timestamps;
+    }
+
+    function applyEnterToSendSetting() {
+        const enabled =
+            isEnterToSendEnabled();
+
+        document.documentElement.setAttribute(
+            "data-enter-to-send",
+            enabled ? "true" : "false"
+        );
+    }
+
+    function applyTimestampSetting() {
+        const enabled =
+            isTimestampsEnabled();
+
+        document.documentElement.setAttribute(
+            "data-show-timestamps",
+            enabled ? "true" : "false"
+        );
+
+        document.documentElement.classList.toggle(
+            "orbit-hide-timestamps",
+            !enabled
+        );
+    }
+
+    function applyChatSettings() {
+        applyEnterToSendSetting();
+        applyTimestampSetting();
+    }
+
+    function syncControls() {
+        const settings =
+            getChatSettings();
+
+        const enterSendToggle =
+            document.getElementById(
+                "enter-send-toggle"
             );
 
-        timestampsToggle.checked =
-            savedTimestamps === "true";
+        const timestampsToggle =
+            document.getElementById(
+                "timestamps-toggle"
+            );
+
+        if (enterSendToggle) {
+            enterSendToggle.checked =
+                settings.enterToSend;
+        }
+
+        if (timestampsToggle) {
+            timestampsToggle.checked =
+                settings.timestamps;
+        }
     }
 
-    applyOrbitTimestampSetting();
-}
+    function setupControls() {
+        const enterSendToggle =
+            document.getElementById(
+                "enter-send-toggle"
+            );
 
+        const timestampsToggle =
+            document.getElementById(
+                "timestamps-toggle"
+            );
 
-/* Save Enter setting */
+        if (
+            enterSendToggle &&
+            enterSendToggle.dataset
+                .orbitChatReady !== "true"
+        ) {
+            enterSendToggle.dataset
+                .orbitChatReady = "true";
 
-function saveOrbitEnterSendSetting(
-    enabled
-) {
-    localStorage.setItem(
-        ORBIT_ENTER_SEND_KEY,
-        String(enabled)
-    );
-}
+            enterSendToggle.addEventListener(
+                "change",
+                event => {
+                    saveChatSetting(
+                        "enterToSend",
+                        event.target.checked
+                    );
 
+                    applyEnterToSendSetting();
+                }
+            );
+        }
 
-/* Save timestamp setting */
+        if (
+            timestampsToggle &&
+            timestampsToggle.dataset
+                .orbitChatReady !== "true"
+        ) {
+            timestampsToggle.dataset
+                .orbitChatReady = "true";
 
-function saveOrbitTimestampSetting(
-    enabled
-) {
-    localStorage.setItem(
-        ORBIT_TIMESTAMPS_KEY,
-        String(enabled)
-    );
-}
+            timestampsToggle.addEventListener(
+                "change",
+                event => {
+                    saveChatSetting(
+                        "timestamps",
+                        event.target.checked
+                    );
 
+                    applyTimestampSetting();
+                }
+            );
+        }
 
-/* Check Enter setting */
+        syncControls();
+        applyChatSettings();
+    }
 
-function isOrbitEnterToSendEnabled() {
-    const saved =
-        localStorage.getItem(
-            ORBIT_ENTER_SEND_KEY
-        );
-
-    return saved === null
-        ? true
-        : saved === "true";
-}
-
-
-/* Check timestamp setting */
-
-function isOrbitTimestampsEnabled() {
-    return (
-        localStorage.getItem(
-            ORBIT_TIMESTAMPS_KEY
-        ) === "true"
-    );
-}
-
-
-/* Apply timestamp visibility */
-
-function applyOrbitTimestampSetting() {
-    document.documentElement.classList.toggle(
-        "orbit-hide-timestamps",
-        !isOrbitTimestampsEnabled()
-    );
-}
-
-
-/* Setup controls */
-
-function setupOrbitChatSettings() {
-    const enterSendToggle =
-        document.getElementById(
-            "enter-send-toggle"
-        );
-
-    const timestampsToggle =
-        document.getElementById(
-            "timestamps-toggle"
-        );
-
-    if (enterSendToggle) {
-        enterSendToggle.addEventListener(
-            "change",
-            () => {
-                saveOrbitEnterSendSetting(
-                    enterSendToggle.checked
-                );
+    window.addEventListener(
+        "storage",
+        event => {
+            if (event.key !== SETTINGS_KEY) {
+                return;
             }
+
+            syncControls();
+            applyChatSettings();
+        }
+    );
+
+    window.addEventListener(
+        "orbitSettingsChanged",
+        () => {
+            syncControls();
+            applyChatSettings();
+        }
+    );
+
+    window.OrbitChatSettings = {
+        get: getChatSettings,
+
+        isEnterToSendEnabled:
+            isEnterToSendEnabled,
+
+        isTimestampsEnabled:
+            isTimestampsEnabled,
+
+        setEnterToSend: enabled => {
+            saveChatSetting(
+                "enterToSend",
+                enabled
+            );
+
+            applyEnterToSendSetting();
+        },
+
+        setTimestamps: enabled => {
+            saveChatSetting(
+                "timestamps",
+                enabled
+            );
+
+            applyTimestampSetting();
+        },
+
+        apply: applyChatSettings,
+
+        syncControls
+    };
+
+    if (
+        document.readyState ===
+        "loading"
+    ) {
+        document.addEventListener(
+            "DOMContentLoaded",
+            setupControls
         );
+    } else {
+        setupControls();
     }
-
-    if (timestampsToggle) {
-        timestampsToggle.addEventListener(
-            "change",
-            () => {
-                saveOrbitTimestampSetting(
-                    timestampsToggle.checked
-                );
-
-                applyOrbitTimestampSetting();
-            }
-        );
-    }
-
-    loadOrbitChatSettings();
-}
-
-
-/* Initialize */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    setupOrbitChatSettings
-);
+})();

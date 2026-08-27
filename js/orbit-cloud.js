@@ -1,828 +1,1960 @@
 "use strict";
 
-// Orbit AI cloud storage config & constants
-const ORBIT_CLOUD_CONVERSATIONS_TABLE = "conversations";
-const ORBIT_CLOUD_MESSAGES_TABLE = "messages";
-const ORBIT_CLOUD_CACHE_KEY = "orbit-cloud-history-cache";
-const ORBIT_CLOUD_ACTIVE_CHAT_KEY = "orbit-cloud-active-chat";
+/*
+=========================================================
+ORBIT AI — CLOUD STORAGE
+=========================================================
+
+Responsibilities:
+- Supabase authentication/session handling
+- Cloud conversations
+- Cloud messages
+- Active chat
+- Local cloud-history cache
+- Conversation restoration
+- Cloud history deletion
+- Sidebar synchronization
+
+Does NOT manage:
+- AI memory
+- Settings
+- Theme
+- Chat UI styling
+- AI responses
+
+Those systems remain handled by their own files.
+=========================================================
+*/
+
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const ORBIT_CLOUD_CONVERSATIONS_TABLE =
+    "conversations";
+
+const ORBIT_CLOUD_MESSAGES_TABLE =
+    "messages";
+
+const ORBIT_CLOUD_CACHE_KEY =
+    "orbit-cloud-history-cache";
+
+const ORBIT_CLOUD_ACTIVE_CHAT_KEY =
+    "orbit-cloud-active-chat";
 
 const ORBIT_CLOUD_HISTORY_LIMIT = 50;
+
 const ORBIT_CLOUD_MESSAGE_LIMIT = 200;
 
+
+/* =========================================================
+   INTERNAL STATE
+========================================================= */
+
 let orbitCloudInitialized = false;
+let orbitCloudBooting = false;
+let orbitCloudReady = false;
 let orbitCloudUser = null;
 
-// Supabase authentication helpers
+
+/* =========================================================
+   SUPABASE CLIENT
+========================================================= */
+
 function getOrbitCloudSupabase() {
-    if (window.supabaseClient && typeof window.supabaseClient.from === "function") {
+
+    if (
+        window.supabaseClient &&
+        typeof window.supabaseClient.from === "function"
+    ) {
         return window.supabaseClient;
     }
-    if (window.supabase && typeof window.supabase.from === "function") {
+
+    if (
+        window.supabase &&
+        typeof window.supabase.from === "function"
+    ) {
         return window.supabase;
     }
+
     return null;
 }
 
+
+/* =========================================================
+   AUTHENTICATION
+========================================================= */
+
 async function getOrbitCloudSession() {
-    const supabase = getOrbitCloudSupabase();
-    if (!supabase || !supabase.auth || typeof supabase.auth.getSession !== "function") {
+
+    const supabase =
+        getOrbitCloudSupabase();
+
+    if (
+        !supabase ||
+        !supabase.auth ||
+        typeof supabase.auth.getSession !== "function"
+    ) {
         return null;
     }
 
     try {
-        const { data, error } = await supabase.auth.getSession();
+
+        const {
+            data,
+            error
+        } = await supabase.auth.getSession();
+
         if (error) {
-            console.warn("Orbit Cloud session error:", error);
+
+            console.warn(
+                "Orbit Cloud session error:",
+                error
+            );
+
             return null;
         }
+
         return data?.session || null;
+
     } catch (error) {
-        console.warn("Orbit Cloud authentication error:", error);
+
+        console.warn(
+            "Orbit Cloud authentication error:",
+            error
+        );
+
         return null;
     }
 }
 
+
 async function getOrbitCloudUser() {
-    const session = await getOrbitCloudSession();
-    orbitCloudUser = session?.user || null;
+
+    const session =
+        await getOrbitCloudSession();
+
+    orbitCloudUser =
+        session?.user || null;
+
     return orbitCloudUser;
 }
 
+
 async function getOrbitCloudToken() {
-    const session = await getOrbitCloudSession();
+
+    const session =
+        await getOrbitCloudSession();
+
     return session?.access_token || null;
 }
 
+
 function isOrbitCloudAuthenticated() {
-    return Boolean(orbitCloudUser?.id);
+
+    return Boolean(
+        orbitCloudUser?.id
+    );
 }
 
-// Local ID generator
+
+/* =========================================================
+   LOCAL ID
+========================================================= */
+
 function createOrbitCloudLocalId() {
-    if (window.crypto && typeof window.crypto.randomUUID === "function") {
-        return "local-" + window.crypto.randomUUID();
+
+    if (
+        window.crypto &&
+        typeof window.crypto.randomUUID === "function"
+    ) {
+        return (
+            "local-" +
+            window.crypto.randomUUID()
+        );
     }
-    return "local-" + Date.now().toString(36) + "-" + Math.random().toString(36).substring(2, 10);
+
+    return (
+        "local-" +
+        Date.now().toString(36) +
+        "-" +
+        Math.random()
+            .toString(36)
+            .substring(2, 10)
+    );
 }
 
-// Local cache management
-function normalizeOrbitCloudMessage(message) {
-    if (!message) return null;
 
-    const role = message.role === "user" ? "user" : message.role === "assistant" ? "assistant" : null;
-    if (!role) return null;
+/* =========================================================
+   MESSAGE NORMALIZATION
+========================================================= */
 
-    if (typeof message.content !== "string") return null;
-    const content = message.content.trim();
-    if (!content) return null;
+function normalizeOrbitCloudMessage(
+    message
+) {
+
+    if (!message) {
+        return null;
+    }
+
+    const role =
+        message.role === "user"
+            ? "user"
+            : message.role === "assistant"
+                ? "assistant"
+                : null;
+
+    if (!role) {
+        return null;
+    }
+
+    if (
+        typeof message.content !==
+        "string"
+    ) {
+        return null;
+    }
+
+    const content =
+        message.content.trim();
+
+    if (!content) {
+        return null;
+    }
 
     return {
-        id: message.id ? String(message.id) : null,
+
+        id:
+            message.id
+                ? String(message.id)
+                : null,
+
         role,
+
         content,
-        createdAt: message.createdAt || message.created_at || null
+
+        createdAt:
+            message.createdAt ||
+            message.created_at ||
+            null
     };
 }
 
-function normalizeOrbitCloudMessages(messages) {
-    if (!Array.isArray(messages)) return [];
+
+function normalizeOrbitCloudMessages(
+    messages
+) {
+
+    if (!Array.isArray(messages)) {
+        return [];
+    }
+
     return messages
         .map(normalizeOrbitCloudMessage)
         .filter(Boolean)
-        .slice(-ORBIT_CLOUD_MESSAGE_LIMIT);
+        .slice(
+            -ORBIT_CLOUD_MESSAGE_LIMIT
+        );
 }
 
-function normalizeOrbitCloudConversation(conversation) {
-    if (!conversation) return null;
-    const id = conversation.id;
-    if (!id) return null;
+
+/* =========================================================
+   CONVERSATION NORMALIZATION
+========================================================= */
+
+function normalizeOrbitCloudConversation(
+    conversation
+) {
+
+    if (!conversation) {
+        return null;
+    }
+
+    if (!conversation.id) {
+        return null;
+    }
 
     return {
-        id: String(id),
-        title: String(conversation.title || "New chat").trim(),
-        message: String(conversation.message || "").trim(),
-        messages: normalizeOrbitCloudMessages(conversation.messages),
-        createdAt: conversation.createdAt || conversation.created_at || null,
-        updatedAt: conversation.updatedAt || conversation.updated_at || null
+
+        id:
+            String(conversation.id),
+
+        title:
+            String(
+                conversation.title ||
+                "New chat"
+            ).trim(),
+
+        message:
+            String(
+                conversation.message ||
+                ""
+            ).trim(),
+
+        messages:
+            normalizeOrbitCloudMessages(
+                conversation.messages
+            ),
+
+        createdAt:
+            conversation.createdAt ||
+            conversation.created_at ||
+            null,
+
+        updatedAt:
+            conversation.updatedAt ||
+            conversation.updated_at ||
+            null
     };
 }
 
+
+/* =========================================================
+   LOCAL CLOUD CACHE
+========================================================= */
+
 function loadOrbitCloudCache() {
+
     try {
-        const saved = localStorage.getItem(ORBIT_CLOUD_CACHE_KEY);
-        if (!saved) return [];
-        const parsed = JSON.parse(saved);
-        if (!Array.isArray(parsed)) return [];
+
+        const saved =
+            localStorage.getItem(
+                ORBIT_CLOUD_CACHE_KEY
+            );
+
+        if (!saved) {
+            return [];
+        }
+
+        const parsed =
+            JSON.parse(saved);
+
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
 
         return parsed
-            .map(normalizeOrbitCloudConversation)
+            .map(
+                normalizeOrbitCloudConversation
+            )
             .filter(Boolean)
-            .slice(0, ORBIT_CLOUD_HISTORY_LIMIT);
+            .slice(
+                0,
+                ORBIT_CLOUD_HISTORY_LIMIT
+            );
+
     } catch (error) {
-        console.warn("Orbit Cloud cache load failed:", error);
+
+        console.warn(
+            "Orbit Cloud cache load failed:",
+            error
+        );
+
         return [];
     }
 }
 
-function saveOrbitCloudCache(conversations) {
+
+function saveOrbitCloudCache(
+    conversations
+) {
+
     try {
-        const normalized = Array.isArray(conversations)
-            ? conversations.map(normalizeOrbitCloudConversation).filter(Boolean).slice(0, ORBIT_CLOUD_HISTORY_LIMIT)
-            : [];
 
-        localStorage.setItem(ORBIT_CLOUD_CACHE_KEY, JSON.stringify(normalized));
+        const normalized =
+            Array.isArray(conversations)
+
+                ? conversations
+                    .map(
+                        normalizeOrbitCloudConversation
+                    )
+                    .filter(Boolean)
+                    .slice(
+                        0,
+                        ORBIT_CLOUD_HISTORY_LIMIT
+                    )
+
+                : [];
+
+        localStorage.setItem(
+            ORBIT_CLOUD_CACHE_KEY,
+            JSON.stringify(normalized)
+        );
+
         return normalized;
+
     } catch (error) {
-        console.warn("Orbit Cloud cache save failed:", error);
+
+        console.warn(
+            "Orbit Cloud cache save failed:",
+            error
+        );
+
         return [];
     }
 }
+
 
 function clearOrbitCloudCache() {
+
     try {
-        localStorage.removeItem(ORBIT_CLOUD_CACHE_KEY);
+
+        localStorage.removeItem(
+            ORBIT_CLOUD_CACHE_KEY
+        );
+
     } catch (error) {
-        console.warn("Orbit Cloud cache clear failed:", error);
+
+        console.warn(
+            "Orbit Cloud cache clear failed:",
+            error
+        );
     }
 }
 
-// Active chat state
-function setOrbitCloudActiveChat(conversationId) {
+
+/* =========================================================
+   ACTIVE CHAT
+========================================================= */
+
+function setOrbitCloudActiveChat(
+    conversationId
+) {
+
     try {
+
         if (conversationId) {
-            localStorage.setItem(ORBIT_CLOUD_ACTIVE_CHAT_KEY, String(conversationId));
+
+            localStorage.setItem(
+                ORBIT_CLOUD_ACTIVE_CHAT_KEY,
+                String(conversationId)
+            );
+
         } else {
-            localStorage.removeItem(ORBIT_CLOUD_ACTIVE_CHAT_KEY);
+
+            localStorage.removeItem(
+                ORBIT_CLOUD_ACTIVE_CHAT_KEY
+            );
         }
+
     } catch (error) {
-        console.warn("Orbit Cloud active chat error:", error);
+
+        console.warn(
+            "Orbit Cloud active chat error:",
+            error
+        );
     }
 }
+
 
 function getOrbitCloudActiveChat() {
+
     try {
-        return localStorage.getItem(ORBIT_CLOUD_ACTIVE_CHAT_KEY) || null;
+
+        return (
+            localStorage.getItem(
+                ORBIT_CLOUD_ACTIVE_CHAT_KEY
+            ) || null
+        );
+
     } catch {
+
         return null;
     }
 }
 
-// Conversation CRUD operations
-async function createOrbitCloudConversation(title = "New chat") {
-    const supabase = getOrbitCloudSupabase();
-    const user = await getOrbitCloudUser();
 
-    if (!supabase || !user) return null;
+/* =========================================================
+   CREATE CONVERSATION
+========================================================= */
+
+async function createOrbitCloudConversation(
+    title = "New chat"
+) {
+
+    const supabase =
+        getOrbitCloudSupabase();
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (!supabase || !user) {
+        return null;
+    }
 
     try {
-        const { data, error } = await supabase
-            .from(ORBIT_CLOUD_CONVERSATIONS_TABLE)
+
+        const {
+            data,
+            error
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_CONVERSATIONS_TABLE
+            )
+
             .insert({
-                user_id: user.id,
-                title: String(title || "New chat").trim().slice(0, 120)
+
+                user_id:
+                    user.id,
+
+                title:
+                    String(
+                        title ||
+                        "New chat"
+                    )
+                        .trim()
+                        .slice(0, 120)
             })
-            .select("id, user_id, title, created_at, updated_at")
+
+            .select(
+                "id, user_id, title, created_at, updated_at"
+            )
+
             .single();
 
         if (error) {
-            console.error("Orbit Cloud conversation creation failed:", error);
+
+            console.error(
+                "Orbit Cloud conversation creation failed:",
+                error
+            );
+
             return null;
         }
 
-        const conversation = normalizeOrbitCloudConversation(data);
+        const conversation =
+            normalizeOrbitCloudConversation(
+                data
+            );
+
         if (conversation?.id) {
-            setOrbitCloudActiveChat(conversation.id);
+
+            setOrbitCloudActiveChat(
+                conversation.id
+            );
         }
 
         return conversation;
+
     } catch (error) {
-        console.error("Orbit Cloud conversation error:", error);
+
+        console.error(
+            "Orbit Cloud conversation error:",
+            error
+        );
+
         return null;
     }
 }
 
-async function updateOrbitCloudConversation(conversationId, updates = {}) {
-    const supabase = getOrbitCloudSupabase();
-    const user = await getOrbitCloudUser();
 
-    if (!supabase || !user || !conversationId) return null;
+/* =========================================================
+   UPDATE CONVERSATION
+========================================================= */
+
+async function updateOrbitCloudConversation(
+    conversationId,
+    updates = {}
+) {
+
+    const supabase =
+        getOrbitCloudSupabase();
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (
+        !supabase ||
+        !user ||
+        !conversationId
+    ) {
+        return null;
+    }
 
     const payload = {};
-    if (typeof updates.title === "string" && updates.title.trim()) {
-        payload.title = updates.title.trim().slice(0, 120);
-    }
-    if (typeof updates.message === "string") {
-        payload.message = updates.message.trim().slice(0, 500);
+
+    if (
+        typeof updates.title ===
+            "string" &&
+        updates.title.trim()
+    ) {
+
+        payload.title =
+            updates.title
+                .trim()
+                .slice(0, 120);
     }
 
-    if (!Object.keys(payload).length) return null;
+    if (
+        typeof updates.message ===
+        "string"
+    ) {
+
+        payload.message =
+            updates.message
+                .trim()
+                .slice(0, 500);
+    }
+
+    if (
+        !Object.keys(payload).length
+    ) {
+        return null;
+    }
 
     try {
-        const { data, error } = await supabase
-            .from(ORBIT_CLOUD_CONVERSATIONS_TABLE)
+
+        const {
+            data,
+            error
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_CONVERSATIONS_TABLE
+            )
+
             .update(payload)
-            .eq("id", conversationId)
-            .eq("user_id", user.id)
-            .select("id, user_id, title, created_at, updated_at")
+
+            .eq(
+                "id",
+                conversationId
+            )
+
+            .eq(
+                "user_id",
+                user.id
+            )
+
+            .select(
+                "id, user_id, title, created_at, updated_at"
+            )
+
             .single();
 
         if (error) {
-            console.error("Orbit Cloud conversation update failed:", error);
+
+            console.error(
+                "Orbit Cloud conversation update failed:",
+                error
+            );
+
             return null;
         }
 
-        return normalizeOrbitCloudConversation(data);
+        return normalizeOrbitCloudConversation(
+            data
+        );
+
     } catch (error) {
-        console.error("Orbit Cloud conversation update error:", error);
+
+        console.error(
+            "Orbit Cloud conversation update error:",
+            error
+        );
+
         return null;
     }
 }
 
-// Message operations
-async function saveOrbitCloudMessage(conversationId, role, content) {
-    const supabase = getOrbitCloudSupabase();
-    const user = await getOrbitCloudUser();
 
-    if (!supabase || !user || !conversationId) return null;
+/* =========================================================
+   SAVE MESSAGE
+========================================================= */
 
-    const cleanRole = role === "user" ? "user" : role === "assistant" ? "assistant" : null;
-    const cleanContent = typeof content === "string" ? content.trim() : "";
+async function saveOrbitCloudMessage(
+    conversationId,
+    role,
+    content
+) {
 
-    if (!cleanRole || !cleanContent) return null;
+    const supabase =
+        getOrbitCloudSupabase();
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (
+        !supabase ||
+        !user ||
+        !conversationId
+    ) {
+        return null;
+    }
+
+    const cleanRole =
+        role === "user"
+            ? "user"
+            : role === "assistant"
+                ? "assistant"
+                : null;
+
+    const cleanContent =
+        typeof content === "string"
+            ? content.trim()
+            : "";
+
+    if (
+        !cleanRole ||
+        !cleanContent
+    ) {
+        return null;
+    }
 
     try {
-        const { data, error } = await supabase
-            .from(ORBIT_CLOUD_MESSAGES_TABLE)
+
+        const {
+            data,
+            error
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_MESSAGES_TABLE
+            )
+
             .insert({
-                conversation_id: conversationId,
-                user_id: user.id,
-                role: cleanRole,
-                content: cleanContent
+
+                conversation_id:
+                    conversationId,
+
+                user_id:
+                    user.id,
+
+                role:
+                    cleanRole,
+
+                content:
+                    cleanContent
             })
-            .select("id, conversation_id, user_id, role, content, created_at")
+
+            .select(
+                "id, conversation_id, user_id, role, content, created_at"
+            )
+
             .single();
 
         if (error) {
-            console.error("Orbit Cloud message save failed:", error);
+
+            console.error(
+                "Orbit Cloud message save failed:",
+                error
+            );
+
             return null;
         }
 
         return data || null;
+
     } catch (error) {
-        console.error("Orbit Cloud message error:", error);
+
+        console.error(
+            "Orbit Cloud message error:",
+            error
+        );
+
         return null;
     }
 }
 
-// History loading
+
+/* =========================================================
+   LOAD CONVERSATIONS
+========================================================= */
+
 async function loadOrbitCloudConversations() {
-    const supabase = getOrbitCloudSupabase();
-    const user = await getOrbitCloudUser();
 
-    if (!supabase || !user) return [];
+    const supabase =
+        getOrbitCloudSupabase();
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (!supabase || !user) {
+        return [];
+    }
 
     try {
-        const { data, error } = await supabase
-            .from(ORBIT_CLOUD_CONVERSATIONS_TABLE)
-            .select("id, user_id, title, created_at, updated_at")
-            .eq("user_id", user.id)
-            .order("updated_at", { ascending: false })
-            .limit(ORBIT_CLOUD_HISTORY_LIMIT);
+
+        const {
+            data,
+            error
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_CONVERSATIONS_TABLE
+            )
+
+            .select(
+                "id, user_id, title, created_at, updated_at"
+            )
+
+            .eq(
+                "user_id",
+                user.id
+            )
+
+            .order(
+                "updated_at",
+                {
+                    ascending: false
+                }
+            )
+
+            .limit(
+                ORBIT_CLOUD_HISTORY_LIMIT
+            );
 
         if (error) {
-            console.error("Orbit Cloud history load failed:", error);
+
+            console.error(
+                "Orbit Cloud history load failed:",
+                error
+            );
+
             return [];
         }
 
-        return Array.isArray(data) ? data.map(normalizeOrbitCloudConversation).filter(Boolean) : [];
+        return Array.isArray(data)
+
+            ? data
+                .map(
+                    normalizeOrbitCloudConversation
+                )
+                .filter(Boolean)
+
+            : [];
+
     } catch (error) {
-        console.error("Orbit Cloud history error:", error);
+
+        console.error(
+            "Orbit Cloud history error:",
+            error
+        );
+
         return [];
     }
 }
 
-async function loadOrbitCloudMessages(conversationId) {
-    const supabase = getOrbitCloudSupabase();
-    const user = await getOrbitCloudUser();
 
-    if (!supabase || !user || !conversationId) return [];
+/* =========================================================
+   LOAD MESSAGES
+========================================================= */
+
+async function loadOrbitCloudMessages(
+    conversationId
+) {
+
+    const supabase =
+        getOrbitCloudSupabase();
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (
+        !supabase ||
+        !user ||
+        !conversationId
+    ) {
+        return [];
+    }
 
     try {
-        const { data, error } = await supabase
-            .from(ORBIT_CLOUD_MESSAGES_TABLE)
-            .select("id, conversation_id, user_id, role, content, created_at")
-            .eq("conversation_id", conversationId)
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: true })
-            .limit(ORBIT_CLOUD_MESSAGE_LIMIT);
+
+        const {
+            data,
+            error
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_MESSAGES_TABLE
+            )
+
+            .select(
+                "id, conversation_id, user_id, role, content, created_at"
+            )
+
+            .eq(
+                "conversation_id",
+                conversationId
+            )
+
+            .eq(
+                "user_id",
+                user.id
+            )
+
+            .order(
+                "created_at",
+                {
+                    ascending: true
+                }
+            )
+
+            .limit(
+                ORBIT_CLOUD_MESSAGE_LIMIT
+            );
 
         if (error) {
-            console.error("Orbit Cloud messages load failed:", error);
+
+            console.error(
+                "Orbit Cloud messages load failed:",
+                error
+            );
+
             return [];
         }
 
-        return normalizeOrbitCloudMessages(data);
+        return normalizeOrbitCloudMessages(
+            data
+        );
+
     } catch (error) {
-        console.error("Orbit Cloud messages error:", error);
+
+        console.error(
+            "Orbit Cloud messages error:",
+            error
+        );
+
         return [];
     }
 }
 
-// Fast cached data getters
+
+/* =========================================================
+   CACHE GETTERS
+========================================================= */
+
 async function getOrbitCachedConversations() {
+
     return loadOrbitCloudCache();
 }
 
-async function getOrbitCachedMessages(conversationId) {
-    const conversations = loadOrbitCloudCache();
-    const conversation = conversations.find(item => String(item.id) === String(conversationId));
-    return conversation?.messages || [];
+
+async function getOrbitCachedMessages(
+    conversationId
+) {
+
+    const conversations =
+        loadOrbitCloudCache();
+
+    const conversation =
+        conversations.find(
+            item =>
+                String(item.id) ===
+                String(conversationId)
+        );
+
+    return (
+        conversation?.messages ||
+        []
+    );
 }
 
-// Syncing cloud and local storage
-async function syncOrbitCloudHistory() {
-    const user = await getOrbitCloudUser();
-    if (!user) return [];
 
-    const cloudConversations = await loadOrbitCloudConversations();
-    if (!cloudConversations.length) {
-        saveOrbitCloudCache([]);
+/* =========================================================
+   SYNC HISTORY
+========================================================= */
+
+async function syncOrbitCloudHistory() {
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (!user) {
         return [];
     }
 
-    const cachedConversations = loadOrbitCloudCache();
-    const merged = cloudConversations.map(cloudConversation => {
-        const cached = cachedConversations.find(item => String(item.id) === String(cloudConversation.id));
-        return {
-            ...cloudConversation,
-            message: cached?.message || "",
-            messages: cached?.messages || []
-        };
-    });
+    const cloudConversations =
+        await loadOrbitCloudConversations();
 
-    saveOrbitCloudCache(merged);
+    const cachedConversations =
+        loadOrbitCloudCache();
+
+    const merged =
+        cloudConversations.map(
+            cloudConversation => {
+
+                const cached =
+                    cachedConversations.find(
+                        item =>
+                            String(item.id) ===
+                            String(
+                                cloudConversation.id
+                            )
+                    );
+
+                return {
+
+                    ...cloudConversation,
+
+                    message:
+                        cached?.message ||
+                        "",
+
+                    messages:
+                        cached?.messages ||
+                        []
+                };
+            }
+        );
+
+    saveOrbitCloudCache(
+        merged
+    );
+
+    syncOrbitCloudSidebar();
+
     return merged;
 }
 
-async function syncOrbitCloudConversation(conversationId) {
-    if (!conversationId) return null;
 
-    const messages = await loadOrbitCloudMessages(conversationId);
-    if (!messages.length) return null;
+/* =========================================================
+   SYNC ONE CONVERSATION
+========================================================= */
 
-    const conversations = loadOrbitCloudCache();
-    const index = conversations.findIndex(conversation => String(conversation.id) === String(conversationId));
+async function syncOrbitCloudConversation(
+    conversationId
+) {
+
+    if (!conversationId) {
+        return null;
+    }
+
+    const messages =
+        await loadOrbitCloudMessages(
+            conversationId
+        );
+
+    const conversations =
+        loadOrbitCloudCache();
+
+    const index =
+        conversations.findIndex(
+            conversation =>
+                String(
+                    conversation.id
+                ) ===
+                String(
+                    conversationId
+                )
+        );
 
     if (index >= 0) {
-        conversations[index].messages = messages;
-        conversations[index].updatedAt = Date.now();
-        saveOrbitCloudCache(conversations);
+
+        conversations[index].messages =
+            messages;
+
+        conversations[index].updatedAt =
+            Date.now();
+
+        saveOrbitCloudCache(
+            conversations
+        );
     }
 
     return messages;
 }
 
-// Delete single conversation
-async function deleteOrbitCloudConversation(conversationId) {
-    const supabase = getOrbitCloudSupabase();
-    const user = await getOrbitCloudUser();
 
-    if (!supabase || !user || !conversationId) return false;
+/* =========================================================
+   DELETE CONVERSATION
+========================================================= */
+
+async function deleteOrbitCloudConversation(
+    conversationId
+) {
+
+    const supabase =
+        getOrbitCloudSupabase();
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (
+        !supabase ||
+        !user ||
+        !conversationId
+    ) {
+        return false;
+    }
 
     try {
-        const { error } = await supabase
-            .from(ORBIT_CLOUD_CONVERSATIONS_TABLE)
+
+        const {
+            error
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_CONVERSATIONS_TABLE
+            )
+
             .delete()
-            .eq("id", conversationId)
-            .eq("user_id", user.id);
+
+            .eq(
+                "id",
+                conversationId
+            )
+
+            .eq(
+                "user_id",
+                user.id
+            );
 
         if (error) {
-            console.error("Orbit Cloud conversation delete failed:", error);
+
+            console.error(
+                "Orbit Cloud conversation delete failed:",
+                error
+            );
+
             return false;
         }
 
-        const cached = loadOrbitCloudCache();
-        saveOrbitCloudCache(cached.filter(conversation => String(conversation.id) !== String(conversationId)));
+        const cached =
+            loadOrbitCloudCache();
 
-        if (String(getOrbitCloudActiveChat()) === String(conversationId)) {
-            setOrbitCloudActiveChat(null);
+        saveOrbitCloudCache(
+            cached.filter(
+                conversation =>
+                    String(
+                        conversation.id
+                    ) !==
+                    String(
+                        conversationId
+                    )
+            )
+        );
+
+        if (
+            String(
+                getOrbitCloudActiveChat()
+            ) ===
+            String(
+                conversationId
+            )
+        ) {
+
+            setOrbitCloudActiveChat(
+                null
+            );
         }
 
+        syncOrbitCloudSidebar();
+
         return true;
+
     } catch (error) {
-        console.error("Orbit Cloud delete error:", error);
+
+        console.error(
+            "Orbit Cloud delete error:",
+            error
+        );
+
         return false;
     }
 }
 
-// Clear all cloud history
-async function clearOrbitCloudHistory() {
-    const supabase = getOrbitCloudSupabase();
-    const user = await getOrbitCloudUser();
 
-    if (!supabase || !user?.id) return false;
+/* =========================================================
+   CLEAR ALL HISTORY
+========================================================= */
+
+async function clearOrbitCloudHistory() {
+
+    const supabase =
+        getOrbitCloudSupabase();
+
+    const user =
+        await getOrbitCloudUser();
+
+    if (
+        !supabase ||
+        !user?.id
+    ) {
+        return false;
+    }
 
     try {
-        const { data: conversations, error: conversationError } = await supabase
-            .from(ORBIT_CLOUD_CONVERSATIONS_TABLE)
-            .select("id")
-            .eq("user_id", user.id);
+
+        const {
+            error
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_MESSAGES_TABLE
+            )
+
+            .delete()
+
+            .eq(
+                "user_id",
+                user.id
+            );
+
+        if (error) {
+
+            console.error(
+                "Orbit Cloud messages clear failed:",
+                error
+            );
+
+            return false;
+        }
+
+
+        const {
+            error:
+                conversationError
+        } = await supabase
+
+            .from(
+                ORBIT_CLOUD_CONVERSATIONS_TABLE
+            )
+
+            .delete()
+
+            .eq(
+                "user_id",
+                user.id
+            );
 
         if (conversationError) {
-            console.error("Orbit Cloud history lookup failed:", conversationError);
+
+            console.error(
+                "Orbit Cloud conversations clear failed:",
+                conversationError
+            );
+
             return false;
         }
 
-        const conversationIds = Array.isArray(conversations)
-            ? conversations.map(conversation => conversation.id).filter(Boolean)
-            : [];
-
-        if (conversationIds.length) {
-            const { error: messageError } = await supabase
-                .from(ORBIT_CLOUD_MESSAGES_TABLE)
-                .delete()
-                .eq("user_id", user.id);
-
-            if (messageError) {
-                console.error("Orbit Cloud messages clear failed:", messageError);
-                return false;
-            }
-
-            const { error: conversationDeleteError } = await supabase
-                .from(ORBIT_CLOUD_CONVERSATIONS_TABLE)
-                .delete()
-                .eq("user_id", user.id);
-
-            if (conversationDeleteError) {
-                console.error("Orbit Cloud conversations clear failed:", conversationDeleteError);
-                return false;
-            }
-        }
 
         clearOrbitCloudCache();
-        setOrbitCloudActiveChat(null);
 
-        if (typeof clearOrbitConversationHistory === "function") {
-            clearOrbitConversationHistory();
+        setOrbitCloudActiveChat(
+            null
+        );
+
+
+        /*
+        Clear local Orbit conversation
+        if that system exists.
+        */
+
+        if (
+            typeof window
+                .clearOrbitConversationStorage ===
+            "function"
+        ) {
+
+            window.clearOrbitConversationStorage();
         }
 
-        if (typeof clearOrbitConversationStorage === "function") {
-            clearOrbitConversationStorage();
+
+        if (
+            typeof window
+                .clearOrbitConversationHistory ===
+            "function"
+        ) {
+
+            /*
+            Avoid calling the same function
+            recursively through OrbitCloud.
+            */
+
+            if (
+                window.clearOrbitConversationHistory !==
+                clearOrbitCloudHistory
+            ) {
+                window.clearOrbitConversationHistory();
+            }
         }
 
-        if (typeof refreshOrbitRecentChats === "function") {
-            refreshOrbitRecentChats();
-        }
 
-        const { chatWindow } = getOrbitElements();
-        if (chatWindow) {
-            chatWindow.innerHTML = "";
-        }
-
-        const chatIntro = document.getElementById("chat-intro");
-        if (chatIntro) {
-            chatIntro.classList.remove("is-hidden");
-        }
+        syncOrbitCloudSidebar();
 
         return true;
+
     } catch (error) {
-        console.error("Orbit Cloud history clear failed:", error);
+
+        console.error(
+            "Orbit Cloud history clear failed:",
+            error
+        );
+
         return false;
     }
 }
 
-// Account switching handler
-async function handleOrbitCloudAuthChange(session) {
-    const newUser = session?.user || null;
-    const previousUserId = orbitCloudUser?.id || null;
-    const newUserId = newUser?.id || null;
 
-    orbitCloudUser = newUser;
+/* =========================================================
+   SIDEBAR SYNC
+========================================================= */
 
-    if (previousUserId !== newUserId) {
-        clearOrbitCloudCache();
-        setOrbitCloudActiveChat(null);
-    }
+function syncOrbitCloudSidebar() {
 
-    if (newUser) {
-        await syncOrbitCloudHistory();
+    try {
+
+        if (
+            typeof window
+                .refreshOrbitRecentChats ===
+            "function"
+        ) {
+
+            window.refreshOrbitRecentChats();
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Orbit Cloud sidebar refresh failed:",
+            error
+        );
     }
 }
 
-// Public API exposure
-window.OrbitCloud = {
-    initialize: initializeOrbitCloud,
-    getSession: getOrbitCloudSession,
-    getUser: getOrbitCloudUser,
-    getToken: getOrbitCloudToken,
-    isAuthenticated: isOrbitCloudAuthenticated,
-    createConversation: createOrbitCloudConversation,
-    updateConversation: updateOrbitCloudConversation,
-    saveMessage: saveOrbitCloudMessage,
-    loadConversations: loadOrbitCloudConversations,
-    loadMessages: loadOrbitCloudMessages,
-    deleteConversation: deleteOrbitCloudConversation,
-    clearHistory: clearOrbitCloudHistory,
-    syncHistory: syncOrbitCloudHistory,
-    syncConversation: syncOrbitCloudConversation,
-    getCachedConversations: getOrbitCachedConversations,
-    getCachedMessages: getOrbitCachedMessages,
-    getActiveChat: getOrbitCloudActiveChat,
-    setActiveChat: setOrbitCloudActiveChat,
-    clearCache: clearOrbitCloudCache
-};
 
-// UI and history restoration
-async function restoreOrbitCloudHistory() {
+/* =========================================================
+   RESTORE CONVERSATION
+========================================================= */
+
+async function restoreOrbitCloudConversation(
+    conversationId
+) {
+
+    if (!conversationId) {
+        return false;
+    }
+
     try {
-        const session = await getOrbitAuthSession?.();
-        if (!session?.user?.id) {
-            console.log("Orbit Cloud: no authenticated user.");
-            return [];
+
+        const messages =
+            await loadOrbitCloudMessages(
+                conversationId
+            );
+
+        if (!Array.isArray(messages)) {
+            return false;
         }
 
-        const userId = String(session.user.id);
-        const conversations = await getOrbitCloudConversations(userId);
 
-        if (!Array.isArray(conversations) || !conversations.length) {
-            console.log("Orbit Cloud: no saved conversations.");
-            return [];
+        /*
+        Restore temporary Orbit conversation
+        when the conversation system exposes it.
+        */
+
+        const normalizedMessages =
+            messages.map(
+                message => ({
+                    role:
+                        message.role,
+
+                    content:
+                        message.content
+                })
+            );
+
+
+        if (
+            typeof window
+                .setOrbitConversation ===
+            "function"
+        ) {
+
+            window.setOrbitConversation(
+                normalizedMessages
+            );
         }
 
-        try {
-            localStorage.setItem(ORBIT_RECENT_CHATS_KEY, JSON.stringify(conversations));
-        } catch (error) {
-            console.warn("Orbit Cloud: unable to cache conversations:", error);
+
+        setOrbitCloudActiveChat(
+            conversationId
+        );
+
+
+        /*
+        Restore into the chat UI when
+        the required Orbit UI functions exist.
+        */
+
+        if (
+            typeof window
+                .getOrbitElements ===
+            "function"
+        ) {
+
+            const {
+                chatWindow
+            } =
+                window.getOrbitElements();
+
+
+            if (chatWindow) {
+
+                chatWindow.innerHTML =
+                    "";
+
+
+                let conversationGroup =
+                    null;
+
+
+                if (
+                    typeof window
+                        .createOrbitConversationGroup ===
+                    "function"
+                ) {
+
+                    conversationGroup =
+                        window.createOrbitConversationGroup();
+
+                } else {
+
+                    conversationGroup =
+                        document.createElement(
+                            "div"
+                        );
+
+                    conversationGroup.className =
+                        "conversation-group";
+                }
+
+
+                chatWindow.appendChild(
+                    conversationGroup
+                );
+
+
+                normalizedMessages.forEach(
+                    message => {
+
+                        if (
+                            typeof window
+                                .addOrbitMessage ===
+                            "function"
+                        ) {
+
+                            window.addOrbitMessage(
+                                message.content,
+                                message.role,
+                                conversationGroup
+                            );
+                        }
+                    }
+                );
+
+
+                const chatIntro =
+                    document.getElementById(
+                        "chat-intro"
+                    );
+
+                if (chatIntro) {
+
+                    chatIntro.classList.add(
+                        "is-hidden"
+                    );
+                }
+
+
+                if (
+                    typeof window
+                        .scrollOrbitChat ===
+                    "function"
+                ) {
+
+                    window.scrollOrbitChat(
+                        "auto"
+                    );
+                }
+            }
         }
 
-        if (typeof refreshOrbitRecentChats === "function") {
-            refreshOrbitRecentChats();
-        }
 
-        let activeChatId = null;
-        try {
-            activeChatId = localStorage.getItem(ORBIT_ACTIVE_CHAT_KEY);
-        } catch {
-            activeChatId = null;
-        }
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Orbit Cloud conversation restore failed:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   RESTORE ACTIVE CHAT
+========================================================= */
+
+async function restoreOrbitActiveCloudChat() {
+
+    try {
+
+        const activeChatId =
+            getOrbitCloudActiveChat();
 
         if (!activeChatId) {
-            activeChatId = conversations[0]?.id || conversations[0]?.conversation_id || null;
+            return false;
         }
 
-        if (!activeChatId) return conversations;
+        const restored =
+            await restoreOrbitCloudConversation(
+                activeChatId
+            );
 
-        const restored = await restoreOrbitCloudConversation(activeChatId);
         if (restored) {
-            try {
-                localStorage.setItem(ORBIT_ACTIVE_CHAT_KEY, String(activeChatId));
-            } catch {
-                /* Ignore localStorage errors */
-            }
+
+            syncOrbitCloudSidebar();
         }
 
-        return conversations;
+        return restored;
+
     } catch (error) {
-        console.error("Orbit Cloud: history restore failed:", error);
-        return [];
-    }
-}
 
-async function restoreOrbitCloudConversation(conversationId) {
-    if (!conversationId) return false;
+        console.warn(
+            "Orbit Cloud active chat restore failed:",
+            error
+        );
 
-    try {
-        const session = await getOrbitAuthSession?.();
-        if (!session?.user?.id) return false;
-
-        const userId = String(session.user.id);
-        const messages = await getOrbitCloudMessages(conversationId, userId);
-
-        if (!Array.isArray(messages)) return false;
-
-        const normalizedMessages = messages
-            .filter(message => message && (message.role === "user" || message.role === "assistant") && typeof message.content === "string" && message.content.trim())
-            .map(message => ({
-                role: message.role,
-                content: message.content.trim()
-            }));
-
-        if (typeof setOrbitConversation === "function") {
-            setOrbitConversation(normalizedMessages);
-        }
-
-        if (typeof saveOrbitActiveChatId === "function") {
-            saveOrbitActiveChatId(conversationId);
-        }
-
-        renderOrbitCloudConversation(normalizedMessages);
-        return true;
-    } catch (error) {
-        console.error("Orbit Cloud: conversation restore failed:", error);
         return false;
     }
 }
 
-function renderOrbitCloudConversation(messages) {
-    const { chatWindow } = getOrbitElements();
-    if (!chatWindow) return;
 
-    chatWindow.innerHTML = "";
-    if (!Array.isArray(messages) || !messages.length) return;
+/* =========================================================
+   AUTH CHANGE
+========================================================= */
 
-    const conversationGroup = typeof createOrbitConversationGroup === "function"
-        ? createOrbitConversationGroup()
-        : document.createElement("div");
+async function handleOrbitCloudAuthChange(
+    session
+) {
 
-    if (!conversationGroup.classList.contains("conversation-group")) {
-        conversationGroup.classList.add("conversation-group");
+    const newUser =
+        session?.user || null;
+
+    const previousUserId =
+        orbitCloudUser?.id || null;
+
+    const newUserId =
+        newUser?.id || null;
+
+    orbitCloudUser =
+        newUser;
+
+
+    /*
+    If the account changed, never allow
+    the previous user's cache to remain.
+    */
+
+    if (
+        previousUserId !==
+        newUserId
+    ) {
+
+        clearOrbitCloudCache();
+
+        setOrbitCloudActiveChat(
+            null
+        );
     }
 
-    chatWindow.appendChild(conversationGroup);
 
-    messages.forEach(message => {
-        if (typeof addOrbitMessage === "function") {
-            addOrbitMessage(message.content, message.role, conversationGroup);
-        }
-    });
+    if (newUser) {
 
-    const chatIntro = document.getElementById("chat-intro");
-    if (chatIntro) {
-        chatIntro.classList.add("is-hidden");
-    }
+        await syncOrbitCloudHistory();
 
-    if (typeof scrollOrbitChat === "function") {
-        scrollOrbitChat("auto");
-    }
-}
-
-// Authentication listeners
-function setupOrbitCloudHistoryRestore() {
-    const supabase = getOrbitSupabaseClient?.();
-    if (!supabase) return;
-
-    if (document.documentElement.dataset.orbitCloudHistoryRestoreReady === "true") return;
-    document.documentElement.dataset.orbitCloudHistoryRestoreReady = "true";
-
-    try {
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user?.id) {
-                setTimeout(() => {
-                    restoreOrbitCloudHistory();
-                }, 0);
-            }
-
-            if (event === "SIGNED_OUT") {
-                if (typeof clearOrbitConversationHistory === "function") {
-                    clearOrbitConversationHistory();
-                }
-                const { chatWindow } = getOrbitElements();
-                if (chatWindow) chatWindow.innerHTML = "";
-            }
-        });
-    } catch (error) {
-        console.warn("Orbit Cloud: auth restore listener error:", error);
+        await restoreOrbitActiveCloudChat();
     }
 }
 
-// Primary initialization & bootstrapping
-async function initializeOrbitCloud() {
-    if (orbitCloudInitialized) return;
 
-    const supabase = getOrbitCloudSupabase();
-    if (!supabase) {
-        console.warn("Orbit Cloud: Supabase client not found.");
-        orbitCloudInitialized = true;
-        return;
-    }
-
-    try {
-        const session = await getOrbitCloudSession();
-        orbitCloudUser = session?.user || null;
-
-        if (supabase.auth?.onAuthStateChange) {
-            supabase.auth.onAuthStateChange((event, session) => {
-                Promise.resolve(handleOrbitCloudAuthChange(session)).catch(error => {
-                    console.error("Orbit Cloud auth sync error:", error);
-                });
-            });
-        }
-
-        if (orbitCloudUser) {
-            await syncOrbitCloudHistory();
-        }
-
-        orbitCloudInitialized = true;
-        console.log("Orbit Cloud initialized.");
-    } catch (error) {
-        console.error("Orbit Cloud initialization failed:", error);
-        orbitCloudInitialized = true;
-    }
-}
-
-let orbitCloudBooting = false;
-let orbitCloudReady = false;
+/* =========================================================
+   WAIT FOR SUPABASE
+========================================================= */
 
 async function waitForOrbitCloudAuth() {
+
     const maxAttempts = 50;
+
     const delay = 100;
 
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const supabase = getOrbitSupabaseClient?.();
-        if (supabase) return supabase;
-        await new Promise(resolve => setTimeout(resolve, delay));
+
+    for (
+        let attempt = 0;
+        attempt < maxAttempts;
+        attempt++
+    ) {
+
+        const supabase =
+            getOrbitCloudSupabase();
+
+        if (supabase) {
+            return supabase;
+        }
+
+        await new Promise(
+            resolve =>
+                setTimeout(
+                    resolve,
+                    delay
+                )
+        );
     }
+
     return null;
 }
 
-function syncOrbitCloudSidebar() {
+
+/* =========================================================
+   AUTH LISTENER
+========================================================= */
+
+function setupOrbitCloudAuthListener(
+    supabase
+) {
+
+    if (
+        !supabase ||
+        !supabase.auth ||
+        typeof supabase.auth.onAuthStateChange !==
+            "function"
+    ) {
+        return;
+    }
+
+
+    if (
+        document.documentElement.dataset
+            .orbitCloudAuthListenerReady ===
+        "true"
+    ) {
+        return;
+    }
+
+
+    document.documentElement.dataset
+        .orbitCloudAuthListenerReady =
+        "true";
+
+
     try {
-        if (typeof refreshOrbitRecentChats === "function") {
-            refreshOrbitRecentChats();
-        }
+
+        supabase.auth.onAuthStateChange(
+            (
+                event,
+                session
+            ) => {
+
+                Promise.resolve(
+                    handleOrbitCloudAuthChange(
+                        session
+                    )
+                ).catch(
+                    error => {
+
+                        console.error(
+                            "Orbit Cloud auth sync error:",
+                            error
+                        );
+                    }
+                );
+            }
+        );
+
     } catch (error) {
-        console.warn("Orbit Cloud: sidebar refresh failed:", error);
+
+        console.warn(
+            "Orbit Cloud auth listener error:",
+            error
+        );
     }
 }
 
-async function restoreOrbitActiveCloudChat() {
-    try {
-        const activeChatId = window.orbitActiveChatId || localStorage.getItem(ORBIT_ACTIVE_CHAT_KEY);
-        if (!activeChatId) return false;
 
-        const restored = await restoreOrbitCloudConversation(activeChatId);
-        if (restored) syncOrbitCloudSidebar();
-        return restored;
-    } catch (error) {
-        console.warn("Orbit Cloud: active chat restore failed:", error);
-        return false;
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+async function initializeOrbitCloud() {
+
+    if (orbitCloudInitialized) {
+        return;
     }
-}
 
-async function initializeOrbitCloudSystem() {
-    if (orbitCloudReady) return true;
-    if (orbitCloudBooting) return false;
+    const supabase =
+        getOrbitCloudSupabase();
 
-    orbitCloudBooting = true;
+    if (!supabase) {
+
+        console.warn(
+            "Orbit Cloud: Supabase client not found."
+        );
+
+        orbitCloudInitialized =
+            true;
+
+        return;
+    }
+
 
     try {
-        if (document.readyState === "loading") {
-            await new Promise(resolve => {
-                document.addEventListener("DOMContentLoaded", resolve, { once: true });
-            });
-        }
 
-        const supabase = await waitForOrbitCloudAuth();
-        if (!supabase) {
-            console.warn("Orbit Cloud: Supabase was not available.");
-            orbitCloudBooting = false;
-            return false;
-        }
+        const session =
+            await getOrbitCloudSession();
 
-        const session = await getOrbitAuthSession?.(true);
-        setupOrbitCloudHistoryRestore();
+        orbitCloudUser =
+            session?.user || null;
 
-        if (session?.user?.id) {
-            ORBIT_USER_ID = String(session.user.id);
-            await restoreOrbitCloudHistory();
-            syncOrbitCloudSidebar();
+
+        setupOrbitCloudAuthListener(
+            supabase
+        );
+
+
+        if (orbitCloudUser) {
+
+            await syncOrbitCloudHistory();
+
             await restoreOrbitActiveCloudChat();
         }
 
-        orbitCloudReady = true;
-        window.orbitCloudReady = true;
 
-        window.dispatchEvent(
-            new CustomEvent("orbit:cloud-ready", {
-                detail: {
-                    authenticated: Boolean(session?.user?.id),
-                    userId: session?.user?.id || null
-                }
-            })
+        orbitCloudInitialized =
+            true;
+
+
+        console.log(
+            "Orbit Cloud initialized."
         );
 
-        console.log("Orbit Cloud: initialization complete.");
-        return true;
     } catch (error) {
-        console.error("Orbit Cloud: unified initialization failed:", error);
-        window.orbitCloudReady = false;
-        return false;
-    } finally {
-        orbitCloudBooting = false;
+
+        console.error(
+            "Orbit Cloud initialization failed:",
+            error
+        );
+
+        orbitCloudInitialized =
+            true;
     }
 }
 
-// Lifecycle startup listeners
-function startOrbitCloudSystem() {
-    if (window.orbitCloudStartupStarted) return;
-    window.orbitCloudStartupStarted = true;
 
-    initializeOrbitCloud();
-    initializeOrbitCloudSystem();
+/* =========================================================
+   FULL CLOUD SYSTEM INITIALIZATION
+========================================================= */
+
+async function initializeOrbitCloudSystem() {
+
+    if (orbitCloudReady) {
+        return true;
+    }
+
+    if (orbitCloudBooting) {
+        return false;
+    }
+
+    orbitCloudBooting =
+        true;
+
+
+    try {
+
+        const supabase =
+            await waitForOrbitCloudAuth();
+
+
+        if (!supabase) {
+
+            console.warn(
+                "Orbit Cloud: Supabase was not available."
+            );
+
+            return false;
+        }
+
+
+        await initializeOrbitCloud();
+
+
+        orbitCloudReady =
+            true;
+
+        window.orbitCloudReady =
+            true;
+
+
+        const session =
+            await getOrbitCloudSession();
+
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "orbit:cloud-ready",
+                {
+                    detail: {
+
+                        authenticated:
+                            Boolean(
+                                session?.user?.id
+                            ),
+
+                        userId:
+                            session?.user?.id ||
+                            null
+                    }
+                }
+            )
+        );
+
+
+        console.log(
+            "Orbit Cloud: initialization complete."
+        );
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Orbit Cloud initialization failed:",
+            error
+        );
+
+        window.orbitCloudReady =
+            false;
+
+        return false;
+
+    } finally {
+
+        orbitCloudBooting =
+            false;
+    }
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", startOrbitCloudSystem, { once: true });
+
+/* =========================================================
+   PUBLIC API
+========================================================= */
+
+window.OrbitCloud = {
+
+    initialize:
+        initializeOrbitCloudSystem,
+
+    getSession:
+        getOrbitCloudSession,
+
+    getUser:
+        getOrbitCloudUser,
+
+    getToken:
+        getOrbitCloudToken,
+
+    isAuthenticated:
+        isOrbitCloudAuthenticated,
+
+    createConversation:
+        createOrbitCloudConversation,
+
+    updateConversation:
+        updateOrbitCloudConversation,
+
+    saveMessage:
+        saveOrbitCloudMessage,
+
+    loadConversations:
+        loadOrbitCloudConversations,
+
+    loadMessages:
+        loadOrbitCloudMessages,
+
+    deleteConversation:
+        deleteOrbitCloudConversation,
+
+    clearHistory:
+        clearOrbitCloudHistory,
+
+    syncHistory:
+        syncOrbitCloudHistory,
+
+    syncConversation:
+        syncOrbitCloudConversation,
+
+    restoreConversation:
+        restoreOrbitCloudConversation,
+
+    restoreActiveChat:
+        restoreOrbitActiveCloudChat,
+
+    getCachedConversations:
+        getOrbitCachedConversations,
+
+    getCachedMessages:
+        getOrbitCachedMessages,
+
+    getActiveChat:
+        getOrbitCloudActiveChat,
+
+    setActiveChat:
+        setOrbitCloudActiveChat,
+
+    clearCache:
+        clearOrbitCloudCache,
+
+    createLocalId:
+        createOrbitCloudLocalId
+};
+
+
+/* =========================================================
+   STARTUP
+========================================================= */
+
+function startOrbitCloudSystem() {
+
+    if (
+        window.orbitCloudStartupStarted
+    ) {
+        return;
+    }
+
+    window.orbitCloudStartupStarted =
+        true;
+
+
+    initializeOrbitCloudSystem()
+        .catch(error => {
+
+            console.error(
+                "Orbit Cloud startup error:",
+                error
+            );
+        });
+}
+
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        startOrbitCloudSystem,
+        {
+            once: true
+        }
+    );
+
 } else {
+
     startOrbitCloudSystem();
 }
