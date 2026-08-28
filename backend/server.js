@@ -1,1622 +1,2452 @@
 "use strict";
 
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
+const multer = require("multer");
 const Groq = require("groq-sdk");
+const OpenAI = require("openai");
 const { createClient } = require("@supabase/supabase-js");
-require("dotenv").config();
+const mammoth = require("mammoth");
+const pdfParse = require("pdf-parse");
+const AdmZip = require("adm-zip");
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT || 5000);
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_MODEL =
+    process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+const GROQ_FALLBACK_MODEL =
+    process.env.GROQ_FALLBACK_MODEL || "openai/gpt-oss-20b";
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_IMAGE_MODEL =
+    process.env.OPENAI_IMAGE_MODEL || "gpt-image-1";
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY =
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const MODEL =
-  process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+const MAX_TOKENS = Math.min(
+    Number(process.env.MAX_TOKENS || 4096),
+    4096
+);
 
-const SIMPLE_MODEL =
-  process.env.GROQ_SIMPLE_MODEL || MODEL;
+const MAX_FILE_SIZE = Number(
+    process.env.MAX_FILE_SIZE || 15728640
+);
 
-const CODING_MODEL =
-  process.env.GROQ_CODING_MODEL || MODEL;
+const MAX_TOTAL_FILE_SIZE = Number(
+    process.env.MAX_TOTAL_FILE_SIZE || 31457280
+);
 
-const LARGE_CODING_MODEL =
-  process.env.GROQ_LARGE_CODING_MODEL || MODEL;
+const MAX_EXTRACTED_TEXT = Number(
+    process.env.MAX_EXTRACTED_TEXT || 100000
+);
 
-const HISTORY_LIMIT = 60;
+const REQUEST_TIMEOUT = Number(
+    process.env.REQUEST_TIMEOUT || 120000
+);
+
+const HISTORY_LIMIT = 30;
 const MEMORY_LIMIT = 50;
-
-const SIMPLE_MAX_TOKENS = 3000;
-const CODING_MAX_TOKENS = 10000;
-const LARGE_CODING_MAX_TOKENS = 14000;
-
-const MAX_MESSAGE_LENGTH = 50000;
-const MAX_CONTEXT_CHARS = 100000;
+const MAX_CONTEXT_CHARS = 50000;
+const MAX_MESSAGE_CHARS = 20000;
+const MAX_OUTPUT_CHARS = 50000;
 
 const groq = GROQ_API_KEY
-  ? new Groq({
-      apiKey: GROQ_API_KEY
-    })
-  : null;
-
-const supabase =
-  SUPABASE_URL && SUPABASE_SECRET_KEY
-    ? createClient(
-        SUPABASE_URL,
-        SUPABASE_SECRET_KEY
-      )
+    ? new Groq({ apiKey: GROQ_API_KEY })
     : null;
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5000",
-  "http://localhost:5500",
-  "http://localhost:5501",
-  "http://127.0.0.1:3000",
-  "http://127.0.0.1:5000",
-  "http://127.0.0.1:5500",
-  "http://127.0.0.1:5501",
-  "https://orbit-ai-self.vercel.app",
-  "https://orbit-ai-v1-0.netlify.app"
-];
+const openai = OPENAI_API_KEY
+    ? new OpenAI({ apiKey: OPENAI_API_KEY })
+    : null;
+
+const supabaseAdmin =
+    SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
+        ? createClient(
+            SUPABASE_URL,
+            SUPABASE_SERVICE_ROLE_KEY,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                }
+            }
+        )
+        : null;
+
+const supabaseAuth =
+    SUPABASE_URL && SUPABASE_ANON_KEY
+        ? createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                }
+            }
+        )
+        : null;
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: MAX_FILE_SIZE,
+        files: 10
+    }
+});
 
 app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin) {
-        return callback(null, true);
-      }
+    cors({
+        origin: (origin, callback) => {
+            const allowed = String(
+                process.env.ALLOWED_ORIGINS || "*"
+            )
+                .split(",")
+                .map((value) => value.trim())
+                .filter(Boolean);
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+            if (
+                allowed.includes("*") ||
+                !origin ||
+                allowed.includes(origin)
+            ) {
+                return callback(null, true);
+            }
 
-      console.warn("Blocked CORS origin:", origin);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    methods: [
-      "GET",
-      "POST",
-      "DELETE",
-      "OPTIONS"
-    ],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization"
-    ],
-    credentials: false
-  })
+            return callback(
+                new Error("Origin not allowed by CORS")
+            );
+        },
+        credentials: true,
+        methods: [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ],
+        allowedHeaders: [
+            "Content-Type",
+            "Authorization",
+            "Accept"
+        ]
+    })
 );
 
-app.use(
-  express.json({
-    limit: "100kb"
-  })
-);
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
-function cleanUserId(userId) {
-  if (typeof userId !== "string") {
-    return "default-user";
-  }
-
-  const value = userId.trim();
-
-  return value || "default-user";
+function cleanText(value, maxLength = MAX_EXTRACTED_TEXT) {
+    return String(value || "")
+        .replace(/\u0000/g, "")
+        .trim()
+        .slice(0, maxLength);
 }
 
-function cleanConversationId(conversationId) {
-  if (typeof conversationId !== "string") {
-    return "";
-  }
-
-  return conversationId.trim();
-}
-
-function createConversationTitle(message) {
-  if (typeof message !== "string") {
-    return "New Chat";
-  }
-
-  const title = message
-    .trim()
-    .replace(/\s+/g, " ");
-
-  if (!title) {
-    return "New Chat";
-  }
-
-  return title.length > 60
-    ? `${title.slice(0, 57)}...`
-    : title;
-}
-
-function cleanHistory(history) {
-  if (!Array.isArray(history)) {
-    return [];
-  }
-
-  return history
-    .filter(
-      (item) =>
-        item &&
-        (item.role === "user" ||
-          item.role === "assistant") &&
-        typeof item.content === "string" &&
-        item.content.trim()
-    )
-    .map((item) => ({
-      role: item.role,
-      content: item.content.trim()
-    }))
-    .slice(-HISTORY_LIMIT);
-}
-
-function cleanMemory(memory) {
-  if (!Array.isArray(memory)) {
-    return [];
-  }
-
-  return [
-    ...new Set(
-      memory
-        .filter(
-          (item) =>
-            typeof item === "string" &&
-            item.trim()
-        )
-        .map((item) => item.trim())
-    )
-  ].slice(-MEMORY_LIMIT);
-}
-
-function normalizeConversationMessages(messages) {
-  if (!Array.isArray(messages)) {
-    return [];
-  }
-
-  return messages
-    .filter(
-      (item) =>
-        item &&
-        (item.role === "user" ||
-          item.role === "assistant") &&
-        typeof item.content === "string" &&
-        item.content.trim()
-    )
-    .map((item) => ({
-      role: item.role,
-      content: item.content.trim()
-    }));
-}
-
-function classifyRequest(message, history = []) {
-  const recentContext = history
-    .slice(-8)
-    .map((item) => item.content)
-    .join(" ");
-
-  const text =
-    `${message} ${recentContext}`.toLowerCase();
-
-  const codingSignals =
-    /\b(code|coding|program|programming|javascript|js|typescript|html|css|node|nodejs|express|backend|frontend|api|database|supabase|sql|postgres|github|git|python|java|c\+\+|react|function|class|bug|error|debug|debugging|server|authentication|auth|login|signup|route|endpoint|component|variable|array|object|json|npm|package|deploy|deployment|vercel|render|netlify|schema|query|async|await|promise|dom|fetch|event|listener|element|div|button|form|navbar|sidebar|responsive|media query)\b/i;
-
-  const debuggingSignals =
-    /\b(error|bug|broken|doesn't work|does not work|not working|failed|failure|exception|crash|crashing|fix this|fix it|why isn't|why is not|undefined|null|syntax error|cors|401|403|404|500|stack trace|issue|problem)\b/i;
-
-  const largeCodingSignals =
-    /\b(complete|full|entire|whole|rewrite|refactor|architecture|system|codebase|multi[- ]file|multiple files|project|backend and frontend|authentication system|database system|rest api|api system|entire application|full website|complete website|complete application)\b/i;
-
-  const explanationSignals =
-    /\b(what is|what does|explain|meaning|difference between|how does|why does|teach me|what are|why is|how do)\b/i;
-
-  const isCoding =
-    codingSignals.test(text);
-
-  const isDebugging =
-    debuggingSignals.test(text);
-
-  const isLargeCoding =
-    largeCodingSignals.test(text) ||
-    message.length > 20000 ||
-    history.some(
-      (item) =>
-        typeof item.content === "string" &&
-        item.content.length > 12000
-    );
-
-  if (isCoding && isLargeCoding) {
-    return "LARGE_CODING";
-  }
-
-  if (isCoding && isDebugging) {
-    return "DEBUGGING";
-  }
-
-  if (isCoding) {
-    return "CODING";
-  }
-
-  if (explanationSignals.test(message)) {
-    return "EXPLANATION";
-  }
-
-  return "SIMPLE";
-}
-
-function buildOptimizedContext(
-  frontendHistory,
-  databaseHistory,
-  currentMessage
-) {
-  const clientMessages =
-    normalizeConversationMessages(
-      frontendHistory
-    );
-
-  const dbMessages =
-    normalizeConversationMessages(
-      databaseHistory
-    );
-
-  const sourceMessages =
-    dbMessages.length
-      ? dbMessages
-      : clientMessages;
-
-  if (!sourceMessages.length) {
-    return [];
-  }
-
-  const recentMessages =
-    sourceMessages.slice(-HISTORY_LIMIT);
-
-  const codingSignals =
-    /\b(html|css|javascript|js|typescript|node|nodejs|express|supabase|database|sql|postgres|auth|authentication|login|signup|server|api|frontend|backend|function|class|component|route|schema|github|git|vercel|render|netlify|error|bug|debug|fix|code|coding|npm|package|dom|fetch|event|listener|element|div|button|form|navbar|sidebar|responsive|media query)\b/i;
-
-  const isCoding =
-    codingSignals.test(currentMessage);
-
-  let selectedMessages =
-    recentMessages;
-
-  if (
-    isCoding &&
-    recentMessages.length > 24
-  ) {
-    const olderRelevant =
-      recentMessages
-        .slice(0, -24)
-        .filter((item) =>
-          codingSignals.test(item.content)
-        )
-        .slice(-12);
-
-    selectedMessages = [
-      ...olderRelevant,
-      ...recentMessages.slice(-24)
-    ];
-  }
-
-  const result = [];
-  let totalCharacters = 0;
-
-  for (
-    let index = selectedMessages.length - 1;
-    index >= 0;
-    index--
-  ) {
-    const item =
-      selectedMessages[index];
-
-    if (
-      totalCharacters +
-        item.content.length >
-      MAX_CONTEXT_CHARS
-    ) {
-      break;
+function normalizeMessages(messages) {
+    if (!Array.isArray(messages)) {
+        return [];
     }
 
-    result.unshift(item);
-
-    totalCharacters +=
-      item.content.length;
-  }
-
-  return result;
-}
-
-async function getUserMemory(userId) {
-  if (!supabase || !userId) {
-    return [];
-  }
-
-  const { data, error } =
-    await supabase
-      .from("memories")
-      .select("memory")
-      .eq("user_id", userId)
-      .order("created_at", {
-        ascending: false
-      })
-      .limit(MEMORY_LIMIT);
-
-  if (error) {
-    throw error;
-  }
-
-  if (!Array.isArray(data)) {
-    return [];
-  }
-
-  return data
-    .map((item) => item?.memory)
-    .filter(
-      (item) =>
-        typeof item === "string" &&
-        item.trim().length > 0
-    )
-    .reverse();
-}
-
-async function saveUserMemory(
-  userId,
-  memories
-) {
-  if (
-    !supabase ||
-    !userId ||
-    !Array.isArray(memories) ||
-    !memories.length
-  ) {
-    return;
-  }
-
-  const cleanMemories = [
-    ...new Set(
-      memories
+    return messages
         .filter(
-          (item) =>
-            typeof item === "string" &&
-            item.trim().length > 0
+            (item) =>
+                item &&
+                ["user", "assistant", "system"].includes(item.role) &&
+                typeof item.content === "string" &&
+                item.content.trim()
         )
-        .map((item) => item.trim())
-    )
-  ].slice(-MEMORY_LIMIT);
+        .map((item) => ({
+            role: item.role,
+            content: cleanText(
+                item.content,
+                MAX_MESSAGE_CHARS
+            )
+        }))
+        .slice(-HISTORY_LIMIT);
+}
 
-  if (!cleanMemories.length) {
-    return;
-  }
+function limitContext(messages) {
+    const normalized = normalizeMessages(messages);
+    const result = [];
+    let total = 0;
 
-  const existingMemory =
-    await getUserMemory(userId);
+    for (
+        let index = normalized.length - 1;
+        index >= 0;
+        index--
+    ) {
+        const item = normalized[index];
 
-  const existingSet =
-    new Set(existingMemory);
+        if (
+            total + item.content.length >
+            MAX_CONTEXT_CHARS
+        ) {
+            break;
+        }
 
-  const newMemories =
-    cleanMemories.filter(
-      (memory) =>
-        !existingSet.has(memory)
+        result.unshift(item);
+        total += item.content.length;
+    }
+
+    return result;
+}
+
+function getSystemPrompt(customPrompt = "") {
+    const base = `
+You are Orbit AI, a highly capable general-purpose AI assistant.
+
+You are helpful, accurate, clear, practical, and conversational.
+
+Help the user with questions, learning, writing, programming, planning, reasoning, research-style explanations, mathematics, and general tasks.
+
+When explaining difficult subjects, make them simple without removing important details.
+
+When writing code, provide valid, runnable code and explain important parts when useful.
+
+Do not claim to have performed actions, accessed information, or used tools that you did not actually use.
+
+If the user asks for current information that you cannot verify, be honest about the limitation.
+
+Keep responses natural and useful.
+`;
+
+    const custom = cleanText(customPrompt, 10000);
+
+    return custom
+        ? `${base}\nAdditional instructions:\n${custom}`
+        : base;
+}
+
+function getBearerToken(req) {
+    const header = req.headers.authorization || "";
+
+    if (!header.startsWith("Bearer ")) {
+        return null;
+    }
+
+    return header.slice(7).trim() || null;
+}
+
+async function authenticateRequest(req) {
+    const token = getBearerToken(req);
+
+    if (!token || !supabaseAuth) {
+        return {
+            authenticated: false,
+            user: null,
+            token
+        };
+    }
+
+    try {
+        const {
+            data,
+            error
+        } = await supabaseAuth.auth.getUser(token);
+
+        if (error || !data?.user) {
+            return {
+                authenticated: false,
+                user: null,
+                token
+            };
+        }
+
+        return {
+            authenticated: true,
+            user: data.user,
+            token
+        };
+    } catch {
+        return {
+            authenticated: false,
+            user: null,
+            token
+        };
+    }
+}
+
+function getAuthenticatedUserId(auth) {
+    return auth?.authenticated && auth?.user?.id
+        ? String(auth.user.id)
+        : null;
+}
+
+function setSSEHeaders(res) {
+    res.status(200);
+    res.setHeader(
+        "Content-Type",
+        "text/event-stream; charset=utf-8"
+    );
+    res.setHeader(
+        "Cache-Control",
+        "no-cache, no-transform"
+    );
+    res.setHeader(
+        "Connection",
+        "keep-alive"
+    );
+    res.setHeader(
+        "X-Accel-Buffering",
+        "no"
     );
 
-  if (!newMemories.length) {
-    return;
-  }
+    if (typeof res.flushHeaders === "function") {
+        res.flushHeaders();
+    }
+}
 
-  const rows =
-    newMemories.map(
-      (memory) => ({
-        user_id: userId,
-        memory
-      })
+function sendSSE(res, payload) {
+    if (res.writableEnded) {
+        return;
+    }
+
+    const data =
+        typeof payload === "string"
+            ? payload
+            : JSON.stringify(payload);
+
+    res.write(`data: ${data}\n\n`);
+}
+
+function sendDone(res) {
+    if (res.writableEnded) {
+        return;
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
+}
+
+function sendSSEError(res, message) {
+    if (res.writableEnded) {
+        return;
+    }
+
+    sendSSE(res, {
+        type: "error",
+        error: cleanText(message, 3000)
+    });
+
+    sendDone(res);
+}
+
+function isImageFile(file) {
+    return Boolean(
+        file &&
+        typeof file.mimetype === "string" &&
+        file.mimetype.startsWith("image/")
+    );
+}
+
+function getFileExtension(filename) {
+    const name = String(filename || "");
+    const index = name.lastIndexOf(".");
+
+    if (index === -1) {
+        return "";
+    }
+
+    return name.slice(index + 1).toLowerCase();
+}
+
+function isPdf(file) {
+    return (
+        file?.mimetype === "application/pdf" ||
+        getFileExtension(file?.originalname) === "pdf"
+    );
+}
+
+function isDocx(file) {
+    return (
+        file?.mimetype ===
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        getFileExtension(file?.originalname) === "docx"
+    );
+}
+
+function isZip(file) {
+    return (
+        file?.mimetype === "application/zip" ||
+        file?.mimetype === "application/x-zip-compressed" ||
+        getFileExtension(file?.originalname) === "zip"
+    );
+}
+
+function isTextLike(file) {
+    const extension = getFileExtension(
+        file?.originalname
     );
 
-  const { error } =
-    await supabase
-      .from("memories")
-      .insert(rows);
+    const textExtensions = new Set([
+        "txt",
+        "md",
+        "markdown",
+        "csv",
+        "json",
+        "js",
+        "jsx",
+        "ts",
+        "tsx",
+        "html",
+        "htm",
+        "css",
+        "scss",
+        "sass",
+        "less",
+        "xml",
+        "yaml",
+        "yml",
+        "sql",
+        "py",
+        "java",
+        "c",
+        "h",
+        "cpp",
+        "hpp",
+        "cs",
+        "go",
+        "rs",
+        "php",
+        "rb",
+        "swift",
+        "kt",
+        "kts",
+        "dart",
+        "sh",
+        "bash",
+        "ps1",
+        "env",
+        "gitignore",
+        "log"
+    ]);
 
-  if (error) {
-    throw error;
-  }
+    return (
+        String(file?.mimetype || "").startsWith("text/") ||
+        textExtensions.has(extension) ||
+        extension === ""
+    );
+}
+
+function bufferLooksBinary(buffer) {
+    const sample = buffer.subarray(
+        0,
+        Math.min(buffer.length, 4096)
+    );
+
+    for (const byte of sample) {
+        if (byte === 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+async function extractZipText(file) {
+    const zip = new AdmZip(file.buffer);
+    const entries = zip.getEntries();
+    const parts = [];
+
+    for (const entry of entries) {
+        if (entry.isDirectory) {
+            continue;
+        }
+
+        const buffer = entry.getData();
+
+        if (
+            buffer.length >
+            MAX_EXTRACTED_TEXT
+        ) {
+            continue;
+        }
+
+        if (bufferLooksBinary(buffer)) {
+            continue;
+        }
+
+        const text = cleanText(
+            buffer.toString("utf8"),
+            MAX_EXTRACTED_TEXT
+        );
+
+        if (text) {
+            parts.push(
+                `File: ${entry.entryName}\n${text}`
+            );
+        }
+
+        if (
+            parts.join("\n\n").length >=
+            MAX_EXTRACTED_TEXT
+        ) {
+            break;
+        }
+    }
+
+    return parts.join("\n\n");
+}
+
+async function extractFileText(file) {
+    if (!file) {
+        throw new Error("Invalid file.");
+    }
+
+    const filename =
+        file.originalname || "uploaded-file";
+
+    if (isPdf(file)) {
+        const result = await pdfParse(file.buffer);
+
+        return {
+            name: filename,
+            type: file.mimetype,
+            size: file.size,
+            text: cleanText(
+                result?.text || "",
+                MAX_EXTRACTED_TEXT
+            ),
+            readable: true
+        };
+    }
+
+    if (isDocx(file)) {
+        const result =
+            await mammoth.extractRawText({
+                buffer: file.buffer
+            });
+
+        return {
+            name: filename,
+            type: file.mimetype,
+            size: file.size,
+            text: cleanText(
+                result?.value || "",
+                MAX_EXTRACTED_TEXT
+            ),
+            readable: true
+        };
+    }
+
+    if (isZip(file)) {
+        return {
+            name: filename,
+            type: file.mimetype,
+            size: file.size,
+            text: await extractZipText(file),
+            readable: true
+        };
+    }
+
+    if (
+        isTextLike(file) ||
+        file.mimetype === "application/json"
+    ) {
+        return {
+            name: filename,
+            type: file.mimetype,
+            size: file.size,
+            text: cleanText(
+                file.buffer.toString("utf8"),
+                MAX_EXTRACTED_TEXT
+            ),
+            readable: true
+        };
+    }
+
+    return {
+        name: filename,
+        type: file.mimetype,
+        size: file.size,
+        text: "",
+        readable: false
+    };
+}
+
+function buildFileContext(files) {
+    if (!Array.isArray(files) || !files.length) {
+        return "";
+    }
+
+    const parts = [];
+
+    for (const file of files) {
+        if (!file?.text) {
+            continue;
+        }
+
+        parts.push(
+            `File: ${file.name}\n${file.text}`
+        );
+    }
+
+    return cleanText(
+        parts.join("\n\n"),
+        MAX_CONTEXT_CHARS
+    );
+}
+
+function buildUserMessage(message, fileContext = "") {
+    const cleanMessage = cleanText(
+        message,
+        MAX_MESSAGE_CHARS
+    );
+
+    if (!fileContext) {
+        return cleanMessage;
+    }
+
+    return `${cleanMessage}\n\nAttached file context:\n${fileContext}`;
+}
+
+function getRequestNumber(value, fallback) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return fallback;
+    }
+
+    return Math.max(
+        256,
+        Math.min(number, MAX_TOKENS)
+    );
+}
+
+function buildGroqMessages({
+    systemPrompt,
+    history,
+    message,
+    memory,
+    fileContext
+}) {
+    const messages = [
+        {
+            role: "system",
+            content: systemPrompt
+        }
+    ];
+
+    const memoryText = Array.isArray(memory)
+        ? memory
+            .filter(Boolean)
+            .join("\n")
+        : String(memory || "");
+
+    if (memoryText.trim()) {
+        messages.push({
+            role: "system",
+            content:
+                `Relevant user memory:\n${cleanText(
+                    memoryText,
+                    12000
+                )}`
+        });
+    }
+
+    const normalizedHistory =
+        limitContext(history);
+
+    for (const item of normalizedHistory) {
+        messages.push({
+            role: item.role,
+            content: item.content
+        });
+    }
+
+    messages.push({
+        role: "user",
+        content: buildUserMessage(
+            message,
+            fileContext
+        )
+    });
+
+    return messages;
+}
+
+async function createGroqStream(
+    model,
+    messages,
+    options,
+    signal
+) {
+    if (!groq) {
+        throw new Error(
+            "Groq API is not configured."
+        );
+    }
+
+    return groq.chat.completions.create(
+        {
+            model,
+            messages,
+            temperature:
+                typeof options.temperature === "number"
+                    ? options.temperature
+                    : 0.2,
+            max_tokens: getRequestNumber(
+                options.max_tokens,
+                MAX_TOKENS
+            ),
+            stream: true
+        },
+        {
+            signal
+        }
+    );
+}
+
+async function streamGroqResponse(
+    messages,
+    options,
+    onToken
+) {
+    if (!groq) {
+        throw new Error(
+            "Groq API is not configured."
+        );
+    }
+
+    const controller =
+        new AbortController();
+
+    const timeoutId = setTimeout(
+        () => controller.abort(),
+        REQUEST_TIMEOUT
+    );
+
+    const primaryModel =
+        options.model || GROQ_MODEL;
+
+    const fallbackModel =
+        GROQ_FALLBACK_MODEL &&
+        GROQ_FALLBACK_MODEL !== primaryModel
+            ? GROQ_FALLBACK_MODEL
+            : null;
+
+    try {
+        let stream;
+        let activeModel = primaryModel;
+
+        try {
+            stream =
+                await createGroqStream(
+                    primaryModel,
+                    messages,
+                    options,
+                    controller.signal
+                );
+        } catch (primaryError) {
+            if (!fallbackModel) {
+                throw primaryError;
+            }
+
+            activeModel = fallbackModel;
+
+            stream =
+                await createGroqStream(
+                    fallbackModel,
+                    messages,
+                    options,
+                    controller.signal
+                );
+        }
+
+        let fullText = "";
+
+        for await (const chunk of stream) {
+            const token =
+                chunk?.choices?.[0]?.delta?.content ||
+                "";
+
+            if (!token) {
+                continue;
+            }
+
+            fullText += token;
+
+            if (fullText.length > MAX_OUTPUT_CHARS) {
+                break;
+            }
+
+            if (typeof onToken === "function") {
+                onToken(token);
+            }
+        }
+
+        return {
+            text: cleanText(
+                fullText,
+                MAX_OUTPUT_CHARS
+            ),
+            model: activeModel
+        };
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+async function getUserMemories(userId) {
+    if (!supabaseAdmin || !userId) {
+        return [];
+    }
+
+    try {
+        const { data, error } =
+            await supabaseAdmin
+                .from("memories")
+                .select("memory, created_at")
+                .eq(
+                    "user_id",
+                    String(userId)
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: true
+                    }
+                )
+                .limit(MEMORY_LIMIT);
+
+        if (error || !Array.isArray(data)) {
+            return [];
+        }
+
+        return data
+            .map((item) =>
+                cleanText(
+                    item?.memory,
+                    4000
+                )
+            )
+            .filter(Boolean)
+            .slice(-MEMORY_LIMIT);
+    } catch {
+        return [];
+    }
+}
+
+async function saveMemory(
+    userId,
+    memory
+) {
+    if (!supabaseAdmin || !userId) {
+        return false;
+    }
+
+    try {
+        const { error } =
+            await supabaseAdmin
+                .from("memories")
+                .insert({
+                    user_id: String(userId),
+                    memory: cleanText(
+                        memory,
+                        4000
+                    )
+                });
+
+        return !error;
+    } catch {
+        return false;
+    }
 }
 
 async function createConversation(
-  userId,
-  title
+    userId,
+    title
 ) {
-  if (!supabase) {
-    return null;
-  }
+    if (!supabaseAdmin || !userId) {
+        return null;
+    }
 
-  const { data, error } =
-    await supabase
-      .from("conversations")
-      .insert({
-        user_id: userId,
-        title: title || "New Chat"
-      })
-      .select(
-        "id, user_id, title, created_at, updated_at"
-      )
-      .single();
+    try {
+        const { data, error } =
+            await supabaseAdmin
+                .from("conversations")
+                .insert({
+                    user_id: String(userId),
+                    title: cleanText(
+                        title,
+                        200
+                    ) || "New Chat"
+                })
+                .select(
+                    "id, title, is_pinned, created_at, updated_at"
+                )
+                .single();
 
-  if (error) {
-    throw error;
-  }
+        if (error) {
+            return null;
+        }
 
-  return data;
+        return data;
+    } catch {
+        return null;
+    }
 }
 
-async function getConversationForUser(
-  conversationId,
-  userId
+async function getConversation(
+    conversationId,
+    userId
 ) {
-  if (!supabase) {
-    return null;
-  }
+    if (
+        !supabaseAdmin ||
+        !conversationId ||
+        !userId
+    ) {
+        return null;
+    }
 
-  const { data, error } =
-    await supabase
-      .from("conversations")
-      .select(
-        "id, user_id, title, created_at, updated_at"
-      )
-      .eq("id", conversationId)
-      .eq("user_id", userId)
-      .maybeSingle();
+    try {
+        const { data, error } =
+            await supabaseAdmin
+                .from("conversations")
+                .select(
+                    "id, title, is_pinned, created_at, updated_at"
+                )
+                .eq(
+                    "id",
+                    conversationId
+                )
+                .eq(
+                    "user_id",
+                    String(userId)
+                )
+                .maybeSingle();
 
-  if (error) {
-    throw error;
-  }
+        if (error) {
+            return null;
+        }
 
-  return data;
+        return data;
+    } catch {
+        return null;
+    }
 }
 
 async function getConversationMessages(
-  conversationId,
-  userId
+    conversationId,
+    userId
 ) {
-  if (!supabase) {
-    return null;
-  }
-
-  const conversation =
-    await getConversationForUser(
-      conversationId,
-      userId
-    );
-
-  if (!conversation) {
-    return null;
-  }
-
-  const { data, error } =
-    await supabase
-      .from("conversation_messages")
-      .select(
-        "id, conversation_id, role, content, created_at"
-      )
-      .eq(
-        "conversation_id",
-        conversationId
-      )
-      .order("created_at", {
-        ascending: true
-      });
-
-  if (error) {
-    throw error;
-  }
-
-  return {
-    conversation,
-    messages:
-      Array.isArray(data)
-        ? data
-        : []
-  };
-}
-
-async function saveConversationMessage(
-  conversationId,
-  role,
-  content
-) {
-  if (
-    !supabase ||
-    !conversationId ||
-    !["user", "assistant"].includes(
-      role
-    ) ||
-    typeof content !== "string" ||
-    !content.trim()
-  ) {
-    return null;
-  }
-
-  const { data, error } =
-    await supabase
-      .from("conversation_messages")
-      .insert({
-        conversation_id:
-          conversationId,
-        role,
-        content: content.trim()
-      })
-      .select(
-        "id, conversation_id, role, content, created_at"
-      )
-      .single();
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
-}
-
-async function updateConversationTime(
-  conversationId
-) {
-  if (!supabase || !conversationId) {
-    return;
-  }
-
-  const { error } =
-    await supabase
-      .from("conversations")
-      .update({
-        updated_at:
-          new Date().toISOString()
-      })
-      .eq(
-        "id",
-        conversationId
-      );
-
-  if (error) {
-    console.error(
-      "Conversation timestamp update failed:",
-      error.message
-    );
-  }
-}
-
-async function getDatabaseHistory(
-  conversationId,
-  userId
-) {
-  if (!supabase || !conversationId) {
-    return [];
-  }
-
-  const result =
-    await getConversationMessages(
-      conversationId,
-      userId
-    );
-
-  if (!result) {
-    return [];
-  }
-
-  return normalizeConversationMessages(
-    result.messages
-  );
-}
-
-function setupStreamingResponse(res) {
-  res.status(200);
-
-  res.setHeader(
-    "Content-Type",
-    "text/event-stream; charset=utf-8"
-  );
-
-  res.setHeader(
-    "Cache-Control",
-    "no-cache, no-transform"
-  );
-
-  res.setHeader(
-    "Connection",
-    "keep-alive"
-  );
-
-  res.setHeader(
-    "X-Accel-Buffering",
-    "no"
-  );
-
-  if (
-    typeof res.flushHeaders ===
-    "function"
-  ) {
-    res.flushHeaders();
-  }
-}
-
-function sendSSE(
-  res,
-  event,
-  data
-) {
-  if (
-    res.writableEnded ||
-    res.destroyed
-  ) {
-    return false;
-  }
-
-  res.write(
-    `event: ${event}\n` +
-    `data: ${JSON.stringify(data)}\n\n`
-  );
-
-  return true;
-}
-
-function createRequestAbortController(
-  req,
-  res
-) {
-  const controller =
-    new AbortController();
-
-  let disconnected = false;
-
-  const handleDisconnect = () => {
-    if (disconnected) {
-      return;
+    if (
+        !supabaseAdmin ||
+        !conversationId ||
+        !userId
+    ) {
+        return [];
     }
 
-    disconnected = true;
+    try {
+        const conversation =
+            await getConversation(
+                conversationId,
+                userId
+            );
 
-    if (!controller.signal.aborted) {
-      controller.abort();
+        if (!conversation) {
+            return [];
+        }
+
+        const { data, error } =
+            await supabaseAdmin
+                .from("messages")
+                .select(
+                    "role, content, created_at"
+                )
+                .eq(
+                    "conversation_id",
+                    conversationId
+                )
+                .eq(
+                    "user_id",
+                    String(userId)
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: true
+                    }
+                )
+                .limit(HISTORY_LIMIT);
+
+        if (
+            error ||
+            !Array.isArray(data)
+        ) {
+            return [];
+        }
+
+        return normalizeMessages(data);
+    } catch {
+        return [];
     }
-  };
-
-  req.once(
-    "aborted",
-    handleDisconnect
-  );
-
-  res.once("close", () => {
-    if (!res.writableEnded) {
-      handleDisconnect();
-    }
-  });
-
-  return {
-    controller,
-    isDisconnected: () =>
-      disconnected
-  };
 }
 
-function getSystemPrompt(
-  requestType,
-  memory
+async function saveMessage(
+    conversationId,
+    userId,
+    role,
+    content
 ) {
-  const memoryText =
-    memory.length > 0
-      ? `\n\nUser memory:\n${memory
-          .map(
-            (item) => `- ${item}`
-          )
-          .join("\n")}`
-      : "";
+    if (
+        !supabaseAdmin ||
+        !conversationId ||
+        !userId
+    ) {
+        return false;
+    }
 
-  const basePrompt = `
-You are Orbit AI, a highly capable general-purpose AI assistant.
+    try {
+        const { error } =
+            await supabaseAdmin
+                .from("messages")
+                .insert({
+                    conversation_id:
+                        conversationId,
+                    user_id:
+                        String(userId),
+                    role,
+                    content: cleanText(
+                        content,
+                        MAX_MESSAGE_CHARS
+                    )
+                });
 
-Give accurate, useful, direct, natural responses.
-
-Understand the user's actual request before answering.
-
-Never claim that a response was not returned when you have enough information to answer.
-
-Never produce an empty response when the user has provided a valid request.
-
-Do not ask unnecessary clarification questions when the request is already clear.
-
-For normal conversation:
-- Be natural and helpful.
-- Answer directly.
-- Match the user's tone when appropriate.
-- Do not over-explain simple questions.
-
-For coding requests:
-- Act as an expert software engineer.
-- Provide working, complete code.
-- Use the exact language, framework, or technology requested.
-- Make code directly copyable.
-- Preserve the user's existing architecture when code is provided.
-- Do not randomly redesign their project.
-- Do not invent files, APIs, functions, database tables, configuration, or dependencies unless they are actually needed.
-- If the user asks to update existing code, return the complete updated version when that is the most useful approach.
-- Do not omit important sections of code just to make the response shorter.
-- Make sure syntax is valid.
-- Check quotation marks, brackets, parentheses, imports, exports, asynchronous functions, variable names, and dependencies.
-- If HTML is requested, provide valid HTML.
-- If CSS is requested, provide valid CSS.
-- If JavaScript is requested, provide valid JavaScript.
-- If multiple technologies are requested, clearly separate each file or section.
-- Do not put important code outside its code block.
-
-For debugging requests:
-- Identify the most likely cause.
-- Explain the cause briefly.
-- Give the exact correction.
-- Check surrounding code for related problems.
-- Do not pretend code works if there is an obvious issue.
-- Prefer a complete corrected version when the user provides a complete file.
-
-For larger coding tasks:
-- Think through the architecture before producing the solution.
-- Keep existing functionality unless the user explicitly asks to remove it.
-- Avoid unnecessary dependencies.
-- Keep frontend and backend request and response formats consistent.
-- Keep existing database field names consistent.
-- Do not invent database structures.
-
-For code formatting:
-- Always use Markdown fenced code blocks for code.
-- Specify the language after the opening fence when known.
-- Never replace important code with placeholders such as "rest of code here" unless the user explicitly asks for a shortened example.
-
-Request category: ${requestType}
-
-${memoryText}
-`;
-
-  return basePrompt.trim();
+        return !error;
+    } catch {
+        return false;
+    }
 }
 
-function getModelConfig(
-  requestType
+async function listConversations(userId) {
+    if (!supabaseAdmin || !userId) {
+        return [];
+    }
+
+    try {
+        const { data, error } =
+            await supabaseAdmin
+                .from("conversations")
+                .select(
+                    "id, title, is_pinned, created_at, updated_at"
+                )
+                .eq(
+                    "user_id",
+                    String(userId)
+                )
+                .order(
+                    "is_pinned",
+                    {
+                        ascending: false
+                    }
+                )
+                .order(
+                    "updated_at",
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(HISTORY_LIMIT);
+
+        if (
+            error ||
+            !Array.isArray(data)
+        ) {
+            return [];
+        }
+
+        return data;
+    } catch {
+        return [];
+    }
+}
+
+async function deleteConversation(
+    conversationId,
+    userId
 ) {
-  switch (requestType) {
-    case "LARGE_CODING":
-      return {
-        model: LARGE_CODING_MODEL,
-        maxTokens:
-          LARGE_CODING_MAX_TOKENS,
-        temperature: 0.2
-      };
+    if (
+        !supabaseAdmin ||
+        !conversationId ||
+        !userId
+    ) {
+        return false;
+    }
 
-    case "CODING":
-      return {
-        model: CODING_MODEL,
-        maxTokens:
-          CODING_MAX_TOKENS,
-        temperature: 0.2
-      };
+    try {
+        const conversation =
+            await getConversation(
+                conversationId,
+                userId
+            );
 
-    case "DEBUGGING":
-      return {
-        model: CODING_MODEL,
-        maxTokens:
-          CODING_MAX_TOKENS,
-        temperature: 0.15
-      };
+        if (!conversation) {
+            return null;
+        }
 
-    case "EXPLANATION":
-      return {
-        model: SIMPLE_MODEL,
-        maxTokens:
-          SIMPLE_MAX_TOKENS,
-        temperature: 0.35
-      };
+        const {
+            error: messagesError
+        } = await supabaseAdmin
+            .from("messages")
+            .delete()
+            .eq(
+                "conversation_id",
+                conversationId
+            )
+            .eq(
+                "user_id",
+                String(userId)
+            );
 
-    default:
-      return {
-        model: SIMPLE_MODEL,
-        maxTokens:
-          SIMPLE_MAX_TOKENS,
-        temperature: 0.4
-      };
-  }
+        if (messagesError) {
+            return false;
+        }
+
+        const { error } =
+            await supabaseAdmin
+                .from("conversations")
+                .delete()
+                .eq(
+                    "id",
+                    conversationId
+                )
+                .eq(
+                    "user_id",
+                    String(userId)
+                );
+
+        return !error;
+    } catch {
+        return false;
+    }
+}
+
+async function setConversationPinned(
+    conversationId,
+    userId,
+    isPinned
+) {
+    if (
+        !supabaseAdmin ||
+        !conversationId ||
+        !userId
+    ) {
+        return null;
+    }
+
+    try {
+        const { data, error } =
+            await supabaseAdmin
+                .from("conversations")
+                .update({
+                    is_pinned: Boolean(
+                        isPinned
+                    ),
+                    updated_at:
+                        new Date().toISOString()
+                })
+                .eq(
+                    "id",
+                    conversationId
+                )
+                .eq(
+                    "user_id",
+                    String(userId)
+                )
+                .select(
+                    "id, title, is_pinned, created_at, updated_at"
+                )
+                .maybeSingle();
+
+        if (error) {
+            return null;
+        }
+
+        return data;
+    } catch {
+        return null;
+    }
+}
+
+function detectImageRequest(message) {
+    const text = String(
+        message || ""
+    ).toLowerCase();
+
+    return (
+        text.includes("generate an image") ||
+        text.includes("generate image") ||
+        text.includes("create an image") ||
+        text.includes("make an image") ||
+        text.includes("draw an image")
+    );
+}
+
+async function generateImage(prompt) {
+    if (!openai) {
+        throw new Error(
+            "OpenAI image generation is not configured."
+        );
+    }
+
+    const result =
+        await openai.images.generate({
+            model: OPENAI_IMAGE_MODEL,
+            prompt: cleanText(
+                prompt,
+                4000
+            ),
+            size: "1024x1024"
+        });
+
+    const item =
+        result?.data?.[0];
+
+    if (!item) {
+        throw new Error(
+            "OpenAI did not return an image."
+        );
+    }
+
+    if (item.b64_json) {
+        return {
+            type: "image",
+            data: item.b64_json,
+            mimeType: "image/png"
+        };
+    }
+
+    if (item.url) {
+        return {
+            type: "image_url",
+            url: item.url
+        };
+    }
+
+    throw new Error(
+        "OpenAI returned an unsupported image response."
+    );
+}
+
+async function readImageWithOpenAI(
+    file,
+    message = ""
+) {
+    if (!openai) {
+        throw new Error(
+            "OpenAI is not configured for image reading."
+        );
+    }
+
+    const base64 =
+        file.buffer.toString("base64");
+
+    const response =
+        await openai.responses.create({
+            model: "gpt-4.1-mini",
+            input: [
+                {
+                    role: "user",
+                    content: [
+                        {
+                            type: "input_text",
+                            text:
+                                cleanText(
+                                    message,
+                                    8000
+                                ) ||
+                                "Analyze this image and describe the important information visible in it."
+                        },
+                        {
+                            type: "input_image",
+                            image_url:
+                                `data:${file.mimetype};base64,${base64}`
+                        }
+                    ]
+                }
+            ],
+            max_output_tokens: 3000
+        });
+
+    return cleanText(
+        response?.output_text || "",
+        MAX_EXTRACTED_TEXT
+    );
 }
 
 app.get("/", (req, res) => {
-  res.json({
-    status: "online",
-    message: "Orbit AI backend is running.",
-    provider: "Groq",
-    model: MODEL,
-    streaming: true,
-    historyLimit: HISTORY_LIMIT,
-    maxContextCharacters:
-      MAX_CONTEXT_CHARS,
-    memory: supabase
-      ? "Persistent Supabase memory"
-      : "Disabled",
-    conversations: supabase
-      ? "Persistent Supabase conversations"
-      : "Disabled",
-    database: supabase
-      ? "Supabase PostgreSQL"
-      : "Not configured"
-  });
+    res.json({
+        name: "Orbit AI API",
+        status: "online",
+        version: "2.2.0"
+    });
 });
 
-app.get(
-  "/api/test-groq",
-  async (req, res) => {
-    if (!groq) {
-      return res.status(503).json({
-        success: false,
-        error:
-          "Groq API key is not configured."
-      });
-    }
+app.get("/api/health", (req, res) => {
+    res.json({
+        status: "ok",
+        groq: Boolean(groq),
+        openai: Boolean(openai),
+        supabase: Boolean(
+            supabaseAdmin
+        ),
+        model: GROQ_MODEL,
+        fallbackModel:
+            GROQ_FALLBACK_MODEL
+    });
+});
 
-    try {
-      const completion =
-        await groq.chat.completions.create({
-          model: SIMPLE_MODEL,
-          messages: [
-            {
-              role: "user",
-              content:
-                "Reply with exactly: Orbit AI is working."
-            }
-          ],
-          temperature: 0,
-          max_tokens: 20
-        });
-
-      const response =
-        completion?.choices?.[0]?.message?.content?.trim();
-
-      return res.json({
-        success: true,
-        response:
-          response || null
-      });
-    } catch (error) {
-      console.error(
-        "Groq test failed:",
-        error?.message || error
-      );
-
-      return res.status(502).json({
-        success: false,
-        error:
-          "Groq connection failed."
-      });
-    }
-  }
-);
-
-app.get(
-  "/api/test-supabase",
-  async (req, res) => {
-    if (!supabase) {
-      return res.status(503).json({
-        success: false,
-        error:
-          "Supabase is not configured."
-      });
-    }
-
-    try {
-      const { data, error } =
-        await supabase
-          .from("memories")
-          .select("memory")
-          .limit(1);
-
-      if (error) {
-        throw error;
-      }
-
-      return res.json({
-        success: true,
-        message:
-          "Supabase connection is working.",
-        rowsFound:
-          Array.isArray(data)
-            ? data.length
-            : 0
-      });
-    } catch (error) {
-      console.error(
-        "Supabase test failed:",
-        error?.message || error
-      );
-
-      return res.status(502).json({
-        success: false,
-        error:
-          "Supabase connection failed."
-      });
-    }
-  }
-);
-
-app.get(
-  "/api/memory/:userId",
-  async (req, res) => {
-    const userId =
-      cleanUserId(
-        req.params.userId
-      );
-
-    if (!supabase) {
-      return res.json({
-        userId,
-        memory: []
-      });
-    }
-
-    try {
-      const memory =
-        await getUserMemory(
-          userId
+app.post(
+    "/api/chat",
+    upload.array("files", 10),
+    async (req, res) => {
+        const message = cleanText(
+            req.body?.message,
+            MAX_MESSAGE_CHARS
         );
 
-      return res.json({
-        userId,
-        memory
-      });
-    } catch (error) {
-      console.error(
-        "Memory load failed:",
-        error?.message || error
-      );
+        if (!message) {
+            return res.status(400).json({
+                error: "Message is required."
+            });
+        }
 
-      return res.status(500).json({
-        error:
-          "Could not load user memory."
-      });
+        const auth =
+            await authenticateRequest(req);
+
+        const userId =
+            getAuthenticatedUserId(auth);
+
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        if (!groq) {
+            return res.status(503).json({
+                error:
+                    "Groq API is not configured."
+            });
+        }
+
+        const files = Array.isArray(
+            req.files
+        )
+            ? req.files
+            : [];
+
+        const totalFileSize =
+            files.reduce(
+                (total, file) =>
+                    total +
+                    Number(
+                        file.size || 0
+                    ),
+                0
+            );
+
+        if (
+            totalFileSize >
+            MAX_TOTAL_FILE_SIZE
+        ) {
+            return res.status(413).json({
+                error:
+                    "The combined uploaded files are too large."
+            });
+        }
+
+        let parsedFiles = [];
+
+        try {
+            parsedFiles =
+                await Promise.all(
+                    files.map(
+                        extractFileText
+                    )
+                );
+        } catch (error) {
+            return res.status(400).json({
+                error:
+                    error?.message ||
+                    "Unable to read one of the uploaded files."
+            });
+        }
+
+        const imageFiles =
+            files.filter(isImageFile);
+
+        if (
+            imageFiles.length &&
+            message
+        ) {
+            const imageResults = [];
+
+            for (
+                const image of imageFiles
+            ) {
+                try {
+                    const description =
+                        await readImageWithOpenAI(
+                            image,
+                            message
+                        );
+
+                    if (description) {
+                        imageResults.push(
+                            `Image: ${image.originalname}\n${description}`
+                        );
+                    }
+                } catch {
+                    imageResults.push(
+                        `Image: ${image.originalname}\nUnable to analyze this image.`
+                    );
+                }
+            }
+
+            if (imageResults.length) {
+                parsedFiles.push({
+                    name:
+                        "Image analysis",
+                    type:
+                        "image/analysis",
+                    size: 0,
+                    text:
+                        imageResults.join(
+                            "\n\n"
+                        ),
+                    readable: true
+                });
+            }
+        }
+
+        let history = [];
+
+        const suppliedHistory =
+            typeof req.body?.history ===
+            "string"
+                ? (() => {
+                    try {
+                        return JSON.parse(
+                            req.body.history
+                        );
+                    } catch {
+                        return [];
+                    }
+                })()
+                : req.body?.history;
+
+        history =
+            normalizeMessages(
+                suppliedHistory
+            );
+
+        let memories =
+            await getUserMemories(
+                userId
+            );
+
+        if (!memories.length) {
+            const suppliedMemory =
+                typeof req.body?.memory ===
+                "string"
+                    ? req.body.memory
+                    : "";
+
+            if (suppliedMemory) {
+                memories =
+                    suppliedMemory
+                        .split("\n")
+                        .map(
+                            (item) =>
+                                item.trim()
+                        )
+                        .filter(Boolean)
+                        .slice(
+                            -MEMORY_LIMIT
+                        );
+            }
+        }
+
+        let conversationId =
+            cleanText(
+                req.body?.conversationId,
+                100
+            );
+
+        if (
+            conversationId
+        ) {
+            const existing =
+                await getConversation(
+                    conversationId,
+                    userId
+                );
+
+            if (existing) {
+                const storedMessages =
+                    await getConversationMessages(
+                        conversationId,
+                        userId
+                    );
+
+                if (
+                    storedMessages.length
+                ) {
+                    history =
+                        storedMessages;
+                }
+            } else {
+                conversationId = "";
+            }
+        }
+
+        if (!conversationId) {
+            const title =
+                message.length > 80
+                    ? `${message.slice(
+                        0,
+                        80
+                    )}...`
+                    : message;
+
+            const conversation =
+                await createConversation(
+                    userId,
+                    title
+                );
+
+            conversationId =
+                conversation?.id || "";
+        }
+
+        const fileContext =
+            buildFileContext(
+                parsedFiles
+            );
+
+        const userContent =
+            buildUserMessage(
+                message,
+                fileContext
+            );
+
+        if (conversationId) {
+            await saveMessage(
+                conversationId,
+                userId,
+                "user",
+                userContent
+            );
+        }
+
+        const systemPrompt =
+            getSystemPrompt(
+                req.body?.systemPrompt
+            );
+
+        const messages =
+            buildGroqMessages({
+                systemPrompt,
+                history,
+                message,
+                memory: memories,
+                fileContext
+            });
+
+        setSSEHeaders(res);
+
+        let disconnected = false;
+
+        req.on("close", () => {
+            disconnected = true;
+        });
+
+        const startedAt =
+            Date.now();
+
+        try {
+            if (
+                detectImageRequest(
+                    message
+                )
+            ) {
+                try {
+                    const generated =
+                        await generateImage(
+                            message
+                        );
+
+                    if (
+                        disconnected
+                    ) {
+                        return;
+                    }
+
+                    sendSSE(res, {
+                        type: "image",
+                        ...generated
+                    });
+
+                    sendSSE(res, {
+                        type: "text",
+                        token:
+                            "I generated the image based on your request."
+                    });
+
+                    sendDone(res);
+                    return;
+                } catch {
+                }
+            }
+
+            let fullResponse = "";
+            let activeModel =
+                GROQ_MODEL;
+
+            const result =
+                await streamGroqResponse(
+                    messages,
+                    {
+                        model:
+                            req.body?.model ||
+                            GROQ_MODEL,
+                        max_tokens:
+                            req.body?.max_tokens,
+                        temperature:
+                            req.body?.temperature
+                    },
+                    (token) => {
+                        if (
+                            disconnected
+                        ) {
+                            return;
+                        }
+
+                        fullResponse +=
+                            token;
+
+                        sendSSE(res, {
+                            type: "text",
+                            token
+                        });
+                    }
+                );
+
+            fullResponse =
+                result.text;
+
+            activeModel =
+                result.model;
+
+            if (
+                disconnected
+            ) {
+                return;
+            }
+
+            if (
+                !fullResponse.trim()
+            ) {
+                throw new Error(
+                    "Groq returned an empty response."
+                );
+            }
+
+            if (
+                conversationId
+            ) {
+                await saveMessage(
+                    conversationId,
+                    userId,
+                    "assistant",
+                    fullResponse
+                );
+
+                if (
+                    supabaseAdmin
+                ) {
+                    await supabaseAdmin
+                        .from(
+                            "conversations"
+                        )
+                        .update({
+                            updated_at:
+                                new Date().toISOString()
+                        })
+                        .eq(
+                            "id",
+                            conversationId
+                        )
+                        .eq(
+                            "user_id",
+                            String(
+                                userId
+                            )
+                        );
+                }
+            }
+
+            sendSSE(res, {
+                type: "complete",
+                reply: fullResponse,
+                conversationId,
+                model: activeModel,
+                responseTime:
+                    Date.now() -
+                    startedAt
+            });
+
+            sendDone(res);
+        } catch (error) {
+            if (
+                disconnected
+            ) {
+                return;
+            }
+
+            sendSSEError(
+                res,
+                error?.message ||
+                    "Unable to generate a response."
+            );
+        }
     }
-  }
 );
 
 app.get(
-  "/api/conversations/:userId",
-  async (req, res) => {
-    const userId =
-      cleanUserId(
-        req.params.userId
-      );
+    "/api/conversations",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
 
-    if (!supabase) {
-      return res.json({
-        userId,
-        conversations: []
-      });
+        const userId =
+            getAuthenticatedUserId(
+                auth
+            );
+
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        const conversations =
+            await listConversations(
+                userId
+            );
+
+        return res.json({
+            conversations
+        });
     }
-
-    try {
-      const { data, error } =
-        await supabase
-          .from("conversations")
-          .select(
-            "id, user_id, title, created_at, updated_at"
-          )
-          .eq(
-            "user_id",
-            userId
-          )
-          .order("updated_at", {
-            ascending: false
-          })
-          .limit(HISTORY_LIMIT);
-
-      if (error) {
-        throw error;
-      }
-
-      return res.json({
-        userId,
-        conversations:
-          Array.isArray(data)
-            ? data
-            : []
-      });
-    } catch (error) {
-      console.error(
-        "Conversation load failed:",
-        error?.message || error
-      );
-
-      return res.status(500).json({
-        error:
-          "Could not load conversations."
-      });
-    }
-  }
 );
 
 app.post(
-  "/api/conversations",
-  async (req, res) => {
-    if (!supabase) {
-      return res.status(503).json({
-        error:
-          "Supabase is not configured."
-      });
+    "/api/conversations",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
+
+        const userId =
+            getAuthenticatedUserId(
+                auth
+            );
+
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        const title =
+            cleanText(
+                req.body?.title,
+                200
+            ) || "New Chat";
+
+        if (!supabaseAdmin) {
+            return res.status(503).json({
+                error:
+                    "Supabase is not configured."
+            });
+        }
+
+        try {
+            const conversation =
+                await createConversation(
+                    userId,
+                    title
+                );
+
+            if (!conversation) {
+                return res.status(500).json({
+                    error:
+                        "Unable to create conversation."
+                });
+            }
+
+            return res.json({
+                success: true,
+                conversation
+            });
+        } catch (error) {
+            return res.status(500).json({
+                error:
+                    error?.message ||
+                    "Unable to create conversation."
+            });
+        }
     }
-
-    const userId =
-      cleanUserId(
-        req.body?.userId
-      );
-
-    const rawTitle =
-      req.body?.title;
-
-    const title =
-      typeof rawTitle === "string" &&
-      rawTitle.trim()
-        ? rawTitle
-            .trim()
-            .slice(0, 100)
-        : "New Chat";
-
-    try {
-      const conversation =
-        await createConversation(
-          userId,
-          title
-        );
-
-      return res.status(201).json({
-        conversation
-      });
-    } catch (error) {
-      console.error(
-        "Conversation creation failed:",
-        error?.message || error
-      );
-
-      return res.status(500).json({
-        error:
-          "Could not create conversation."
-      });
-    }
-  }
 );
 
 app.get(
-  "/api/conversations/:conversationId/messages",
-  async (req, res) => {
-    const conversationId =
-      cleanConversationId(
-        req.params.conversationId
-      );
+    "/api/conversations/:id/messages",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
 
-    const userId =
-      cleanUserId(
-        req.query.userId
-      );
+        const userId =
+            getAuthenticatedUserId(
+                auth
+            );
 
-    if (!conversationId) {
-      return res.status(400).json({
-        error:
-          "Conversation ID is required."
-      });
-    }
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
 
-    if (!supabase) {
-      return res.status(503).json({
-        error:
-          "Supabase is not configured."
-      });
-    }
+        const conversation =
+            await getConversation(
+                req.params.id,
+                userId
+            );
 
-    try {
-      const result =
-        await getConversationMessages(
-          conversationId,
-          userId
-        );
+        if (!conversation) {
+            return res.status(404).json({
+                error:
+                    "Conversation not found."
+            });
+        }
 
-      if (!result) {
-        return res.status(404).json({
-          error:
-            "Conversation not found."
+        const messages =
+            await getConversationMessages(
+                req.params.id,
+                userId
+            );
+
+        return res.json({
+            messages
         });
-      }
-
-      return res.json(result);
-    } catch (error) {
-      console.error(
-        "Conversation messages failed:",
-        error?.message || error
-      );
-
-      return res.status(500).json({
-        error:
-          "Could not load conversation."
-      });
     }
-  }
+);
+
+app.patch(
+    "/api/conversations/:id",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
+
+        const userId =
+            getAuthenticatedUserId(
+                auth
+            );
+
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        if (!supabaseAdmin) {
+            return res.status(503).json({
+                error:
+                    "Supabase is not configured."
+            });
+        }
+
+        const conversation =
+            await getConversation(
+                req.params.id,
+                userId
+            );
+
+        if (!conversation) {
+            return res.status(404).json({
+                error:
+                    "Conversation not found."
+            });
+        }
+
+        const title =
+            cleanText(
+                req.body?.title,
+                200
+            );
+
+        if (!title) {
+            return res.status(400).json({
+                error:
+                    "Conversation title is required."
+            });
+        }
+
+        try {
+            const {
+                data,
+                error
+            } = await supabaseAdmin
+                .from(
+                    "conversations"
+                )
+                .update({
+                    title,
+                    updated_at:
+                        new Date().toISOString()
+                })
+                .eq(
+                    "id",
+                    req.params.id
+                )
+                .eq(
+                    "user_id",
+                    String(
+                        userId
+                    )
+                )
+                .select(
+                    "id, title, is_pinned, created_at, updated_at"
+                )
+                .maybeSingle();
+
+            if (error) {
+                return res.status(500).json({
+                    error:
+                        error.message
+                });
+            }
+
+            return res.json({
+                success: true,
+                conversation: data
+            });
+        } catch (error) {
+            return res.status(500).json({
+                error:
+                    error?.message ||
+                    "Unable to rename conversation."
+            });
+        }
+    }
+);
+
+app.patch(
+    "/api/conversations/:id/pin",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
+
+        const userId =
+            getAuthenticatedUserId(
+                auth
+            );
+
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        const conversation =
+            await getConversation(
+                req.params.id,
+                userId
+            );
+
+        if (!conversation) {
+            return res.status(404).json({
+                error:
+                    "Conversation not found."
+            });
+        }
+
+        const isPinned =
+            typeof req.body?.isPinned ===
+            "boolean"
+                ? req.body.isPinned
+                : !Boolean(
+                    conversation.is_pinned
+                );
+
+        try {
+            const updated =
+                await setConversationPinned(
+                    req.params.id,
+                    userId,
+                    isPinned
+                );
+
+            if (!updated) {
+                return res.status(500).json({
+                    error:
+                        "Unable to update conversation pin."
+                });
+            }
+
+            return res.json({
+                success: true,
+                conversation: updated
+            });
+        } catch (error) {
+            return res.status(500).json({
+                error:
+                    error?.message ||
+                    "Unable to update conversation pin."
+            });
+        }
+    }
 );
 
 app.delete(
-  "/api/conversations/:conversationId",
-  async (req, res) => {
-    const conversationId =
-      cleanConversationId(
-        req.params.conversationId
-      );
+    "/api/conversations/:id",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
 
-    const userId =
-      cleanUserId(
-        req.query.userId
-      );
+        const userId =
+            getAuthenticatedUserId(
+                auth
+            );
 
-    if (!conversationId) {
-      return res.status(400).json({
-        error:
-          "Conversation ID is required."
-      });
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        if (!supabaseAdmin) {
+            return res.status(503).json({
+                error:
+                    "Supabase is not configured."
+            });
+        }
+
+        try {
+            const deleted =
+                await deleteConversation(
+                    req.params.id,
+                    userId
+                );
+
+            if (deleted === null) {
+                return res.status(404).json({
+                    error:
+                        "Conversation not found."
+                });
+            }
+
+            if (!deleted) {
+                return res.status(500).json({
+                    error:
+                        "Unable to delete conversation."
+                });
+            }
+
+            return res.json({
+                success: true,
+                conversationId:
+                    req.params.id
+            });
+        } catch (error) {
+            return res.status(500).json({
+                error:
+                    error?.message ||
+                    "Unable to delete conversation."
+            });
+        }
     }
+);
 
-    if (!supabase) {
-      return res.status(503).json({
-        error:
-          "Supabase is not configured."
-      });
-    }
+app.get(
+    "/api/memories",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
 
-    try {
-      const conversation =
-        await getConversationForUser(
-          conversationId,
-          userId
-        );
+        const userId =
+            getAuthenticatedUserId(
+                auth
+            );
 
-      if (!conversation) {
-        return res.status(404).json({
-          error:
-            "Conversation not found."
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        const memories =
+            await getUserMemories(
+                userId
+            );
+
+        return res.json({
+            memories
         });
-      }
-
-      const { error } =
-        await supabase
-          .from("conversations")
-          .delete()
-          .eq(
-            "id",
-            conversationId
-          )
-          .eq(
-            "user_id",
-            userId
-          );
-
-      if (error) {
-        throw error;
-      }
-
-      return res.json({
-        success: true,
-        conversationId
-      });
-    } catch (error) {
-      console.error(
-        "Conversation deletion failed:",
-        error?.message || error
-      );
-
-      return res.status(500).json({
-        error:
-          "Could not delete conversation."
-      });
     }
-  }
 );
 
 app.post(
-  "/api/chat",
-  async (req, res) => {
-    if (!groq) {
-      return res.status(503).json({
-        error:
-          "Groq API is not configured."
-      });
-    }
-
-    const message =
-      typeof req.body?.message === "string"
-        ? req.body.message.trim()
-        : "";
-
-    if (!message) {
-      return res.status(400).json({
-        error:
-          "Message is required."
-      });
-    }
-
-    if (
-      message.length >
-      MAX_MESSAGE_LENGTH
-    ) {
-      return res.status(413).json({
-        error:
-          "Message is too long."
-      });
-    }
-
-    const userId =
-      cleanUserId(
-        req.body?.userId
-      );
-
-    let conversationId =
-      cleanConversationId(
-        req.body?.conversationId
-      );
-
-    const frontendHistory =
-      cleanHistory(
-        req.body?.history
-      );
-
-    const frontendMemory =
-      cleanMemory(
-        req.body?.memory
-      );
-
-    if (
-      supabase &&
-      !conversationId
-    ) {
-      try {
-        const conversation =
-          await createConversation(
-            userId,
-            createConversationTitle(
-              message
-            )
-          );
-
-        conversationId =
-          conversation?.id || "";
-      } catch (error) {
-        console.error(
-          "Automatic conversation creation failed:",
-          error?.message || error
-        );
-
-        conversationId = "";
-      }
-    }
-
-    let databaseHistory = [];
-
-    if (
-      supabase &&
-      conversationId
-    ) {
-      try {
-        databaseHistory =
-          await getDatabaseHistory(
-            conversationId,
-            userId
-          );
-      } catch (error) {
-        console.error(
-          "Database history load failed:",
-          error?.message || error
-        );
-      }
-    }
-
-    const context =
-      buildOptimizedContext(
-        frontendHistory,
-        databaseHistory,
-        message
-      );
-
-    let memory = [];
-
-    if (supabase) {
-      try {
-        memory =
-          await getUserMemory(
-            userId
-          );
-      } catch (error) {
-        console.error(
-          "Memory load failed:",
-          error?.message || error
-        );
-
-        memory = [];
-      }
-    }
-
-    if (!memory.length) {
-      memory = frontendMemory;
-    }
-
-    const requestType =
-      classifyRequest(
-        message,
-        context
-      );
-
-    const modelConfig =
-      getModelConfig(
-        requestType
-      );
-
-    const systemPrompt =
-      getSystemPrompt(
-        requestType,
-        memory
-      );
-
-    const messages = [
-      {
-        role: "system",
-        content: systemPrompt
-      },
-      ...context,
-      {
-        role: "user",
-        content: message
-      }
-    ];
-
-    if (
-      supabase &&
-      conversationId
-    ) {
-      try {
-        await saveConversationMessage(
-          conversationId,
-          "user",
-          message
-        );
-      } catch (error) {
-        console.error(
-          "User message save failed:",
-          error?.message || error
-        );
-      }
-    }
-
-    const {
-      controller,
-      isDisconnected
-    } =
-      createRequestAbortController(
-        req,
-        res
-      );
-
-    setupStreamingResponse(res);
-
-    sendSSE(
-      res,
-      "start",
-      {
-        type: "start",
-        requestType,
-        model:
-          modelConfig.model,
-        conversationId:
-          conversationId || null
-      }
-    );
-
-    let fullResponse = "";
-
-    try {
-      const stream =
-        await groq.chat.completions.create(
-          {
-            model:
-              modelConfig.model,
-            messages,
-            temperature:
-              modelConfig.temperature,
-            max_tokens:
-              modelConfig.maxTokens,
-            stream: true
-          },
-          {
-            signal:
-              controller.signal
-          }
-        );
-
-      for await (
-        const chunk of stream
-      ) {
-        if (
-          isDisconnected() ||
-          res.writableEnded ||
-          res.destroyed
-        ) {
-          break;
-        }
-
-        const token =
-          chunk?.choices?.[0]
-            ?.delta?.content || "";
-
-        if (!token) {
-          continue;
-        }
-
-        fullResponse += token;
-
-        sendSSE(
-          res,
-          "token",
-          token
-        );
-      }
-
-      if (
-        !isDisconnected() &&
-        fullResponse.trim()
-      ) {
-        if (
-          supabase &&
-          conversationId
-        ) {
-          try {
-            await saveConversationMessage(
-              conversationId,
-              "assistant",
-              fullResponse
+    "/api/memories",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
             );
 
-            await updateConversationTime(
-              conversationId
+        const userId =
+            getAuthenticatedUserId(
+                auth
             );
-          } catch (error) {
-            console.error(
-              "Assistant message save failed:",
-              error?.message || error
-            );
-          }
+
+        if (!userId) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
         }
 
-        sendSSE(
-          res,
-          "done",
-          {
-            success: true,
-            response:
-              fullResponse,
-            conversationId:
-              conversationId || null,
-            requestType,
-            model:
-              modelConfig.model
-          }
-        );
-      } else if (
-        !isDisconnected()
-      ) {
-        sendSSE(
-          res,
-          "error",
-          {
-            error:
-              "Orbit did not receive a response from the AI.",
-            conversationId:
-              conversationId || null
-          }
-        );
-      }
-    } catch (error) {
-      if (
-        error?.name ===
-        "AbortError"
-      ) {
-        console.log(
-          "Chat request aborted by client."
-        );
+        const memory =
+            cleanText(
+                req.body?.memory,
+                4000
+            );
 
-        return;
-      }
+        if (!memory) {
+            return res.status(400).json({
+                error:
+                    "Memory is required."
+            });
+        }
 
-      console.error(
-        "Chat request failed:",
-        error?.message || error
-      );
+        const success =
+            await saveMemory(
+                userId,
+                memory
+            );
 
-      if (
-        !res.writableEnded &&
-        !res.destroyed
-      ) {
-        sendSSE(
-          res,
-          "error",
-          {
-            error:
-              error?.message ||
-              "Orbit could not generate a response.",
-            conversationId:
-              conversationId || null
-          }
-        );
-      }
-    } finally {
-      if (
-        !res.writableEnded &&
-        !res.destroyed
-      ) {
-        res.end();
-      }
+        if (!success) {
+            return res.status(500).json({
+                error:
+                    "Unable to save memory."
+            });
+        }
+
+        return res.json({
+            success: true
+        });
     }
-  }
 );
 
-app.use(
-  (req, res) => {
+app.post(
+    "/api/generate-image",
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
+
+        if (!auth.authenticated) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        const prompt =
+            cleanText(
+                req.body?.prompt,
+                4000
+            );
+
+        if (!prompt) {
+            return res.status(400).json({
+                error:
+                    "Image prompt is required."
+            });
+        }
+
+        try {
+            const image =
+                await generateImage(
+                    prompt
+                );
+
+            return res.json({
+                success: true,
+                ...image
+            });
+        } catch (error) {
+            return res.status(500).json({
+                error:
+                    error?.message ||
+                    "Unable to generate image."
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/read-image",
+    upload.single("file"),
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
+
+        if (!auth.authenticated) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                error:
+                    "Image file is required."
+            });
+        }
+
+        if (!isImageFile(req.file)) {
+            return res.status(400).json({
+                error:
+                    "The uploaded file must be an image."
+            });
+        }
+
+        try {
+            const text =
+                await readImageWithOpenAI(
+                    req.file,
+                    req.body?.message
+                );
+
+            return res.json({
+                success: true,
+                filename:
+                    req.file.originalname,
+                text
+            });
+        } catch (error) {
+            return res.status(500).json({
+                error:
+                    error?.message ||
+                    "Unable to read the image."
+            });
+        }
+    }
+);
+
+app.post(
+    "/api/read-file",
+    upload.single("file"),
+    async (req, res) => {
+        const auth =
+            await authenticateRequest(
+                req
+            );
+
+        if (!auth.authenticated) {
+            return res.status(401).json({
+                error:
+                    "Authentication required."
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                error:
+                    "File is required."
+            });
+        }
+
+        try {
+            if (isImageFile(req.file)) {
+                const text =
+                    await readImageWithOpenAI(
+                        req.file,
+                        req.body?.message
+                    );
+
+                return res.json({
+                    success: true,
+                    filename:
+                        req.file.originalname,
+                    mimetype:
+                        req.file.mimetype,
+                    size:
+                        req.file.size,
+                    readable: true,
+                    text
+                });
+            }
+
+            const result =
+                await extractFileText(
+                    req.file
+                );
+
+            return res.json({
+                success: true,
+                ...result
+            });
+        } catch (error) {
+            return res.status(500).json({
+                error:
+                    error?.message ||
+                    "Unable to read the file."
+            });
+        }
+    }
+);
+
+app.get(
+    "/api/test-groq",
+    async (req, res) => {
+        if (!groq) {
+            return res.status(503).json({
+                success: false,
+                error:
+                    "Groq API is not configured."
+            });
+        }
+
+        try {
+            const response =
+                await groq.chat.completions.create(
+                    {
+                        model:
+                            GROQ_MODEL,
+                        messages: [
+                            {
+                                role: "user",
+                                content:
+                                    "Reply with exactly: Orbit AI backend is working."
+                            }
+                        ],
+                        max_tokens: 50,
+                        temperature: 0
+                    }
+                );
+
+            return res.json({
+                success: true,
+                model:
+                    GROQ_MODEL,
+                response:
+                    response
+                        ?.choices?.[0]
+                        ?.message
+                        ?.content || ""
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                error:
+                    error?.message ||
+                    "Groq test failed."
+            });
+        }
+    }
+);
+
+app.use((req, res) => {
     res.status(404).json({
-      error:
-        "Route not found.",
-      path:
-        req.originalUrl
+        error: "Route not found.",
+        path: req.path
     });
-  }
-);
+});
 
 app.use(
-  (error, req, res, next) => {
-    console.error(
-      "Unhandled server error:",
-      error?.message || error
-    );
+    (error, req, res, next) => {
+        if (
+            error?.code ===
+            "LIMIT_FILE_SIZE"
+        ) {
+            return res.status(413).json({
+                error:
+                    "The uploaded file is too large."
+            });
+        }
 
-    if (res.headersSent) {
-      return next(error);
+        if (
+            error?.code ===
+            "LIMIT_FILE_COUNT"
+        ) {
+            return res.status(413).json({
+                error:
+                    "Too many files were uploaded."
+            });
+        }
+
+        if (
+            error?.message ===
+            "Origin not allowed by CORS"
+        ) {
+            return res.status(403).json({
+                error:
+                    "Origin is not allowed."
+            });
+        }
+
+        return res.status(500).json({
+            error:
+                error?.message ||
+                "Internal server error."
+        });
     }
-
-    return res.status(500).json({
-      error:
-        "Internal server error."
-    });
-  }
 );
 
 app.listen(
-  PORT,
-  () => {
-    console.log(
-      `Orbit AI backend running on port ${PORT}`
-    );
-
-    console.log(
-      `Groq: ${
-        groq
-          ? "configured"
-          : "not configured"
-      }`
-    );
-
-    console.log(
-      `Supabase: ${
-        supabase
-          ? "configured"
-          : "not configured"
-      }`
-    );
-
-    console.log(
-      `Model: ${MODEL}`
-    );
-  }
+    PORT,
+    () => {
+        console.log(
+            `Orbit AI backend running on port ${PORT}`
+        );
+    }
 );
