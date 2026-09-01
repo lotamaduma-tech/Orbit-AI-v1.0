@@ -258,7 +258,6 @@ window.OrbitDashboard = {
     scrollChatToBottom,
 
     scrollChatToTop,
-
     isChatAtBottom
 
 };
