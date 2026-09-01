@@ -365,6 +365,7 @@
                             <div class="settings-section-icon">
                                 <i class="fa-solid fa-language"></i>
                             </div>
+
                             <div>
                                 <h2>Language</h2>
                                 <p>Choose the language used throughout Orbit.</p>
@@ -372,18 +373,22 @@
                         </div>
 
                         <div class="settings-options">
-                            <!-- Language Selector -->
                             <div class="settings-option">
                                 <div class="settings-option-info">
                                     <h3>Interface language</h3>
                                     <p>Select your preferred language.</p>
                                 </div>
-                                <select id="language-select" class="theme-select" aria-label="Interface language">
-                                    <option value="en">English</option>
-                                </select>
+
+                                <div class="language-select-wrapper">
+                                    <select id="language-select" class="theme-select" aria-label="Interface language">
+                                        <option value="en">English</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </section>
+
+
 
                     <!-- About Section -->
                     <section id="about" class="settings-section settings-about-section">
@@ -419,6 +424,33 @@
         </main>
     </div>
 
+    <div id="language-coming-soon" class="coming-soon-modal" aria-hidden="true">
+        <div class="coming-soon-backdrop"></div>
+
+        <div class="coming-soon-dialog" role="dialog" aria-modal="true" aria-labelledby="language-coming-soon-title">
+            <button type="button" class="coming-soon-close" aria-label="Close language support message">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="coming-soon-icon">
+                <i class="fa-solid fa-language"></i>
+            </div>
+
+            <h2 id="language-coming-soon-title">
+                Language Support Coming Soon
+            </h2>
+
+            <p>
+                We're working on bringing multilingual support to Orbit.
+                You'll be able to choose your preferred language in a future update.
+            </p>
+
+            <button type="button" class="coming-soon-btn">
+                Got it
+            </button>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="js/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -430,9 +462,7 @@
     <script src="js/settings/ai-memory.js"></script>
     <script src="js/settings/clear-history.js"></script>
     <script src="js/settings/chat-settings.js"></script>
-</body>
-
-</html>
+    <script src="js/settings/language.js"></script>
 
 </body>
 

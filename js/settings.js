@@ -545,3 +545,5 @@ document.addEventListener("DOMContentLoaded", () => {
   applyAnimations();
   applyDataPreferences();
 });
+
+
