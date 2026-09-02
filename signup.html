@@ -1,153 +1,211 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <meta name="description" content="Create your Orbit AI account." />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Create Account — Orbit AI</title>
+    <meta
+        name="description"
+        content="Create your Adumex AI account."
+    >
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>Create Account — Adumex AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
     <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    >
 
-    <link rel="stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/variables.css">
+
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/style.css">
+
     <script src="js/theme.js"></script>
-    <link rel="stylesheet" href="css/auth.css" />
-    <link rel="stylesheet" href="css/style.css" />
-  </head>
+</head>
 
-  <body>
+<body>
+
     <main class="auth-page">
-      <section class="auth-card" aria-labelledby="signup-title">
-        <div class="auth-brand">
-          <a href="index.html" class="brand" aria-label="Orbit AI home">
-            <strong>ORBIT</strong>
-            <span>AI</span>
-          </a>
-        </div>
 
-        <div class="auth-header">
-          <h1 id="signup-title">Create your account</h1>
+        <section
+            class="auth-card"
+            aria-labelledby="signup-title"
+        >
 
-          <p>Join Orbit AI and keep your conversations connected.</p>
-        </div>
-
-        <form class="auth-form" id="signup-form">
-          <div class="auth-field">
-            <label for="signup-email"> Email </label>
-
-            <div class="auth-input">
-              <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-
-              <input
-                type="email"
-                id="signup-email"
-                name="email"
-                placeholder="you@example.com"
-                autocomplete="email"
-                required
-              />
-            </div>
-          </div>
-
-          <div class="auth-field">
-            <label for="signup-password"> Password </label>
-
-            <div class="auth-input">
-              <i class="fa-solid fa-lock" aria-hidden="true"></i>
-
-              <input
-                type="password"
-                id="signup-password"
-                name="password"
-                placeholder="Create a password"
-                autocomplete="new-password"
-                minlength="6"
-                required
-              />
-
-              <button
-                type="button"
-                class="auth-password-toggle"
-                id="signup-password-toggle"
-                aria-label="Show password"
-                title="Show password"
-              >
-                <i class="fa-regular fa-eye"></i>
-              </button>
+            <div class="auth-brand">
+                <a
+                    href="index.html"
+                    class="brand"
+                    aria-label="Adumex AI home"
+                >
+                    <strong>ADUMEX</strong>
+                    <span>AI</span>
+                </a>
             </div>
 
-            <small class="auth-hint">
-              Password must be at least 6 characters.
-            </small>
-          </div>
+            <div class="auth-header">
+                <h1 id="signup-title">
+                    Create your account
+                </h1>
 
-          <div class="auth-field">
-            <label for="signup-confirm-password"> Confirm password </label>
-
-            <div class="auth-input">
-              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
-
-              <input
-                type="password"
-                id="signup-confirm-password"
-                name="confirm-password"
-                placeholder="Confirm your password"
-                autocomplete="new-password"
-                minlength="6"
-                required
-              />
-
-              <button
-                type="button"
-                class="auth-password-toggle"
-                id="signup-confirm-password-toggle"
-                aria-label="Show password"
-                title="Show password"
-              >
-                <i class="fa-regular fa-eye"></i>
-              </button>
+                <p>
+                    Join Adumex AI and keep your conversations connected.
+                </p>
             </div>
-          </div>
 
-          <button type="submit" class="auth-submit" id="signup-submit">
-            <span>Create account</span>
-            <i class="fa-solid fa-arrow-right"></i>
-          </button>
+            <form class="auth-form" id="signup-form">
 
-          <p
-            class="auth-message"
-            id="signup-message"
-            role="alert"
-            aria-live="polite"
-          ></p>
-        </form>
+                <div class="auth-field">
 
-        <div class="auth-divider">
-          <span>OR</span>
-        </div>
+                    <label for="signup-email">
+                        Email
+                    </label>
 
-        <p class="auth-switch">
-          Already have an account?
-          <a href="login.html">Sign in</a>
-        </p>
-      </section>
+                    <div class="auth-input">
+
+                        <i
+                            class="fa-solid fa-envelope"
+                            aria-hidden="true"
+                        ></i>
+
+                        <input
+                            type="email"
+                            id="signup-email"
+                            name="email"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="auth-field">
+
+                    <label for="signup-password">
+                        Password
+                    </label>
+
+                    <div class="auth-input">
+
+                        <i
+                            class="fa-solid fa-lock"
+                            aria-hidden="true"
+                        ></i>
+
+                        <input
+                            type="password"
+                            id="signup-password"
+                            name="password"
+                            placeholder="Create a password"
+                            autocomplete="new-password"
+                            minlength="6"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="auth-password-toggle"
+                            id="signup-password-toggle"
+                            aria-label="Show password"
+                            title="Show password"
+                        >
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+
+                    </div>
+
+                    <small class="auth-hint">
+                        Password must be at least 6 characters.
+                    </small>
+
+                </div>
+
+                <div class="auth-field">
+
+                    <label for="signup-confirm-password">
+                        Confirm password
+                    </label>
+
+                    <div class="auth-input">
+
+                        <i
+                            class="fa-solid fa-shield-halved"
+                            aria-hidden="true"
+                        ></i>
+
+                        <input
+                            type="password"
+                            id="signup-confirm-password"
+                            name="confirm-password"
+                            placeholder="Confirm your password"
+                            autocomplete="new-password"
+                            minlength="6"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="auth-password-toggle"
+                            id="signup-confirm-password-toggle"
+                            aria-label="Show password"
+                            title="Show password"
+                        >
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="auth-submit"
+                    id="signup-submit"
+                >
+                    <span>Create account</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <p
+                    class="auth-message"
+                    id="signup-message"
+                    role="alert"
+                    aria-live="polite"
+                ></p>
+
+            </form>
+
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
+
+            <p class="auth-switch">
+                Already have an account?
+                <a href="login.html">Sign in</a>
+            </p>
+
+        </section>
+
     </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/auth.js"></script>
-  </body>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/auth.js"></script>
+
+</body>
+
 </html>

@@ -1,4 +1,6 @@
-.orbit-tools-menu {
+/* Adumex tools menu */
+
+.adumex-tools-menu {
     position: absolute;
     left: 0;
     bottom: calc(100% + 10px);
@@ -8,7 +10,7 @@
     display: flex;
     flex-direction: column;
     padding: var(--spacing-sm);
-    background: var(--bg2);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
@@ -26,14 +28,14 @@
     box-sizing: border-box;
 }
 
-.orbit-tools-menu.is-open {
+.adumex-tools-menu.is-open {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0) scale(1);
 }
 
-.orbit-tools-header {
+.adumex-tools-header {
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
@@ -41,7 +43,7 @@
     padding: var(--spacing-sm) var(--spacing-sm) var(--spacing-xs);
 }
 
-.orbit-tools-title {
+.adumex-tools-title {
     font-family: var(--font-secondary);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
@@ -49,13 +51,13 @@
     color: var(--text);
 }
 
-.orbit-tools-description {
+.adumex-tools-description {
     font-size: var(--font-size-xs);
     line-height: 1.4;
     color: var(--text-secondary);
 }
 
-.orbit-tools-options {
+.adumex-tools-options {
     min-height: 0;
     max-height: 168px;
     display: flex;
@@ -70,24 +72,24 @@
     scrollbar-color: var(--border) transparent;
 }
 
-.orbit-tools-options::-webkit-scrollbar {
+.adumex-tools-options::-webkit-scrollbar {
     width: 5px;
 }
 
-.orbit-tools-options::-webkit-scrollbar-track {
+.adumex-tools-options::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.orbit-tools-options::-webkit-scrollbar-thumb {
+.adumex-tools-options::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: var(--radius-full);
 }
 
-.orbit-tools-options::-webkit-scrollbar-thumb:hover {
+.adumex-tools-options::-webkit-scrollbar-thumb:hover {
     background: var(--muted);
 }
 
-.orbit-tool-option {
+.adumex-tool-option {
     width: 100%;
     min-height: 58px;
     flex: 0 0 auto;
@@ -109,21 +111,21 @@
     box-sizing: border-box;
 }
 
-.orbit-tool-option:hover {
+.adumex-tool-option:hover {
     background: var(--surface-hover);
     border-color: var(--border-light);
 }
 
-.orbit-tool-option:active {
+.adumex-tool-option:active {
     transform: scale(0.985);
 }
 
-.orbit-tool-option:focus-visible {
+.adumex-tool-option:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: -2px;
 }
 
-.orbit-tool-icon {
+.adumex-tool-icon {
     width: 34px;
     height: 34px;
     flex: 0 0 34px;
@@ -136,7 +138,7 @@
     font-size: var(--font-size-sm);
 }
 
-.orbit-tool-content {
+.adumex-tool-content {
     min-width: 0;
     flex: 1;
     display: flex;
@@ -144,7 +146,7 @@
     gap: 2px;
 }
 
-.orbit-tool-content strong {
+.adumex-tool-content strong {
     overflow: hidden;
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
@@ -154,7 +156,7 @@
     white-space: nowrap;
 }
 
-.orbit-tool-content small {
+.adumex-tool-content small {
     overflow: hidden;
     font-size: 10px;
     font-weight: var(--font-weight-normal);
@@ -164,7 +166,7 @@
     white-space: nowrap;
 }
 
-.orbit-tool-arrow {
+.adumex-tool-arrow {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
@@ -172,6 +174,8 @@
     color: var(--muted);
     font-size: 10px;
 }
+
+/* Composer */
 
 .command-area {
     position: relative;
@@ -203,48 +207,53 @@
     box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
-.orbit-attachments {
+/* Uploaded files */
+
+.adumex-attachments {
     grid-column: 1 / -1;
     grid-row: 1;
     min-width: 0;
     max-width: 100%;
     margin: 0 0 var(--spacing-sm);
-    padding: var(--spacing-xs);
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
     overflow: hidden;
     box-sizing: border-box;
 }
 
-.orbit-attachments[hidden] {
+.adumex-attachments[hidden] {
     display: none;
 }
 
-.orbit-attachments-header {
+/* Attachment header */
+
+.adumex-attachments-header {
     min-width: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--spacing-sm);
-    padding: 2px var(--spacing-xs) var(--spacing-xs);
+    margin-bottom: 8px;
+    padding: 0 2px;
     box-sizing: border-box;
 }
 
-.orbit-attachments-title {
+.adumex-attachments-title {
     min-width: 0;
     overflow: hidden;
-    color: var(--text);
+    color: var(--text-secondary);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-medium);
     line-height: 1.3;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.orbit-attachments-clear {
+.adumex-attachments-clear {
     flex: 0 0 auto;
-    padding: 3px 6px;
+    padding: 3px 7px;
     border: 0;
     border-radius: var(--radius-xs);
     background: transparent;
@@ -257,20 +266,28 @@
         color var(--transition-fast);
 }
 
-.orbit-attachments-clear:hover {
+.adumex-attachments-clear:hover {
     background: var(--surface-hover);
     color: var(--text);
 }
 
-.orbit-attachments-list {
+.adumex-attachments-clear:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+
+/* Horizontal file list */
+
+.adumex-attachments-list {
+    width: 100%;
     min-width: 0;
     max-width: 100%;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: stretch;
-    gap: var(--spacing-sm);
-    padding: 2px 2px 5px;
+    gap: 8px;
+    padding: 2px 1px 7px;
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
@@ -280,163 +297,205 @@
     box-sizing: border-box;
 }
 
-.orbit-attachments-list::-webkit-scrollbar {
+.adumex-attachments-list::-webkit-scrollbar {
     height: 5px;
 }
 
-.orbit-attachments-list::-webkit-scrollbar-track {
+.adumex-attachments-list::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.orbit-attachments-list::-webkit-scrollbar-thumb {
+.adumex-attachments-list::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: var(--radius-full);
 }
 
-.orbit-attachments-list::-webkit-scrollbar-thumb:hover {
+.adumex-attachments-list::-webkit-scrollbar-thumb:hover {
     background: var(--muted);
 }
 
-.orbit-attachment-item {
+/* Uploaded file card */
+
+.adumex-attachment-item {
     position: relative;
-    flex: 0 0 190px;
-    width: 190px;
-    min-width: 190px;
-    height: 58px;
-    min-height: 58px;
+    flex: 0 0 220px;
+    width: 220px;
+    min-width: 220px;
+    height: 64px;
+    min-height: 64px;
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    gap: 10px;
+    padding: 8px 36px 8px 8px;
+    background: var(--surface-soft);
+    border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
     overflow: hidden;
     box-sizing: border-box;
     transition:
         background-color var(--transition-fast),
         border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
         transform var(--transition-fast);
 }
 
-.orbit-attachment-item:hover {
-    background: var(--surface-hover);
-    border-color: var(--primary);
+.adumex-attachment-item:hover {
+    background: var(--surface);
+    border-color: var(--border);
+    box-shadow: var(--shadow-xs);
 }
 
-.orbit-attachment-preview {
-    width: 46px;
-    height: 46px;
-    flex: 0 0 46px;
+.adumex-attachment-item:active {
+    transform: scale(0.99);
+}
+
+/* File preview */
+
+.adumex-attachment-preview {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     border-radius: var(--radius-sm);
-    background: var(--surface-soft);
+    background: var(--primary-soft);
+    border: 1px solid var(--border-light);
     color: var(--primary);
     font-size: var(--font-size-lg);
+    box-sizing: border-box;
 }
 
-.orbit-attachment-preview img {
+.adumex-attachment-preview img {
     width: 100%;
     height: 100%;
     display: block;
     object-fit: cover;
 }
 
-.orbit-attachment-info {
+/* File information */
+
+.adumex-attachment-info {
     min-width: 0;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    justify-content: center;
+    gap: 4px;
     overflow: hidden;
 }
 
-.orbit-attachment-info strong {
+.adumex-attachment-info strong {
     display: block;
     min-width: 0;
     overflow: hidden;
     color: var(--text);
-    font-size: 10px;
+    font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
     line-height: 1.35;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.orbit-attachment-info small {
+.adumex-attachment-info small {
     display: block;
-    color: var(--muted);
-    font-size: 9px;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-weight: var(--font-weight-normal);
     line-height: 1.3;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.orbit-attachment-remove {
+/* Remove file */
+
+.adumex-attachment-remove {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 22px;
-    height: 22px;
+    top: 8px;
+    right: 8px;
+    width: 21px;
+    height: 21px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    border: 1px solid var(--border-light);
+    border: 0;
     border-radius: var(--radius-full);
     background: var(--surface);
     color: var(--muted);
     box-shadow: var(--shadow-xs);
     cursor: pointer;
+    opacity: 0;
+    transform: scale(0.9);
     transition:
+        opacity var(--transition-fast),
         background-color var(--transition-fast),
-        border-color var(--transition-fast),
-        color var(--transition-fast);
+        color var(--transition-fast),
+        transform var(--transition-fast);
 }
 
-.orbit-attachment-remove:hover {
+.adumex-attachment-item:hover .adumex-attachment-remove,
+.adumex-attachment-remove:focus-visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.adumex-attachment-remove:hover {
     background: var(--surface-hover);
-    border-color: var(--border);
-    color: var(--text);
+    color: var(--danger);
 }
 
-html[data-theme="dark"] .orbit-tools-menu {
+.adumex-attachment-remove:active {
+    transform: scale(0.92);
+}
+
+.adumex-attachment-remove:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+
+/* Dark theme */
+
+html[data-theme="dark"] .adumex-tools-menu {
     background: var(--surface-soft);
     border-color: var(--border);
     box-shadow: var(--shadow-lg);
 }
 
-html[data-theme="dark"] .orbit-tools-options::-webkit-scrollbar-thumb {
+html[data-theme="dark"] .adumex-tools-options::-webkit-scrollbar-thumb {
     background: var(--border);
 }
 
-html[data-theme="dark"] .orbit-tools-options::-webkit-scrollbar-thumb:hover {
+html[data-theme="dark"] .adumex-tools-options::-webkit-scrollbar-thumb:hover {
     background: var(--muted);
 }
 
-html[data-theme="dark"] .orbit-attachments {
-    background: var(--bg2);
-    border-color: var(--border);
-}
-
-html[data-theme="dark"] .orbit-attachment-item {
-    background: var(--surface);
-    border-color: var(--border);
-}
-
-html[data-theme="dark"] .orbit-attachment-preview {
+html[data-theme="dark"] .adumex-attachment-item {
     background: var(--surface-soft);
-}
-
-html[data-theme="dark"] .orbit-attachment-remove {
-    background: var(--surface);
     border-color: var(--border);
 }
+
+html[data-theme="dark"] .adumex-attachment-item:hover {
+    background: var(--surface);
+    border-color: var(--border-light);
+}
+
+html[data-theme="dark"] .adumex-attachment-preview {
+    background: var(--primary-soft);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .adumex-attachment-remove {
+    background: var(--surface);
+}
+
+/* Mobile */
 
 @media (max-width: 600px) {
-    .orbit-tools-menu {
+    .adumex-tools-menu {
         left: 0;
         bottom: calc(100% + 8px);
         width: min(270px, calc(100vw - 28px));
@@ -446,47 +505,47 @@ html[data-theme="dark"] .orbit-attachment-remove {
         border-radius: var(--radius-md);
     }
 
-    .orbit-tools-header {
+    .adumex-tools-header {
         padding: 6px 8px 4px;
     }
 
-    .orbit-tools-title {
+    .adumex-tools-title {
         font-size: 12px;
     }
 
-    .orbit-tools-description {
+    .adumex-tools-description {
         font-size: 9px;
     }
 
-    .orbit-tools-options {
+    .adumex-tools-options {
         max-height: 132px;
         margin-top: 2px;
         padding: 0 2px;
     }
 
-    .orbit-tool-option {
+    .adumex-tool-option {
         min-height: 50px;
         gap: 7px;
         padding: 6px;
         border-radius: var(--radius-sm);
     }
 
-    .orbit-tool-icon {
+    .adumex-tool-icon {
         width: 30px;
         height: 30px;
         flex-basis: 30px;
         font-size: 11px;
     }
 
-    .orbit-tool-content strong {
+    .adumex-tool-content strong {
         font-size: 10px;
     }
 
-    .orbit-tool-content small {
+    .adumex-tool-content small {
         font-size: 8px;
     }
 
-    .orbit-tool-arrow {
+    .adumex-tool-arrow {
         font-size: 8px;
     }
 
@@ -497,38 +556,39 @@ html[data-theme="dark"] .orbit-attachment-remove {
         border-radius: var(--radius-md);
     }
 
-    .orbit-attachments {
-        max-height: 145px;
+    /* Mobile uploaded files */
+
+    .adumex-attachments {
         margin-bottom: 7px;
-        padding: 5px;
-        border-radius: var(--radius-sm);
+        padding: 0;
     }
 
-    .orbit-attachments-header {
-        padding: 1px 4px 4px;
+    .adumex-attachments-header {
+        margin-bottom: 6px;
+        padding: 0 2px;
     }
 
-    .orbit-attachments-list {
-        gap: 6px;
-        padding: 2px 2px 5px;
+    .adumex-attachments-list {
+        gap: 7px;
+        padding: 2px 1px 6px;
     }
 
-    .orbit-attachments-list::-webkit-scrollbar {
+    .adumex-attachments-list::-webkit-scrollbar {
         height: 4px;
     }
 
-    .orbit-attachment-item {
-        flex: 0 0 150px;
-        width: 150px;
-        min-width: 150px;
-        height: 48px;
-        min-height: 48px;
-        gap: 6px;
-        padding: 5px;
+    .adumex-attachment-item {
+        flex: 0 0 190px;
+        width: 190px;
+        min-width: 190px;
+        height: 58px;
+        min-height: 58px;
+        gap: 8px;
+        padding: 7px 32px 7px 7px;
         border-radius: var(--radius-sm);
     }
 
-    .orbit-attachment-preview {
+    .adumex-attachment-preview {
         width: 38px;
         height: 38px;
         flex-basis: 38px;
@@ -536,19 +596,23 @@ html[data-theme="dark"] .orbit-attachment-remove {
         font-size: var(--font-size-md);
     }
 
-    .orbit-attachment-info strong {
+    .adumex-attachment-info {
+        gap: 3px;
+    }
+
+    .adumex-attachment-info strong {
+        font-size: 10px;
+    }
+
+    .adumex-attachment-info small {
         font-size: 9px;
     }
 
-    .orbit-attachment-info small {
-        font-size: 8px;
-    }
-
-    .orbit-attachment-remove {
-        width: 19px;
-        height: 19px;
-        top: 4px;
-        right: 4px;
+    .adumex-attachment-remove {
+        width: 20px;
+        height: 20px;
+        top: 7px;
+        right: 7px;
         font-size: 9px;
     }
 }

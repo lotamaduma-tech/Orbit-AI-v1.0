@@ -1,132 +1,231 @@
+
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
+    /* Auth elements */
+
     const loginForm = document.getElementById("login-form");
     const signupForm = document.getElementById("signup-form");
 
     const loginMessage = document.getElementById("login-message");
     const signupMessage = document.getElementById("signup-message");
 
-    const AUTH_REDIRECT_URL = `${window.location.origin}/index.html`;
+    const AUTH_REDIRECT_URL =
+        `${ window.location.origin }/index.html`;
 
-    function showMessage(element, message, type = "error") {
-        if (!element) return;
+/* Messages */
 
-        element.textContent = message;
-        element.className = `auth-message ${type} show`;
-    }
+function showMessage(element, message, type = "error") {
+    if (!element) return;
 
-    function clearMessage(element) {
-        if (!element) return;
+    element.textContent = message;
+    element.className = `auth-message ${type} show`;
+}
 
-        element.textContent = "";
-        element.className = "auth-message";
-    }
+function clearMessage(element) {
+    if (!element) return;
 
-    function setButtonLoading(button, loading, text) {
-        if (!button) return;
+    element.textContent = "";
+    element.className = "auth-message";
+}
 
-        if (loading) {
-            button.disabled = true;
+/* Button loading */
+
+function setButtonLoading(button, loading, text) {
+    if (!button) return;
+
+    if (loading) {
+        button.disabled = true;
+
+        if (!button.dataset.originalText) {
             button.dataset.originalText = button.innerHTML;
+        }
 
-            button.innerHTML = `
+        button.innerHTML = `
                 <span class="auth-loading"></span>
                 <span>${text}</span>
             `;
-        } else {
-            button.disabled = false;
 
-            if (button.dataset.originalText) {
-                button.innerHTML = button.dataset.originalText;
-                delete button.dataset.originalText;
-            }
+        return;
+    }
+
+    button.disabled = false;
+
+    if (button.dataset.originalText) {
+        button.innerHTML = button.dataset.originalText;
+        delete button.dataset.originalText;
+    }
+}
+
+/* Password visibility */
+
+function setupPasswordToggle(inputId, buttonId) {
+    const input = document.getElementById(inputId);
+    const button = document.getElementById(buttonId);
+
+    if (!input || !button) return;
+
+    button.addEventListener("click", () => {
+        const isPassword = input.type === "password";
+
+        input.type = isPassword ? "text" : "password";
+
+        button.setAttribute(
+            "aria-label",
+            isPassword ? "Hide password" : "Show password"
+        );
+
+        button.setAttribute(
+            "title",
+            isPassword ? "Hide password" : "Show password"
+        );
+
+        const icon = button.querySelector("i");
+
+        if (icon) {
+            icon.classList.toggle("fa-eye", !isPassword);
+            icon.classList.toggle("fa-eye-slash", isPassword);
         }
+    });
+}
+
+setupPasswordToggle(
+    "login-password",
+    "login-password-toggle"
+);
+
+setupPasswordToggle(
+    "signup-password",
+    "signup-password-toggle"
+);
+
+setupPasswordToggle(
+    "signup-confirm-password",
+    "signup-confirm-password-toggle"
+);
+
+/* Supabase */
+
+function getSupabaseClient() {
+    if (
+        typeof supabaseClient !== "undefined" &&
+        supabaseClient
+    ) {
+        return supabaseClient;
     }
 
-    function setupPasswordToggle(inputId, buttonId) {
-        const input = document.getElementById(inputId);
-        const button = document.getElementById(buttonId);
-
-        if (!input || !button) return;
-
-        button.addEventListener("click", () => {
-            const isPassword = input.type === "password";
-
-            input.type = isPassword ? "text" : "password";
-
-            button.setAttribute(
-                "aria-label",
-                isPassword ? "Hide password" : "Show password"
-            );
-
-            button.setAttribute(
-                "title",
-                isPassword ? "Hide password" : "Show password"
-            );
-
-            const icon = button.querySelector("i");
-
-            if (icon) {
-                icon.classList.toggle("fa-eye", !isPassword);
-                icon.classList.toggle("fa-eye-slash", isPassword);
-            }
-        });
+    if (
+        typeof window.supabaseClient !== "undefined" &&
+        window.supabaseClient
+    ) {
+        return window.supabaseClient;
     }
 
-    setupPasswordToggle(
-        "login-password",
-        "login-password-toggle"
+    if (
+        typeof window.adumexSupabase !== "undefined" &&
+        window.adumexSupabase
+    ) {
+        return window.adumexSupabase;
+    }
+
+    if (
+        typeof window.supabase !== "undefined" &&
+        typeof window.SUPABASE_URL !== "undefined" &&
+        typeof window.SUPABASE_PUBLISHABLE_KEY !== "undefined"
+    ) {
+        if (!window.adumexSupabase) {
+            window.adumexSupabase =
+                window.supabase.createClient(
+                    window.SUPABASE_URL,
+                    window.SUPABASE_PUBLISHABLE_KEY
+                );
+        }
+
+        return window.adumexSupabase;
+    }
+
+    console.error(
+        "Adumex authentication: Supabase client is unavailable."
     );
 
-    setupPasswordToggle(
-        "signup-password",
-        "signup-password-toggle"
+    return null;
+}
+
+const authClient = getSupabaseClient();
+
+if (!authClient) {
+    showMessage(
+        loginMessage,
+        "Authentication is currently unavailable."
     );
 
-    setupPasswordToggle(
-        "signup-confirm-password",
-        "signup-confirm-password-toggle"
+    showMessage(
+        signupMessage,
+        "Authentication is currently unavailable."
     );
 
-    async function getCurrentSession() {
-        try {
-            const { data, error } =
-                await supabaseClient.auth.getSession();
+    return;
+}
 
-            if (error) {
-                console.error("Session check failed:", error);
-                return null;
-            }
+/* Session */
 
-            return data?.session || null;
-        } catch (error) {
-            console.error("Session error:", error);
+async function getCurrentSession() {
+    try {
+        const {
+            data,
+            error
+        } = await authClient.auth.getSession();
+
+        if (error) {
+            console.error(
+                "Adumex session check failed:",
+                error
+            );
+
             return null;
         }
+
+        return data?.session || null;
+    } catch (error) {
+        console.error(
+            "Adumex session error:",
+            error
+        );
+
+        return null;
     }
+}
 
-    async function redirectIfLoggedIn() {
-        const session = await getCurrentSession();
+/* Redirect authenticated users */
 
-        if (!session) return;
+async function redirectIfLoggedIn() {
+    const session = await getCurrentSession();
 
-        const currentPage =
-            window.location.pathname.split("/").pop();
+    if (!session) return;
 
-        if (
-            currentPage === "login.html" ||
-            currentPage === "signup.html" ||
-            currentPage === ""
-        ) {
-            window.location.href = "index.html";
-        }
+    const currentPage =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+    if (
+        currentPage === "login.html" ||
+        currentPage === "signup.html" ||
+        currentPage === ""
+    ) {
+        window.location.replace("index.html");
     }
+}
 
-    redirectIfLoggedIn();
+redirectIfLoggedIn();
 
-    if (signupForm) {
-        signupForm.addEventListener("submit", async (event) => {
+/* Signup */
+
+if (signupForm) {
+    signupForm.addEventListener(
+        "submit",
+        async event => {
             event.preventDefault();
 
             clearMessage(signupMessage);
@@ -146,7 +245,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("signup-submit");
 
             const email =
-                emailInput?.value.trim().toLowerCase() || "";
+                emailInput?.value
+                    .trim()
+                    .toLowerCase() || "";
 
             const password =
                 passwordInput?.value || "";
@@ -154,11 +255,29 @@ document.addEventListener("DOMContentLoaded", () => {
             const confirmPassword =
                 confirmPasswordInput?.value || "";
 
-            if (!email || !password || !confirmPassword) {
+            /* Validation */
+
+            if (
+                !email ||
+                !password ||
+                !confirmPassword
+            ) {
                 showMessage(
                     signupMessage,
                     "Please complete all fields."
                 );
+
+                return;
+            }
+
+            if (!emailInput?.checkValidity()) {
+                showMessage(
+                    signupMessage,
+                    "Please enter a valid email address."
+                );
+
+                emailInput?.focus();
+
                 return;
             }
 
@@ -167,6 +286,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     signupMessage,
                     "Password must be at least 6 characters."
                 );
+
+                passwordInput?.focus();
+
                 return;
             }
 
@@ -175,6 +297,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     signupMessage,
                     "Passwords do not match."
                 );
+
+                confirmPasswordInput?.focus();
+
                 return;
             }
 
@@ -185,72 +310,92 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             try {
-                const { data, error } =
-                    await supabaseClient.auth.signUp({
-                        email,
-                        password,
-                        options: {
-                            emailRedirectTo: AUTH_REDIRECT_URL
-                        }
-                    });
+                const {
+                    data,
+                    error
+                } = await authClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        emailRedirectTo:
+                            AUTH_REDIRECT_URL
+                    }
+                });
 
                 if (error) {
                     throw error;
                 }
 
-                console.log("Signup successful:", data);
+                console.log(
+                    "Adumex account created:",
+                    data.user?.id
+                );
+
+                /* Immediate session */
 
                 if (data.session) {
                     showMessage(
                         signupMessage,
-                        "Account created successfully. Redirecting...",
+                        "Account created successfully. Opening Adumex...",
                         "success"
                     );
 
                     setTimeout(() => {
-                        window.location.href = "index.html";
-                    }, 800);
+                        window.location.replace(
+                            "index.html"
+                        );
+                    }, 700);
 
                     return;
                 }
 
+                /* Email confirmation required */
+
                 showMessage(
                     signupMessage,
-                    "Account created. Check your email to confirm your account.",
+                    "Account created successfully. Check your email to confirm your account.",
                     "success"
                 );
 
                 signupForm.reset();
-
             } catch (error) {
-                console.error("Signup error:", error);
+                console.error(
+                    "Adumex signup error:",
+                    error
+                );
+
+                const errorText =
+                    error?.message?.toLowerCase() || "";
 
                 let message =
                     "Could not create your account. Please try again.";
 
                 if (
-                    error?.message
-                        ?.toLowerCase()
-                        .includes("already registered")
+                    errorText.includes(
+                        "already registered"
+                    ) ||
+                    errorText.includes(
+                        "user already registered"
+                    )
                 ) {
                     message =
                         "An account with this email already exists.";
-                }
-
-                if (
-                    error?.message
-                        ?.toLowerCase()
-                        .includes("password")
+                } else if (
+                    errorText.includes("password")
                 ) {
                     message =
                         "Your password does not meet the requirements.";
+                } else if (
+                    errorText.includes("email")
+                ) {
+                    message =
+                        "Please check that your email address is valid.";
                 }
 
                 showMessage(
                     signupMessage,
                     message
                 );
-
             } finally {
                 setButtonLoading(
                     submitButton,
@@ -258,11 +403,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Create account"
                 );
             }
-        });
-    }
+        }
+    );
+}
 
-    if (loginForm) {
-        loginForm.addEventListener("submit", async (event) => {
+/* Login */
+
+if (loginForm) {
+    loginForm.addEventListener(
+        "submit",
+        async event => {
             event.preventDefault();
 
             clearMessage(loginMessage);
@@ -277,16 +427,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("login-submit");
 
             const email =
-                emailInput?.value.trim().toLowerCase() || "";
+                emailInput?.value
+                    .trim()
+                    .toLowerCase() || "";
 
             const password =
                 passwordInput?.value || "";
+
+            /* Validation */
 
             if (!email || !password) {
                 showMessage(
                     loginMessage,
                     "Please enter your email and password."
                 );
+
+                return;
+            }
+
+            if (!emailInput?.checkValidity()) {
+                showMessage(
+                    loginMessage,
+                    "Please enter a valid email address."
+                );
+
+                emailInput?.focus();
+
                 return;
             }
 
@@ -297,8 +463,11 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             try {
-                const { data, error } =
-                    await supabaseClient.auth.signInWithPassword({
+                const {
+                    data,
+                    error
+                } =
+                    await authClient.auth.signInWithPassword({
                         email,
                         password
                     });
@@ -308,48 +477,60 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 console.log(
-                    "Login successful:",
+                    "Adumex login successful:",
                     data.user?.id
                 );
 
                 showMessage(
                     loginMessage,
-                    "Signed in successfully. Redirecting...",
+                    "Signed in successfully. Opening Adumex...",
                     "success"
                 );
 
                 setTimeout(() => {
-                    window.location.href = "index.html";
+                    window.location.replace(
+                        "index.html"
+                    );
                 }, 500);
-
             } catch (error) {
-                console.error("Login error:", error);
-
-                let message =
-                    "Could not sign in. Please check your email and password.";
+                console.error(
+                    "Adumex login error:",
+                    error
+                );
 
                 const errorText =
                     error?.message?.toLowerCase() || "";
 
+                let message =
+                    "Could not sign in. Please check your email and password.";
+
                 if (
-                    errorText.includes("email not confirmed")
+                    errorText.includes(
+                        "email not confirmed"
+                    )
                 ) {
                     message =
                         "Please confirm your email before signing in.";
-                }
-
-                if (
-                    errorText.includes("invalid login credentials")
+                } else if (
+                    errorText.includes(
+                        "invalid login credentials"
+                    )
                 ) {
                     message =
                         "Incorrect email or password.";
+                } else if (
+                    errorText.includes(
+                        "too many requests"
+                    )
+                ) {
+                    message =
+                        "Too many attempts. Please wait a moment and try again.";
                 }
 
                 showMessage(
                     loginMessage,
                     message
                 );
-
             } finally {
                 setButtonLoading(
                     submitButton,
@@ -357,91 +538,113 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Sign in"
                 );
             }
-        });
-    }
+        }
+    );
+}
 
-    const forgotPassword =
-        document.getElementById("forgot-password");
+/* Password reset */
 
-    if (forgotPassword) {
-        forgotPassword.addEventListener(
-            "click",
-            async (event) => {
-                event.preventDefault();
+const forgotPassword =
+    document.getElementById("forgot-password");
 
-                clearMessage(loginMessage);
+if (forgotPassword) {
+    forgotPassword.addEventListener(
+        "click",
+        async event => {
+            event.preventDefault();
 
-                const emailInput =
-                    document.getElementById("login-email");
+            clearMessage(loginMessage);
 
-                const email =
-                    emailInput?.value.trim().toLowerCase() || "";
+            const emailInput =
+                document.getElementById("login-email");
 
-                if (!email) {
-                    showMessage(
-                        loginMessage,
-                        "Enter your email address first."
-                    );
+            const email =
+                emailInput?.value
+                    .trim()
+                    .toLowerCase() || "";
 
-                    emailInput?.focus();
-                    return;
-                }
-
-                try {
-                    const { error } =
-                        await supabaseClient.auth.resetPasswordForEmail(
-                            email,
-                            {
-                                redirectTo:
-                                    `${window.location.origin}/reset-password.html`
-                            }
-                        );
-
-                    if (error) {
-                        throw error;
-                    }
-
-                    showMessage(
-                        loginMessage,
-                        "Password reset instructions have been sent to your email.",
-                        "success"
-                    );
-
-                } catch (error) {
-                    console.error(
-                        "Password reset error:",
-                        error
-                    );
-
-                    showMessage(
-                        loginMessage,
-                        error?.message ||
-                        "Could not send password reset instructions."
-                    );
-                }
-            }
-        );
-    }
-
-    supabaseClient.auth.onAuthStateChange(
-        (event, session) => {
-            console.log(
-                "Orbit authentication event:",
-                event
-            );
-
-            if (event === "SIGNED_IN" && session) {
-                console.log(
-                    "Authenticated user:",
-                    session.user.id
+            if (!email) {
+                showMessage(
+                    loginMessage,
+                    "Enter your email address first."
                 );
+
+                emailInput?.focus();
+
+                return;
             }
 
-            if (event === "SIGNED_OUT") {
-                console.log(
-                    "User signed out."
+            if (!emailInput?.checkValidity()) {
+                showMessage(
+                    loginMessage,
+                    "Please enter a valid email address."
+                );
+
+                emailInput?.focus();
+
+                return;
+            }
+
+            try {
+                const {
+                    error
+                } =
+                    await authClient.auth.resetPasswordForEmail(
+                        email,
+                        {
+                            redirectTo:
+                                `${window.location.origin}/reset-password.html`
+                        }
+                    );
+
+                if (error) {
+                    throw error;
+                }
+
+                showMessage(
+                    loginMessage,
+                    "Password reset instructions have been sent to your email.",
+                    "success"
+                );
+            } catch (error) {
+                console.error(
+                    "Adumex password reset error:",
+                    error
+                );
+
+                showMessage(
+                    loginMessage,
+                    "Could not send password reset instructions. Please try again."
                 );
             }
         }
     );
+}
+
+/* Auth state */
+
+authClient.auth.onAuthStateChange(
+    (event, session) => {
+        console.log(
+            "Adumex authentication event:",
+            event
+        );
+
+        if (
+            event === "SIGNED_IN" &&
+            session?.user
+        ) {
+            console.log(
+                "Adumex authenticated user:",
+                session.user.id
+            );
+        }
+
+        if (event === "SIGNED_OUT") {
+            console.log(
+                "Adumex user signed out."
+            );
+        }
+    }
+);
 });

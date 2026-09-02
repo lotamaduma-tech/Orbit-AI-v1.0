@@ -1,20 +1,36 @@
 "use strict";
 
+/* Adumex AI navigation */
+
 document.addEventListener("DOMContentLoaded", () => {
-    const orbitApp = document.querySelector(".orbit-app");
-    const sidebar = document.querySelector(".orbit-sidebar");
+    /* Elements */
+    const adumexApp = document.querySelector(".adumex-app");
+    const sidebar = document.querySelector(".adumex-sidebar");
     const menuToggle = document.querySelector(".menu-toggle");
     const sidebarClose = document.querySelector(".sidebar-close");
     const navigationOverlay = document.querySelector(".navigation-overlay");
     const commandInput = document.querySelector("#command-input");
     const commandArea = document.querySelector(".command-area");
 
-    if (!orbitApp || !sidebar || !menuToggle || !sidebarClose) {
+    /* Stop if required navigation elements are missing */
+    if (
+        !adumexApp ||
+        !sidebar ||
+        !menuToggle ||
+        !sidebarClose
+    ) {
+        console.warn("Adumex navigation: required elements not found.");
         return;
     }
 
+    /* Check navigation state */
+    function isNavigationOpen() {
+        return adumexApp.classList.contains("nav-open");
+    }
+
+    /* Open navigation */
     function openNavigation() {
-        orbitApp.classList.add("nav-open");
+        adumexApp.classList.add("nav-open");
         sidebar.classList.add("active");
 
         if (navigationOverlay) {
@@ -22,7 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         menuToggle.setAttribute("aria-expanded", "true");
+        menuToggle.setAttribute("aria-label", "Close navigation");
+        menuToggle.setAttribute("title", "Close navigation");
+
         sidebarClose.setAttribute("aria-label", "Close navigation");
+        sidebarClose.setAttribute("title", "Close navigation");
 
         document.body.classList.add("navigation-open");
 
@@ -31,8 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /* Close navigation */
     function closeNavigation() {
-        orbitApp.classList.remove("nav-open");
+        adumexApp.classList.remove("nav-open");
         sidebar.classList.remove("active");
 
         if (navigationOverlay) {
@@ -40,6 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.setAttribute("aria-label", "Open navigation");
+        menuToggle.setAttribute("title", "Open navigation");
 
         document.body.classList.remove("navigation-open");
 
@@ -47,77 +70,100 @@ document.addEventListener("DOMContentLoaded", () => {
             commandArea.classList.remove("input-accessible");
         }
 
+        /* Return focus to menu button */
         if (document.activeElement === sidebarClose) {
             menuToggle.focus();
         }
     }
 
+    /* Toggle navigation */
     function toggleNavigation() {
-        if (orbitApp.classList.contains("nav-open")) {
+        if (isNavigationOpen()) {
             closeNavigation();
         } else {
             openNavigation();
         }
     }
 
+    /* Open navigation button */
     menuToggle.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
+
         toggleNavigation();
     });
 
+    /* Close navigation button */
     sidebarClose.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
+
         closeNavigation();
     });
 
+    /* Navigation overlay */
     if (navigationOverlay) {
         navigationOverlay.addEventListener("click", event => {
             event.preventDefault();
+            event.stopPropagation();
+
             closeNavigation();
         });
     }
 
+    /* Sidebar interactions */
     sidebar.addEventListener("click", event => {
         event.stopPropagation();
 
-        const link = event.target.closest(".sidebar-account-link");
+        const navigationLink = event.target.closest(
+            ".sidebar-account-link"
+        );
 
-        if (link && window.innerWidth <= 768) {
+        /*
+         * Close the sidebar on mobile after
+         * selecting an account item.
+         */
+        if (
+            navigationLink &&
+            window.innerWidth <= 768
+        ) {
             closeNavigation();
         }
     });
 
+    /* Command area */
     if (commandArea) {
         commandArea.addEventListener("click", event => {
             event.stopPropagation();
         });
     }
 
+    /* Command input */
     if (commandInput) {
         commandInput.addEventListener("click", event => {
             event.stopPropagation();
         });
 
         commandInput.addEventListener("focus", () => {
-            if (orbitApp.classList.contains("nav-open")) {
+            if (isNavigationOpen()) {
                 commandArea?.classList.add("input-accessible");
             }
         });
     }
 
+    /* Escape closes navigation */
     document.addEventListener("keydown", event => {
         if (
             event.key === "Escape" &&
-            orbitApp.classList.contains("nav-open")
+            isNavigationOpen()
         ) {
             closeNavigation();
         }
     });
 
+    /* Keep navigation state stable during resizing */
     window.addEventListener("resize", () => {
-        if (!orbitApp.classList.contains("nav-open")) {
+        if (!isNavigationOpen()) {
             return;
         }
 
@@ -126,11 +172,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    /* Initial state */
     closeNavigation();
 
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute(
         "aria-controls",
-        sidebar.id || "orbit-sidebar"
+        sidebar.id || "adumex-sidebar"
     );
 });

@@ -1,44 +1,113 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
+    /* Account state */
+
     let currentUser = null;
     let currentProfile = null;
 
-    const accountName = document.getElementById("account-name");
-    const accountEmail = document.getElementById("account-email");
-    const editProfileBtn = document.getElementById("edit-profile-btn");
+    const accountName =
+        document.getElementById("account-name");
 
-    function getSupabase() {
+    const accountEmail =
+        document.getElementById("account-email");
+
+    const editProfileBtn =
+        document.getElementById("edit-profile-btn");
+
+    /* Supabase */
+
+    function getSupabaseClient() {
         if (
-            typeof window.supabase === "undefined" ||
-            !window.ORBIT_SUPABASE_URL ||
-            !window.ORBIT_SUPABASE_KEY
+            typeof supabaseClient !== "undefined" &&
+            supabaseClient
         ) {
-            console.error("Supabase configuration is missing.");
-            return null;
+            return supabaseClient;
         }
 
-        if (!window.orbitSupabase) {
-            window.orbitSupabase = window.supabase.createClient(
-                window.ORBIT_SUPABASE_URL,
-                window.ORBIT_SUPABASE_KEY
-            );
+        if (
+            typeof window.supabaseClient !== "undefined" &&
+            window.supabaseClient
+        ) {
+            return window.supabaseClient;
         }
 
-        return window.orbitSupabase;
+        console.error(
+            "Adumex account: Supabase client is unavailable."
+        );
+
+        return null;
     }
 
+    /* User metadata */
+
+    function getMetadataName() {
+        return (
+            currentUser?.user_metadata?.full_name?.trim() ||
+            currentUser?.user_metadata?.name?.trim() ||
+            ""
+        );
+    }
+
+    /* Display name */
+
+    function getDisplayName() {
+        return (
+            currentProfile?.display_name?.trim() ||
+            getMetadataName() ||
+            "Adumex User"
+        );
+    }
+
+    /* Render account */
+
+    function renderProfile() {
+        if (!currentUser) {
+            return;
+        }
+
+        if (accountName) {
+            accountName.textContent =
+                getDisplayName();
+        }
+
+        if (accountEmail) {
+            accountEmail.textContent =
+                currentUser.email ||
+                "No email available";
+        }
+    }
+
+    /* Account error */
+
+    function showAccountError(message) {
+        if (accountName) {
+            accountName.textContent = message;
+        }
+
+        if (accountEmail) {
+            accountEmail.textContent = "";
+        }
+    }
+
+    /* Load profile */
+
     async function loadProfile() {
-        const client = getSupabase();
+        const client = getSupabaseClient();
 
         if (!client) {
-            showError("Account connection unavailable.");
+            showAccountError(
+                "Account connection unavailable."
+            );
+
             return;
         }
 
         try {
             const {
-                data: { user },
+                data: {
+                    user
+                },
                 error: userError
             } = await client.auth.getUser();
 
@@ -47,7 +116,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (!user) {
-                showError("Not signed in.");
+                showAccountError(
+                    "Not signed in."
+                );
+
                 return;
             }
 
@@ -58,8 +130,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 error: profileError
             } = await client
                 .from("profiles")
-                .select("display_name, avatar_url")
-                .eq("id", user.id)
+                .select(
+                    "display_name, avatar_url"
+                )
+                .eq(
+                    "id",
+                    user.id
+                )
                 .maybeSingle();
 
             if (profileError) {
@@ -77,7 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         display_name: null,
                         avatar_url: null
                     })
-                    .select("display_name, avatar_url")
+                    .select(
+                        "display_name, avatar_url"
+                    )
                     .single();
 
                 if (createError) {
@@ -92,126 +171,104 @@ document.addEventListener("DOMContentLoaded", () => {
             renderProfile();
         } catch (error) {
             console.error(
-                "Orbit account could not be loaded.",
+                "Adumex account could not be loaded:",
                 error
             );
 
-            showError("Unable to load your account.");
+            showAccountError(
+                "Unable to load your account."
+            );
         }
     }
 
-    function getMetadataName() {
-        return (
-            currentUser?.user_metadata?.full_name?.trim() ||
-            currentUser?.user_metadata?.name?.trim() ||
-            ""
-        );
-    }
-
-    function getDisplayName() {
-        return (
-            currentProfile?.display_name?.trim() ||
-            getMetadataName() ||
-            "Orbit User"
-        );
-    }
-
-    function renderProfile() {
-        if (!currentUser) {
-            return;
-        }
-
-        if (accountName) {
-            accountName.textContent = getDisplayName();
-        }
-
-        if (accountEmail) {
-            accountEmail.textContent =
-                currentUser.email || "No email available";
-        }
-    }
-
-    function showError(message) {
-        if (accountName) {
-            accountName.textContent = message;
-        }
-
-        if (accountEmail) {
-            accountEmail.textContent = "";
-        }
-    }
+    /* Profile editor */
 
     function createEditor() {
         const existingEditor =
-            document.getElementById("orbit-profile-editor");
+            document.getElementById(
+                "adumex-profile-editor"
+            );
 
         if (existingEditor) {
             return existingEditor;
         }
 
-        const editor = document.createElement("div");
+        const editor =
+            document.createElement("div");
 
-        editor.id = "orbit-profile-editor";
-        editor.className = "orbit-profile-editor";
+        editor.id =
+            "adumex-profile-editor";
+
+        editor.className =
+            "adumex-profile-editor";
 
         editor.innerHTML = `
-            <div class="orbit-profile-editor-card">
-                <div class="orbit-profile-editor-header">
+            <div class="adumex-profile-editor-card">
+
+                <div class="adumex-profile-editor-header">
+
                     <div>
-                        <span class="orbit-profile-editor-eyebrow">
-                            ORBIT ACCOUNT
+                        <span class="adumex-profile-editor-eyebrow">
+                            ADUMEX ACCOUNT
                         </span>
+
                         <h3>Edit profile</h3>
+
                         <p>
-                            Choose the name Orbit should use for you.
+                            Choose the name Adumex should use for you.
                         </p>
                     </div>
 
                     <button
                         type="button"
-                        class="orbit-profile-close"
-                        id="orbit-profile-close"
+                        class="adumex-profile-close"
+                        id="adumex-profile-close"
                         aria-label="Close profile editor"
+                        title="Close"
                     >
                         <i class="fa-solid fa-xmark"></i>
                     </button>
+
                 </div>
 
                 <label
-                    class="orbit-profile-label"
-                    for="orbit-profile-name-input"
+                    class="adumex-profile-label"
+                    for="adumex-profile-name-input"
                 >
                     Display name
                 </label>
 
                 <input
                     type="text"
-                    id="orbit-profile-name-input"
-                    class="orbit-profile-name-input"
+                    id="adumex-profile-name-input"
+                    class="adumex-profile-name-input"
                     maxlength="80"
                     autocomplete="name"
                     placeholder="Enter your name"
                 >
 
-                <p class="orbit-profile-email"></p>
+                <p class="adumex-profile-email"></p>
 
-                <div class="orbit-profile-actions">
+                <div class="adumex-profile-actions">
+
                     <button
                         type="button"
-                        class="orbit-profile-cancel"
-                        id="orbit-profile-cancel"
+                        class="adumex-profile-cancel"
+                        id="adumex-profile-cancel"
                     >
                         Cancel
                     </button>
 
                     <button
                         type="button"
-                        class="orbit-profile-save"
-                        id="orbit-profile-save"
+                        class="adumex-profile-save"
+                        id="adumex-profile-save"
                     >
                         Save
                     </button>
+
                 </div>
+
             </div>
         `;
 
@@ -220,20 +277,30 @@ document.addEventListener("DOMContentLoaded", () => {
         return editor;
     }
 
+    /* Open editor */
+
     function openEditor() {
         if (!currentUser) {
-            alert("Please sign in before editing your profile.");
+            loadProfile().then(() => {
+                if (currentUser) {
+                    openEditor();
+                }
+            });
+
             return;
         }
 
         const editor = createEditor();
-        const input = document.getElementById(
-            "orbit-profile-name-input"
-        );
 
-        const email = editor.querySelector(
-            ".orbit-profile-email"
-        );
+        const input =
+            document.getElementById(
+                "adumex-profile-name-input"
+            );
+
+        const email =
+            editor.querySelector(
+                ".adumex-profile-email"
+            );
 
         if (input) {
             input.value =
@@ -244,57 +311,95 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (email) {
             email.textContent =
-                currentUser.email || "No email available";
+                currentUser.email ||
+                "No email available";
         }
 
         editor.classList.add("is-open");
 
+        document.body.classList.add(
+            "profile-editor-open"
+        );
+
         requestAnimationFrame(() => {
             input?.focus();
+            input?.select();
         });
     }
 
+    /* Close editor */
+
     function closeEditor() {
         const editor =
-            document.getElementById("orbit-profile-editor");
+            document.getElementById(
+                "adumex-profile-editor"
+            );
 
         if (editor) {
-            editor.classList.remove("is-open");
+            editor.classList.remove(
+                "is-open"
+            );
         }
+
+        document.body.classList.remove(
+            "profile-editor-open"
+        );
     }
+
+    /* Save profile */
 
     async function saveProfile() {
         if (!currentUser) {
             return;
         }
 
-        const client = getSupabase();
+        const client = getSupabaseClient();
 
         if (!client) {
+            alert(
+                "Account connection is unavailable. Please try again."
+            );
+
             return;
         }
 
-        const input = document.getElementById(
-            "orbit-profile-name-input"
-        );
+        const input =
+            document.getElementById(
+                "adumex-profile-name-input"
+            );
 
-        const saveButton = document.getElementById(
-            "orbit-profile-save"
-        );
+        const saveButton =
+            document.getElementById(
+                "adumex-profile-save"
+            );
 
         const displayName =
             input?.value.trim() || "";
+
+        if (!displayName) {
+            alert(
+                "Please enter a display name."
+            );
+
+            input?.focus();
+
+            return;
+        }
 
         if (displayName.length > 80) {
             alert(
                 "Your display name must be 80 characters or less."
             );
+
+            input?.focus();
+
             return;
         }
 
         if (saveButton) {
             saveButton.disabled = true;
-            saveButton.textContent = "Saving...";
+            saveButton.textContent =
+                "Saving...";
         }
 
         try {
@@ -304,11 +409,18 @@ document.addEventListener("DOMContentLoaded", () => {
             } = await client
                 .from("profiles")
                 .update({
-                    display_name: displayName || null,
-                    updated_at: new Date().toISOString()
+                    display_name:
+                        displayName,
+                    updated_at:
+                        new Date().toISOString()
                 })
-                .eq("id", currentUser.id)
-                .select("display_name, avatar_url")
+                .eq(
+                    "id",
+                    currentUser.id
+                )
+                .select(
+                    "display_name, avatar_url"
+                )
                 .single();
 
             if (error) {
@@ -318,10 +430,23 @@ document.addEventListener("DOMContentLoaded", () => {
             currentProfile = data;
 
             renderProfile();
+
             closeEditor();
+
+            window.dispatchEvent(
+                new CustomEvent(
+                    "adumexProfileChanged",
+                    {
+                        detail: {
+                            profile:
+                                currentProfile
+                        }
+                    }
+                )
+            );
         } catch (error) {
             console.error(
-                "Orbit profile could not be saved.",
+                "Adumex profile could not be saved:",
                 error
             );
 
@@ -331,43 +456,124 @@ document.addEventListener("DOMContentLoaded", () => {
         } finally {
             if (saveButton) {
                 saveButton.disabled = false;
-                saveButton.textContent = "Save";
+                saveButton.textContent =
+                    "Save";
             }
         }
     }
+
+    /* Profile button */
 
     editProfileBtn?.addEventListener(
         "click",
         openEditor
     );
 
-    document.addEventListener("click", event => {
-        if (
-            event.target.closest("#orbit-profile-close") ||
-            event.target.closest("#orbit-profile-cancel")
-        ) {
-            closeEditor();
-            return;
-        }
+    /* Editor actions */
 
-        if (event.target.closest("#orbit-profile-save")) {
-            saveProfile();
-        }
-    });
+    document.addEventListener(
+        "click",
+        event => {
+            if (
+                event.target.closest(
+                    "#adumex-profile-close"
+                ) ||
+                event.target.closest(
+                    "#adumex-profile-cancel"
+                )
+            ) {
+                closeEditor();
+                return;
+            }
 
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape") {
-            closeEditor();
+            if (
+                event.target.closest(
+                    "#adumex-profile-save"
+                )
+            ) {
+                saveProfile();
+            }
         }
+    );
 
-        if (
-            event.key === "Enter" &&
-            event.target.id === "orbit-profile-name-input"
-        ) {
-            event.preventDefault();
-            saveProfile();
+    /* Keyboard */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+            const editor =
+                document.getElementById(
+                    "adumex-profile-editor"
+                );
+
+            if (
+                event.key === "Escape" &&
+                editor?.classList.contains(
+                    "is-open"
+                )
+            ) {
+                closeEditor();
+            }
+
+            if (
+                event.key === "Enter" &&
+                event.target.id ===
+                    "adumex-profile-name-input"
+            ) {
+                event.preventDefault();
+
+                saveProfile();
+            }
         }
-    });
+    );
+
+    /* Auth state */
+
+    const client = getSupabaseClient();
+
+    if (client) {
+        client.auth.onAuthStateChange(
+            (event, session) => {
+                console.log(
+                    "Adumex authentication event:",
+                    event
+                );
+
+                if (
+                    event === "SIGNED_IN" &&
+                    session?.user
+                ) {
+                    currentUser =
+                        session.user;
+
+                    loadProfile();
+                }
+
+                if (
+                    event === "TOKEN_REFRESHED" &&
+                    session?.user
+                ) {
+                    currentUser =
+                        session.user;
+                }
+
+                if (
+                    event === "SIGNED_OUT"
+                ) {
+                    currentUser = null;
+                    currentProfile = null;
+
+                    showAccountError(
+                        "Not signed in."
+                    );
+
+                    closeEditor();
+                }
+            }
+        );
+    }
+
+    /* Initialize */
 
     loadProfile();
 });

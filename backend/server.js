@@ -1093,6 +1093,7 @@ async function deleteConversation(
 
     if (!conversation) {
       return null;
+      
     }
 
     const {
