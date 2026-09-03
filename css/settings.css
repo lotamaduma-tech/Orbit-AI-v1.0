@@ -57,7 +57,7 @@ select {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    min-height: 68px;
+    min-height: var(--header-height);
     padding: 0 var(--spacing-xl);
     background: color-mix(in srgb, var(--bg) 90%, transparent);
     border-bottom: 1px solid var(--border-light);
@@ -174,13 +174,14 @@ select {
 
 .settings-sidebar {
     position: sticky;
-    top: 92px;
+    top: calc(var(--header-height) + var(--spacing-lg));
     width: 100%;
     min-width: 0;
     padding: 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
     background: var(--surface);
+    box-shadow: var(--shadow-xs);
 }
 
 .settings-sidebar-label {
@@ -324,13 +325,13 @@ select {
     min-width: 0;
     margin: 0;
     padding: 0;
-    scroll-margin-top: 92px;
-    animation: settings-section-enter var(--transition-normal);
+    scroll-margin-top: calc(var(--header-height) + var(--spacing-lg));
 }
 
 .settings-section.active,
 .settings-section.is-active {
     display: block;
+    animation: settings-section-enter var(--transition-normal);
 }
 
 @keyframes settings-section-enter {
@@ -401,11 +402,11 @@ select {
     background: var(--surface);
 }
 
+/* Option rows */
+
 .settings-options {
     overflow: hidden;
 }
-
-/* Option rows */
 
 .settings-option {
     display: flex;
@@ -642,6 +643,10 @@ select {
     display: flex;
     flex-direction: column;
     width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
 }
 
 .settings-link {
@@ -1092,7 +1097,7 @@ html::-webkit-scrollbar-thumb:hover {
     }
 
     .settings-sidebar {
-        top: 84px;
+        top: calc(var(--header-height) + var(--spacing-md));
     }
 
     .settings-nav-content small {
@@ -1102,6 +1107,8 @@ html::-webkit-scrollbar-thumb:hover {
 
 @media (max-width: 720px) {
     .settings-topbar {
+        position: sticky;
+        top: 0;
         min-height: 60px;
         padding: 0 var(--spacing-md);
     }
@@ -1123,7 +1130,9 @@ html::-webkit-scrollbar-thumb:hover {
     }
 
     .settings-sidebar {
-        position: static;
+        position: sticky;
+        top: calc(60px + var(--spacing-sm));
+        z-index: calc(var(--z-header) - 1);
         margin-bottom: 20px;
         padding: 8px;
         border-radius: var(--radius-lg);
@@ -1170,6 +1179,10 @@ html::-webkit-scrollbar-thumb:hover {
 
     .settings-nav-item > .fa-chevron-right {
         display: none;
+    }
+
+    .settings-section {
+        scroll-margin-top: 130px;
     }
 
     .settings-section-heading {

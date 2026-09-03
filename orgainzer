@@ -1,0 +1,37 @@
+.adumex-app.nav-open .adumex-main {
+        width: calc(100% - var(--navigation-width));
+        margin-left: var(--navigation-width);
+    }
+
+    .adumex-app.nav-open .navigation-overlay {
+        display: none;
+    }
+
+    /*
+     * The main area is already resized.
+     * The composer only needs to account for
+     * the viewport position of that resized area.
+     */
+
+    .adumex-app.nav-open
+    .chat-workspace.composer-active
+    .command-area {
+        left: calc(
+            var(--navigation-width) +
+            (
+                100vw - var(--navigation-width)
+            ) / 2
+        );
+        width: min(
+            calc(100vw - var(--navigation-width) - 32px),
+            900px
+        );
+    }
+
+    .adumex-app.nav-open
+    .chat-workspace:not(.composer-active)
+    .command-area {
+        left: 50%;
+    }
+
+    
