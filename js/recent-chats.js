@@ -1,463 +1,746 @@
 "use strict";
 
 (() => {
-  const list = document.getElementById("chat-history-list");
-  const emptyState = document.getElementById("chat-history-empty");
-  const newChatButton = document.getElementById("chat-history-new");
-  const topbarNewChat = document.getElementById("topbar-new-chat");
-  const searchButton = document.getElementById("chat-search-btn");
+    /* Elements */
 
-  if (!list) return;
+    const list = document.getElementById("chat-history-list");
+    const emptyState = document.getElementById("chat-history-empty");
+    const newChatButton = document.getElementById("chat-history-new");
+    const topbarNewChat = document.getElementById("topbar-new-chat");
+    const searchButton = document.getElementById("chat-search-btn");
 
-  const STORAGE_KEY = "orbit-conversation-history";
-  const ACTIVE_CHAT_KEY = "orbit-active-chat";
-  const MAX_CHATS = 50;
+    if (!list) return;
 
-  let chats = [];
-  let activeChatId = null;
+    /* Configuration */
 
-  function generateId() {
-    return `chat_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-  }
+    const STORAGE_KEY = "adumex-conversation-history";
+    const ACTIVE_CHAT_KEY = "adumex-active-chat";
+    const MAX_CHATS = 50;
 
-  function getStoredChats() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+    /* State */
 
-      if (!stored) return [];
+    let chats = [];
+    let activeChatId = null;
 
-      const parsed = JSON.parse(stored);
+    /* Utilities */
 
-      if (!Array.isArray(parsed)) return [];
-
-      return parsed
-        .filter(chat => chat && typeof chat === "object")
-        .map(chat => ({
-          id: chat.id || generateId(),
-          title: String(chat.title || "New chat"),
-          createdAt: chat.createdAt || Date.now(),
-          updatedAt: chat.updatedAt || chat.createdAt || Date.now(),
-          messages: Array.isArray(chat.messages) ? chat.messages : []
-        }))
-        .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
-        .slice(0, MAX_CHATS);
-    } catch {
-      return [];
-    }
-  }
-
-  function saveChats() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(chats));
-    } catch {
-      return;
-    }
-  }
-
-  function getActiveChatId() {
-    try {
-      return localStorage.getItem(ACTIVE_CHAT_KEY);
-    } catch {
-      return null;
-    }
-  }
-
-  function setActiveChatId(id) {
-    activeChatId = id;
-
-    try {
-      if (id) {
-        localStorage.setItem(ACTIVE_CHAT_KEY, id);
-      } else {
-        localStorage.removeItem(ACTIVE_CHAT_KEY);
-      }
-    } catch {
-      return;
-    }
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function getChatTitle(chat) {
-    if (chat.title && chat.title.trim() && chat.title !== "New chat") {
-      return chat.title.trim();
+    function generateId() {
+        return `chat_${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2, 9)}`;
     }
 
-    const firstUserMessage = chat.messages?.find(
-      message =>
-        message &&
-        (message.role === "user" || message.sender === "user") &&
-        typeof message.content === "string" &&
-        message.content.trim()
-    );
-
-    if (firstUserMessage) {
-      return firstUserMessage.content
-        .trim()
-        .replace(/\s+/g, " ")
-        .slice(0, 42);
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
-    return "New chat";
-  }
+    function normalizeChat(chat) {
+        if (!chat || typeof chat !== "object") {
+            return null;
+        }
 
-  function formatDate(timestamp) {
-    const date = new Date(timestamp);
+        const createdAt = Number(chat.createdAt) || Date.now();
 
-    if (Number.isNaN(date.getTime())) return "";
-
-    const now = new Date();
-    const difference = now.getTime() - date.getTime();
-
-    if (difference < 60 * 1000) {
-      return "Just now";
+        return {
+            id: String(chat.id || generateId()),
+            title: String(chat.title || "New chat"),
+            createdAt,
+            updatedAt:
+                Number(chat.updatedAt) ||
+                createdAt,
+            messages: Array.isArray(chat.messages)
+                ? chat.messages
+                : []
+        };
     }
 
-    if (difference < 60 * 60 * 1000) {
-      const minutes = Math.floor(difference / (60 * 1000));
-      return `${minutes}m ago`;
+    /* Storage */
+
+    function getStoredChats() {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+
+            if (!stored) return [];
+
+            const parsed = JSON.parse(stored);
+
+            if (!Array.isArray(parsed)) {
+                return [];
+            }
+
+            return parsed
+                .map(normalizeChat)
+                .filter(Boolean)
+                .sort(
+                    (a, b) =>
+                        Number(b.updatedAt) -
+                        Number(a.updatedAt)
+                )
+                .slice(0, MAX_CHATS);
+        } catch {
+            return [];
+        }
     }
 
-    if (difference < 24 * 60 * 60 * 1000) {
-      const hours = Math.floor(difference / (60 * 60 * 1000));
-      return `${hours}h ago`;
+    function saveChats() {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(chats)
+            );
+        } catch {
+            return;
+        }
     }
 
-    if (difference < 7 * 24 * 60 * 60 * 1000) {
-      const days = Math.floor(difference / (24 * 60 * 60 * 1000));
-      return `${days}d ago`;
+    function getStoredActiveChatId() {
+        try {
+            return localStorage.getItem(ACTIVE_CHAT_KEY);
+        } catch {
+            return null;
+        }
     }
 
-    return date.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric"
-    });
-  }
+    function setActiveChatId(id) {
+        activeChatId = id || null;
 
-  function createChatElement(chat) {
-    const item = document.createElement("div");
-
-    item.className = "chat-history-item";
-    item.dataset.chatId = chat.id;
-
-    if (chat.id === activeChatId) {
-      item.classList.add("active");
-      item.setAttribute("aria-current", "true");
+        try {
+            if (activeChatId) {
+                localStorage.setItem(
+                    ACTIVE_CHAT_KEY,
+                    activeChatId
+                );
+            } else {
+                localStorage.removeItem(
+                    ACTIVE_CHAT_KEY
+                );
+            }
+        } catch {
+            return;
+        }
     }
 
-    const title = getChatTitle(chat);
-    const date = formatDate(chat.updatedAt);
+    /* Chat Data */
 
-    item.innerHTML = `
-      <button
-        type="button"
-        class="chat-history-item-button"
-        aria-label="Open chat: ${escapeHtml(title)}"
-        title="${escapeHtml(title)}"
-      >
-        <span class="chat-history-item-title">${escapeHtml(title)}</span>
-      </button>
+    function getChatTitle(chat) {
+        if (
+            chat.title &&
+            chat.title.trim() &&
+            chat.title !== "New chat"
+        ) {
+            return chat.title.trim();
+        }
 
-      <button
-        type="button"
-        class="chat-history-delete"
-        aria-label="Delete chat: ${escapeHtml(title)}"
-        title="Delete chat"
-      >
-        <i class="fa-solid fa-trash"></i>
-      </button>
-    `;
+        const firstUserMessage =
+            chat.messages?.find(
+                message =>
+                    message &&
+                    (
+                        message.role === "user" ||
+                        message.sender === "user"
+                    ) &&
+                    typeof message.content === "string" &&
+                    message.content.trim()
+            );
 
-    const mainButton = item.querySelector(".chat-history-item-button");
-    const deleteButton = item.querySelector(".chat-history-delete");
+        if (firstUserMessage) {
+            return firstUserMessage.content
+                .trim()
+                .replace(/\s+/g, " ")
+                .slice(0, 42);
+        }
 
-    if (date) {
-      mainButton.dataset.date = date;
+        return "New chat";
     }
 
-    mainButton.addEventListener("click", event => {
-      event.preventDefault();
-      openChat(chat.id);
-    });
+    function formatDate(timestamp) {
+        const date = new Date(timestamp);
 
-    deleteButton.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
-      deleteChat(chat.id);
-    });
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
 
-    return item;
-  }
+        const now = new Date();
+        const difference =
+            now.getTime() - date.getTime();
 
-  function render() {
-    const items = list.querySelectorAll(".chat-history-item");
-    items.forEach(item => item.remove());
+        if (difference < 60 * 1000) {
+            return "Just now";
+        }
 
-    if (!chats.length) {
-      if (emptyState) {
-        emptyState.hidden = false;
-      }
-      return;
+        if (difference < 60 * 60 * 1000) {
+            const minutes = Math.floor(
+                difference / (60 * 1000)
+            );
+
+            return `${minutes}m ago`;
+        }
+
+        if (difference < 24 * 60 * 60 * 1000) {
+            const hours = Math.floor(
+                difference / (60 * 60 * 1000)
+            );
+
+            return `${hours}h ago`;
+        }
+
+        if (difference < 7 * 24 * 60 * 60 * 1000) {
+            const days = Math.floor(
+                difference / (24 * 60 * 60 * 1000)
+            );
+
+            return `${days}d ago`;
+        }
+
+        return date.toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric"
+        });
     }
 
-    if (emptyState) {
-      emptyState.hidden = true;
+    /* Rendering */
+
+    function createChatElement(chat) {
+        const item = document.createElement("div");
+
+        item.className = "chat-history-item";
+        item.dataset.chatId = chat.id;
+
+        if (chat.id === activeChatId) {
+            item.classList.add("active");
+            item.setAttribute(
+                "aria-current",
+                "true"
+            );
+        }
+
+        const title = getChatTitle(chat);
+        const date = formatDate(chat.updatedAt);
+
+        item.innerHTML = `
+            <button
+                type="button"
+                class="chat-history-item-button"
+                aria-label="Open chat: ${escapeHtml(title)}"
+                title="${escapeHtml(title)}"
+            >
+                <span class="chat-history-item-title">
+                    ${escapeHtml(title)}
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="chat-history-delete"
+                aria-label="Delete chat: ${escapeHtml(title)}"
+                title="Delete chat"
+            >
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+
+        const mainButton = item.querySelector(
+            ".chat-history-item-button"
+        );
+
+        const deleteButton = item.querySelector(
+            ".chat-history-delete"
+        );
+
+        if (date) {
+            mainButton.dataset.date = date;
+        }
+
+        mainButton.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                openChat(chat.id);
+            }
+        );
+
+        deleteButton.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
+                deleteChat(chat.id);
+            }
+        );
+
+        return item;
     }
 
-    chats.forEach(chat => {
-      list.appendChild(createChatElement(chat));
-    });
-  }
+    function render() {
+        list
+            .querySelectorAll(".chat-history-item")
+            .forEach(item => item.remove());
 
-  function createNewChat() {
-    const chat = {
-      id: generateId(),
-      title: "New chat",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      messages: []
-    };
+        if (!chats.length) {
+            if (emptyState) {
+                emptyState.hidden = false;
+            }
 
-    chats.unshift(chat);
-    chats = chats.slice(0, MAX_CHATS);
+            return;
+        }
 
-    setActiveChatId(chat.id);
-    saveChats();
-    render();
+        if (emptyState) {
+            emptyState.hidden = true;
+        }
 
-    window.dispatchEvent(
-      new CustomEvent("orbit:new-chat", {
-        detail: { chat }
-      })
-    );
-
-    return chat;
-  }
-
-  function openChat(id) {
-    const chat = chats.find(item => item.id === id);
-
-    if (!chat) return;
-
-    activeChatId = id;
-    setActiveChatId(id);
-
-    chats = [
-      chat,
-      ...chats.filter(item => item.id !== id)
-    ];
-
-    saveChats();
-    render();
-
-    window.dispatchEvent(
-      new CustomEvent("orbit:open-chat", {
-        detail: { chat }
-      })
-    );
-  }
-
-  function deleteChat(id) {
-    const chat = chats.find(item => item.id === id);
-
-    if (!chat) return;
-
-    chats = chats.filter(item => item.id !== id);
-
-    if (activeChatId === id) {
-      setActiveChatId(null);
-
-      window.dispatchEvent(
-        new CustomEvent("orbit:chat-deleted", {
-          detail: { chat }
-        })
-      );
+        chats.forEach(chat => {
+            list.appendChild(
+                createChatElement(chat)
+            );
+        });
     }
 
-    saveChats();
-    render();
-  }
+    /* Chat Actions */
 
-  function updateChat(id, updates = {}) {
-    const chat = chats.find(item => item.id === id);
+    function createNewChat() {
+        const now = Date.now();
 
-    if (!chat) return;
+        const chat = {
+            id: generateId(),
+            title: "New chat",
+            createdAt: now,
+            updatedAt: now,
+            messages: []
+        };
 
-    if (typeof updates.title === "string") {
-      chat.title = updates.title.trim() || "New chat";
+        chats.unshift(chat);
+
+        chats = chats.slice(
+            0,
+            MAX_CHATS
+        );
+
+        setActiveChatId(chat.id);
+
+        saveChats();
+        render();
+
+        window.dispatchEvent(
+            new CustomEvent("adumex:new-chat", {
+                detail: {
+                    chat
+                }
+            })
+        );
+
+        window.dispatchEvent(
+            new CustomEvent("adumex:history-updated", {
+                detail: {
+                    history: [...chats]
+                }
+            })
+        );
+
+        return chat;
     }
 
-    if (Array.isArray(updates.messages)) {
-      chat.messages = updates.messages;
+    function openChat(id) {
+        const chat = chats.find(
+            item => item.id === id
+        );
+
+        if (!chat) return null;
+
+        setActiveChatId(id);
+
+        chats = [
+            chat,
+            ...chats.filter(
+                item => item.id !== id
+            )
+        ];
+
+        saveChats();
+        render();
+
+        window.dispatchEvent(
+            new CustomEvent("adumex:open-chat", {
+                detail: {
+                    chat
+                }
+            })
+        );
+
+        return chat;
     }
 
-    chat.updatedAt = Date.now();
-
-    chats = [
-      chat,
-      ...chats.filter(item => item.id !== id)
-    ].slice(0, MAX_CHATS);
-
-    saveChats();
-    render();
-  }
-
-  function addMessageToChat(id, message) {
-    const chat = chats.find(item => item.id === id);
-
-    if (!chat || !message) return;
-
-    if (!Array.isArray(chat.messages)) {
-      chat.messages = [];
-    }
-
-    chat.messages.push(message);
-
-    if (
-      (message.role === "user" || message.sender === "user") &&
-      typeof message.content === "string" &&
-      chat.title === "New chat"
-    ) {
-      chat.title = message.content
-        .trim()
-        .replace(/\s+/g, " ")
-        .slice(0, 42) || "New chat";
-    }
-
-    chat.updatedAt = Date.now();
-
-    chats = [
-      chat,
-      ...chats.filter(item => item.id !== id)
-    ].slice(0, MAX_CHATS);
-
-    saveChats();
-    render();
-  }
-
-  function searchChats() {
-    const existing = document.querySelector(".chat-history-search");
-
-    if (existing) {
-      existing.focus();
-      return;
-    }
-
-    const search = document.createElement("input");
-
-    search.type = "search";
-    search.className = "chat-history-search";
-    search.placeholder = "Search chats...";
-    search.autocomplete = "off";
-    search.setAttribute("aria-label", "Search chats");
-
-    list.parentElement.insertBefore(search, list);
-
-    search.focus();
-
-    search.addEventListener("input", () => {
-      const query = search.value.trim().toLowerCase();
-
-      list.querySelectorAll(".chat-history-item").forEach(item => {
-        const chat = chats.find(chat => chat.id === item.dataset.chatId);
+    function deleteChat(id) {
+        const chat = chats.find(
+            item => item.id === id
+        );
 
         if (!chat) return;
 
-        const title = getChatTitle(chat).toLowerCase();
+        chats = chats.filter(
+            item => item.id !== id
+        );
 
-        const matches =
-          !query ||
-          title.includes(query) ||
-          chat.messages.some(message =>
-            typeof message?.content === "string" &&
-            message.content.toLowerCase().includes(query)
-          );
+        const wasActive =
+            activeChatId === id;
 
-        item.hidden = !matches;
-      });
-    });
+        if (wasActive) {
+            setActiveChatId(null);
+        }
 
-    search.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        search.remove();
+        saveChats();
         render();
-      }
-    });
-  }
 
-  function syncFromOrbitHistory(event) {
-    const incoming = event?.detail?.history;
+        window.dispatchEvent(
+            new CustomEvent("adumex:chat-deleted", {
+                detail: {
+                    chat,
+                    wasActive
+                }
+            })
+        );
 
-    if (!Array.isArray(incoming)) return;
+        window.dispatchEvent(
+            new CustomEvent("adumex:history-updated", {
+                detail: {
+                    history: [...chats]
+                }
+            })
+        );
+    }
 
-    chats = incoming
-      .filter(chat => chat && typeof chat === "object")
-      .map(chat => ({
-        id: chat.id || generateId(),
-        title: String(chat.title || "New chat"),
-        createdAt: chat.createdAt || Date.now(),
-        updatedAt: chat.updatedAt || chat.createdAt || Date.now(),
-        messages: Array.isArray(chat.messages) ? chat.messages : []
-      }))
-      .sort((a, b) => Number(b.updatedAt) - Number(a.updatedAt))
-      .slice(0, MAX_CHATS);
+    function updateChat(id, updates = {}) {
+        const chat = chats.find(
+            item => item.id === id
+        );
 
-    saveChats();
+        if (!chat) return null;
+
+        if (typeof updates.title === "string") {
+            chat.title =
+                updates.title.trim() ||
+                "New chat";
+        }
+
+        if (Array.isArray(updates.messages)) {
+            chat.messages =
+                updates.messages;
+        }
+
+        chat.updatedAt = Date.now();
+
+        chats = [
+            chat,
+            ...chats.filter(
+                item => item.id !== id
+            )
+        ].slice(0, MAX_CHATS);
+
+        saveChats();
+        render();
+
+        window.dispatchEvent(
+            new CustomEvent("adumex:chat-updated", {
+                detail: {
+                    chat
+                }
+            })
+        );
+
+        window.dispatchEvent(
+            new CustomEvent("adumex:history-updated", {
+                detail: {
+                    history: [...chats]
+                }
+            })
+        );
+
+        return chat;
+    }
+
+    function addMessageToChat(
+        id,
+        message
+    ) {
+        const chat = chats.find(
+            item => item.id === id
+        );
+
+        if (!chat || !message) {
+            return null;
+        }
+
+        if (!Array.isArray(chat.messages)) {
+            chat.messages = [];
+        }
+
+        chat.messages.push(message);
+
+        if (
+            (
+                message.role === "user" ||
+                message.sender === "user"
+            ) &&
+            typeof message.content === "string" &&
+            chat.title === "New chat"
+        ) {
+            chat.title =
+                message.content
+                    .trim()
+                    .replace(/\s+/g, " ")
+                    .slice(0, 42) ||
+                "New chat";
+        }
+
+        chat.updatedAt = Date.now();
+
+        chats = [
+            chat,
+            ...chats.filter(
+                item => item.id !== id
+            )
+        ].slice(0, MAX_CHATS);
+
+        saveChats();
+        render();
+
+        window.dispatchEvent(
+            new CustomEvent("adumex:history-updated", {
+                detail: {
+                    history: [...chats]
+                }
+            })
+        );
+
+        return chat;
+    }
+
+    /* Search */
+
+    function searchChats() {
+        const existing =
+            document.querySelector(
+                ".chat-history-search"
+            );
+
+        if (existing) {
+            existing.focus();
+            return;
+        }
+
+        const search =
+            document.createElement("input");
+
+        search.type = "search";
+        search.className =
+            "chat-history-search";
+        search.placeholder =
+            "Search chats...";
+        search.autocomplete = "off";
+        search.setAttribute(
+            "aria-label",
+            "Search chats"
+        );
+
+        list.parentElement.insertBefore(
+            search,
+            list
+        );
+
+        search.focus();
+
+        search.addEventListener(
+            "input",
+            () => {
+                const query =
+                    search.value
+                        .trim()
+                        .toLowerCase();
+
+                list
+                    .querySelectorAll(
+                        ".chat-history-item"
+                    )
+                    .forEach(item => {
+                        const chat =
+                            chats.find(
+                                chat =>
+                                    chat.id ===
+                                    item.dataset.chatId
+                            );
+
+                        if (!chat) return;
+
+                        const title =
+                            getChatTitle(chat)
+                                .toLowerCase();
+
+                        const matches =
+                            !query ||
+                            title.includes(query) ||
+                            chat.messages.some(
+                                message =>
+                                    typeof message?.content ===
+                                        "string" &&
+                                    message.content
+                                        .toLowerCase()
+                                        .includes(query)
+                            );
+
+                        item.hidden =
+                            !matches;
+                    });
+            }
+        );
+
+        search.addEventListener(
+            "keydown",
+            event => {
+                if (event.key === "Escape") {
+                    search.remove();
+                    render();
+                }
+            }
+        );
+    }
+
+    /* Synchronization */
+
+    function syncFromAdumexHistory(event) {
+        const incoming =
+            event?.detail?.history;
+
+        if (!Array.isArray(incoming)) {
+            return;
+        }
+
+        chats = incoming
+            .map(normalizeChat)
+            .filter(Boolean)
+            .sort(
+                (a, b) =>
+                    Number(b.updatedAt) -
+                    Number(a.updatedAt)
+            )
+            .slice(0, MAX_CHATS);
+
+        saveChats();
+        render();
+    }
+
+    /* Events */
+
+    newChatButton?.addEventListener(
+        "click",
+        createNewChat
+    );
+
+    topbarNewChat?.addEventListener(
+        "click",
+        createNewChat
+    );
+
+    searchButton?.addEventListener(
+        "click",
+        searchChats
+    );
+
+    window.addEventListener(
+        "adumex:history-updated",
+        syncFromAdumexHistory
+    );
+
+    window.addEventListener(
+        "adumex:chat-updated",
+        event => {
+            const detail =
+                event.detail || {};
+
+            if (!detail.id) return;
+
+            updateChat(
+                detail.id,
+                {
+                    title: detail.title,
+                    messages: detail.messages
+                }
+            );
+        }
+    );
+
+    window.addEventListener(
+        "adumex:add-message",
+        event => {
+            const detail =
+                event.detail || {};
+
+            if (
+                !detail.id ||
+                !detail.message
+            ) {
+                return;
+            }
+
+            addMessageToChat(
+                detail.id,
+                detail.message
+            );
+        }
+    );
+
+    /* Public API */
+
+    window.AdumexRecentChats = {
+        getChats: () => [...chats],
+
+        getActiveChat: () =>
+            chats.find(
+                chat =>
+                    chat.id ===
+                    activeChatId
+            ) || null,
+
+        getActiveChatId: () =>
+            activeChatId,
+
+        setActiveChatId,
+
+        createChat:
+            createNewChat,
+
+        openChat,
+
+        deleteChat,
+
+        updateChat,
+
+        addMessageToChat,
+
+        render
+    };
+
+    /* Initialization */
+
+    chats = getStoredChats();
+
+    activeChatId =
+        getStoredActiveChatId();
+
+    if (
+        activeChatId &&
+        !chats.some(
+            chat =>
+                chat.id ===
+                activeChatId
+        )
+    ) {
+        activeChatId = null;
+        setActiveChatId(null);
+    }
+
     render();
-  }
-
-  newChatButton?.addEventListener("click", createNewChat);
-  topbarNewChat?.addEventListener("click", createNewChat);
-  searchButton?.addEventListener("click", searchChats);
-
-  window.addEventListener("orbit:history-updated", syncFromOrbitHistory);
-
-  window.addEventListener("orbit:chat-updated", event => {
-    const detail = event.detail || {};
-
-    if (!detail.id) return;
-
-    updateChat(detail.id, {
-      title: detail.title,
-      messages: detail.messages
-    });
-  });
-
-  window.addEventListener("orbit:add-message", event => {
-    const detail = event.detail || {};
-
-    if (!detail.id || !detail.message) return;
-
-    addMessageToChat(detail.id, detail.message);
-  });
-
-  window.orbitRecentChats = {
-    getChats: () => [...chats],
-    getActiveChat: () =>
-      chats.find(chat => chat.id === activeChatId) || null,
-    getActiveChatId: () => activeChatId,
-    createChat: createNewChat,
-    openChat,
-    deleteChat,
-    updateChat,
-    addMessageToChat,
-    render
-  };
-
-  chats = getStoredChats();
-  activeChatId = getActiveChatId();
-
-  if (activeChatId && !chats.some(chat => chat.id === activeChatId)) {
-    activeChatId = null;
-    setActiveChatId(null);
-  }
-
-  render();
 })();

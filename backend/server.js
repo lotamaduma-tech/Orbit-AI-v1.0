@@ -913,7 +913,7 @@ function buildGroqMessages({
   });
 
   return messages;
-  ```
+
 
 }
 

@@ -1,9 +1,6 @@
-**Updated `js/adumex.js`**
-
 "use strict";
 
 (() => {
-
     /* Configuration */
 
     const configuredApi = String(
@@ -22,7 +19,6 @@
     const MAX_STORED_RESPONSE_LENGTH = 50000;
     const MAX_FILES = 10;
     const MAX_TOTAL_FILE_SIZE = 30 * 1024 * 1024;
-
     const SERVER_CONVERSATIONS_KEY =
         "adumex-server-conversations";
 
@@ -81,12 +77,17 @@
                     content: cleanText(item.content),
                     attachments: Array.isArray(item.attachments)
                         ? item.attachments.map(file => ({
-                            name: String(file?.name || "Unnamed file"),
+                            name: String(
+                                file?.name ||
+                                "Unnamed file"
+                            ),
                             type: String(
                                 file?.type ||
                                 "application/octet-stream"
                             ),
-                            size: Number(file?.size || 0),
+                            size: Number(
+                                file?.size || 0
+                            ),
                             extension: String(
                                 file?.extension || ""
                             ).toLowerCase()
@@ -100,9 +101,10 @@
 
     function emit(name, detail = {}) {
         window.dispatchEvent(
-            new CustomEvent(`adumex:${name}`, {
-                detail
-            })
+            new CustomEvent(
+                `adumex:${name}`,
+                { detail }
+            )
         );
     }
 
@@ -133,6 +135,8 @@
             return "";
         }
     }
+
+    /* GitHub */
 
     function isGitHubUrl(value) {
         try {
@@ -219,12 +223,18 @@
     function githubLinkHtml(url) {
         const href = safeUrl(url);
 
-        if (!href || !isGitHubUrl(href)) {
+        if (
+            !href ||
+            !isGitHubUrl(href)
+        ) {
             return "";
         }
 
-        const type = getGitHubUrlType(href);
-        const label = getGitHubLabel(href);
+        const type =
+            getGitHubUrlType(href);
+
+        const label =
+            getGitHubLabel(href);
 
         return `
             <div class="adumex-github-container">
@@ -239,8 +249,13 @@
                     </span>
 
                     <span class="adumex-github-info">
-                        <strong>${escapeHtml(label)}</strong>
-                        <small>${escapeHtml(type)}</small>
+                        <strong>
+                            ${escapeHtml(label)}
+                        </strong>
+
+                        <small>
+                            ${escapeHtml(type)}
+                        </small>
                     </span>
 
                     <span class="adumex-github-arrow">
@@ -274,7 +289,9 @@
                 href="${escapeHtml(href)}"
                 target="_blank"
                 rel="noopener noreferrer"
-            >${escapeHtml(label)}</a>
+            >
+                ${escapeHtml(label)}
+            </a>
         `;
     }
 
@@ -302,9 +319,15 @@
                 }
 
                 if (label !== undefined) {
-                    if (isGitHubUrl(markdownUrl)) {
+                    if (
+                        isGitHubUrl(
+                            markdownUrl
+                        )
+                    ) {
                         return token(
-                            githubLinkHtml(markdownUrl)
+                            githubLinkHtml(
+                                markdownUrl
+                            )
                         );
                     }
 
@@ -317,26 +340,37 @@
                 }
 
                 const url =
-                    bareUrl.replace(/[.,;:!?]+$/, "");
+                    bareUrl.replace(
+                        /[.,;:!?]+$/,
+                        ""
+                    );
 
                 const punctuation =
-                    bareUrl.slice(url.length);
+                    bareUrl.slice(
+                        url.length
+                    );
 
                 if (isGitHubUrl(url)) {
                     return token(
                         githubLinkHtml(url) +
-                        escapeHtml(punctuation)
+                        escapeHtml(
+                            punctuation
+                        )
                     );
                 }
 
                 return token(
                     linkHtml(url, url) +
-                    escapeHtml(punctuation)
+                    escapeHtml(
+                        punctuation
+                    )
                 );
             }
         );
 
-        let html = escapeHtml(source)
+        let html = escapeHtml(source);
+
+        html = html
             .replace(
                 /\*\*([^\*\n]+)\*\*/g,
                 "<strong>$1</strong>"
@@ -357,7 +391,9 @@
         return html.replace(
             /\u0000ADUMEX(\d+)\u0000/g,
             (_, index) =>
-                tokens[Number(index)] || ""
+                tokens[
+                    Number(index)
+                ] || ""
         );
     }
 
@@ -367,12 +403,15 @@
             .split("\n");
 
         const output = [];
+
         let code = null;
         let list = null;
 
         const closeList = () => {
             if (list) {
-                output.push(`</${list}>`);
+                output.push(
+                    `</${list}>`
+                );
             }
 
             list = null;
@@ -383,13 +422,20 @@
                 return;
             }
 
-            const language = code.language
-                ? `
-                    <span class="code-language">
-                        ${escapeHtml(code.language)}
-                    </span>
-                `
-                : "";
+            const language =
+                code.language
+                    ? `
+                        <span class="code-language">
+                            ${escapeHtml(
+                                code.language
+                            )}
+                        </span>
+                    `
+                    : `
+                        <span class="code-language">
+                            Code
+                        </span>
+                    `;
 
             const codeText =
                 code.lines.join("\n");
@@ -402,13 +448,19 @@
                         <button
                             type="button"
                             class="adumex-copy-code"
-                            data-code="${escapeHtml(codeText)}"
+                            data-code="${escapeHtml(
+                                codeText
+                            )}"
+                            aria-label="Copy code"
                         >
+                            <i class="fa-regular fa-copy"></i>
                             Copy
                         </button>
                     </div>
 
-                    <pre><code>${escapeHtml(codeText)}</code></pre>
+                    <pre><code>${escapeHtml(
+                        codeText
+                    )}</code></pre>
                 </div>
             `);
 
@@ -427,7 +479,8 @@
                     closeList();
 
                     code = {
-                        language: fence[1] || "",
+                        language:
+                            fence[1] || "",
                         lines: []
                     };
                 }
@@ -440,17 +493,20 @@
                 continue;
             }
 
-            const heading = line.match(
-                /^(#{1,6})\s+(.+)$/
-            );
+            const heading =
+                line.match(
+                    /^(#{1,6})\s+(.+)$/
+                );
 
-            const ordered = line.match(
-                /^\d+\.\s+(.+)$/
-            );
+            const ordered =
+                line.match(
+                    /^\d+\.\s+(.+)$/
+                );
 
-            const unordered = line.match(
-                /^[-*+]\s+(.+)$/
-            );
+            const unordered =
+                line.match(
+                    /^[-*+]\s+(.+)$/
+                );
 
             if (heading) {
                 closeList();
@@ -463,12 +519,18 @@
                         heading[2]
                     )}</h${level}>`
                 );
-            } else if (ordered || unordered) {
+            } else if (
+                ordered ||
+                unordered
+            ) {
                 const type =
-                    ordered ? "ol" : "ul";
+                    ordered
+                        ? "ol"
+                        : "ul";
 
                 if (list !== type) {
                     closeList();
+
                     list = type;
 
                     output.push(
@@ -478,16 +540,21 @@
 
                 output.push(
                     `<li>${renderInline(
-                        (ordered || unordered)[1]
+                        (ordered ||
+                            unordered)[1]
                     )}</li>`
                 );
             } else if (!line.trim()) {
                 closeList();
+
+                output.push("<br>");
             } else {
                 closeList();
 
                 output.push(
-                    `<p>${renderInline(line)}</p>`
+                    `<p>${renderInline(
+                        line
+                    )}</p>`
                 );
             }
         }
@@ -497,8 +564,6 @@
 
         return output.join("");
     }
-
-    /* Links */
 
     function renderTextWithLinks(text) {
         return renderInline(
@@ -548,7 +613,8 @@
         }
 
         container.scrollTo({
-            top: container.scrollHeight,
+            top:
+                container.scrollHeight,
             behavior
         });
     }
@@ -559,15 +625,24 @@
         const hour =
             new Date().getHours();
 
-        if (hour >= 5 && hour < 12) {
+        if (
+            hour >= 5 &&
+            hour < 12
+        ) {
             return "morning";
         }
 
-        if (hour >= 12 && hour < 17) {
+        if (
+            hour >= 12 &&
+            hour < 17
+        ) {
             return "afternoon";
         }
 
-        if (hour >= 17 && hour < 22) {
+        if (
+            hour >= 17 &&
+            hour < 22
+        ) {
             return "evening";
         }
 
@@ -583,7 +658,9 @@
         for (const key of possibleKeys) {
             try {
                 const raw =
-                    localStorage.getItem(key);
+                    localStorage.getItem(
+                        key
+                    );
 
                 if (!raw) {
                     continue;
@@ -617,7 +694,8 @@
     function getRandomItem(items) {
         return items[
             Math.floor(
-                Math.random() * items.length
+                Math.random() *
+                items.length
             )
         ];
     }
@@ -671,12 +749,21 @@
                 "chat-welcome-greeting"
             );
 
+        const welcome =
+            document.getElementById(
+                "chat-welcome"
+            );
+
         if (!greeting) {
             return;
         }
 
         greeting.textContent =
             getGreeting();
+
+        if (welcome) {
+            welcome.hidden = false;
+        }
     }
 
     /* Composer */
@@ -692,7 +779,10 @@
         const commandArea =
             getCommandArea();
 
-        if (!input || !commandArea) {
+        if (
+            !input ||
+            !commandArea
+        ) {
             return;
         }
 
@@ -703,7 +793,8 @@
             hasSelectedFiles();
 
         const active =
-            hasText || hasFiles;
+            hasText ||
+            hasFiles;
 
         commandArea.classList.toggle(
             "composer-active",
@@ -715,10 +806,14 @@
             !active
         );
 
-        emit("composer-state", {
-            active,
-            value: input.value
-        });
+        emit(
+            "composer-state",
+            {
+                active,
+                value:
+                    input.value
+            }
+        );
     }
 
     function autoGrowInput() {
@@ -729,9 +824,11 @@
             return;
         }
 
-        input.style.height = "auto";
+        input.style.height =
+            "auto";
 
-        const maxHeight = 220;
+        const maxHeight =
+            220;
 
         const nextHeight =
             Math.min(
@@ -743,7 +840,8 @@
             `${nextHeight}px`;
 
         input.style.overflowY =
-            input.scrollHeight > maxHeight
+            input.scrollHeight >
+            maxHeight
                 ? "auto"
                 : "hidden";
     }
@@ -759,39 +857,46 @@
         autoGrowInput();
         updateComposerState();
 
-        emit("typing", {
-            value: input.value,
-            length: input.value.length,
-            lastCharacter:
-                input.value.length
-                    ? input.value[
-                        input.value.length - 1
-                    ]
-                    : ""
-        });
+        emit(
+            "typing",
+            {
+                value:
+                    input.value,
+                length:
+                    input.value.length,
+                lastCharacter:
+                    input.value.length
+                        ? input.value[
+                            input.value.length - 1
+                        ]
+                        : ""
+            }
+        );
     }
 
     /* Attachments */
 
     function getFiles() {
         const tools =
-            window.adumexTools;
+            window.AdumexTools;
 
-        if (!tools) {
+        if (
+            !tools ||
+            typeof tools.getFiles !==
+                "function"
+        ) {
             return [];
         }
 
-        const files =
-            tools.getAllSelectedFiles?.() ||
-            tools.getSelectedFiles?.() ||
-            [];
-
-        return Array.from(files).filter(
+        return Array.from(
+            tools.getFiles()
+        ).filter(
             file =>
                 file instanceof File ||
                 (
                     file &&
-                    typeof file.name === "string"
+                    typeof file.name ===
+                        "string"
                 )
         );
     }
@@ -802,7 +907,9 @@
                 .trim()
                 .toLowerCase();
 
-        if (!value.includes(".")) {
+        if (
+            !value.includes(".")
+        ) {
             return "";
         }
 
@@ -822,7 +929,9 @@
                 "application/octet-stream",
 
             size:
-                Number(file?.size || 0),
+                Number(
+                    file?.size || 0
+                ),
 
             extension:
                 getFileExtension(
@@ -835,16 +944,18 @@
         return files.reduce(
             (total, file) =>
                 total +
-                Number(file?.size || 0),
+                Number(
+                    file?.size || 0
+                ),
             0
         );
     }
 
     function clearSelectedFiles() {
         const tools =
-            window.adumexTools;
+            window.AdumexTools;
 
-        tools?.clearSelectedFiles?.();
+        tools?.clearFiles?.();
 
         updateComposerState();
     }
@@ -855,8 +966,11 @@
         }
 
         if (
-            typeof file.type === "string" &&
-            file.type.startsWith("image/")
+            typeof file.type ===
+                "string" &&
+            file.type.startsWith(
+                "image/"
+            )
         ) {
             return true;
         }
@@ -884,32 +998,43 @@
         }
 
         const wrapper =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
         wrapper.className =
             "adumex-message-attachments";
 
         files.forEach(file => {
             const item =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
             item.className =
                 "adumex-message-attachment";
 
-            if (isImageFile(file)) {
+            if (
+                isImageFile(file)
+            ) {
                 const image =
-                    document.createElement("img");
+                    document.createElement(
+                        "img"
+                    );
 
                 image.className =
                     "adumex-message-image";
 
                 image.alt =
                     `Uploaded image: ${
-                        file.name || "image"
+                        file.name ||
+                        "image"
                     }`;
 
                 const objectUrl =
-                    URL.createObjectURL(file);
+                    URL.createObjectURL(
+                        file
+                    );
 
                 image.src =
                     objectUrl;
@@ -926,32 +1051,46 @@
                     }
                 );
 
-                item.appendChild(image);
+                item.appendChild(
+                    image
+                );
             } else {
                 const icon =
-                    document.createElement("i");
+                    document.createElement(
+                        "i"
+                    );
 
                 icon.className =
                     isCodeFile(file)
                         ? "fa-solid fa-code"
                         : "fa-regular fa-file";
 
-                item.appendChild(icon);
+                item.appendChild(
+                    icon
+                );
             }
 
             const name =
-                document.createElement("span");
+                document.createElement(
+                    "span"
+                );
 
             name.textContent =
                 file.name ||
                 "Uploaded file";
 
-            item.appendChild(name);
+            item.appendChild(
+                name
+            );
 
-            wrapper.appendChild(item);
+            wrapper.appendChild(
+                item
+            );
         });
 
-        parent.appendChild(wrapper);
+        parent.appendChild(
+            wrapper
+        );
     }
 
     /* Messages */
@@ -969,7 +1108,9 @@
         }
 
         const message =
-            document.createElement("article");
+            document.createElement(
+                "article"
+            );
 
         message.className =
             `message adumex-message ${
@@ -982,13 +1123,20 @@
             role;
 
         const content =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
         content.className =
             "message-content adumex-message-content";
 
-        message.appendChild(content);
-        container.appendChild(message);
+        message.appendChild(
+            content
+        );
+
+        container.appendChild(
+            message
+        );
 
         renderMessage(
             message,
@@ -996,7 +1144,13 @@
             files
         );
 
-        bindCopyButtons(message);
+        bindCopyButtons(
+            message
+        );
+
+        bindGitHubButtons(
+            message
+        );
 
         return message;
     }
@@ -1023,7 +1177,9 @@
                 renderMarkdown(text);
         } else {
             content.innerHTML =
-                renderTextWithLinks(text);
+                renderTextWithLinks(
+                    text
+                );
 
             renderAttachmentPreview(
                 content,
@@ -1031,10 +1187,16 @@
             );
         }
 
-        bindGitHubButtons(content);
+        bindCopyButtons(
+            content
+        );
+
+        bindGitHubButtons(
+            content
+        );
     }
 
-    /* Copy buttons */
+    /* Copy Buttons */
 
     function bindCopyButtons(root) {
         root
@@ -1042,7 +1204,9 @@
                 ".adumex-copy-code"
             )
             .forEach(button => {
-                if (button.dataset.bound) {
+                if (
+                    button.dataset.bound
+                ) {
                     return;
                 }
 
@@ -1052,26 +1216,45 @@
                 button.addEventListener(
                     "click",
                     async () => {
+                        const code =
+                            button.dataset.code ||
+                            "";
+
                         try {
                             await navigator.clipboard.writeText(
-                                button.dataset.code || ""
+                                code
                             );
 
-                            button.textContent =
-                                "Copied";
+                            button.innerHTML =
+                                `
+                                    <i class="fa-solid fa-check"></i>
+                                    Copied
+                                `;
 
-                            setTimeout(() => {
-                                button.textContent =
-                                    "Copy";
-                            }, 1400);
+                            setTimeout(
+                                () => {
+                                    button.innerHTML =
+                                        `
+                                            <i class="fa-regular fa-copy"></i>
+                                            Copy
+                                        `;
+                                },
+                                1400
+                            );
                         } catch {
                             button.textContent =
                                 "Copy failed";
 
-                            setTimeout(() => {
-                                button.textContent =
-                                    "Copy";
-                            }, 1400);
+                            setTimeout(
+                                () => {
+                                    button.innerHTML =
+                                        `
+                                            <i class="fa-regular fa-copy"></i>
+                                            Copy
+                                        `;
+                                },
+                                1400
+                            );
                         }
                     }
                 );
@@ -1084,7 +1267,9 @@
                 ".adumex-github-copy"
             )
             .forEach(button => {
-                if (button.dataset.bound) {
+                if (
+                    button.dataset.bound
+                ) {
                     return;
                 }
 
@@ -1103,27 +1288,36 @@
                                 url
                             );
 
-                            button.innerHTML = `
-                                <i class="fa-solid fa-check"></i>
-                                Copied
-                            `;
-
-                            setTimeout(() => {
-                                button.innerHTML = `
-                                    <i class="fa-regular fa-copy"></i>
-                                    Copy link
+                            button.innerHTML =
+                                `
+                                    <i class="fa-solid fa-check"></i>
+                                    Copied
                                 `;
-                            }, 1400);
+
+                            setTimeout(
+                                () => {
+                                    button.innerHTML =
+                                        `
+                                            <i class="fa-regular fa-copy"></i>
+                                            Copy link
+                                        `;
+                                },
+                                1400
+                            );
                         } catch {
                             button.textContent =
                                 "Copy failed";
 
-                            setTimeout(() => {
-                                button.innerHTML = `
-                                    <i class="fa-regular fa-copy"></i>
-                                    Copy link
-                                `;
-                            }, 1400);
+                            setTimeout(
+                                () => {
+                                    button.innerHTML =
+                                        `
+                                            <i class="fa-regular fa-copy"></i>
+                                            Copy link
+                                        `;
+                                },
+                                1400
+                            );
                         }
                     }
                 );
@@ -1138,14 +1332,17 @@
             window.supabaseClient ||
             window.supabase;
 
-        if (client?.auth?.getSession) {
+        if (
+            client?.auth?.getSession
+        ) {
             try {
                 return (
                     await client.auth.getSession()
                 )
                     .data
                     ?.session
-                    ?.access_token || null;
+                    ?.access_token ||
+                    null;
             } catch {
                 return null;
             }
@@ -1162,16 +1359,22 @@
             }
         }
 
-        return (
-            localStorage.getItem(
-                "access_token"
-            ) || null
-        );
+        try {
+            return (
+                localStorage.getItem(
+                    "access_token"
+                ) || null
+            );
+        } catch {
+            return null;
+        }
     }
 
-    /* Conversation persistence */
+    /* Conversation Persistence */
 
-    function getServerConversation(chatId) {
+    function getServerConversation(
+        chatId
+    ) {
         try {
             const values =
                 JSON.parse(
@@ -1180,7 +1383,10 @@
                     ) || "{}"
                 );
 
-            return values[chatId] || null;
+            return (
+                values[chatId] ||
+                null
+            );
         } catch {
             return null;
         }
@@ -1222,25 +1428,56 @@
             return;
         }
 
-        const firstUserMessage =
-            state.messages.find(
-                item =>
-                    item.role === "user"
+        const recentChats =
+            window.AdumexRecentChats;
+
+        if (
+            recentChats?.updateChat
+        ) {
+            const firstUserMessage =
+                state.messages.find(
+                    item =>
+                        item.role ===
+                        "user"
+                );
+
+            const title =
+                firstUserMessage?.content
+                    ?.replace(/\s+/g, " ")
+                    ?.slice(0, 42) ||
+                "New chat";
+
+            recentChats.updateChat(
+                state.chatId,
+                {
+                    title,
+                    messages:
+                        state.messages
+                }
             );
 
-        const title =
-            firstUserMessage?.content
-                ?.slice(0, 42) ||
-            "New chat";
+            return;
+        }
 
-        emit("chat-updated", {
-            id: state.chatId,
-            title,
-            messages:
-                state.messages,
-            conversationId:
-                state.conversationId
-        });
+        emit(
+            "chat-updated",
+            {
+                id:
+                    state.chatId,
+                title:
+                    state.messages.find(
+                        item =>
+                            item.role ===
+                            "user"
+                    )?.content
+                        ?.slice(0, 42) ||
+                    "New chat",
+                messages:
+                    state.messages,
+                conversationId:
+                    state.conversationId
+            }
+        );
     }
 
     /* Generation */
@@ -1292,7 +1529,9 @@
 
     /* SSE */
 
-    async function processSse(response) {
+    async function processSse(
+        response
+    ) {
         if (!response.body) {
             throw new Error(
                 "Adumex received no response stream."
@@ -1308,97 +1547,117 @@
         let buffer = "";
         let complete = null;
 
-        const processBlock = block => {
-            const lines =
-                block.split(/\r?\n/);
-
-            const dataLines =
-                lines
-                    .filter(
-                        line =>
-                            line.startsWith("data:")
-                    )
-                    .map(
-                        line =>
-                            line
-                                .slice(5)
-                                .trim()
+        const processBlock =
+            block => {
+                const lines =
+                    block.split(
+                        /\r?\n/
                     );
 
-            if (!dataLines.length) {
-                return;
-            }
+                const dataLines =
+                    lines
+                        .filter(
+                            line =>
+                                line.startsWith(
+                                    "data:"
+                                )
+                        )
+                        .map(
+                            line =>
+                                line
+                                    .slice(5)
+                                    .replace(
+                                        /^ /,
+                                        ""
+                                    )
+                        );
 
-            const data =
-                dataLines.join("\n");
+                if (
+                    !dataLines.length
+                ) {
+                    return;
+                }
 
-            if (!data) {
-                return;
-            }
+                const data =
+                    dataLines.join(
+                        "\n"
+                    );
 
-            if (data === "[DONE]") {
-                return;
-            }
+                if (!data) {
+                    return;
+                }
 
-            let payload;
+                if (
+                    data === "[DONE]"
+                ) {
+                    return;
+                }
 
-            try {
-                payload =
-                    JSON.parse(data);
-            } catch {
-                return;
-            }
+                let payload;
 
-            if (
-                payload?.type ===
-                "error"
-            ) {
-                throw new Error(
-                    payload.error ||
-                    "Adumex could not complete the request."
-                );
-            }
+                try {
+                    payload =
+                        JSON.parse(
+                            data
+                        );
+                } catch {
+                    return;
+                }
 
-            if (
-                payload?.type === "text" &&
-                typeof payload.token === "string"
-            ) {
-                state.assistantText +=
-                    payload.token;
+                if (
+                    payload?.type ===
+                    "error"
+                ) {
+                    throw new Error(
+                        payload.error ||
+                        "Adumex could not complete the request."
+                    );
+                }
 
-                renderMessage(
-                    state.assistantElement,
-                    state.assistantText
-                );
+                if (
+                    payload?.type ===
+                        "text" &&
+                    typeof payload.token ===
+                        "string"
+                ) {
+                    state.assistantText +=
+                        payload.token;
 
-                bindCopyButtons(
-                    state.assistantElement
-                );
+                    renderMessage(
+                        state.assistantElement,
+                        state.assistantText
+                    );
 
-                bindGitHubButtons(
-                    state.assistantElement
-                );
+                    bindCopyButtons(
+                        state.assistantElement
+                    );
 
-                scrollToBottom(
-                    "auto"
-                );
-            }
+                    bindGitHubButtons(
+                        state.assistantElement
+                    );
 
-            if (
-                payload?.type === "image"
-            ) {
-                renderGeneratedImage(
-                    payload
-                );
-            }
+                    scrollToBottom(
+                        "auto"
+                    );
+                }
 
-            if (
-                payload?.type === "complete"
-            ) {
-                complete =
-                    payload;
-            }
-        };
+                if (
+                    payload?.type ===
+                    "image"
+                ) {
+                    renderGeneratedImage(
+                        payload
+                    );
+                }
+
+                if (
+                    payload?.type ===
+                    "complete"
+                ) {
+                    complete =
+                        payload;
+                }
+            };
 
         while (true) {
             const {
@@ -1425,10 +1684,15 @@
                 );
 
             buffer =
-                blocks.pop() || "";
+                blocks.pop() ||
+                "";
 
-            for (const block of blocks) {
-                processBlock(block);
+            for (
+                const block of blocks
+            ) {
+                processBlock(
+                    block
+                );
             }
         }
 
@@ -1436,13 +1700,15 @@
             decoder.decode();
 
         if (buffer.trim()) {
-            processBlock(buffer);
+            processBlock(
+                buffer
+            );
         }
 
         return complete;
     }
 
-    /* Generated images */
+    /* Generated Images */
 
     function renderGeneratedImage(
         payload
@@ -1474,7 +1740,9 @@
         }
 
         const image =
-            document.createElement("img");
+            document.createElement(
+                "img"
+            );
 
         image.className =
             "adumex-generated-image";
@@ -1511,12 +1779,15 @@
             getInput();
 
         const rawMessage =
-            typeof value === "string"
+            typeof value ===
+                "string"
                 ? value
                 : input?.value || "";
 
         const message =
-            cleanText(rawMessage);
+            cleanText(
+                rawMessage
+            );
 
         const files =
             getFiles();
@@ -1532,7 +1803,10 @@
             };
         }
 
-        if (files.length > MAX_FILES) {
+        if (
+            files.length >
+            MAX_FILES
+        ) {
             return {
                 success: false,
                 error:
@@ -1541,7 +1815,9 @@
         }
 
         const totalFileSize =
-            getTotalFileSize(files);
+            getTotalFileSize(
+                files
+            );
 
         if (
             totalFileSize >
@@ -1556,7 +1832,7 @@
 
         if (!state.chatId) {
             const chat =
-                window.adumexRecentChats
+                window.AdumexRecentChats
                     ?.createChat?.();
 
             state.chatId =
@@ -1575,7 +1851,9 @@
             );
 
         const fileMetadata =
-            getFileMetadata(files);
+            getFileMetadata(
+                files
+            );
 
         const displayMessage =
             message ||
@@ -1583,7 +1861,8 @@
 
         state.messages.push({
             role: "user",
-            content: displayMessage,
+            content:
+                displayMessage,
             attachments:
                 fileMetadata
         });
@@ -1605,9 +1884,12 @@
             "";
 
         if (input) {
-            input.value = "";
+            input.value =
+                "";
+
             input.style.height =
                 "auto";
+
             input.style.overflowY =
                 "hidden";
         }
@@ -1615,16 +1897,7 @@
         updateComposerState();
         setGenerating(true);
 
-        emit("add-message", {
-            id: state.chatId,
-            message: {
-                role: "user",
-                content:
-                    displayMessage,
-                attachments:
-                    fileMetadata
-            }
-        });
+        updateHistoryUi();
 
         try {
             const formData =
@@ -1637,7 +1910,9 @@
 
             formData.append(
                 "history",
-                JSON.stringify(history)
+                JSON.stringify(
+                    history
+                )
             );
 
             formData.append(
@@ -1667,7 +1942,9 @@
 
             formData.append(
                 "fileCount",
-                String(files.length)
+                String(
+                    files.length
+                )
             );
 
             if (
@@ -1707,13 +1984,16 @@
                 await fetch(
                     CHAT_URL,
                     {
-                        method: "POST",
+                        method:
+                            "POST",
                         headers,
-                        body: formData,
+                        body:
+                            formData,
                         signal:
                             state.controller
                                 .signal,
-                        credentials: "omit"
+                        credentials:
+                            "omit"
                     }
                 );
 
@@ -1759,8 +2039,10 @@
             }
 
             state.messages.push({
-                role: "assistant",
-                content: reply
+                role:
+                    "assistant",
+                content:
+                    reply
             });
 
             state.conversationId =
@@ -1772,6 +2054,11 @@
                 state.conversationId
             );
 
+            renderMessage(
+                state.assistantElement,
+                reply
+            );
+
             bindCopyButtons(
                 state.assistantElement
             );
@@ -1780,29 +2067,27 @@
                 state.assistantElement
             );
 
+            updateHistoryUi();
+
             scrollToResponse(
                 state.assistantElement
             );
 
-            emit("add-message", {
-                id: state.chatId,
-                message: {
-                    role: "assistant",
-                    content: reply
+            emit(
+                "message-complete",
+                {
+                    conversationId:
+                        state.conversationId,
+                    response:
+                        reply
                 }
-            });
-
-            updateHistoryUi();
-
-            emit("message-complete", {
-                conversationId:
-                    state.conversationId,
-                response: reply
-            });
+            );
 
             return {
-                success: true,
-                response: reply,
+                success:
+                    true,
+                response:
+                    reply,
                 conversationId:
                     state.conversationId
             };
@@ -1830,13 +2115,19 @@
                 );
             }
 
-            emit("error", {
-                error: messageText
-            });
+            emit(
+                "error",
+                {
+                    error:
+                        messageText
+                }
+            );
 
             return {
-                success: false,
-                error: messageText
+                success:
+                    false,
+                error:
+                    messageText
             };
         } finally {
             clearSelectedFiles();
@@ -1850,7 +2141,10 @@
             state.assistantText =
                 "";
 
-            setGenerating(false);
+            setGenerating(
+                false
+            );
+
             updateComposerState();
         }
     }
@@ -1875,10 +2169,21 @@
                 messages
             );
 
-        if (!state.messages.length) {
+        if (
+            !state.messages.length
+        ) {
             renderGreeting();
             updateComposerState();
             return;
+        }
+
+        const welcome =
+            document.getElementById(
+                "chat-welcome"
+            );
+
+        if (welcome) {
+            welcome.hidden = true;
         }
 
         state.messages.forEach(
@@ -1889,18 +2194,13 @@
                         item.content
                     );
 
-                if (
-                    item.role ===
-                    "assistant"
-                ) {
-                    bindCopyButtons(
-                        element
-                    );
+                bindCopyButtons(
+                    element
+                );
 
-                    bindGitHubButtons(
-                        element
-                    );
-                }
+                bindGitHubButtons(
+                    element
+                );
             }
         );
 
@@ -1913,7 +2213,8 @@
         chat
     ) {
         state.chatId =
-            chat?.id || null;
+            chat?.id ||
+            null;
 
         state.conversationId =
             state.chatId
@@ -1923,10 +2224,13 @@
                 : null;
 
         renderConversation(
-            chat?.messages || []
+            chat?.messages ||
+            []
         );
 
-        if (!state.conversationId) {
+        if (
+            !state.conversationId
+        ) {
             return;
         }
 
@@ -1959,7 +2263,6 @@
                 emit(
                     "auth-expired"
                 );
-
                 return;
             }
 
@@ -1973,16 +2276,22 @@
                 );
             }
         } catch {
-            emit("error", {
-                error:
-                    "Unable to load this conversation."
-            });
+            emit(
+                "error",
+                {
+                    error:
+                        "Unable to load this conversation."
+                }
+            );
         }
     }
 
-    function newChat(chat) {
+    function newChat(
+        chat
+    ) {
         state.chatId =
-            chat?.id || null;
+            chat?.id ||
+            null;
 
         state.conversationId =
             null;
@@ -1998,7 +2307,8 @@
             getInput();
 
         if (input) {
-            input.value = "";
+            input.value =
+                "";
 
             input.style.height =
                 "auto";
@@ -2038,7 +2348,9 @@
     /* Initialization */
 
     function init() {
-        if (state.initialized) {
+        if (
+            state.initialized
+        ) {
             return;
         }
 
@@ -2082,7 +2394,7 @@
                     !event.isComposing
                 ) {
                     event.preventDefault();
-                    event.stopImmediatePropagation();
+                    event.stopPropagation();
 
                     sendMessage();
 
@@ -2132,20 +2444,22 @@
 
         window.addEventListener(
             "adumex:new-chat",
-            event =>
+            event => {
                 newChat(
                     event.detail?.chat
-                )
+                );
+            }
         );
 
         /* Open chat */
 
         window.addEventListener(
             "adumex:open-chat",
-            event =>
+            event => {
                 openChat(
                     event.detail?.chat
-                )
+                );
+            }
         );
 
         /* Deleted chat */
@@ -2178,7 +2492,6 @@
             openChat,
             newChat,
             renderConversation,
-
             getState: () => ({
                 ...state,
                 messages: [
@@ -2208,7 +2521,6 @@
         /* Initial state */
 
         updateComposerState();
-
         renderGreeting();
         autoGrowInput();
     }
