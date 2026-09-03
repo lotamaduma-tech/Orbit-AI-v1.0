@@ -3,6 +3,7 @@
 /* Adumex AI tools */
 
 document.addEventListener("DOMContentLoaded", () => {
+
     /* Elements */
 
     const toolsButton = document.querySelector("#adumex-tools-btn");
@@ -27,30 +28,35 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-file-pdf",
             mime: "application/pdf"
         },
+
         doc: {
             label: "Word",
             category: "document",
             icon: "fa-file-word",
             mime: "application/msword"
         },
+
         docx: {
             label: "Word",
             category: "document",
             icon: "fa-file-word",
             mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         },
+
         txt: {
             label: "Text",
             category: "text",
             icon: "fa-file-lines",
             mime: "text/plain"
         },
+
         csv: {
             label: "CSV",
             category: "data",
             icon: "fa-file-csv",
             mime: "text/csv"
         },
+
         json: {
             label: "JSON",
             category: "code",
@@ -58,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-file-code",
             mime: "application/json"
         },
+
         md: {
             label: "Markdown",
             category: "code",
@@ -65,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-file-lines",
             mime: "text/markdown"
         },
+
         html: {
             label: "HTML",
             category: "code",
@@ -72,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/html"
         },
+
         htm: {
             label: "HTML",
             category: "code",
@@ -79,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/html"
         },
+
         css: {
             label: "CSS",
             category: "code",
@@ -86,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/css"
         },
+
         scss: {
             label: "SCSS",
             category: "code",
@@ -93,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-scss"
         },
+
         sass: {
             label: "Sass",
             category: "code",
@@ -100,6 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-sass"
         },
+
         less: {
             label: "Less",
             category: "code",
@@ -107,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-less"
         },
+
         js: {
             label: "JavaScript",
             category: "code",
@@ -114,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-js",
             mime: "text/javascript"
         },
+
         mjs: {
             label: "JavaScript",
             category: "code",
@@ -121,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-js",
             mime: "text/javascript"
         },
+
         cjs: {
             label: "JavaScript",
             category: "code",
@@ -128,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-js",
             mime: "text/javascript"
         },
+
         jsx: {
             label: "JSX",
             category: "code",
@@ -135,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-react",
             mime: "text/jsx"
         },
+
         ts: {
             label: "TypeScript",
             category: "code",
@@ -142,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/typescript"
         },
+
         mts: {
             label: "TypeScript",
             category: "code",
@@ -149,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/typescript"
         },
+
         cts: {
             label: "TypeScript",
             category: "code",
@@ -156,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/typescript"
         },
+
         tsx: {
             label: "TSX",
             category: "code",
@@ -163,6 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-react",
             mime: "text/tsx"
         },
+
         py: {
             label: "Python",
             category: "code",
@@ -170,6 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-python",
             mime: "text/x-python"
         },
+
         pyw: {
             label: "Python",
             category: "code",
@@ -177,6 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-python",
             mime: "text/x-python"
         },
+
         java: {
             label: "Java",
             category: "code",
@@ -184,6 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-java",
             mime: "text/x-java"
         },
+
         c: {
             label: "C",
             category: "code",
@@ -191,6 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-c"
         },
+
         h: {
             label: "C Header",
             category: "code",
@@ -198,6 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-c"
         },
+
         cpp: {
             label: "C++",
             category: "code",
@@ -205,6 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-c++"
         },
+
         cc: {
             label: "C++",
             category: "code",
@@ -212,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-c++"
         },
+
         cxx: {
             label: "C++",
             category: "code",
@@ -219,6 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-c++"
         },
+
         hpp: {
             label: "C++ Header",
             category: "code",
@@ -226,6 +256,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-c++"
         },
+
         cs: {
             label: "C#",
             category: "code",
@@ -233,6 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/plain"
         },
+
         go: {
             label: "Go",
             category: "code",
@@ -240,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-go"
         },
+
         rs: {
             label: "Rust",
             category: "code",
@@ -247,6 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-rust"
         },
+
         php: {
             label: "PHP",
             category: "code",
@@ -254,6 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "application/x-php"
         },
+
         rb: {
             label: "Ruby",
             category: "code",
@@ -261,6 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-gem",
             mime: "text/x-ruby"
         },
+
         swift: {
             label: "Swift",
             category: "code",
@@ -268,6 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-swift"
         },
+
         kt: {
             label: "Kotlin",
             category: "code",
@@ -275,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-kotlin"
         },
+
         kts: {
             label: "Kotlin",
             category: "code",
@@ -282,6 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-kotlin"
         },
+
         dart: {
             label: "Dart",
             category: "code",
@@ -289,6 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-dart"
         },
+
         lua: {
             label: "Lua",
             category: "code",
@@ -296,6 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/x-lua"
         },
+
         r: {
             label: "R",
             category: "code",
@@ -303,6 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "text/plain"
         },
+
         sql: {
             label: "SQL",
             category: "code",
@@ -310,6 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-database",
             mime: "application/sql"
         },
+
         sh: {
             label: "Shell",
             category: "code",
@@ -317,6 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-terminal",
             mime: "application/x-sh"
         },
+
         bash: {
             label: "Bash",
             category: "code",
@@ -324,6 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-terminal",
             mime: "application/x-sh"
         },
+
         zsh: {
             label: "Zsh",
             category: "code",
@@ -331,6 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-terminal",
             mime: "text/plain"
         },
+
         ps1: {
             label: "PowerShell",
             category: "code",
@@ -338,6 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-terminal",
             mime: "text/plain"
         },
+
         xml: {
             label: "XML",
             category: "code",
@@ -345,6 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-code",
             mime: "application/xml"
         },
+
         yaml: {
             label: "YAML",
             category: "code",
@@ -352,6 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-file-code",
             mime: "text/yaml"
         },
+
         yml: {
             label: "YAML",
             category: "code",
@@ -359,6 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-file-code",
             mime: "text/yaml"
         },
+
         toml: {
             label: "TOML",
             category: "code",
@@ -366,6 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon: "fa-file-code",
             mime: "text/plain"
         },
+
         env: {
             label: "Environment",
             category: "code",
@@ -384,12 +435,14 @@ document.addEventListener("DOMContentLoaded", () => {
             language: "Dockerfile",
             icon: "fa-file-code"
         },
+
         Makefile: {
             label: "Makefile",
             category: "code",
             language: "Makefile",
             icon: "fa-gears"
         },
+
         Jenkinsfile: {
             label: "Jenkinsfile",
             category: "code",
@@ -405,7 +458,6 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Tools menu */
 
     const toolsMenu = document.createElement("div");
-
     toolsMenu.className = "adumex-tools-menu";
     toolsMenu.setAttribute("role", "menu");
     toolsMenu.setAttribute("aria-label", "Adumex tools");
@@ -466,7 +518,6 @@ document.addEventListener("DOMContentLoaded", () => {
     uploadButton.appendChild(uploadArrow);
 
     toolsOptions.appendChild(uploadButton);
-
     toolsMenu.appendChild(toolsHeader);
     toolsMenu.appendChild(toolsOptions);
 
@@ -577,7 +628,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (SPECIAL_FILES[fileName]) {
             return {
                 ...SPECIAL_FILES[fileName],
-                extension: fileName
+                extension: fileName.toLowerCase()
             };
         }
 
@@ -626,35 +677,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (bytes < 1024) {
-            return `${ bytes } B`;
+            return `${bytes} B`;
         }
 
         if (bytes < 1024 * 1024) {
-            return `${ (bytes / 1024).toFixed(1) } KB`;
+            return `${(bytes / 1024).toFixed(1)} KB`;
         }
 
         if (bytes < 1024 * 1024 * 1024) {
-            return `${ (bytes / (1024 * 1024)).toFixed(1) } MB`;
+            return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
         }
 
-        return `${
-    (
-        bytes /
-        (1024 * 1024 * 1024)
-    ).toFixed(1)
-} GB`;
+        return `${(
+            bytes /
+            (1024 * 1024 * 1024)
+        ).toFixed(1)} GB`;
     }
 
     function createId() {
-        return `${ Date.now() } -${
-    Math.random()
-    .toString(36)
-    .slice(2, 9)
-} `;
+        return `${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 9)}`;
     }
 
     function showError(message) {
-        console.warn(`Adumex upload: ${ message } `);
+        console.warn(`Adumex upload: ${message}`);
 
         if (
             typeof window.showAdumexToast ===
@@ -670,7 +717,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(message);
     }
 
-    /* Read text/code files */
+    /* Read text files */
 
     async function readTextFile(file) {
         if (file.size > MAX_TEXT_SIZE) {
@@ -716,7 +763,6 @@ document.addEventListener("DOMContentLoaded", () => {
             showError(
                 `"${file.name}" is not a supported file type.`
             );
-
             return false;
         }
 
@@ -724,7 +770,6 @@ document.addEventListener("DOMContentLoaded", () => {
             showError(
                 `"${file.name}" is larger than the 20 MB limit.`
             );
-
             return false;
         }
 
@@ -792,18 +837,20 @@ document.addEventListener("DOMContentLoaded", () => {
         title.className = "adumex-attachments-title";
 
         title.textContent =
-            `${ attachments.length } ${
-    attachments.length === 1
-        ? "file"
-        : "files"
-} attached`;
+            `${attachments.length} ${
+                attachments.length === 1
+                    ? "file"
+                    : "files"
+            } attached`;
 
         const clearButton = document.createElement("button");
 
         clearButton.type = "button";
         clearButton.className =
             "adumex-attachments-clear";
+
         clearButton.textContent = "Clear";
+
         clearButton.setAttribute(
             "aria-label",
             "Clear all attached files"
@@ -825,6 +872,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 attachment.id;
 
             const preview = document.createElement("div");
+
             preview.className =
                 "adumex-attachment-preview";
 
@@ -846,7 +894,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.createElement("i");
 
                 icon.className =
-                    `fa - solid ${ attachment.icon } `;
+                    `fa-solid ${attachment.icon}`;
 
                 preview.appendChild(icon);
             }
@@ -881,11 +929,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             detail.textContent =
-                `${ detailText } · ${
-    formatFileSize(
-        attachment.size
-    )
-} `;
+                `${detailText} · ${formatFileSize(
+                    attachment.size
+                )}`;
 
             info.appendChild(name);
             info.appendChild(detail);
@@ -903,7 +949,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             removeButton.setAttribute(
                 "aria-label",
-                `Remove ${ attachment.name } `
+                `Remove ${attachment.name}`
             );
 
             removeButton.title =
@@ -966,7 +1012,7 @@ document.addEventListener("DOMContentLoaded", () => {
         for (const file of files) {
             if (attachments.length >= MAX_FILES) {
                 showError(
-                    `You can attach up to ${ MAX_FILES } files.`
+                    `You can attach up to ${MAX_FILES} files.`
                 );
                 break;
             }
@@ -1088,7 +1134,6 @@ document.addEventListener("DOMContentLoaded", () => {
         event => {
             event.preventDefault();
             event.stopPropagation();
-
             toggleToolsMenu();
         }
     );
@@ -1152,6 +1197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Public API */
 
     window.AdumexTools = {
+
         getFiles() {
             return attachments.map(
                 attachment =>

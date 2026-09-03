@@ -1,3 +1,5 @@
+**Updated `js/adumex.js`**
+
 "use strict";
 
 (() => {
@@ -5,7 +7,6 @@
     /* Configuration */
 
     const configuredApi = String(
-        window.ORBIT_API_URL ||
         window.ADUMEX_API_URL ||
         "https://orbit-ai-v1-0.onrender.com/api/chat"
     ).replace(/\/$/, "");
@@ -19,9 +20,11 @@
     const HISTORY_LIMIT = 30;
     const MAX_MESSAGE_LENGTH = 20000;
     const MAX_STORED_RESPONSE_LENGTH = 50000;
+    const MAX_FILES = 10;
+    const MAX_TOTAL_FILE_SIZE = 30 * 1024 * 1024;
 
     const SERVER_CONVERSATIONS_KEY =
-        "orbit-server-conversations";
+        "adumex-server-conversations";
 
     const state = {
         messages: [],
@@ -33,7 +36,6 @@
         assistantText: "",
         initialized: false
     };
-
 
     /* Elements */
 
@@ -52,11 +54,6 @@
     function getCommandArea() {
         return document.querySelector(".command-area");
     }
-
-    function getChatWorkspace() {
-        return document.querySelector(".chat-workspace");
-    }
-
 
     /* Helpers */
 
@@ -81,7 +78,20 @@
                 )
                 .map(item => ({
                     role: item.role,
-                    content: cleanText(item.content)
+                    content: cleanText(item.content),
+                    attachments: Array.isArray(item.attachments)
+                        ? item.attachments.map(file => ({
+                            name: String(file?.name || "Unnamed file"),
+                            type: String(
+                                file?.type ||
+                                "application/octet-stream"
+                            ),
+                            size: Number(file?.size || 0),
+                            extension: String(
+                                file?.extension || ""
+                            ).toLowerCase()
+                        }))
+                        : []
                 }))
                 .filter(item => item.content)
                 .slice(-HISTORY_LIMIT)
@@ -91,12 +101,6 @@
     function emit(name, detail = {}) {
         window.dispatchEvent(
             new CustomEvent(`adumex:${name}`, {
-                detail
-            })
-        );
-
-        window.dispatchEvent(
-            new CustomEvent(`orbit:${name}`, {
                 detail
             })
         );
@@ -274,7 +278,6 @@
         `;
     }
 
-
     /* Markdown */
 
     function renderInline(text) {
@@ -292,7 +295,6 @@
                 markdownUrl,
                 bareUrl
             ) => {
-
                 if (code !== undefined) {
                     return token(
                         `<code>${escapeHtml(code)}</code>`
@@ -340,7 +342,7 @@
                 "<strong>$1</strong>"
             )
             .replace(
-                /__([^\_\n]+)__/g,
+                /__([^_\n]+)__/g,
                 "<strong>$1</strong>"
             )
             .replace(
@@ -348,7 +350,7 @@
                 "$1<em>$2</em>"
             )
             .replace(
-                /(^|[^\_])_([^\_\n]+)_(?!_)/g,
+                /(^|[^_])_([^_\n]+)_(?!_)/g,
                 "$1<em>$2</em>"
             );
 
@@ -365,7 +367,6 @@
             .split("\n");
 
         const output = [];
-
         let code = null;
         let list = null;
 
@@ -415,7 +416,6 @@
         };
 
         for (const line of lines) {
-
             const fence = line.match(
                 /^```[ \t]*([^\s]*)[ \t]*$/
             );
@@ -463,15 +463,12 @@
                         heading[2]
                     )}</h${level}>`
                 );
-
             } else if (ordered || unordered) {
-
                 const type =
                     ordered ? "ol" : "ul";
 
                 if (list !== type) {
                     closeList();
-
                     list = type;
 
                     output.push(
@@ -484,10 +481,8 @@
                         (ordered || unordered)[1]
                     )}</li>`
                 );
-
             } else if (!line.trim()) {
                 closeList();
-
             } else {
                 closeList();
 
@@ -503,7 +498,6 @@
         return output.join("");
     }
 
-
     /* Links */
 
     function renderTextWithLinks(text) {
@@ -515,7 +509,6 @@
         );
     }
 
-
     /* Scrolling */
 
     function scrollToResponse(
@@ -526,7 +519,8 @@
             return;
         }
 
-        const container = getChatWindow();
+        const container =
+            getChatWindow();
 
         if (!container) {
             return;
@@ -546,7 +540,8 @@
     function scrollToBottom(
         behavior = "smooth"
     ) {
-        const container = getChatWindow();
+        const container =
+            getChatWindow();
 
         if (!container) {
             return;
@@ -557,7 +552,6 @@
             behavior
         });
     }
-
 
     /* Greeting */
 
@@ -583,9 +577,7 @@
     function getStoredName() {
         const possibleKeys = [
             "adumex-memory-cache",
-            "orbit-memory-cache",
-            "adumex-user",
-            "orbit-user"
+            "adumex-user"
         ];
 
         for (const key of possibleKeys) {
@@ -614,7 +606,6 @@
                 ) {
                     return name.trim();
                 }
-
             } catch {
                 continue;
             }
@@ -675,41 +666,18 @@
     }
 
     function renderGreeting() {
-        const intro =
+        const greeting =
             document.getElementById(
-                "chat-intro"
+                "chat-welcome-greeting"
             );
 
-        if (!intro) {
+        if (!greeting) {
             return;
         }
 
-        intro.innerHTML = `
-            <div class="chat-intro-content">
-                <div class="chat-intro-mark">
-                    <i class="fa-solid fa-sparkles"></i>
-                </div>
-
-                <h1>
-                    ${escapeHtml(
-                        getGreeting()
-                    )}
-                </h1>
-
-                <p>
-                    Ask Adumex anything.
-                    Build, learn, debug, or explore.
-                </p>
-            </div>
-        `;
+        greeting.textContent =
+            getGreeting();
     }
-
-    function hideIntro() {
-        document
-            .getElementById("chat-intro")
-            ?.remove();
-    }
-
 
     /* Composer */
 
@@ -718,7 +686,9 @@
     }
 
     function updateComposerState() {
-        const input = getInput();
+        const input =
+            getInput();
+
         const commandArea =
             getCommandArea();
 
@@ -735,15 +705,6 @@
         const active =
             hasText || hasFiles;
 
-        /*
-         * Important:
-         * Do not toggle composer-active on
-         * .chat-workspace while typing.
-         *
-         * That class was causing the mobile
-         * layout to recalculate and move the
-         * composer.
-         */
         commandArea.classList.toggle(
             "composer-active",
             active
@@ -754,10 +715,6 @@
             !active
         );
 
-        /*
-         * Deliberately do not change the
-         * workspace position/state here.
-         */
         emit("composer-state", {
             active,
             value: input.value
@@ -765,17 +722,13 @@
     }
 
     function autoGrowInput() {
-        const input = getInput();
+        const input =
+            getInput();
 
         if (!input) {
             return;
         }
 
-        /*
-         * Only resize the textarea itself.
-         * Never resize or reposition the
-         * command area from JavaScript.
-         */
         input.style.height = "auto";
 
         const maxHeight = 220;
@@ -796,7 +749,8 @@
     }
 
     function handleInput(event) {
-        const input = event.target;
+        const input =
+            event.target;
 
         if (!input) {
             return;
@@ -817,23 +771,44 @@
         });
     }
 
-
     /* Attachments */
 
     function getFiles() {
         const tools =
-            window.adumexTools ||
-            window.orbitTools;
+            window.adumexTools;
 
         if (!tools) {
             return [];
         }
 
-        return (
+        const files =
             tools.getAllSelectedFiles?.() ||
             tools.getSelectedFiles?.() ||
-            []
+            [];
+
+        return Array.from(files).filter(
+            file =>
+                file instanceof File ||
+                (
+                    file &&
+                    typeof file.name === "string"
+                )
         );
+    }
+
+    function getFileExtension(name) {
+        const value =
+            String(name || "")
+                .trim()
+                .toLowerCase();
+
+        if (!value.includes(".")) {
+            return "";
+        }
+
+        return value
+            .split(".")
+            .pop();
     }
 
     function getFileMetadata(files) {
@@ -850,17 +825,24 @@
                 Number(file?.size || 0),
 
             extension:
-                String(file?.name || "")
-                    .split(".")
-                    .pop()
-                    .toLowerCase()
+                getFileExtension(
+                    file?.name
+                )
         }));
+    }
+
+    function getTotalFileSize(files) {
+        return files.reduce(
+            (total, file) =>
+                total +
+                Number(file?.size || 0),
+            0
+        );
     }
 
     function clearSelectedFiles() {
         const tools =
-            window.adumexTools ||
-            window.orbitTools;
+            window.adumexTools;
 
         tools?.clearSelectedFiles?.();
 
@@ -926,14 +908,17 @@
                         file.name || "image"
                     }`;
 
-                image.src =
+                const objectUrl =
                     URL.createObjectURL(file);
+
+                image.src =
+                    objectUrl;
 
                 image.addEventListener(
                     "load",
                     () => {
                         URL.revokeObjectURL(
-                            image.src
+                            objectUrl
                         );
                     },
                     {
@@ -969,7 +954,6 @@
         parent.appendChild(wrapper);
     }
 
-
     /* Messages */
 
     function createMessage(
@@ -983,8 +967,6 @@
         if (!container) {
             return null;
         }
-
-        hideIntro();
 
         const message =
             document.createElement("article");
@@ -1006,7 +988,6 @@
             "message-content adumex-message-content";
 
         message.appendChild(content);
-
         container.appendChild(message);
 
         renderMessage(
@@ -1053,7 +1034,6 @@
         bindGitHubButtons(content);
     }
 
-
     /* Copy buttons */
 
     function bindCopyButtons(root) {
@@ -1062,7 +1042,6 @@
                 ".adumex-copy-code"
             )
             .forEach(button => {
-
                 if (button.dataset.bound) {
                     return;
                 }
@@ -1085,7 +1064,6 @@
                                 button.textContent =
                                     "Copy";
                             }, 1400);
-
                         } catch {
                             button.textContent =
                                 "Copy failed";
@@ -1106,7 +1084,6 @@
                 ".adumex-github-copy"
             )
             .forEach(button => {
-
                 if (button.dataset.bound) {
                     return;
                 }
@@ -1117,7 +1094,6 @@
                 button.addEventListener(
                     "click",
                     async () => {
-
                         const url =
                             button.dataset.githubUrl ||
                             "";
@@ -1138,7 +1114,6 @@
                                     Copy link
                                 `;
                             }, 1400);
-
                         } catch {
                             button.textContent =
                                 "Copy failed";
@@ -1155,7 +1130,6 @@
             });
     }
 
-
     /* Authentication */
 
     async function getAccessToken() {
@@ -1164,9 +1138,7 @@
             window.supabaseClient ||
             window.supabase;
 
-        if (
-            client?.auth?.getSession
-        ) {
+        if (client?.auth?.getSession) {
             try {
                 return (
                     await client.auth.getSession()
@@ -1174,9 +1146,8 @@
                     .data
                     ?.session
                     ?.access_token || null;
-
             } catch {
-                /* Continue */
+                return null;
             }
         }
 
@@ -1186,9 +1157,8 @@
         ) {
             try {
                 return await window.getSupabaseAccessToken();
-
             } catch {
-                /* Continue */
+                return null;
             }
         }
 
@@ -1198,7 +1168,6 @@
             ) || null
         );
     }
-
 
     /* Conversation persistence */
 
@@ -1212,7 +1181,6 @@
                 );
 
             return values[chatId] || null;
-
         } catch {
             return null;
         }
@@ -1244,9 +1212,8 @@
                 SERVER_CONVERSATIONS_KEY,
                 JSON.stringify(values)
             );
-
         } catch {
-            /* Ignore storage errors */
+            return;
         }
     }
 
@@ -1276,7 +1243,6 @@
         });
     }
 
-
     /* Generation */
 
     function setGenerating(value) {
@@ -1290,7 +1256,8 @@
             getInput();
 
         if (button) {
-            button.disabled = false;
+            button.disabled =
+                false;
 
             button.classList.toggle(
                 "is-generating",
@@ -1323,7 +1290,6 @@
         );
     }
 
-
     /* SSE */
 
     async function processSse(response) {
@@ -1342,10 +1308,12 @@
         let buffer = "";
         let complete = null;
 
-        const process = block => {
-            const data =
-                block
-                    .split(/\r?\n/)
+        const processBlock = block => {
+            const lines =
+                block.split(/\r?\n/);
+
+            const dataLines =
+                lines
                     .filter(
                         line =>
                             line.startsWith("data:")
@@ -1355,13 +1323,20 @@
                             line
                                 .slice(5)
                                 .trim()
-                    )
-                    .join("\n");
+                    );
 
-            if (
-                !data ||
-                data === "[DONE]"
-            ) {
+            if (!dataLines.length) {
+                return;
+            }
+
+            const data =
+                dataLines.join("\n");
+
+            if (!data) {
+                return;
+            }
+
+            if (data === "[DONE]") {
                 return;
             }
 
@@ -1375,7 +1350,7 @@
             }
 
             if (
-                payload.type ===
+                payload?.type ===
                 "error"
             ) {
                 throw new Error(
@@ -1385,8 +1360,8 @@
             }
 
             if (
-                payload.type === "text" &&
-                payload.token
+                payload?.type === "text" &&
+                typeof payload.token === "string"
             ) {
                 state.assistantText +=
                     payload.token;
@@ -1410,8 +1385,7 @@
             }
 
             if (
-                payload.type ===
-                "image"
+                payload?.type === "image"
             ) {
                 renderGeneratedImage(
                     payload
@@ -1419,8 +1393,7 @@
             }
 
             if (
-                payload.type ===
-                "complete"
+                payload?.type === "complete"
             ) {
                 complete =
                     payload;
@@ -1454,21 +1427,20 @@
             buffer =
                 blocks.pop() || "";
 
-            blocks.forEach(
-                process
-            );
+            for (const block of blocks) {
+                processBlock(block);
+            }
         }
 
         buffer +=
             decoder.decode();
 
         if (buffer.trim()) {
-            process(buffer);
+            processBlock(buffer);
         }
 
         return complete;
     }
-
 
     /* Generated images */
 
@@ -1507,7 +1479,8 @@
         image.className =
             "adumex-generated-image";
 
-        image.src = source;
+        image.src =
+            source;
 
         image.alt =
             "Image generated by Adumex AI";
@@ -1520,7 +1493,6 @@
             message
         );
     }
-
 
     /* Send */
 
@@ -1560,12 +1532,31 @@
             };
         }
 
+        if (files.length > MAX_FILES) {
+            return {
+                success: false,
+                error:
+                    `You can upload up to ${MAX_FILES} files at once.`
+            };
+        }
+
+        const totalFileSize =
+            getTotalFileSize(files);
+
+        if (
+            totalFileSize >
+            MAX_TOTAL_FILE_SIZE
+        ) {
+            return {
+                success: false,
+                error:
+                    "The total size of the selected files is too large."
+            };
+        }
+
         if (!state.chatId) {
             const chat =
-                (
-                    window.adumexRecentChats ||
-                    window.orbitRecentChats
-                )
+                window.adumexRecentChats
                     ?.createChat?.();
 
             state.chatId =
@@ -1613,23 +1604,15 @@
         state.assistantText =
             "";
 
-        /*
-         * Clear only the input.
-         * Do not manipulate the composer
-         * position or workspace.
-         */
         if (input) {
             input.value = "";
-
             input.style.height =
                 "auto";
-
             input.style.overflowY =
                 "hidden";
         }
 
         updateComposerState();
-
         setGenerating(true);
 
         emit("add-message", {
@@ -1682,6 +1665,11 @@
                 )
             );
 
+            formData.append(
+                "fileCount",
+                String(files.length)
+            );
+
             if (
                 state.conversationId
             ) {
@@ -1691,11 +1679,6 @@
                 );
             }
 
-            /*
-             * Preserve the existing upload
-             * behavior. Every selected file
-             * is sent to the backend.
-             */
             files.forEach(file => {
                 formData.append(
                     "files",
@@ -1823,9 +1806,7 @@
                 conversationId:
                     state.conversationId
             };
-
         } catch (error) {
-
             const messageText =
                 error?.name ===
                 "AbortError"
@@ -1857,9 +1838,7 @@
                 success: false,
                 error: messageText
             };
-
         } finally {
-
             clearSelectedFiles();
 
             state.controller =
@@ -1872,11 +1851,9 @@
                 "";
 
             setGenerating(false);
-
             updateComposerState();
         }
     }
-
 
     /* Conversations */
 
@@ -1899,31 +1876,13 @@
             );
 
         if (!state.messages.length) {
-            const intro =
-                document.createElement(
-                    "div"
-                );
-
-            intro.className =
-                "chat-intro";
-
-            intro.id =
-                "chat-intro";
-
-            container.appendChild(
-                intro
-            );
-
             renderGreeting();
-
             updateComposerState();
-
             return;
         }
 
         state.messages.forEach(
             item => {
-
                 const element =
                     createMessage(
                         item.role,
@@ -1949,7 +1908,6 @@
             "auto"
         );
     }
-
 
     async function openChat(
         chat
@@ -2014,7 +1972,6 @@
                     []
                 );
             }
-
         } catch {
             emit("error", {
                 error:
@@ -2022,7 +1979,6 @@
             });
         }
     }
-
 
     function newChat(chat) {
         state.chatId =
@@ -2052,15 +2008,8 @@
         }
 
         clearSelectedFiles();
-
         updateComposerState();
 
-        /*
-         * Only focus on desktop.
-         * Never force focus on mobile,
-         * because doing so can trigger the
-         * virtual keyboard and viewport jump.
-         */
         if (
             window.innerWidth >
             768
@@ -2072,7 +2021,6 @@
             "new-chat-ready"
         );
     }
-
 
     /* Stop */
 
@@ -2086,7 +2034,6 @@
 
         state.controller.abort();
     }
-
 
     /* Initialization */
 
@@ -2107,7 +2054,6 @@
         sendButton?.addEventListener(
             "click",
             event => {
-
                 event.preventDefault();
 
                 if (
@@ -2129,7 +2075,6 @@
         input?.addEventListener(
             "keydown",
             event => {
-
                 if (
                     event.key ===
                     "Enter" &&
@@ -2183,7 +2128,6 @@
             }
         );
 
-
         /* New chat */
 
         window.addEventListener(
@@ -2193,15 +2137,6 @@
                     event.detail?.chat
                 )
         );
-
-        window.addEventListener(
-            "orbit:new-chat",
-            event =>
-                newChat(
-                    event.detail?.chat
-                )
-        );
-
 
         /* Open chat */
 
@@ -2213,21 +2148,11 @@
                 )
         );
 
-        window.addEventListener(
-            "orbit:open-chat",
-            event =>
-                openChat(
-                    event.detail?.chat
-                )
-        );
-
-
         /* Deleted chat */
 
         window.addEventListener(
             "adumex:chat-deleted",
             event => {
-
                 if (
                     event.detail?.chat?.id ===
                     state.chatId
@@ -2236,20 +2161,6 @@
                 }
             }
         );
-
-        window.addEventListener(
-            "orbit:chat-deleted",
-            event => {
-
-                if (
-                    event.detail?.chat?.id ===
-                    state.chatId
-                ) {
-                    newChat(null);
-                }
-            }
-        );
-
 
         /* Attachments */
 
@@ -2257,12 +2168,6 @@
             "adumex:attachments-changed",
             updateComposerState
         );
-
-        window.addEventListener(
-            "orbit:attachments-changed",
-            updateComposerState
-        );
-
 
         /* Public API */
 
@@ -2282,15 +2187,11 @@
             })
         };
 
-        window.OrbitAI =
-            window.AdumexAI;
-
         window.loadAdumexConversation =
             (
                 messages,
                 conversationId
             ) => {
-
                 state.conversationId =
                     conversationId ||
                     null;
@@ -2300,30 +2201,17 @@
                 );
             };
 
-        window.loadOrbitConversation =
-            window.loadAdumexConversation;
-
         window.startAdumexNewChat =
             () =>
                 newChat(null);
-
-        window.startOrbitNewChat =
-            window.startAdumexNewChat;
-
 
         /* Initial state */
 
         updateComposerState();
 
-        if (
-            !state.messages.length
-        ) {
-            renderGreeting();
-        }
-
+        renderGreeting();
         autoGrowInput();
     }
-
 
     if (
         document.readyState ===
@@ -2339,5 +2227,4 @@
     } else {
         init();
     }
-
 })();
