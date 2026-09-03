@@ -283,7 +283,6 @@
 }
 
 /* User messages */
-
 .message.user-message {
     display: flex;
     justify-content: flex-end;

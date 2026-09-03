@@ -22,7 +22,7 @@ body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: var(--font-family);
+    font-family: var(--font-body);
     overflow-x: hidden;
     transition:
         background-color var(--transition-normal),
@@ -62,6 +62,13 @@ input {
     outline: none;
 }
 
+button,
+a,
+textarea,
+input {
+    -webkit-tap-highlight-color: transparent;
+}
+
 /* App shell */
 
 .adumex-app {
@@ -79,8 +86,7 @@ input {
 
 .adumex-sidebar {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0 auto 0 0;
     width: var(--navigation-width);
     height: 100vh;
     display: flex;
@@ -120,26 +126,23 @@ input {
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-sm);
+    min-width: 0;
     color: var(--text);
     font-family: var(--font-secondary);
-    text-decoration: none;
 }
 
 .brand-logo {
-    width: 36px;
-    height: 36px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-xs);
+    display: none;
 }
 
 .brand-name {
     display: inline-flex;
     align-items: baseline;
     gap: 4px;
+    white-space: nowrap;
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    letter-spacing: -0.04em;
+    letter-spacing: -0.045em;
 }
 
 .brand-name strong {
@@ -160,6 +163,7 @@ input {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     border-radius: var(--radius-md);
     background: transparent;
     color: var(--muted);
@@ -171,7 +175,7 @@ input {
 
 .sidebar-close:hover {
     background: var(--surface-hover);
-    color: var(--primary);
+    color: var(--text);
 }
 
 .sidebar-close:active {
@@ -217,10 +221,11 @@ input {
 .new-chat-btn:hover {
     background: var(--primary-dark);
     box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
 }
 
 .new-chat-btn:active {
-    transform: translateY(1px);
+    transform: translateY(0) scale(0.985);
 }
 
 .search-chat-btn {
@@ -231,13 +236,14 @@ input {
 
 .search-chat-btn:hover {
     background: var(--surface-hover);
-    color: var(--primary);
     border-color: var(--primary-light);
+    color: var(--text);
 }
 
 .new-chat-btn i,
 .search-chat-btn i {
     width: 18px;
+    flex-shrink: 0;
     text-align: center;
 }
 
@@ -268,6 +274,7 @@ input {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     border-radius: var(--radius-sm);
     background: var(--primary-soft);
     color: var(--primary);
@@ -326,23 +333,32 @@ input {
     gap: var(--spacing-sm);
     padding: 10px var(--spacing-sm);
     margin-bottom: 4px;
+    border: 1px solid transparent;
     border-radius: var(--radius-md);
     background: transparent;
     color: var(--text-secondary);
     text-align: left;
     transition:
         background-color var(--transition-fast),
-        color var(--transition-fast);
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 .chat-history-item:hover {
     background: var(--surface-hover);
+    border-color: var(--border-light);
     color: var(--text);
 }
 
 .chat-history-item.active {
     background: var(--primary-soft);
+    border-color: var(--primary-soft);
     color: var(--primary);
+}
+
+.chat-history-item:active {
+    transform: scale(0.99);
 }
 
 .chat-history-item i {
@@ -383,7 +399,7 @@ input {
 .chat-history-empty i {
     margin-bottom: var(--spacing-xs);
     color: var(--text-dim);
-    font-size: 1.4rem;
+    font-size: 1.35rem;
 }
 
 .chat-history-empty span {
@@ -462,7 +478,7 @@ input {
 
 .sidebar-account-link.active {
     background: var(--primary-soft);
-    border-color: var(--primary-light);
+    border-color: var(--primary-soft);
     color: var(--primary);
 }
 
@@ -471,7 +487,7 @@ input {
 }
 
 .sidebar-account-link:active {
-    transform: translateY(1px);
+    transform: scale(0.99);
 }
 
 /* Sidebar footer */
@@ -480,7 +496,6 @@ input {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
     padding: var(--spacing-md);
     border-top: 1px solid var(--border-light);
     background: var(--surface);
@@ -497,6 +512,13 @@ input {
     color: var(--muted);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-medium);
+    transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.sidebar-status:hover {
+    background: var(--surface-soft);
 }
 
 .status-dot {
@@ -510,10 +532,6 @@ input {
 
 .sidebar-status span:last-child {
     color: var(--text-secondary);
-}
-
-.sidebar-status:hover {
-    background: var(--surface-soft);
 }
 
 /* Navigation overlay */
@@ -553,18 +571,31 @@ input {
         background-color var(--transition-normal);
 }
 
+/* Desktop navigation resize */
+
+@media (min-width: 769px) {
+    .adumex-app.nav-open .adumex-main {
+        width: calc(100% - var(--navigation-width));
+        margin-left: var(--navigation-width);
+    }
+
+    .adumex-app.nav-open .navigation-overlay {
+        display: none;
+    }
+}
+
 /* Topbar */
 
 .adumex-topbar {
     position: sticky;
     top: 0;
     width: 100%;
-    min-height: var(--header-height);
     height: var(--header-height);
+    min-height: var(--header-height);
     display: flex;
     align-items: center;
     padding: 0 var(--spacing-lg);
-    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
     border-bottom: 1px solid var(--border-light);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
@@ -583,6 +614,7 @@ input {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     margin-right: var(--spacing-md);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -599,7 +631,9 @@ input {
         color var(--transition-fast),
         transform var(--transition-normal),
         opacity var(--transition-normal),
-        visibility var(--transition-normal);
+        visibility var(--transition-normal),
+        width var(--transition-normal),
+        margin var(--transition-normal);
 }
 
 .menu-toggle:hover {
@@ -609,18 +643,16 @@ input {
 }
 
 .menu-toggle:active {
-    transform: scale(0.95);
+    transform: scale(0.94);
 }
-
-/* Hide menu button when navigation is open */
 
 .adumex-app.nav-open .menu-toggle {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: scale(0.88);
     width: 0;
     margin-right: 0;
+    transform: scale(0.88);
 }
 
 /* Topbar title */
@@ -638,13 +670,13 @@ input {
     flex-shrink: 0;
     object-fit: cover;
     border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-xs);
 }
 
 .topbar-title-text {
     min-width: 0;
     display: flex;
-    flex-direction: column;
-    gap: 1px;
+    align-items: center;
 }
 
 .topbar-title-text span {
@@ -652,12 +684,7 @@ input {
     font-family: var(--font-secondary);
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-semibold);
-    letter-spacing: -0.02em;
-}
-
-.topbar-title-text small {
-    color: var(--muted);
-    font-size: var(--font-size-xs);
+    letter-spacing: -0.035em;
 }
 
 /* Topbar actions */
@@ -675,17 +702,20 @@ input {
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid transparent;
     border-radius: var(--radius-md);
     background: transparent;
     color: var(--text-secondary);
     transition:
         background-color var(--transition-fast),
+        border-color var(--transition-fast),
         color var(--transition-fast),
         transform var(--transition-fast);
 }
 
 .topbar-btn:hover {
     background: var(--primary-soft);
+    border-color: var(--primary-soft);
     color: var(--primary);
 }
 
@@ -698,19 +728,13 @@ input {
 .chat-workspace {
     position: relative;
     width: 100%;
-    max-width: var(--content-max-width);
+    min-width: 0;
     min-height: calc(100vh - var(--header-height));
-    margin: 0 auto;
-    padding:
-        var(--spacing-xl)
-        var(--spacing-lg)
-        150px;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    transition:
-        width var(--transition-slow),
-        max-width var(--transition-normal),
-        padding var(--transition-normal);
+    padding: var(--spacing-xl) var(--spacing-lg) 150px;
+    overflow: hidden;
 }
 
 /* Welcome */
@@ -721,21 +745,21 @@ input {
     left: 50%;
     width: min(calc(100% - 40px), 720px);
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
     text-align: center;
-    transform: translate(-50%, -50%);
     pointer-events: none;
+    transform: translate(-50%, -50%);
     transition:
         opacity var(--transition-normal),
-        transform var(--transition-normal),
-        visibility var(--transition-normal);
+        visibility var(--transition-normal),
+        transform var(--transition-normal);
 }
 
 .chat-welcome-content {
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
     max-width: 680px;
 }
 
@@ -743,45 +767,50 @@ input {
     margin: 0;
     color: var(--text);
     font-family: var(--font-secondary);
-    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-size: clamp(2rem, 4vw, 2.75rem);
     font-weight: var(--font-weight-semibold);
     line-height: 1.15;
-    letter-spacing: -0.045em;
-}
-
-.chat-welcome-subtitle {
-    margin: var(--spacing-md) 0 0;
-    color: var(--text-secondary);
-    font-size: var(--font-size-md);
-    line-height: 1.7;
+    letter-spacing: -0.05em;
 }
 
 .chat-workspace.composer-active .chat-welcome {
     opacity: 0;
     visibility: hidden;
-    transform: translate(-50%, -44%);
+    transform: translate(-50%, -46%);
 }
 
 /* Chat window */
 
 .chat-window {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding:
-        var(--spacing-xl)
-        0
-        130px;
+    width: min(100%, 900px);
+    min-width: 0;
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
+    margin: 0 auto;
+    padding: var(--spacing-xl) 0 130px;
     color: var(--text);
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
     transition:
-        width var(--transition-normal),
-        max-width var(--transition-normal),
         opacity var(--transition-normal),
         transform var(--transition-normal);
+}
+
+.chat-window::-webkit-scrollbar {
+    width: 5px;
+}
+
+.chat-window::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-window::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: var(--radius-full);
 }
 
 .chat-workspace:not(.composer-active) .chat-window:empty {
@@ -792,6 +821,7 @@ input {
 
 .chat-message {
     width: 100%;
+    min-width: 0;
     display: flex;
     align-items: flex-start;
 }
@@ -810,8 +840,9 @@ input {
 .user-message {
     align-self: flex-end;
     width: fit-content;
-    max-width: min(76%, 700px);
-    padding: 12px var(--spacing-md);
+    max-width: min(680px, 78%);
+    min-width: 0;
+    padding: 9px 13px;
     border-radius:
         var(--radius-lg)
         var(--radius-lg)
@@ -820,12 +851,9 @@ input {
     background: var(--primary);
     color: #ffffff;
     box-shadow: var(--shadow-sm);
-    line-height: 1.6;
+    line-height: 1.5;
     overflow-wrap: anywhere;
-    animation:
-        adumex-user-message
-        var(--animation-duration-normal)
-        var(--animation-ease);
+    word-break: break-word;
 }
 
 .user-message p {
@@ -836,6 +864,13 @@ input {
     font-weight: var(--font-weight-semibold);
 }
 
+.user-message a {
+    color: #ffffff;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
 /* AI message */
 
 .ai-message,
@@ -843,6 +878,7 @@ input {
     align-self: flex-start;
     width: fit-content;
     max-width: min(88%, 760px);
+    min-width: 0;
     padding: var(--spacing-md);
     background: var(--surface);
     border: 1px solid var(--border-light);
@@ -851,10 +887,7 @@ input {
     color: var(--text);
     line-height: 1.75;
     overflow-wrap: anywhere;
-    animation:
-        adumex-ai-message
-        var(--animation-duration-normal)
-        var(--animation-ease);
+    word-break: break-word;
 }
 
 /* AI content */
@@ -887,6 +920,7 @@ input {
     width: 7px;
     height: 7px;
     display: inline-block;
+    flex-shrink: 0;
     border-radius: 50%;
     background: var(--primary);
     box-shadow: 0 0 0 3px var(--primary-soft);
@@ -949,8 +983,11 @@ input {
 .bot-message a {
     color: var(--primary);
     text-decoration: underline;
-    text-decoration-color:
-        color-mix(in srgb, var(--primary) 35%, transparent);
+    text-decoration-color: color-mix(
+        in srgb,
+        var(--primary) 35%,
+        transparent
+    );
     text-underline-offset: 3px;
 }
 
@@ -981,6 +1018,7 @@ input {
 .ai-message pre,
 .bot-message pre {
     width: 100%;
+    max-width: 100%;
     margin: var(--spacing-md) 0;
     padding: var(--spacing-md);
     overflow-x: auto;
@@ -1009,13 +1047,13 @@ input {
     margin: var(--spacing-md) 0;
     padding: var(--spacing-sm) var(--spacing-md);
     border-left: 3px solid var(--primary);
-    background: var(--surface-soft);
-    color: var(--text-secondary);
     border-radius:
         0
         var(--radius-md)
         var(--radius-md)
         0;
+    background: var(--surface-soft);
+    color: var(--text-secondary);
 }
 
 /* Horizontal rule */
@@ -1038,68 +1076,7 @@ input {
     padding: 0;
     z-index: calc(var(--z-header) + 1);
     pointer-events: none;
-    transition:
-        width var(--transition-normal),
-        bottom var(--transition-normal),
-        transform var(--transition-normal);
 }
-
-.chat-workspace.composer-active .command-area {
-    position: fixed;
-    left: 50%;
-    right: auto;
-    bottom: 16px;
-    width: min(
-        calc(100vw - 32px),
-        900px
-    );
-    transform: translateX(-50%);
-    padding: 0;
-    background: transparent;
-}
-
-/* Desktop composer follows resized main area */
-
-@media (min-width: 769px) {
-
-    .adumex-app.nav-open .adumex-main {
-        width: calc(100% - var(--navigation-width));
-        margin-left: var(--navigation-width);
-    }
-
-    .adumex-app.nav-open .navigation-overlay {
-        display: none;
-    }
-
-    /*
-     * The main area is already resized.
-     * The composer only needs to account for
-     * the viewport position of that resized area.
-     */
-
-    .adumex-app.nav-open
-    .chat-workspace.composer-active
-    .command-area {
-        left: calc(
-            var(--navigation-width) +
-            (
-                100vw - var(--navigation-width)
-            ) / 2
-        );
-        width: min(
-            calc(100vw - var(--navigation-width) - 32px),
-            900px
-        );
-    }
-
-    .adumex-app.nav-open
-    .chat-workspace:not(.composer-active)
-    .command-area {
-        left: 50%;
-    }
-}
-
-/* Composer box */
 
 .command-box {
     width: 100%;
@@ -1190,6 +1167,7 @@ input {
     resize: none;
     background: transparent;
     color: var(--text);
+    font-family: var(--font-body);
     font-size: var(--font-size-md);
     line-height: 1.5;
     overflow-y: auto;
@@ -1240,6 +1218,7 @@ input {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--spacing-md);
     padding: var(--spacing-sm) var(--spacing-sm) 0;
     color: var(--muted);
     font-size: var(--font-size-xs);
@@ -1256,30 +1235,6 @@ input {
     color: var(--success);
 }
 
-/* Scrollbars */
-
-.chat-window,
-#command-input {
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-}
-
-.chat-window::-webkit-scrollbar,
-#command-input::-webkit-scrollbar {
-    width: 5px;
-}
-
-.chat-window::-webkit-scrollbar-track,
-#command-input::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.chat-window::-webkit-scrollbar-thumb,
-#command-input::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: var(--radius-full);
-}
-
 /* Focus */
 
 button:focus-visible,
@@ -1288,32 +1243,6 @@ textarea:focus-visible,
 input:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
-}
-
-/* Animations */
-
-@keyframes adumex-user-message {
-    from {
-        opacity: 0;
-        transform: translateY(6px) translateX(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) translateX(0);
-    }
-}
-
-@keyframes adumex-ai-message {
-    from {
-        opacity: 0;
-        transform: translateY(6px) translateX(-8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) translateX(0);
-    }
 }
 
 /* Theme */
@@ -1326,7 +1255,9 @@ body,
 .command-box,
 .chat-history-empty,
 .search-chat-btn,
-.menu-toggle {
+.menu-toggle,
+.ai-message,
+.bot-message {
     transition:
         background-color var(--transition-normal),
         border-color var(--transition-normal),
@@ -1361,42 +1292,71 @@ body,
     .chat-workspace {
         min-height: calc(100vh - var(--header-height));
         padding:
-            var(--spacing-xl)
+            var(--spacing-lg)
             var(--spacing-md)
             150px;
     }
 
+    /* Hide welcome state on mobile */
     .chat-welcome {
-        top: 32%;
-    }
-
-    .chat-welcome-greeting {
-        font-size: clamp(
-            1.8rem,
-            6vw,
-            2.4rem
-        );
+        display: none;
     }
 
     .chat-window {
+        width: 100%;
         max-width: 100%;
+        padding:
+            var(--spacing-md)
+            0
+            150px;
     }
 
     .command-area {
-        width: min(
-            calc(100% - 28px),
-            900px
-        );
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        max-width: none;
+        padding:
+            8px
+            12px
+            10px;
+        transform: none;
+        background:
+            linear-gradient(
+                to bottom,
+                transparent,
+                var(--bg) 26%
+            );
+        pointer-events: none;
     }
 
-    .chat-workspace.composer-active .command-area {
-        width: calc(100vw - 24px);
-        left: 50%;
+    .command-area > * {
+        pointer-events: auto;
+    }
+
+    .command-box {
+        width: 100%;
+        max-width: 900px;
+        min-height: 58px;
+        margin: 0 auto;
+        border-radius: var(--radius-2xl);
+    }
+
+    #command-input {
+        min-width: 0;
+        max-height: 120px;
+        overflow-y: auto;
     }
 
     .command-footer {
-        padding-left: 4px;
-        padding-right: 4px;
+        width: 100%;
+        max-width: 900px;
+        margin: 5px auto 0;
+        padding:
+            0
+            4px;
     }
 
     .user-message {
@@ -1441,19 +1401,18 @@ body,
     }
 
     .adumex-topbar {
-        width: 100%;
-        height: var(--header-height);
-        min-height: var(--header-height);
-        padding: 0 var(--spacing-sm);
-    }
-
-    .topbar-title small {
-        display: none;
+        padding:
+            0
+            var(--spacing-sm);
     }
 
     .topbar-logo {
         width: 30px;
         height: 30px;
+    }
+
+    .topbar-title-text span {
+        font-size: var(--font-size-md);
     }
 
     .topbar-actions {
@@ -1472,41 +1431,29 @@ body,
     }
 
     .chat-workspace {
+        min-height: calc(100vh - var(--header-height));
         padding:
-            var(--spacing-lg)
+            var(--spacing-md)
             var(--spacing-sm)
             145px;
     }
 
-    .chat-welcome {
-        top: 29%;
-        width: calc(100% - 28px);
-    }
-
-    .chat-welcome-greeting {
-        font-size: 1.8rem;
-        letter-spacing: -0.035em;
-    }
-
-    .chat-welcome-subtitle {
-        margin-top: var(--spacing-sm);
-        padding: 0 var(--spacing-sm);
-        font-size: var(--font-size-sm);
+    .chat-window {
+        padding:
+            var(--spacing-sm)
+            0
+            145px;
     }
 
     .command-area {
-        width: calc(100% - 20px);
-        bottom: 20px;
-    }
-
-    .chat-workspace.composer-active .command-area {
-        width: calc(100vw - 16px);
-        bottom: 10px;
-        padding: 0;
+        padding:
+            7px
+            8px
+            8px;
     }
 
     .command-box {
-        min-height: 58px;
+        min-height: 56px;
         padding: 7px;
         border-radius: var(--radius-2xl);
     }
@@ -1520,11 +1467,18 @@ body,
 
     #command-input {
         min-height: 40px;
-        padding: 9px 6px;
+        max-height: 105px;
+        padding:
+            9px
+            6px;
         font-size: var(--font-size-sm);
     }
 
     .command-footer {
+        padding:
+            4px
+            4px
+            0;
         font-size: 0.68rem;
     }
 
@@ -1533,13 +1487,24 @@ body,
     }
 
     .user-message {
-        max-width: 90%;
-        padding: 10px 12px;
+        max-width: calc(100% - 20px);
+        padding:
+            8px
+            11px;
+        font-size: var(--font-size-sm);
     }
 
     .ai-message,
     .bot-message {
-        max-width: 96%;
+        max-width: calc(100% - 8px);
+        padding: 13px;
+    }
+
+    .ai-message pre,
+    .bot-message pre {
+        max-width: 100%;
+        padding: 12px;
+        border-radius: var(--radius-md);
     }
 
     .sidebar-account {
@@ -1557,26 +1522,148 @@ body,
 
 /* Small mobile */
 
-@media (max-width: 360px) {
+@media (max-width: 380px) {
+
+    .adumex-sidebar {
+        width: 88vw;
+    }
 
     .topbar-title-text span {
         font-size: var(--font-size-sm);
     }
 
-    .chat-welcome-greeting {
-        font-size: 1.6rem;
+    .topbar-logo {
+        width: 28px;
+        height: 28px;
     }
 
-    .chat-welcome-subtitle {
-        font-size: var(--font-size-xs);
+    .menu-toggle {
+        width: 36px;
+        height: 36px;
+        margin-right: 6px;
+    }
+
+    .topbar-btn {
+        width: 34px;
+        height: 34px;
     }
 
     .command-attachment {
         display: none;
     }
 
+    .command-box {
+        min-height: 54px;
+        padding: 6px;
+    }
+
+    .send-btn {
+        width: 38px;
+        height: 38px;
+        flex-basis: 38px;
+    }
+
+    #command-input {
+        min-height: 38px;
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+
     .command-footer span:first-child {
         font-size: 0.64rem;
+    }
+
+    .user-message {
+        max-width: calc(100% - 8px);
+    }
+}
+
+/* Extra-small mobile */
+
+@media (max-width: 320px) {
+
+    .adumex-topbar {
+        padding:
+            0
+            6px;
+    }
+
+    .topbar-title {
+        gap: 6px;
+    }
+
+    .topbar-logo {
+        width: 26px;
+        height: 26px;
+    }
+
+    .topbar-title-text span {
+        font-size: 0.76rem;
+    }
+
+    .menu-toggle {
+        width: 34px;
+        height: 34px;
+        margin-right: 4px;
+    }
+
+    .topbar-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .command-area {
+        padding:
+            6px
+            6px
+            7px;
+    }
+
+    .command-box {
+        min-height: 52px;
+        border-radius: var(--radius-xl);
+    }
+
+    .send-btn {
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+    }
+
+    #command-input {
+        font-size: 0.76rem;
+    }
+
+    .command-footer span:first-child {
+        font-size: 0.6rem;
+    }
+}
+
+/* Landscape mobile */
+
+@media (
+    max-width: 768px
+) and (
+    orientation: landscape
+) {
+
+    .adumex-sidebar {
+        width: min(
+            var(--navigation-mobile-width),
+            72vw
+        );
+    }
+
+    .command-area {
+        padding-bottom: 6px;
+    }
+
+    .chat-workspace {
+        padding-bottom: 125px;
+    }
+
+    .chat-window {
+        padding-bottom: 125px;
     }
 }
 

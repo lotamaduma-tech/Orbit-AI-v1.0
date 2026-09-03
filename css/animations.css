@@ -1,0 +1,265 @@
+/* Adumex AI — Interface Animations */
+
+/* Page entrance */
+
+.adumex-topbar {
+    animation:
+        adumex-header-in
+        0.45s
+        var(--animation-ease)
+        both;
+}
+
+.adumex-sidebar.active {
+    animation:
+        adumex-sidebar-in
+        var(--animation-duration-slow)
+        var(--animation-ease)
+        both;
+}
+
+.chat-welcome {
+    animation:
+        adumex-welcome-in
+        0.6s
+        var(--animation-ease)
+        0.08s
+        both;
+}
+
+.command-area {
+    animation:
+        adumex-composer-in
+        0.5s
+        var(--animation-ease)
+        0.12s
+        both;
+}
+
+/* Header */
+
+@keyframes adumex-header-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Sidebar */
+
+@keyframes adumex-sidebar-in {
+    from {
+        opacity: 0.75;
+        transform: translateX(-18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Welcome */
+
+@keyframes adumex-welcome-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -46%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Composer */
+
+@keyframes adumex-composer-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Messages */
+
+.user-message {
+    animation:
+        adumex-user-message-in
+        var(--animation-duration-normal)
+        var(--animation-ease)
+        both;
+}
+
+.ai-message,
+.bot-message {
+    animation:
+        adumex-ai-message-in
+        var(--animation-duration-normal)
+        var(--animation-ease)
+        both;
+}
+
+@keyframes adumex-user-message-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px) translateX(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) translateX(0);
+    }
+}
+
+@keyframes adumex-ai-message-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px) translateX(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) translateX(0);
+    }
+}
+
+/* Buttons */
+
+.new-chat-btn,
+.search-chat-btn,
+.topbar-btn,
+.menu-toggle,
+.sidebar-close,
+.sidebar-account-link,
+.command-attachment,
+.send-btn {
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+/* Status */
+
+.status-dot {
+    animation:
+        adumex-status-pulse
+        2.4s
+        ease-in-out
+        infinite;
+}
+
+@keyframes adumex-status-pulse {
+    0%,
+    100% {
+        box-shadow:
+            0 0 0 3px
+            var(--success-soft);
+    }
+
+    50% {
+        box-shadow:
+            0 0 0 5px
+            var(--success-soft);
+    }
+}
+
+/* Composer focus */
+
+.command-box:focus-within {
+    animation:
+        adumex-composer-focus
+        0.25s
+        var(--animation-ease)
+        both;
+}
+
+@keyframes adumex-composer-focus {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-1px);
+    }
+}
+
+/* Attachment entrance */
+
+.adumex-attachments:not([hidden]) {
+    animation:
+        adumex-attachment-in
+        0.2s
+        var(--animation-ease)
+        both;
+}
+
+@keyframes adumex-attachment-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* History items */
+
+.chat-history-item {
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.chat-history-item:hover {
+    transform: translateX(2px);
+}
+
+/* Navigation overlay */
+
+.navigation-overlay {
+    transition:
+        opacity var(--transition-normal),
+        visibility var(--transition-normal);
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .adumex-topbar,
+    .adumex-sidebar.active,
+    .chat-welcome,
+    .command-area,
+    .user-message,
+    .ai-message,
+    .bot-message,
+    .status-dot,
+    .command-box:focus-within,
+    .adumex-attachments:not([hidden]) {
+        animation: none !important;
+    }
+
+    .chat-history-item:hover {
+        transform: none;
+    }
+}
