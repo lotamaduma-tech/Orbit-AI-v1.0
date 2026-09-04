@@ -15,7 +15,6 @@
   overflow: hidden;
 }
 
-
 /* =========================================================
    SIDEBAR
    ========================================================= */
@@ -42,7 +41,6 @@
 
   overflow: hidden;
 }
-
 
 /* =========================================================
    SIDEBAR HEADER
@@ -102,24 +100,22 @@
   opacity: 0.6;
 }
 
-
 /* Navigation controls */
 .adumex-app.nav-open #menu-toggle {
-    display: none;
+  display: none;
 }
 
 .adumex-app.nav-open #menu-close {
-    display: flex;
+  display: flex;
 }
 
 .adumex-app.nav-closed #menu-toggle {
-    display: flex;
+  display: flex;
 }
 
 .adumex-app.nav-closed #menu-close {
-    display: none;
+  display: none;
 }
-
 
 .sidebar-close {
   width: 34px;
@@ -146,7 +142,6 @@
   background: var(--bg2);
   color: var(--text);
 }
-
 
 /* =========================================================
    SIDEBAR CHAT ACTIONS
@@ -211,7 +206,6 @@
 .new-chat-btn:hover {
   background: var(--border);
 }
-
 
 /* =========================================================
    CHAT HISTORY
@@ -326,7 +320,6 @@
   opacity: 0.7;
 }
 
-
 /* =========================================================
    ACCOUNT
    ========================================================= */
@@ -395,7 +388,6 @@
   color: var(--danger, #dc2626);
 }
 
-
 /* =========================================================
    SIDEBAR FOOTER
    ========================================================= */
@@ -425,7 +417,6 @@
   background: #22c55e;
 }
 
-
 /* =========================================================
    MAIN
    ========================================================= */
@@ -447,7 +438,6 @@
     margin-left var(--transition, 220ms ease),
     background-color var(--transition, 220ms ease);
 }
-
 
 /* =========================================================
    TOPBAR
@@ -511,7 +501,7 @@
 .topbar-logo {
   width: 24px;
   height: 24px;
-  display:none;
+  display: none;
 
   border-radius: 7px;
   object-fit: cover;
@@ -529,7 +519,6 @@
 .topbar-actions {
   justify-self: end;
 }
-
 
 /* =========================================================
    CHAT WORKSPACE
@@ -560,7 +549,6 @@
 
   overflow: hidden;
 }
-
 
 /* =========================================================
    WELCOME
@@ -607,7 +595,6 @@
   text-align: center;
 }
 
-
 /* =========================================================
    CONVERSATION
    ========================================================= */
@@ -639,7 +626,6 @@
 .chat-intro:empty {
   display: none;
 }
-
 
 /* =========================================================
    COMMAND AREA
@@ -680,7 +666,6 @@
   pointer-events: none;
 }
 
-
 /* =========================================================
    COMMAND BOX
    ========================================================= */
@@ -709,14 +694,10 @@
 }
 
 .command-box:focus-within {
-  border-color: var(--primary, #6366F1);
+  border-color: var(--primary, #6366f1);
 
   box-shadow:
-    0 0 0 3px color-mix(
-      in srgb,
-      var(--primary, #6366F1) 10%,
-      transparent
-    ),
+    0 0 0 3px color-mix(in srgb, var(--primary, #6366f1) 10%, transparent),
     var(--shadow-sm, 0 4px 18px rgba(0, 0, 0, 0.06));
 }
 
@@ -748,7 +729,6 @@
   color: var(--text-muted);
   opacity: 0.75;
 }
-
 
 /* =========================================================
    ATTACHMENT BUTTON
@@ -783,7 +763,6 @@
   background: var(--bg2);
   color: var(--text);
 }
-
 
 /* =========================================================
    SEND BUTTON
@@ -829,7 +808,6 @@
   transform: none;
 }
 
-
 /* =========================================================
    ATTACHMENTS
    ========================================================= */
@@ -845,7 +823,6 @@
   flex-wrap: wrap;
   gap: 8px;
 }
-
 
 /* =========================================================
    COMMAND FOOTER
@@ -881,7 +858,6 @@
   justify-content: flex-end;
 }
 
-
 /* =========================================================
    ACTIVE COMPOSER
    ========================================================= */
@@ -895,7 +871,6 @@
   visibility: hidden;
   transform: translateY(-12px);
 }
-
 
 /* =========================================================
    NAVIGATION STATES
@@ -919,7 +894,6 @@
   margin-left: 270px;
 }
 
-
 /* =========================================================
    OVERLAY
    ========================================================= */
@@ -928,7 +902,6 @@
   display: none;
 }
 
-
 /* =========================================================
    FOCUS
    ========================================================= */
@@ -936,10 +909,9 @@
 button:focus-visible,
 a:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--primary, #6366F1);
+  outline: 2px solid var(--primary, #6366f1);
   outline-offset: 2px;
 }
-
 
 /* =========================================================
    REDUCED MOTION
@@ -959,7 +931,6 @@ textarea:focus-visible {
     scroll-behavior: auto;
   }
 }
-
 
 /* =========================================================
    TABLET
@@ -984,7 +955,6 @@ textarea:focus-visible {
   }
 }
 
-
 /* =========================================================
    MOBILE
    ========================================================= */
@@ -993,10 +963,7 @@ textarea:focus-visible {
   .adumex-sidebar {
     width: 290px;
 
-    box-shadow: var(
-      --shadow-lg,
-      0 18px 50px rgba(0, 0, 0, 0.18)
-    );
+    box-shadow: var(--shadow-lg, 0 18px 50px rgba(0, 0, 0, 0.18));
 
     transform: translateX(-100%);
   }
@@ -1097,7 +1064,6 @@ textarea:focus-visible {
     font-size: 14px;
   }
 }
-
 
 /* =========================================================
    SMALL MOBILE

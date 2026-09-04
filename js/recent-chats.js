@@ -48,6 +48,10 @@
 
         return {
             id: String(chat.id || generateId()),
+            conversationId: chat.conversationId
+                ? String(chat.conversationId)
+                : null,
+            isPinned: Boolean(chat.isPinned),
             title: String(chat.title || "New chat"),
             createdAt,
             updatedAt:
@@ -76,11 +80,13 @@
             return parsed
                 .map(normalizeChat)
                 .filter(Boolean)
-                .sort(
-                    (a, b) =>
-                        Number(b.updatedAt) -
-                        Number(a.updatedAt)
-                )
+                .sort((a, b) => {
+                    if (a.isPinned !== b.isPinned) {
+                        return Number(b.isPinned) - Number(a.isPinned);
+                    }
+
+                    return Number(b.updatedAt) - Number(a.updatedAt);
+                })
                 .slice(0, MAX_CHATS);
         } catch {
             return [];
@@ -222,6 +228,10 @@
         const title = getChatTitle(chat);
         const date = formatDate(chat.updatedAt);
 
+        if (chat.isPinned) {
+            item.classList.add("pinned");
+        }
+
         item.innerHTML = `
             <button
                 type="button"
@@ -242,6 +252,15 @@
             >
                 <i class="fa-solid fa-trash"></i>
             </button>
+
+            <button
+                type="button"
+                class="chat-history-pin"
+                aria-label="${chat.isPinned ? "Unpin" : "Pin"} chat: ${escapeHtml(title)}"
+                title="${chat.isPinned ? "Unpin" : "Pin"} chat"
+            >
+                <i class="fa-solid fa-thumbtack"></i>
+            </button>
         `;
 
         const mainButton = item.querySelector(
@@ -250,6 +269,10 @@
 
         const deleteButton = item.querySelector(
             ".chat-history-delete"
+        );
+
+        const pinButton = item.querySelector(
+            ".chat-history-pin"
         );
 
         if (date) {
@@ -270,6 +293,15 @@
                 event.preventDefault();
                 event.stopPropagation();
                 deleteChat(chat.id);
+            }
+        );
+
+        pinButton.addEventListener(
+            "click",
+            event => {
+                event.preventDefault();
+                event.stopPropagation();
+                togglePin(chat.id);
             }
         );
 
@@ -344,6 +376,63 @@
         return chat;
     }
 
+    async function togglePin(id) {
+        const chat = chats.find(item => item.id === id);
+
+        if (!chat || !chat.conversationId) {
+            return;
+        }
+
+        try {
+            const token = await getAuthToken();
+            const response = await fetch(
+                `${getApiBase()}/conversations/${encodeURIComponent(
+                    chat.conversationId
+                )}/pin`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(token
+                            ? { Authorization: `Bearer ${token}` }
+                            : {})
+                    },
+                    body: JSON.stringify({
+                        isPinned: !chat.isPinned
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            chat.isPinned = !chat.isPinned;
+            chat.updatedAt = Date.now();
+            chats.sort((first, second) => {
+                if (first.isPinned !== second.isPinned) {
+                    return Number(second.isPinned) - Number(first.isPinned);
+                }
+
+                return second.updatedAt - first.updatedAt;
+            });
+            saveChats();
+            render();
+
+            const activeChat = chats.find(chat => chat.id === activeChatId);
+
+            if (activeChat?.conversationId) {
+                window.dispatchEvent(
+                    new CustomEvent("adumex:restore-active-chat", {
+                        detail: { chat: activeChat }
+                    })
+                );
+            }
+        } catch {
+            return;
+        }
+    }
+
     function openChat(id) {
         const chat = chats.find(
             item => item.id === id
@@ -374,12 +463,128 @@
         return chat;
     }
 
-    function deleteChat(id) {
+    function getApiBase() {
+        return String(
+            window.ADUMEX_API_URL ||
+            "http://localhost:5000/api/chat"
+        )
+            .replace(/\/chat\/?$/, "")
+            .replace(/\/+$/, "");
+    }
+
+    async function getAuthToken() {
+        const client =
+            window.adumexSupabase ||
+            window.AdumexSupabase?.getClient?.();
+
+        if (!client?.auth?.getSession) {
+            return null;
+        }
+
+        const result = await client.auth.getSession();
+        return result?.data?.session?.access_token || null;
+    }
+
+    async function syncCloudChats() {
+        try {
+            const token = await getAuthToken();
+
+            if (!token) {
+                return;
+            }
+
+            const response = await fetch(
+                `${getApiBase()}/conversations`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+            const cloudChats = Array.isArray(data?.conversations)
+                ? data.conversations.map(conversation => {
+                    const conversationId = String(conversation.id);
+                    const localChat = chats.find(chat =>
+                        chat.conversationId === conversationId
+                    );
+
+                    return normalizeChat({
+                        id: localChat?.id || `cloud_${conversationId}`,
+                        conversationId,
+                        title: conversation.title,
+                        createdAt: Date.parse(conversation.created_at),
+                        updatedAt: Date.parse(conversation.updated_at),
+                        isPinned: conversation.is_pinned,
+                        messages: localChat?.messages || []
+                    });
+                }).filter(Boolean)
+                : [];
+
+            chats = cloudChats.slice(0, MAX_CHATS);
+
+            chats.forEach(chat => {
+                if (chat.conversationId) {
+                    try {
+                        const mappings = JSON.parse(
+                            localStorage.getItem("adumex-server-conversations") || "{}"
+                        );
+                        mappings[chat.id] = chat.conversationId;
+                        localStorage.setItem(
+                            "adumex-server-conversations",
+                            JSON.stringify(mappings)
+                        );
+                    } catch {
+                        return;
+                    }
+                }
+            });
+
+            if (!chats.some(chat => chat.id === activeChatId)) {
+                setActiveChatId(null);
+            }
+
+            saveChats();
+            render();
+        } catch {
+            return;
+        }
+    }
+
+    async function deleteChat(id) {
         const chat = chats.find(
             item => item.id === id
         );
 
         if (!chat) return;
+
+        if (chat.conversationId) {
+            try {
+                const token = await getAuthToken();
+                const response = await fetch(
+                    `${getApiBase()}/conversations/${encodeURIComponent(
+                        chat.conversationId
+                    )}`,
+                    {
+                        method: "DELETE",
+                        headers: token
+                            ? { Authorization: `Bearer ${token}` }
+                            : {}
+                    }
+                );
+
+                if (!response.ok) {
+                    return;
+                }
+            } catch {
+                return;
+            }
+        }
 
         chats = chats.filter(
             item => item.id !== id
@@ -429,6 +634,15 @@
         if (Array.isArray(updates.messages)) {
             chat.messages =
                 updates.messages;
+        }
+
+        if (updates.conversationId) {
+            chat.conversationId =
+                String(updates.conversationId);
+        }
+
+        if (typeof updates.isPinned === "boolean") {
+            chat.isPinned = updates.isPinned;
         }
 
         chat.updatedAt = Date.now();
@@ -585,7 +799,7 @@
                             chat.messages.some(
                                 message =>
                                     typeof message?.content ===
-                                        "string" &&
+                                    "string" &&
                                     message.content
                                         .toLowerCase()
                                         .includes(query)
@@ -621,11 +835,13 @@
         chats = incoming
             .map(normalizeChat)
             .filter(Boolean)
-            .sort(
-                (a, b) =>
-                    Number(b.updatedAt) -
-                    Number(a.updatedAt)
-            )
+            .sort((a, b) => {
+                if (a.isPinned !== b.isPinned) {
+                    return Number(b.isPinned) - Number(a.isPinned);
+                }
+
+                return Number(b.updatedAt) - Number(a.updatedAt);
+            })
             .slice(0, MAX_CHATS);
 
         saveChats();
@@ -655,6 +871,11 @@
     );
 
     window.addEventListener(
+        "adumex:auth-ready",
+        syncCloudChats
+    );
+
+    window.addEventListener(
         "adumex:chat-updated",
         event => {
             const detail =
@@ -666,7 +887,9 @@
                 detail.id,
                 {
                     title: detail.title,
-                    messages: detail.messages
+                    messages: detail.messages,
+                    conversationId: detail.conversationId,
+                    isPinned: detail.isPinned
                 }
             );
         }
@@ -743,4 +966,5 @@
     }
 
     render();
+    syncCloudChats();
 })();

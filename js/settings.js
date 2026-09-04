@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const SETTINGS_KEY = "adumexAISettings";
 
   const defaultSettings = {
-    theme: "system",
+    theme: "light",
     animations: true,
     enterToSend: true,
     timestamps: false,

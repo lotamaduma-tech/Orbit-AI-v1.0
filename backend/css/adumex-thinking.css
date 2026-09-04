@@ -1,0 +1,153 @@
+/* Adumex thinking indicator */
+
+.adumex-thinking {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 8px 0 18px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+        opacity 220ms ease,
+        transform 220ms ease;
+    pointer-events: none;
+}
+
+.adumex-thinking.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.adumex-thinking-face {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: visible;
+    animation: adumexThinkingFloat 2.4s ease-in-out infinite;
+}
+
+.thinking-face-glow {
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    border: 1px solid var(--primary);
+    opacity: 0.12;
+    animation: adumexThinkingGlow 2s ease-in-out infinite;
+}
+
+.thinking-face-ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: var(--primary);
+    border-right-color: var(--primary);
+    animation: adumexThinkingRotate 1.5s linear infinite;
+}
+
+.thinking-face-eye {
+    position: absolute;
+    top: 14px;
+    width: 5px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: adumexThinkingBlink 3s ease-in-out infinite;
+}
+
+.thinking-face-eye-left {
+    left: 12px;
+}
+
+.thinking-face-eye-right {
+    right: 12px;
+}
+
+.thinking-face-mouth {
+    position: absolute;
+    bottom: 10px;
+    width: 12px;
+    height: 6px;
+    border-bottom: 2px solid var(--primary);
+    border-radius: 0 0 12px 12px;
+    animation: adumexThinkingMouth 1.8s ease-in-out infinite;
+}
+
+@keyframes adumexThinkingFloat {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes adumexThinkingGlow {
+    0%,
+    100% {
+        transform: scale(0.95);
+        opacity: 0.08;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 0.2;
+    }
+}
+
+@keyframes adumexThinkingRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes adumexThinkingBlink {
+    0%,
+    42%,
+    48%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    45% {
+        transform: scaleY(0.15);
+    }
+}
+
+@keyframes adumexThinkingMouth {
+    0%,
+    100% {
+        transform: scaleX(0.8);
+    }
+
+    50% {
+        transform: scaleX(1.15);
+    }
+}
+
+html[data-theme="dark"] .adumex-thinking-face {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .adumex-thinking,
+    .adumex-thinking-face,
+    .thinking-face-glow,
+    .thinking-face-ring,
+    .thinking-face-eye,
+    .thinking-face-mouth {
+        animation: none;
+        transition: none;
+    }
+}

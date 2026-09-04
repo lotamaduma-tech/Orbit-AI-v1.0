@@ -147,6 +147,14 @@
             session: session
         };
 
+        window.dispatchEvent(
+            new CustomEvent("adumex:auth-ready", {
+                detail: {
+                    user: userData.user
+                }
+            })
+        );
+
         finishGuard();
 
         console.log(

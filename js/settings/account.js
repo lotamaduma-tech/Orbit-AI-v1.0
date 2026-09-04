@@ -19,6 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getSupabaseClient() {
         if (
+            window.AdumexSupabase &&
+            typeof window.AdumexSupabase.getClient === "function"
+        ) {
+            return window.AdumexSupabase.getClient();
+        }
+
+        if (
             typeof supabaseClient !== "undefined" &&
             supabaseClient
         ) {
@@ -518,7 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (
                 event.key === "Enter" &&
                 event.target.id ===
-                    "adumex-profile-name-input"
+                "adumex-profile-name-input"
             ) {
                 event.preventDefault();
 

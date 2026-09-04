@@ -142,7 +142,7 @@
         }
     });
 
-    window.OrbitTheme = {
+    window.AdumexTheme = {
         setTheme(theme) {
             applyTheme(theme, true);
         },
@@ -163,4 +163,6 @@
             ];
         }
     };
+
+    window.OrbitTheme = window.AdumexTheme;
 })();

@@ -3,203 +3,235 @@
 /* Chat architecture */
 
 .chat-workspace {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    min-height: 0;
-    height: 100%;
-    overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .chat-window {
-    position: relative;
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 0;
-    width: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-    padding: 8px 0 180px;
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding: 8px 0 180px;
 }
 
 .chat-window::-webkit-scrollbar {
-    width: 7px;
+  width: 7px;
 }
 
 .chat-window::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
 
 .chat-window::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: var(--radius-full);
+  background: var(--border);
+  border-radius: var(--radius-full);
 }
 
 .chat-window::-webkit-scrollbar-thumb:hover {
-    background: var(--muted);
+  background: var(--muted);
 }
 
+/* The composer is a bottom dock in the workspace, never an overlay. */
+.chat-workspace > .command-area,
+.chat-workspace > .command-area.composer-active {
+  position: relative;
+  inset: auto;
+  z-index: var(--z-header, 20);
+  width: min(900px, calc(100% - 48px));
+  flex: 0 0 auto;
+  margin: 0 auto;
+  padding: 10px 0 16px;
+  transform: none;
+  background: var(--bg);
+}
+
+.chat-workspace > .command-area::before {
+  content: "";
+  position: absolute;
+  right: -24px;
+  bottom: 0;
+  left: -24px;
+  height: 52px;
+  z-index: -1;
+  background: linear-gradient(to top, var(--bg) 45%, transparent);
+  pointer-events: none;
+}
+
+.chat-workspace > .command-area.composer-active + * {
+  pointer-events: auto;
+}
+
+.adumex-app {
+  height: 100dvh;
+  min-height: 0;
+}
+
+.adumex-main {
+  height: 100%;
+  min-height: 0;
+}
 
 /* Welcome */
 
 .chat-welcome {
-    position: absolute;
-    inset: 0;
-    z-index: var(--z-content);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-xl);
-    pointer-events: none;
-    transition:
-        opacity var(--transition-normal),
-        transform var(--transition-normal),
-        visibility var(--transition-normal);
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-content);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  pointer-events: none;
+  transition:
+    opacity var(--transition-normal),
+    transform var(--transition-normal),
+    visibility var(--transition-normal);
 }
 
 .chat-welcome-content {
-    width: min(680px, 100%);
-    text-align: center;
-    transform: translateY(-42px);
+  width: min(680px, 100%);
+  text-align: center;
+  transform: translateY(-42px);
 }
 
 .chat-welcome-greeting {
-    margin: 0;
-    color: var(--text);
-    font-family: var(--font-secondary);
-    font-size: clamp(1.8rem, 3vw, 2.45rem);
-    font-weight: var(--font-weight-semibold);
-    line-height: 1.2;
-    letter-spacing: -0.035em;
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-secondary);
+  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  letter-spacing: -0.035em;
 }
 
 .chat-welcome-subtitle {
-    margin: 10px 0 0;
-    color: var(--text-secondary);
-    font-family: var(--font-body);
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-weight-normal);
-    line-height: 1.6;
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.6;
 }
 
 .chat-welcome-greeting:empty,
 .chat-welcome-subtitle:empty {
-    display: none;
+  display: none;
 }
-
 
 /* Welcome hidden state */
 
 .chat-workspace.composer-active .chat-welcome,
 .chat-workspace.has-messages .chat-welcome,
 .chat-welcome.is-hidden {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
 }
-
 
 /* Conversation messages */
 
 .message.adumex-message {
-    width: min(100%, 900px);
-    margin-right: auto;
-    margin-left: auto;
-    padding: 0 var(--spacing-md);
-    display: flex;
-    min-width: 0;
+  width: min(100%, 900px);
+  margin-right: auto;
+  margin-left: auto;
+  padding: 0 var(--spacing-md);
+  display: flex;
+  min-width: 0;
 }
 
 .message.adumex-message + .message.adumex-message {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .message.adumex-message.user-message {
-    justify-content: flex-end;
-    padding-left: 22%;
+  justify-content: flex-end;
+  padding-left: 22%;
 }
 
 .message.adumex-message.assistant-message {
-    justify-content: flex-start;
-    padding-right: 0;
+  justify-content: flex-start;
+  padding-right: 0;
 }
-
 
 /* Message content */
 
 .adumex-message-content {
-    min-width: 0;
-    max-width: 100%;
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 0.92rem;
-    line-height: 1.65;
-    overflow-wrap: anywhere;
+  min-width: 0;
+  max-width: 100%;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
-
 
 /* User message */
 
 .user-message .adumex-message-content {
-    width: fit-content;
-    max-width: min(600px, 72%);
-    padding: 8px 13px;
-    border: 1px solid rgba(99, 102, 241, 0.15);
-    border-radius: 17px;
-    border-bottom-right-radius: 6px;
-    background: var(--primary);
-    color: #ffffff;
-    font-size: 0.88rem;
-    line-height: 1.5;
-    box-shadow: var(--shadow-xs);
+  width: fit-content;
+  max-width: min(600px, 72%);
+  padding: 8px 13px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 17px;
+  border-bottom-right-radius: 6px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  box-shadow: var(--shadow-xs);
 }
-
 
 /* Assistant message */
 
 .assistant-message .adumex-message-content {
-    width: min(820px, 100%);
-    padding: 0;
-    background: transparent;
-    color: var(--text);
-    font-size: 0.92rem;
-    line-height: 1.7;
+  width: min(820px, 100%);
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.92rem;
+  line-height: 1.7;
 }
-
 
 /* Adumex identity */
 
 .assistant-message::before {
-    content: "✦";
-    display: inline-flex;
-    align-items: flex-start;
-    justify-content: center;
-    flex: 0 0 26px;
-    width: 26px;
-    margin-right: 9px;
-    padding-top: 3px;
-    color: var(--primary);
-    font-size: 0.82rem;
-    line-height: 1.5;
+  content: "✦";
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 0 0 26px;
+  width: 26px;
+  margin-right: 9px;
+  padding-top: 3px;
+  color: var(--primary);
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
 
 .user-message::before {
-    display: none;
+  display: none;
 }
-
 
 /* Message typography */
 
 .adumex-message-content p {
-    margin: 0 0 var(--spacing-md);
+  margin: 0 0 var(--spacing-md);
 }
 
 .adumex-message-content p:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .adumex-message-content h1,
@@ -208,128 +240,121 @@
 .adumex-message-content h4,
 .adumex-message-content h5,
 .adumex-message-content h6 {
-    margin: 22px 0 9px;
-    color: var(--text);
-    font-family: var(--font-secondary);
-    font-weight: var(--font-weight-semibold);
-    line-height: 1.3;
-    letter-spacing: -0.015em;
+  margin: 22px 0 9px;
+  color: var(--text);
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+  letter-spacing: -0.015em;
 }
 
 .adumex-message-content h1 {
-    font-size: var(--font-size-2xl);
+  font-size: var(--font-size-2xl);
 }
 
 .adumex-message-content h2 {
-    font-size: var(--font-size-xl);
+  font-size: var(--font-size-xl);
 }
 
 .adumex-message-content h3 {
-    font-size: var(--font-size-lg);
+  font-size: var(--font-size-lg);
 }
 
 .adumex-message-content h4,
 .adumex-message-content h5,
 .adumex-message-content h6 {
-    font-size: var(--font-size-md);
+  font-size: var(--font-size-md);
 }
 
 .adumex-message-content ul,
 .adumex-message-content ol {
-    margin: 10px 0 16px;
-    padding-left: 24px;
+  margin: 10px 0 16px;
+  padding-left: 24px;
 }
 
 .adumex-message-content li {
-    margin: 5px 0;
+  margin: 5px 0;
 }
 
 .adumex-message-content li::marker {
-    color: var(--muted);
+  color: var(--muted);
 }
 
 .adumex-message-content blockquote {
-    margin: 16px 0;
-    padding: 10px 14px;
-    border-left: 3px solid var(--primary);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    background: var(--primary-soft);
-    color: var(--text-secondary);
+  margin: 16px 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--primary);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--primary-soft);
+  color: var(--text-secondary);
 }
 
 .adumex-message-content strong {
-    font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
 }
 
 .adumex-message-content em {
-    color: var(--text-secondary);
+  color: var(--text-secondary);
 }
 
 .adumex-message-content > code,
 .adumex-message-content p code,
 .adumex-message-content li code {
-    padding: 2px 6px;
-    border: 1px solid var(--border-light);
-    border-radius: 5px;
-    background: var(--surface-soft);
-    color: var(--text);
-    font-family:
-        "SFMono-Regular",
-        Consolas,
-        "Liberation Mono",
-        Menlo,
-        monospace;
-    font-size: 0.86em;
+  padding: 2px 6px;
+  border: 1px solid var(--border-light);
+  border-radius: 5px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.86em;
 }
 
 /* User messages */
 .message.user-message {
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-    margin: 0 auto;
-    padding: 4px var(--spacing-md);
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin: 0 auto;
+  padding: 4px var(--spacing-md);
 }
 
 .user-message .adumex-message-content {
-    display: inline-block;
-    width: fit-content;
-    max-width: min(680px, 78%);
-    min-width: 0;
+  display: inline-block;
+  width: fit-content;
+  max-width: min(680px, 78%);
+  min-width: 0;
 
-    padding: 8px 13px;
+  padding: 8px 13px;
 
-    border: 1px solid rgba(99, 102, 241, 0.15);
-    border-radius: 17px;
-    border-bottom-right-radius: 6px;
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 17px;
+  border-bottom-right-radius: 6px;
 
-    background: var(--primary);
-    color: #ffffff;
+  background: var(--primary);
+  color: #ffffff;
 
-    font-size: 0.88rem;
-    line-height: 1.5;
+  font-size: 0.88rem;
+  line-height: 1.5;
 
-    overflow-wrap: anywhere;
-    word-break: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .user-message .adumex-message-content p {
-    display: inline;
-    margin: 0;
+  display: inline;
+  margin: 0;
 }
 
 .user-message .adumex-message-content a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 .user-message .adumex-message-content br {
-    line-height: 1.5;
+  line-height: 1.5;
 }
-
-
 
 /* User message typography */
 
@@ -340,414 +365,400 @@
 .user-message .adumex-message-content h4,
 .user-message .adumex-message-content h5,
 .user-message .adumex-message-content h6 {
-    color: inherit;
+  color: inherit;
 }
 
 .user-message .adumex-message-content > code,
 .user-message .adumex-message-content p code,
 .user-message .adumex-message-content li code {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
 }
-
 
 /* Code blocks */
 
 .adumex-code-wrapper,
 .adumex-code-block {
-    width: 100%;
-    margin: 18px 0;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    box-shadow: var(--shadow-xs);
+  width: 100%;
+  margin: 18px 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
 }
 
 .adumex-code-header,
 .adumex-code-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-sm);
-    min-height: 40px;
-    padding: 7px 11px;
-    border-bottom: 1px solid var(--border-light);
-    background: var(--surface-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  min-height: 40px;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface-soft);
 }
 
 .adumex-code-language,
 .code-language {
-    display: inline-flex;
-    align-items: center;
-    min-width: 0;
-    color: var(--text-secondary);
-    font-family: var(--font-secondary);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
-    text-transform: lowercase;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: lowercase;
 }
 
 .adumex-code-copy,
 .adumex-copy-code,
 .adumex-copy-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--spacing-xs);
-    min-height: 29px;
-    padding: 4px 9px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--text-secondary);
-    font-family: var(--font-body);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    transition:
-        background var(--transition-fast),
-        color var(--transition-fast),
-        border-color var(--transition-fast),
-        transform var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  min-height: 29px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .adumex-code-copy:hover,
 .adumex-copy-code:hover,
 .adumex-copy-btn:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-    border-color: var(--primary-light);
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--primary-light);
 }
 
 .adumex-code-copy:active,
 .adumex-copy-code:active,
 .adumex-copy-btn:active {
-    transform: scale(0.97);
+  transform: scale(0.97);
 }
 
 .adumex-code-copy.copied,
 .adumex-copy-code.copied,
 .adumex-copy-btn.copied {
-    color: var(--success);
-    border-color: var(--success);
-    background: var(--success-soft);
+  color: var(--success);
+  border-color: var(--success);
+  background: var(--success-soft);
 }
 
 .adumex-code-block pre,
 .adumex-code-wrapper pre {
-    margin: 0;
-    padding: 16px;
-    overflow-x: auto;
-    background: var(--surface);
-    color: var(--text);
-    font-family:
-        "SFMono-Regular",
-        Consolas,
-        "Liberation Mono",
-        Menlo,
-        monospace;
-    font-size: 0.84rem;
-    line-height: 1.65;
-    tab-size: 4;
-    white-space: pre;
-    -webkit-overflow-scrolling: touch;
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  background: var(--surface);
+  color: var(--text);
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  tab-size: 4;
+  white-space: pre;
+  -webkit-overflow-scrolling: touch;
 }
 
 .adumex-code-block pre code,
 .adumex-code-wrapper pre code {
-    display: block;
-    min-width: max-content;
-    color: inherit;
-    font: inherit;
-    background: transparent;
+  display: block;
+  min-width: max-content;
+  color: inherit;
+  font: inherit;
+  background: transparent;
 }
-
 
 /* Links */
 
 .adumex-link-container {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    max-width: 100%;
-    margin: 10px 0;
-    padding: 8px 10px;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    background: var(--surface-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  max-width: 100%;
+  margin: 10px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
 }
 
 .adumex-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    min-width: 0;
-    color: var(--primary);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    text-decoration: none;
-    overflow-wrap: anywhere;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-width: 0;
+  color: var(--primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 .adumex-link:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
+  color: var(--primary-dark);
+  text-decoration: underline;
 }
 
 .adumex-external-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    color: var(--primary);
-    text-decoration: none;
-    overflow-wrap: anywhere;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--primary);
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 .adumex-external-link:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
+  color: var(--primary-dark);
+  text-decoration: underline;
 }
 
 .adumex-link-actions,
 .adumex-github-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
 }
 
 .adumex-link-action,
 .adumex-link-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition:
-        background var(--transition-fast),
-        color var(--transition-fast),
-        border-color var(--transition-fast),
-        transform var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .adumex-link-action:hover,
 .adumex-link-btn:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-    border-color: var(--primary-light);
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--primary-light);
 }
 
 .adumex-link-action:active,
 .adumex-link-btn:active {
-    transform: scale(0.96);
+  transform: scale(0.96);
 }
 
 .adumex-link-group {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-sm);
-    margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 10px 0;
 }
-
 
 /* GitHub */
 
 .adumex-github-container {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    width: fit-content;
-    max-width: 100%;
-    margin: 10px 0;
-    padding: 9px 11px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface-soft);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: fit-content;
+  max-width: 100%;
+  margin: 10px 0;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
 }
 
 .adumex-github-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    min-width: 0;
-    color: var(--text);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    text-decoration: none;
-    overflow-wrap: anywhere;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-width: 0;
+  color: var(--text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 .adumex-github-link:hover {
-    color: var(--primary);
+  color: var(--primary);
 }
-
 
 /* Tables */
 
 .adumex-table-wrapper {
-    width: 100%;
-    margin: 18px 0;
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    box-shadow: var(--shadow-xs);
-    -webkit-overflow-scrolling: touch;
+  width: 100%;
+  margin: 18px 0;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  -webkit-overflow-scrolling: touch;
 }
 
 .adumex-table {
-    width: 100%;
-    min-width: 520px;
-    border-collapse: collapse;
-    color: var(--text);
-    font-size: var(--font-size-sm);
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  color: var(--text);
+  font-size: var(--font-size-sm);
 }
 
 .adumex-table th,
 .adumex-table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border-light);
-    text-align: left;
-    vertical-align: top;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  text-align: left;
+  vertical-align: top;
 }
 
 .adumex-table th {
-    background: var(--surface-soft);
-    color: var(--text);
-    font-weight: var(--font-weight-semibold);
+  background: var(--surface-soft);
+  color: var(--text);
+  font-weight: var(--font-weight-semibold);
 }
 
 .adumex-table tr:last-child td {
-    border-bottom: 0;
+  border-bottom: 0;
 }
 
 .adumex-table tbody tr:hover {
-    background: var(--surface-hover);
+  background: var(--surface-hover);
 }
-
 
 /* Images */
 
 .adumex-generated-image,
 .adumex-message-image {
-    display: block;
-    width: auto;
-    max-width: min(100%, 760px);
-    height: auto;
-    margin: 16px 0;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    background: var(--surface-soft);
-    box-shadow: var(--shadow-sm);
+  display: block;
+  width: auto;
+  max-width: min(100%, 760px);
+  height: auto;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-soft);
+  box-shadow: var(--shadow-sm);
 }
-
 
 /* Attachments */
 
 .adumex-message-attachments {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: 10px;
 }
 
 .adumex-message-attachment {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    max-width: 100%;
-    padding: 7px 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface-soft);
-    color: var(--text-secondary);
-    font-size: var(--font-size-xs);
-    overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  max-width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  overflow: hidden;
 }
 
 .adumex-message-attachment i {
-    flex-shrink: 0;
-    color: var(--primary);
+  flex-shrink: 0;
+  color: var(--primary);
 }
 
 .adumex-message-attachment span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
 
 /* Copy feedback */
 
 .adumex-copy-feedback {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    color: var(--success);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    opacity: 0;
-    transform: translateY(2px);
-    pointer-events: none;
-    transition:
-        opacity var(--transition-fast),
-        transform var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--success);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  opacity: 0;
+  transform: translateY(2px);
+  pointer-events: none;
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .adumex-copy-feedback.visible {
-    opacity: 1;
-    transform: translateY(0);
+  opacity: 1;
+  transform: translateY(0);
 }
-
 
 /* Tooltips */
 
 [data-adumex-tooltip] {
-    position: relative;
+  position: relative;
 }
 
 [data-adumex-tooltip]::after {
-    content: attr(data-adumex-tooltip);
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 8px);
-    z-index: var(--z-toast);
-    padding: 6px 8px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--text);
-    color: var(--surface);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.2;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translate(-50%, 3px);
-    transition:
-        opacity var(--transition-fast),
-        transform var(--transition-fast),
-        visibility var(--transition-fast);
+  content: attr(data-adumex-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  z-index: var(--z-toast);
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: var(--surface);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 3px);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    visibility var(--transition-fast);
 }
 
 [data-adumex-tooltip]:hover::after,
 [data-adumex-tooltip]:focus-visible::after {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
 }
-
 
 /* Focus */
 
@@ -757,347 +768,363 @@
 .adumex-copy-code:focus-visible,
 .adumex-link-action:focus-visible,
 .adumex-link-btn:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
-
 
 /* Dark theme */
 
 html[data-theme="dark"] .user-message .adumex-message-content {
-    color: #ffffff;
+  color: #ffffff;
 }
 
 html[data-theme="dark"] .adumex-code-block pre,
 html[data-theme="dark"] .adumex-code-wrapper pre {
-    background: var(--surface);
+  background: var(--surface);
 }
 
 html[data-theme="dark"] .adumex-github-link:hover,
 html[data-theme="dark"] .adumex-external-link:hover,
 html[data-theme="dark"] .adumex-link:hover {
-    color: var(--primary-light);
+  color: var(--primary-light);
 }
-
 
 /* Motion */
 
 @media (prefers-reduced-motion: reduce) {
-    .chat-welcome,
-    .adumex-copy-link,
-    .adumex-copy-btn,
-    .adumex-code-copy,
-    .adumex-copy-code,
-    .adumex-link-action,
-    .adumex-link-btn,
-    .adumex-copy-feedback,
-    [data-adumex-tooltip]::after {
-        transition: none;
-    }
+  .chat-welcome,
+  .adumex-copy-link,
+  .adumex-copy-btn,
+  .adumex-code-copy,
+  .adumex-copy-code,
+  .adumex-link-action,
+  .adumex-link-btn,
+  .adumex-copy-feedback,
+  [data-adumex-tooltip]::after {
+    transition: none;
+  }
 
-    .chat-window {
-        scroll-behavior: auto;
-    }
+  .chat-window {
+    scroll-behavior: auto;
+  }
 }
-
 
 /* Tablet */
 
 @media (max-width: 768px) {
+  .chat-window {
+    padding-bottom: 150px;
+  }
 
-    .chat-window {
-        padding-bottom: 150px;
-    }
+  .chat-welcome {
+    padding: var(--spacing-lg);
+  }
 
-    .chat-welcome {
-        padding: var(--spacing-lg);
-    }
+  .chat-welcome-content {
+    transform: translateY(-22px);
+  }
 
-    .chat-welcome-content {
-        transform: translateY(-22px);
-    }
+  .chat-welcome-greeting {
+    font-size: 1.65rem;
+  }
 
-    .chat-welcome-greeting {
-        font-size: 1.65rem;
-    }
+  .chat-welcome-subtitle {
+    margin-top: 8px;
+    font-size: var(--font-size-md);
+  }
 
-    .chat-welcome-subtitle {
-        margin-top: 8px;
-        font-size: var(--font-size-md);
-    }
+  /* Mobile messages */
 
+  .message.adumex-message {
+    width: 100%;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
 
-    /* Mobile messages */
+  .message.adumex-message.user-message {
+    padding-left: 5%;
+  }
 
-    .message.adumex-message {
-        width: 100%;
-        padding-right: 12px;
-        padding-left: 12px;
-    }
+  .message.adumex-message.assistant-message {
+    padding-right: 0;
+  }
 
-    .message.adumex-message.user-message {
-        padding-left: 5%;
-    }
+  .user-message .adumex-message-content {
+    max-width: 88%;
+    padding: 8px 12px;
+    border-radius: 16px;
+    border-bottom-right-radius: 6px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
 
-    .message.adumex-message.assistant-message {
-        padding-right: 0;
-    }
+  .assistant-message .adumex-message-content {
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
 
-    .user-message .adumex-message-content {
-        max-width: 88%;
-        padding: 8px 12px;
-        border-radius: 16px;
-        border-bottom-right-radius: 6px;
-        font-size: 0.86rem;
-        line-height: 1.5;
-    }
+  .assistant-message::before {
+    flex: 0 0 21px;
+    width: 21px;
+    margin-right: 6px;
+    font-size: 0.76rem;
+  }
 
-    .assistant-message .adumex-message-content {
-        font-size: 0.9rem;
-        line-height: 1.65;
-    }
+  /* Mobile composer */
 
-    .assistant-message::before {
-        flex: 0 0 21px;
-        width: 21px;
-        margin-right: 6px;
-        font-size: 0.76rem;
-    }
+  .chat-workspace .command-area {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: calc(var(--z-header) + 2);
 
+    width: 100%;
+    max-width: none;
 
-    /* Mobile composer */
+    margin: 0;
+    padding: 8px 12px 10px;
 
-    .chat-workspace .command-area {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: calc(var(--z-header) + 2);
+    transform: none;
 
-        width: 100%;
-        max-width: none;
+    background: linear-gradient(to bottom, transparent, var(--bg) 22%);
 
-        margin: 0;
-        padding: 8px 12px 10px;
+    pointer-events: none;
+  }
 
-        transform: none;
+  .chat-workspace .command-area > * {
+    pointer-events: auto;
+  }
 
-        background:
-            linear-gradient(
-                to bottom,
-                transparent,
-                var(--bg) 22%
-            );
+  /* Mobile command box */
 
-        pointer-events: none;
-    }
+  .chat-workspace .command-box {
+    width: 100%;
+    max-width: 900px;
+    min-height: 54px;
+    margin: 0 auto;
+    border-radius: 24px;
+  }
 
-    .chat-workspace .command-area > * {
-        pointer-events: auto;
-    }
+  /* Mobile textarea */
 
+  .chat-workspace .command-box textarea,
+  .chat-workspace #command-input {
+    min-width: 0;
+    max-height: 120px;
+    overflow-y: auto;
+    resize: none;
+  }
 
-    /* Mobile command box */
+  /* Mobile footer */
 
-    .chat-workspace .command-box {
-        width: 100%;
-        max-width: 900px;
-        min-height: 54px;
-        margin: 0 auto;
-        border-radius: 24px;
-    }
+  .chat-workspace .command-footer {
+    width: 100%;
+    max-width: 900px;
+    margin: 5px auto 0;
+    padding: 0 4px;
+  }
 
+  /* Typing state */
 
-    /* Mobile textarea */
+  .chat-workspace.composer-active .command-area {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    transform: none;
+  }
 
-    .chat-workspace .command-box textarea,
-    .chat-workspace #command-input {
-        min-width: 0;
-        max-height: 120px;
-        overflow-y: auto;
-        resize: none;
-    }
+  .chat-workspace.composer-active .command-box {
+    transform: none;
+  }
 
+  /* Code */
 
-    /* Mobile footer */
+  .adumex-code-block,
+  .adumex-code-wrapper {
+    border-radius: var(--radius-md);
+  }
 
-    .chat-workspace .command-footer {
-        width: 100%;
-        max-width: 900px;
-        margin: 5px auto 0;
-        padding: 0 4px;
-    }
+  .adumex-code-block pre,
+  .adumex-code-wrapper pre {
+    padding: 12px;
+    font-size: 0.78rem;
+  }
 
+  /* Tables */
 
-    /* Typing state */
+  .adumex-table-wrapper {
+    border-radius: var(--radius-md);
+  }
 
-    .chat-workspace.composer-active .command-area {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        max-width: none;
-        transform: none;
-    }
+  .adumex-table {
+    min-width: 460px;
+  }
 
-    .chat-workspace.composer-active .command-box {
-        transform: none;
-    }
+  /* Images */
 
+  .adumex-generated-image,
+  .adumex-message-image {
+    max-width: 100%;
+  }
 
-    /* Code */
+  /* Tooltips */
 
-    .adumex-code-block,
-    .adumex-code-wrapper {
-        border-radius: var(--radius-md);
-    }
-
-    .adumex-code-block pre,
-    .adumex-code-wrapper pre {
-        padding: 12px;
-        font-size: 0.78rem;
-    }
-
-
-    /* Tables */
-
-    .adumex-table-wrapper {
-        border-radius: var(--radius-md);
-    }
-
-    .adumex-table {
-        min-width: 460px;
-    }
-
-
-    /* Images */
-
-    .adumex-generated-image,
-    .adumex-message-image {
-        max-width: 100%;
-    }
-
-
-    /* Tooltips */
-
-    [data-adumex-tooltip]::after {
-        display: none;
-    }
+  [data-adumex-tooltip]::after {
+    display: none;
+  }
 }
-
 
 /* Small phones */
 
 @media (max-width: 480px) {
+  .chat-window {
+    padding-bottom: 145px;
+  }
 
-    .chat-window {
-        padding-bottom: 145px;
-    }
+  .chat-welcome {
+    padding: var(--spacing-md);
+  }
 
-    .chat-welcome {
-        padding: var(--spacing-md);
-    }
+  .chat-welcome-content {
+    transform: translateY(-18px);
+  }
 
-    .chat-welcome-content {
-        transform: translateY(-18px);
-    }
+  .chat-welcome-greeting {
+    font-size: 1.45rem;
+  }
 
-    .chat-welcome-greeting {
-        font-size: 1.45rem;
-    }
+  .chat-welcome-subtitle {
+    margin-top: 6px;
+    font-size: var(--font-size-sm);
+  }
 
-    .chat-welcome-subtitle {
-        margin-top: 6px;
-        font-size: var(--font-size-sm);
-    }
+  /* Small phone messages */
 
+  .message.adumex-message {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
 
-    /* Small phone messages */
+  .message.adumex-message.user-message {
+    padding-left: 2%;
+  }
 
-    .message.adumex-message {
-        padding-right: 10px;
-        padding-left: 10px;
-    }
+  .user-message .adumex-message-content {
+    max-width: 94%;
+    padding: 7px 11px;
+    border-radius: 15px;
+    border-bottom-right-radius: 5px;
+    font-size: 0.84rem;
+    line-height: 1.48;
+  }
 
-    .message.adumex-message.user-message {
-        padding-left: 2%;
-    }
+  .assistant-message .adumex-message-content {
+    font-size: 0.88rem;
+    line-height: 1.62;
+  }
 
-    .user-message .adumex-message-content {
-        max-width: 94%;
-        padding: 7px 11px;
-        border-radius: 15px;
-        border-bottom-right-radius: 5px;
-        font-size: 0.84rem;
-        line-height: 1.48;
-    }
+  .assistant-message::before {
+    flex-basis: 18px;
+    width: 18px;
+    margin-right: 5px;
+    font-size: 0.72rem;
+  }
 
-    .assistant-message .adumex-message-content {
-        font-size: 0.88rem;
-        line-height: 1.62;
-    }
+  /* Small phone composer */
 
-    .assistant-message::before {
-        flex-basis: 18px;
-        width: 18px;
-        margin-right: 5px;
-        font-size: 0.72rem;
-    }
+  .chat-workspace .command-area {
+    padding-right: 8px;
+    padding-bottom: 8px;
+    padding-left: 8px;
+  }
 
+  .chat-workspace .command-box {
+    min-height: 52px;
+    border-radius: 22px;
+  }
 
-    /* Small phone composer */
+  .chat-workspace .command-box textarea,
+  .chat-workspace #command-input {
+    max-height: 105px;
+  }
 
-    .chat-workspace .command-area {
-        padding-right: 8px;
-        padding-bottom: 8px;
-        padding-left: 8px;
-    }
+  .chat-workspace .command-footer {
+    margin-top: 4px;
+    font-size: 0.68rem;
+  }
 
-    .chat-workspace .command-box {
-        min-height: 52px;
-        border-radius: 22px;
-    }
+  /* Small phone code */
 
-    .chat-workspace .command-box textarea,
-    .chat-workspace #command-input {
-        max-height: 105px;
-    }
+  .adumex-code-header,
+  .adumex-code-toolbar {
+    min-height: 38px;
+    padding: 6px 8px;
+  }
 
-    .chat-workspace .command-footer {
-        margin-top: 4px;
-        font-size: 0.68rem;
-    }
+  .adumex-code-copy,
+  .adumex-copy-code,
+  .adumex-copy-btn {
+    min-height: 28px;
+    padding: 4px 7px;
+  }
 
+  /* Small phone tables */
 
-    /* Small phone code */
+  .adumex-table {
+    min-width: 400px;
+  }
 
-    .adumex-code-header,
-    .adumex-code-toolbar {
-        min-height: 38px;
-        padding: 6px 8px;
-    }
+  /* Small phone links */
 
-    .adumex-code-copy,
-    .adumex-copy-code,
-    .adumex-copy-btn {
-        min-height: 28px;
-        padding: 4px 7px;
-    }
+  .adumex-github-container,
+  .adumex-link-container {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
 
+/* Keep the composer clear of browser controls and the latest message. */
+@media (max-width: 768px) {
+  .adumex-app {
+    height: 100dvh;
+    min-height: 0;
+  }
 
-    /* Small phone tables */
+  .adumex-main,
+  .chat-workspace {
+    height: 100%;
+    min-height: 0;
+  }
 
-    .adumex-table {
-        min-width: 400px;
-    }
+  .chat-workspace > .command-area,
+  .chat-workspace > .command-area.composer-active {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: 100%;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    transform: none;
+  }
 
+  .chat-workspace .chat-window {
+    padding-bottom: 170px;
+    overscroll-behavior-y: contain;
+  }
+}
 
-    /* Small phone links */
+@media (max-width: 480px) {
+  .chat-workspace > .command-area,
+  .chat-workspace > .command-area.composer-active {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
 
-    .adumex-github-container,
-    .adumex-link-container {
-        align-items: flex-start;
-        flex-wrap: wrap;
-    }
+  .chat-workspace .chat-window {
+    padding-bottom: 155px;
+  }
 }

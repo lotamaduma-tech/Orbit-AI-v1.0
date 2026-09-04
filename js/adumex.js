@@ -64,6 +64,24 @@
         );
     }
 
+    function updatePlaceholder() {
+        const input = getInput();
+
+        if (!input || input.value.trim()) {
+            return;
+        }
+
+        const prompts = [
+            "What can we debug?",
+            "What can we build?",
+            "What can we solve?",
+            "What can we create?"
+        ];
+
+        const day = new Date().getDate();
+        input.placeholder = prompts[day % prompts.length];
+    }
+
     /* Helpers */
 
     function cleanText(
@@ -409,6 +427,10 @@
         const source =
             String(text || "")
                 .replace(
+                    /<((?:https?:\/\/|mailto:)[^>\s]+)>/g,
+                    "$1"
+                )
+                .replace(
                     /`([^`\n]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)|(https?:\/\/[^\s<]+)/g,
                     (
                         match,
@@ -601,9 +623,8 @@
             code = null;
         };
 
-        for (
-            const line of lines
-        ) {
+        for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+            const line = lines[lineIndex];
             const fence =
                 line.match(
                     /^```[ \t]*([^\s]*)[ \t]*$/
@@ -629,6 +650,44 @@
                 code.lines.push(
                     line
                 );
+                continue;
+            }
+
+            if (
+                line.includes("|") &&
+                isTableSeparator(lines[lineIndex + 1])
+            ) {
+                closeList();
+
+                const headerCells = tableCells(line);
+                const rows = [];
+                lineIndex += 2;
+
+                while (
+                    lineIndex < lines.length &&
+                    lines[lineIndex].includes("|") &&
+                    lines[lineIndex].trim()
+                ) {
+                    rows.push(tableCells(lines[lineIndex]));
+                    lineIndex += 1;
+                }
+
+                output.push(`
+                    <div class="adumex-table-wrapper" role="region" tabindex="0" aria-label="Table">
+                        <table class="adumex-table">
+                            <thead>
+                                <tr>${headerCells.map(cell => `<th>${renderInline(cell)}</th>`).join("")}</tr>
+                            </thead>
+                            <tbody>
+                                ${rows.map(row => `
+                                    <tr>${headerCells.map((_, cellIndex) => `<td>${renderInline(row[cellIndex] || "")}</td>`).join("")}</tr>
+                                `).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                `);
+
+                lineIndex -= 1;
                 continue;
             }
 
@@ -723,6 +782,26 @@
         );
     }
 
+    function isTableSeparator(line) {
+        const cells = String(line || "")
+            .trim()
+            .replace(/^\|/, "")
+            .replace(/\|$/, "")
+            .split("|")
+            .map(cell => cell.trim());
+
+        return cells.length > 1 && cells.every(cell => /^:?-{3,}:?$/.test(cell));
+    }
+
+    function tableCells(line) {
+        return String(line || "")
+            .trim()
+            .replace(/^\|/, "")
+            .replace(/\|$/, "")
+            .split("|")
+            .map(cell => cell.trim());
+    }
+
     /* Scrolling */
 
     function scrollToResponse(
@@ -803,6 +882,22 @@
     }
 
     function getStoredName() {
+        const user =
+            window.AdumexAuth?.user ||
+            null;
+
+        const authenticatedName =
+            user?.user_metadata?.full_name ||
+            user?.user_metadata?.name ||
+            user?.user_metadata?.display_name;
+
+        if (
+            typeof authenticatedName === "string" &&
+            authenticatedName.trim()
+        ) {
+            return authenticatedName.trim();
+        }
+
         const possibleKeys = [
             "adumex-memory-cache",
             "adumex-user"
@@ -849,17 +944,6 @@
         return "";
     }
 
-    function getRandomItem(
-        items
-    ) {
-        return items[
-            Math.floor(
-                Math.random() *
-                items.length
-            )
-        ];
-    }
-
     function getGreeting() {
         const period =
             getGreetingPeriod();
@@ -868,32 +952,13 @@
             getStoredName();
 
         const greetings = {
-            morning: [
-                "Good morning",
-                "Morning",
-                "Good morning — ready to build?"
-            ],
-            afternoon: [
-                "Good afternoon",
-                "Afternoon",
-                "Good afternoon — what are we working on?"
-            ],
-            evening: [
-                "Good evening",
-                "Evening",
-                "Good evening — what should we tackle?"
-            ],
-            night: [
-                "Good night",
-                "Still working?",
-                "Late-night session — what are we building?"
-            ]
+            morning: "Good morning",
+            afternoon: "Good afternoon",
+            evening: "Good evening",
+            night: "Good evening"
         };
 
-        const greeting =
-            getRandomItem(
-                greetings[period]
-            );
+        const greeting = greetings[period];
 
         return name
             ? `${greeting}, ${name}.`
@@ -921,6 +986,31 @@
         if (welcome) {
             welcome.hidden =
                 false;
+        }
+    }
+
+    async function refreshGreetingFromAuth() {
+        const client =
+            window.adumexSupabase ||
+            window.AdumexSupabase?.getClient?.();
+
+        if (!client?.auth?.getUser) {
+            return;
+        }
+
+        try {
+            const result = await client.auth.getUser();
+            const user = result?.data?.user;
+
+            if (user) {
+                window.AdumexAuth = {
+                    ...(window.AdumexAuth || {}),
+                    user
+                };
+                renderGreeting();
+            }
+        } catch {
+            return;
         }
     }
 
@@ -1551,6 +1641,12 @@
         state.generating =
             Boolean(value);
 
+        if (state.generating) {
+            window.AdumexThinking?.show?.();
+        } else {
+            window.AdumexThinking?.hide?.();
+        }
+
         const button =
             getSendButton();
 
@@ -1690,6 +1786,8 @@
                     typeof payload.token ===
                     "string"
                 ) {
+                    window.AdumexThinking?.hide?.();
+
                     state.assistantText +=
                         payload.token;
 
@@ -1698,7 +1796,8 @@
                         state.assistantText
                     );
 
-                    scrollToBottom(
+                    scrollToResponse(
+                        state.assistantElement,
                         "auto"
                     );
                 }
@@ -2010,6 +2109,13 @@
                 )
             );
 
+            formData.append(
+                "memoryEnabled",
+                String(
+                    window.AdumexSettings?.getValue?.("memory") !== false
+                )
+            );
+
             if (
                 state.conversationId
             ) {
@@ -2105,6 +2211,12 @@
                 content:
                     reply
             });
+
+            if (
+                window.AdumexSettings?.getValue?.("memory") !== false
+            ) {
+                await window.AdumexMemory?.rememberFromMessage?.(message);
+            }
 
             state.conversationId =
                 complete?.conversationId ||
@@ -2475,6 +2587,7 @@
 
         autoGrowInput();
         updateComposerState();
+        updatePlaceholder();
 
         emit(
             "typing",
@@ -2553,6 +2666,7 @@
                     event.key ===
                     "Enter" &&
                     !event.shiftKey &&
+                    window.AdumexSettings?.getValue?.("enterToSend") !== false &&
                     !event.isComposing
                 ) {
                     event.preventDefault();
@@ -2621,6 +2735,13 @@
         );
 
         window.addEventListener(
+            "adumex:restore-active-chat",
+            event => {
+                openChat(event.detail?.chat);
+            }
+        );
+
+        window.addEventListener(
             "adumex:chat-deleted",
             event => {
                 if (
@@ -2671,8 +2792,20 @@
                 newChat(null);
 
         updateComposerState();
+        updatePlaceholder();
         renderGreeting();
+        refreshGreetingFromAuth();
         autoGrowInput();
+
+        const activeChat =
+            window.AdumexRecentChats?.getActiveChat?.();
+
+        if (activeChat?.conversationId) {
+            setTimeout(
+                () => openChat(activeChat),
+                0
+            );
+        }
     }
 
     if (

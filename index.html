@@ -1,394 +1,302 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <meta
-      name="description"
-      content="Adumex AI — Your intelligent personal AI workspace."
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <meta name="theme-color" content="#6366F1" />
+  <meta name="description" content="Adumex AI — Your intelligent personal AI workspace." />
 
-    <title>Adumex AI</title>
+  <meta name="theme-color" content="#6366F1" />
 
-    <link rel="icon" type="image/jpeg" href="images/logo.jpg" />
-    <link rel="apple-touch-icon" href="images/logo.jpg" />
+  <title>Adumex AI</title>
 
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Adumex AI" />
-    <meta
-      property="og:description"
-      content="Your intelligent personal AI workspace."
-    />
-    <meta property="og:image" content="images/logo.jpg" />
-    <meta property="og:image:alt" content="Adumex AI logo" />
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg" />
+  <link rel="apple-touch-icon" href="images/logo.jpg" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Adumex AI" />
-    <meta
-      name="twitter:description"
-      content="Your intelligent personal AI workspace."
-    />
-    <meta name="twitter:image" content="images/logo.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Adumex AI" />
+  <meta property="og:description" content="Your intelligent personal AI workspace." />
+  <meta property="og:image" content="images/logo.jpg" />
+  <meta property="og:image:alt" content="Adumex AI logo" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Adumex AI" />
+  <meta name="twitter:description" content="Your intelligent personal AI workspace." />
+  <meta name="twitter:image" content="images/logo.jpg" />
 
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
 
-    <link rel="stylesheet" href="css/reset.css" />
-    <link rel="stylesheet" href="css/variables.css" />
-    <link rel="stylesheet" href="css/settings/animations.css" />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/animations.css" />
-    <link rel="stylesheet" href="css/typing-indicator.css" />
-    <link rel="stylesheet" href="css/adumex-tools.css" />
-    <link rel="stylesheet" href="css/recent-chats.css" />
-    <link rel="stylesheet" href="css/response-tools.css" />
-    <link rel="stylesheet" href="css/response-suggestion.css" />
-  </head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
-  <body>
-    <div class="adumex-app">
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/settings/animations.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="backend/css/adumex-thinking.css" />
+  <link rel="stylesheet" href="css/typing-indicator.css" />
+  <link rel="stylesheet" href="css/adumex-tools.css" />
+  <link rel="stylesheet" href="css/recent-chats.css" />
+  <link rel="stylesheet" href="css/response-tools.css" />
+  <link rel="stylesheet" href="css/response-suggestion.css" />
+</head>
 
-      <!-- Sidebar -->
-      <aside
-        class="adumex-sidebar"
-        id="adumex-sidebar"
-        aria-label="Adumex navigation"
-      >
+<body>
+  <div class="adumex-app">
 
-        <div class="sidebar-header">
-          <a
-            href="index.html"
-            class="brand"
-            aria-label="Adumex AI home"
-          >
-            <img
-              src="images/logo.jpg"
-              alt="Adumex AI logo"
-              class="brand-logo"
-            />
+    <!-- Sidebar -->
+    <aside class="adumex-sidebar" id="adumex-sidebar" aria-label="Adumex navigation">
 
-            <span class="brand-name">
-              <strong>ADUMEX</strong>
-              <span>AI</span>
-            </span>
-          </a>
+      <div class="sidebar-header">
+        <a href="index.html" class="brand" aria-label="Adumex AI home">
+          <img src="images/logo.jpg" alt="Adumex AI logo" class="brand-logo" />
 
-          <button
-            type="button"
-            class="sidebar-close"
-            id="menu-close"
-            aria-label="Close navigation"
-            title="Close navigation"
-          >
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+          <span class="brand-name">
+            <strong>ADUMEX</strong>
+            <span>AI</span>
+          </span>
+        </a>
+
+        <button type="button" class="sidebar-close" id="menu-close" aria-label="Close navigation"
+          title="Close navigation">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-chat-actions" aria-label="Chat actions">
+
+        <button type="button" class="new-chat-btn" id="chat-history-new">
+          <i class="fa-solid fa-plus"></i>
+          <span>New chat</span>
+        </button>
+
+        <button type="button" class="search-chat-btn" id="chat-search-btn">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search chats</span>
+        </button>
+
+      </nav>
+
+      <section class="chat-history-panel" id="chat-history-panel" aria-label="Chat history">
+
+        <div class="chat-history-header">
+
+          <div class="chat-history-title">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+
+            <div>
+              <span>RECENT CHATS</span>
+              <small>Your conversations</small>
+            </div>
+          </div>
+
         </div>
 
-        <nav
-          class="sidebar-chat-actions"
-          aria-label="Chat actions"
-        >
-          <button
-            type="button"
-            class="new-chat-btn"
-            id="chat-history-new"
-          >
-            <i class="fa-solid fa-plus"></i>
-            <span>New chat</span>
-          </button>
+        <div class="chat-history-list" id="chat-history-list" aria-label="Recent conversations">
 
-          <button
-            type="button"
-            class="search-chat-btn"
-            id="chat-search-btn"
-          >
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <span>Search chats</span>
-          </button>
-        </nav>
+          <div class="chat-history-empty" id="chat-history-empty">
 
-        <section
-          class="chat-history-panel"
-          id="chat-history-panel"
-          aria-label="Chat history"
-        >
-          <div class="chat-history-header">
-            <div class="chat-history-title">
-              <i class="fa-solid fa-clock-rotate-left"></i>
+            <i class="fa-regular fa-comments"></i>
 
-              <div>
-                <span>RECENT CHATS</span>
-                <small>Your conversations</small>
-              </div>
-            </div>
+            <span>No conversations yet</span>
+
+            <small>
+              Your recent chats will appear here.
+            </small>
+
           </div>
 
-          <div
-            class="chat-history-list"
-            id="chat-history-list"
-            aria-label="Recent conversations"
-          >
-            <div
-              class="chat-history-empty"
-              id="chat-history-empty"
-            >
-              <i class="fa-regular fa-comments"></i>
-
-              <span>No conversations yet</span>
-
-              <small>
-                Your recent chats will appear here.
-              </small>
-            </div>
-          </div>
-        </section>
-
-        <section
-          class="sidebar-account"
-          aria-label="Account"
-        >
-          <div class="sidebar-section-label">
-            ACCOUNT
-          </div>
-
-          <a
-            href="settings.html"
-            class="sidebar-account-link"
-            data-page="settings"
-          >
-            <i class="fa-solid fa-gear"></i>
-            <span>Settings</span>
-          </a>
-
-          <button
-            type="button"
-            class="sidebar-account-link sidebar-logout-btn"
-            id="logout-btn"
-          >
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Log out</span>
-          </button>
-        </section>
-
-        <div class="sidebar-footer">
-          <div class="sidebar-status">
-            <span class="status-dot"></span>
-            <span>Adumex online</span>
-          </div>
         </div>
 
-      </aside>
+      </section>
+
+      <section class="sidebar-account" aria-label="Account">
+
+        <div class="sidebar-section-label">
+          ACCOUNT
+        </div>
+
+        <a href="settings.html" class="sidebar-account-link" data-page="settings">
+
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+
+        </a>
+
+        <button type="button" class="sidebar-account-link sidebar-logout-btn" id="logout-btn">
+
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Log out</span>
+
+        </button>
+
+      </section>
+
+      <div class="sidebar-footer">
+
+        <div class="sidebar-status">
+          <span class="status-dot"></span>
+          <span>Adumex online</span>
+        </div>
+
+      </div>
+
+    </aside>
 
 
-      <!-- Mobile Navigation Overlay -->
-      <div
-        class="navigation-overlay"
-        id="navigation-overlay"
-        aria-hidden="true"
-      ></div>
+    <!-- Mobile Navigation Overlay -->
+    <div class="navigation-overlay" id="navigation-overlay" aria-hidden="true"></div>
 
 
-      <!-- Main -->
-      <main class="adumex-main">
+    <!-- Main -->
+    <main class="adumex-main">
 
-        <!-- Topbar -->
-        <header
-          class="adumex-topbar"
-          aria-label="Adumex header"
-        >
+      <!-- Topbar -->
+      <header class="adumex-topbar" aria-label="Adumex header">
 
-          <button
-            type="button"
-            class="menu-toggle"
-            id="menu-toggle"
-            aria-label="Open navigation"
-            aria-expanded="false"
-            aria-controls="adumex-sidebar"
-            title="Open navigation"
-          >
-            <i class="fa-solid fa-bars"></i>
+        <button type="button" class="menu-toggle" id="menu-toggle" aria-label="Open navigation" aria-expanded="false"
+          aria-controls="adumex-sidebar" title="Open navigation">
+
+          <i class="fa-solid fa-bars"></i>
+
+        </button>
+
+        <div class="topbar-title">
+
+          <img src="images/logo.jpg" alt="" class="topbar-logo" aria-hidden="true" />
+
+          <div class="topbar-title-text">
+            <span>ADUMEX AI</span>
+          </div>
+
+        </div>
+
+        <div class="topbar-actions">
+
+          <button type="button" class="topbar-btn" id="topbar-new-chat" aria-label="New chat" title="New chat">
+
+            <i class="fa-solid fa-pen-to-square"></i>
+
           </button>
 
-          <div class="topbar-title">
+        </div>
 
-            <img
-              src="images/logo.jpg"
-              alt=""
-              class="topbar-logo"
-              aria-hidden="true"
-            />
+      </header>
 
-            <div class="topbar-title-text">
-              <span>ADUMEX AI</span>
+
+      <!-- Chat Workspace -->
+      <section class="chat-workspace" aria-label="Adumex AI chat">
+
+        <div class="chat-content">
+
+          <!-- Empty Chat Greeting -->
+          <div class="chat-welcome" id="chat-welcome" aria-live="polite">
+
+            <div class="chat-welcome-content">
+
+              <span class="chat-welcome-greeting" id="chat-welcome-greeting"></span>
+
             </div>
 
           </div>
 
-          <div class="topbar-actions">
 
-            <button
-              type="button"
-              class="topbar-btn"
-              id="topbar-new-chat"
-              aria-label="New chat"
-              title="New chat"
-            >
-              <i class="fa-solid fa-pen-to-square"></i>
+          <!-- Conversation -->
+          <div class="chat-window" id="chat-window" aria-live="polite" aria-label="Adumex AI conversation">
+          </div>
+
+        </div>
+
+
+        <!-- Composer -->
+        <div class="command-area">
+
+          <div class="command-box">
+
+            <button type="button" class="command-attachment" id="adumex-tools-btn" aria-label="Adumex tools"
+              title="Adumex tools" aria-haspopup="menu" aria-expanded="false">
+
+              <i class="fa-solid fa-plus"></i>
+
+            </button>
+
+
+            <div class="adumex-attachments" id="adumex-attachments" hidden aria-label="Attached files">
+            </div>
+
+
+            <textarea id="command-input" rows="1" placeholder="What can we debug?" autocomplete="off" spellcheck="true"
+              aria-label="Ask Adumex AI"></textarea>
+
+
+            <button id="send-btn" type="button" class="send-btn" aria-label="Send message" title="Send message">
+
+              <i class="fa-solid fa-arrow-up"></i>
+
             </button>
 
           </div>
 
-        </header>
 
+          <div class="command-footer">
 
-        <!-- Chat Workspace -->
-        <section
-          class="chat-workspace"
-          aria-label="Adumex AI chat"
-        >
+            <span>
+              <i class="fa-solid fa-shield-halved"></i>
+              Adumex AI is ready
+            </span>
 
-          <div class="chat-content">
+            <span>
 
-            <!-- Empty Chat Greeting -->
-            <div
-              class="chat-welcome"
-              id="chat-welcome"
-              aria-live="polite"
-            >
-              <div class="chat-welcome-content">
+              <span id="response-time">
+                Ready | Adumex AI can make mistakes.
+                Check important details.
+              </span>
 
-                <p
-                  class="chat-welcome-greeting"
-                  id="chat-welcome-greeting"
-                ></p>
+              <span aria-hidden="true">
+                ·
+              </span>
 
-              </div>
-            </div>
+              Enter to send
 
-
-            <!-- Conversation -->
-            <div
-              class="chat-window"
-              id="chat-window"
-              aria-live="polite"
-              aria-label="Adumex AI conversation"
-            ></div>
+            </span>
 
           </div>
 
+        </div>
 
-          <!-- Composer -->
-          <div class="command-area">
+      </section>
 
-            <div class="command-box">
+    </main>
 
-              <button
-                type="button"
-                class="command-attachment"
-                id="adumex-tools-btn"
-                aria-label="Adumex tools"
-                title="Adumex tools"
-                aria-haspopup="menu"
-                aria-expanded="false"
-              >
-                <i class="fa-solid fa-plus"></i>
-              </button>
+  </div>
 
 
-              <div
-                class="adumex-attachments"
-                id="adumex-attachments"
-                hidden
-                aria-label="Attached files"
-              ></div>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <script src="js/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/auth-guard.js"></script>
+  <script src="js/logout.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/settings.js"></script>
 
-              <textarea
-                id="command-input"
-                rows="1"
-                placeholder="Ask Adumex anything..."
-                autocomplete="off"
-                spellcheck="true"
-                aria-label="Ask Adumex AI"
-              ></textarea>
+  <script src="js/adumex-memory.js"></script>
+  <script src="js/adumex-tools.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/recent-chats.js"></script>
+  <script src="js/response-tools.js"></script>
 
+  <script src="js/adumex-thinking.js"></script>
+  <script src="js/adumex.js"></script>
 
-              <button
-                id="send-btn"
-                type="button"
-                class="send-btn"
-                aria-label="Send message"
-                title="Send message"
-              >
-                <i class="fa-solid fa-arrow-up"></i>
-              </button>
+</body>
 
-            </div>
-
-
-            <div class="command-footer">
-
-              <span>
-                <i class="fa-solid fa-shield-halved"></i>
-                Adumex AI is ready
-              </span>
-
-              <span>
-
-                <span id="response-time">
-                  Ready | Adumex AI can make mistakes.
-                  Check important details.
-                </span>
-
-                <span aria-hidden="true">
-                  ·
-                </span>
-
-                Enter to send
-
-              </span>
-
-            </div>
-
-          </div>
-
-        </section>
-
-      </main>
-
-    </div>
-
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="js/supabase.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/auth-guard.js"></script>
-    <script src="js/logout.js"></script>
-    <script src="js/theme.js"></script>
-    <script src="js/settings.js"></script>
-    <script src="js/adumex-cloud.js"></script>
-    <script src="js/adumex-tools.js"></script>
-    <script src="js/navigation.js"></script>
-    <script src="js/recent-chats.js"></script>
-    <script src="js/response-tools.js"></script>
-    <script src="js/adumex.js"></script>
-    <script src="js/script.js"></script>
-
-  </body>
 </html>

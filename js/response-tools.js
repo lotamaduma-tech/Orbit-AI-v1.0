@@ -1044,7 +1044,7 @@ function initializeOrbitResponseTools() {
 
     chatWindow
         .querySelectorAll(
-            ".message.orbit"
+            ".message.orbit, .message.adumex-message"
         )
         .forEach(message => {
             enhanceOrbitResponse(
@@ -1072,7 +1072,7 @@ function initializeOrbitResponseTools() {
                                 if (
                                     node.matches &&
                                     node.matches(
-                                        ".message.orbit"
+                                        ".message.orbit, .message.adumex-message"
                                     )
                                 ) {
                                     enhanceOrbitResponse(
@@ -1082,12 +1082,20 @@ function initializeOrbitResponseTools() {
                                     return;
                                 }
 
+                                const message = node.closest?.(
+                                    ".message.orbit, .message.adumex-message"
+                                );
+
+                                if (message) {
+                                    enhanceOrbitResponse(message);
+                                }
+
                                 if (
                                     node.querySelectorAll
                                 ) {
                                     node
                                         .querySelectorAll(
-                                            ".message.orbit"
+                                            ".message.orbit, .message.adumex-message"
                                         )
                                         .forEach(
                                             message => {
