@@ -3,22 +3,27 @@
 (() => {
     /* Configuration */
 
-    const configuredApi = String(
-        window.ADUMEX_API_URL ||
-        "https://orbit-ai-v1-0.onrender.com/api/chat"
-    ).replace(/\/$/, "");
+    const configuredApi =
+        String(
+            window.ADUMEX_API_URL ||
+            "http://localhost:5000/api/chat"
+        ).replace(/\/+$/, "");
 
-    const API = configuredApi.endsWith("/chat")
-        ? configuredApi.slice(0, -5)
-        : configuredApi.replace(/\/api$/, "") + "/api";
+    const API =
+        configuredApi.endsWith("/chat")
+            ? configuredApi.slice(0, -5)
+            : configuredApi.replace(/\/api$/, "") + "/api";
 
-    const CHAT_URL = `${API}/chat`;
+    const CHAT_URL =
+        `${API}/chat`;
 
     const HISTORY_LIMIT = 30;
     const MAX_MESSAGE_LENGTH = 20000;
     const MAX_STORED_RESPONSE_LENGTH = 50000;
     const MAX_FILES = 10;
-    const MAX_TOTAL_FILE_SIZE = 30 * 1024 * 1024;
+    const MAX_TOTAL_FILE_SIZE =
+        30 * 1024 * 1024;
+
     const SERVER_CONVERSATIONS_KEY =
         "adumex-server-conversations";
 
@@ -36,19 +41,27 @@
     /* Elements */
 
     function getChatWindow() {
-        return document.getElementById("chat-window");
+        return document.getElementById(
+            "chat-window"
+        );
     }
 
     function getInput() {
-        return document.getElementById("command-input");
+        return document.getElementById(
+            "command-input"
+        );
     }
 
     function getSendButton() {
-        return document.getElementById("send-btn");
+        return document.getElementById(
+            "send-btn"
+        );
     }
 
     function getCommandArea() {
-        return document.querySelector(".command-area");
+        return document.querySelector(
+            ".command-area"
+        );
     }
 
     /* Helpers */
@@ -64,42 +77,64 @@
     }
 
     function normalizeMessages(messages) {
-        return Array.isArray(messages)
-            ? messages
-                .filter(
-                    item =>
-                        item &&
-                        ["user", "assistant"].includes(item.role) &&
-                        typeof item.content === "string"
-                )
-                .map(item => ({
-                    role: item.role,
-                    content: cleanText(item.content),
-                    attachments: Array.isArray(item.attachments)
-                        ? item.attachments.map(file => ({
-                            name: String(
-                                file?.name ||
-                                "Unnamed file"
-                            ),
-                            type: String(
-                                file?.type ||
-                                "application/octet-stream"
-                            ),
-                            size: Number(
-                                file?.size || 0
-                            ),
-                            extension: String(
-                                file?.extension || ""
-                            ).toLowerCase()
-                        }))
+        if (!Array.isArray(messages)) {
+            return [];
+        }
+
+        return messages
+            .filter(
+                item =>
+                    item &&
+                    ["user", "assistant"].includes(
+                        item.role
+                    ) &&
+                    typeof item.content ===
+                    "string"
+            )
+            .map(item => ({
+                role: item.role,
+                content: cleanText(
+                    item.content
+                ),
+                attachments:
+                    Array.isArray(
+                        item.attachments
+                    )
+                        ? item.attachments.map(
+                            file => ({
+                                name: String(
+                                    file?.name ||
+                                    "Unnamed file"
+                                ),
+                                type: String(
+                                    file?.type ||
+                                    "application/octet-stream"
+                                ),
+                                size: Number(
+                                    file?.size || 0
+                                ),
+                                extension:
+                                    String(
+                                        file?.extension ||
+                                        ""
+                                    ).toLowerCase()
+                            })
+                        )
                         : []
-                }))
-                .filter(item => item.content)
-                .slice(-HISTORY_LIMIT)
-            : [];
+            }))
+            .filter(
+                item =>
+                    item.content
+            )
+            .slice(
+                -HISTORY_LIMIT
+            );
     }
 
-    function emit(name, detail = {}) {
+    function emit(
+        name,
+        detail = {}
+    ) {
         window.dispatchEvent(
             new CustomEvent(
                 `adumex:${name}`,
@@ -110,25 +145,45 @@
 
     function escapeHtml(value) {
         return String(value || "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
     }
 
     function safeUrl(value) {
         try {
-            const url = new URL(
-                String(value || "").trim(),
-                window.location.href
-            );
+            const url =
+                new URL(
+                    String(
+                        value || ""
+                    ).trim(),
+                    window.location.href
+                );
 
             return [
                 "http:",
                 "https:",
                 "mailto:"
-            ].includes(url.protocol)
+            ].includes(
+                url.protocol
+            )
                 ? url.href
                 : "";
         } catch {
@@ -140,15 +195,21 @@
 
     function isGitHubUrl(value) {
         try {
-            const url = new URL(
-                String(value || "").trim()
-            );
+            const url =
+                new URL(
+                    String(
+                        value || ""
+                    ).trim()
+                );
 
             return (
-                url.protocol === "https:" &&
+                url.protocol ===
+                "https:" &&
                 (
-                    url.hostname === "github.com" ||
-                    url.hostname === "www.github.com"
+                    url.hostname ===
+                    "github.com" ||
+                    url.hostname ===
+                    "www.github.com"
                 )
             );
         } catch {
@@ -158,39 +219,63 @@
 
     function getGitHubUrlType(value) {
         try {
-            const url = new URL(
-                String(value || "").trim()
-            );
+            const url =
+                new URL(
+                    String(
+                        value || ""
+                    ).trim()
+                );
 
-            const parts = url.pathname
-                .split("/")
-                .filter(Boolean);
+            const parts =
+                url.pathname
+                    .split("/")
+                    .filter(Boolean);
 
-            if (parts.length < 2) {
+            if (
+                parts.length < 2
+            ) {
                 return "GitHub";
             }
 
-            if (parts[2] === "issues") {
+            if (
+                parts[2] ===
+                "issues"
+            ) {
                 return "GitHub Issue";
             }
 
-            if (parts[2] === "pull") {
+            if (
+                parts[2] ===
+                "pull"
+            ) {
                 return "GitHub Pull Request";
             }
 
-            if (parts[2] === "blob") {
+            if (
+                parts[2] ===
+                "blob"
+            ) {
                 return "GitHub File";
             }
 
-            if (parts[2] === "tree") {
+            if (
+                parts[2] ===
+                "tree"
+            ) {
                 return "GitHub Directory";
             }
 
-            if (parts[2] === "commit") {
+            if (
+                parts[2] ===
+                "commit"
+            ) {
                 return "GitHub Commit";
             }
 
-            if (parts[2] === "releases") {
+            if (
+                parts[2] ===
+                "releases"
+            ) {
                 return "GitHub Release";
             }
 
@@ -202,15 +287,21 @@
 
     function getGitHubLabel(value) {
         try {
-            const url = new URL(
-                String(value || "").trim()
-            );
+            const url =
+                new URL(
+                    String(
+                        value || ""
+                    ).trim()
+                );
 
-            const parts = url.pathname
-                .split("/")
-                .filter(Boolean);
+            const parts =
+                url.pathname
+                    .split("/")
+                    .filter(Boolean);
 
-            if (parts.length >= 2) {
+            if (
+                parts.length >= 2
+            ) {
                 return `${parts[0]}/${parts[1]}`;
             }
 
@@ -221,7 +312,8 @@
     }
 
     function githubLinkHtml(url) {
-        const href = safeUrl(url);
+        const href =
+            safeUrl(url);
 
         if (
             !href ||
@@ -231,10 +323,14 @@
         }
 
         const type =
-            getGitHubUrlType(href);
+            getGitHubUrlType(
+                href
+            );
 
         const label =
-            getGitHubLabel(href);
+            getGitHubLabel(
+                href
+            );
 
         return `
             <div class="adumex-github-container">
@@ -277,11 +373,17 @@
         `;
     }
 
-    function linkHtml(label, url) {
-        const href = safeUrl(url);
+    function linkHtml(
+        label,
+        url
+    ) {
+        const href =
+            safeUrl(url);
 
         if (!href) {
-            return escapeHtml(label);
+            return escapeHtml(
+                label
+            );
         }
 
         return `
@@ -300,107 +402,137 @@
     function renderInline(text) {
         const tokens = [];
 
-        const token = html =>
-            `\u0000ADUMEX${tokens.push(html) - 1}\u0000`;
+        const token =
+            html =>
+                `\u0000ADUMEX${tokens.push(html) - 1}\u0000`;
 
-        const source = String(text || "").replace(
-            /`([^`\n]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)|(https?:\/\/[^\s<]+)/g,
-            (
-                match,
-                code,
-                label,
-                markdownUrl,
-                bareUrl
-            ) => {
-                if (code !== undefined) {
-                    return token(
-                        `<code>${escapeHtml(code)}</code>`
-                    );
-                }
+        const source =
+            String(text || "")
+                .replace(
+                    /`([^`\n]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)|(https?:\/\/[^\s<]+)/g,
+                    (
+                        match,
+                        code,
+                        label,
+                        markdownUrl,
+                        bareUrl
+                    ) => {
+                        if (
+                            code !==
+                            undefined
+                        ) {
+                            return token(
+                                `<code>${escapeHtml(
+                                    code
+                                )}</code>`
+                            );
+                        }
 
-                if (label !== undefined) {
-                    if (
-                        isGitHubUrl(
-                            markdownUrl
-                        )
-                    ) {
+                        if (
+                            label !==
+                            undefined
+                        ) {
+                            if (
+                                isGitHubUrl(
+                                    markdownUrl
+                                )
+                            ) {
+                                return token(
+                                    githubLinkHtml(
+                                        markdownUrl
+                                    )
+                                );
+                            }
+
+                            return token(
+                                linkHtml(
+                                    label,
+                                    markdownUrl
+                                )
+                            );
+                        }
+
+                        const url =
+                            bareUrl.replace(
+                                /[.,;:!?]+$/,
+                                ""
+                            );
+
+                        const punctuation =
+                            bareUrl.slice(
+                                url.length
+                            );
+
+                        if (
+                            isGitHubUrl(
+                                url
+                            )
+                        ) {
+                            return token(
+                                githubLinkHtml(
+                                    url
+                                ) +
+                                escapeHtml(
+                                    punctuation
+                                )
+                            );
+                        }
+
                         return token(
-                            githubLinkHtml(
-                                markdownUrl
+                            linkHtml(
+                                url,
+                                url
+                            ) +
+                            escapeHtml(
+                                punctuation
                             )
                         );
                     }
-
-                    return token(
-                        linkHtml(
-                            label,
-                            markdownUrl
-                        )
-                    );
-                }
-
-                const url =
-                    bareUrl.replace(
-                        /[.,;:!?]+$/,
-                        ""
-                    );
-
-                const punctuation =
-                    bareUrl.slice(
-                        url.length
-                    );
-
-                if (isGitHubUrl(url)) {
-                    return token(
-                        githubLinkHtml(url) +
-                        escapeHtml(
-                            punctuation
-                        )
-                    );
-                }
-
-                return token(
-                    linkHtml(url, url) +
-                    escapeHtml(
-                        punctuation
-                    )
                 );
-            }
-        );
 
-        let html = escapeHtml(source);
-
-        html = html
-            .replace(
-                /\*\*([^\*\n]+)\*\*/g,
-                "<strong>$1</strong>"
-            )
-            .replace(
-                /__([^_\n]+)__/g,
-                "<strong>$1</strong>"
-            )
-            .replace(
-                /(^|[^\*])\*([^\*\n]+)\*(?!\*)/g,
-                "$1<em>$2</em>"
-            )
-            .replace(
-                /(^|[^_])_([^_\n]+)_(?!_)/g,
-                "$1<em>$2</em>"
+        let html =
+            escapeHtml(
+                source
             );
+
+        html =
+            html
+                .replace(
+                    /\*\*([^\*\n]+)\*\*/g,
+                    "<strong>$1</strong>"
+                )
+                .replace(
+                    /__([^_\n]+)__/g,
+                    "<strong>$1</strong>"
+                )
+                .replace(
+                    /(^|[^\*])\*([^\*\n]+)\*(?!\*)/g,
+                    "$1<em>$2</em>"
+                )
+                .replace(
+                    /(^|[^_])_([^_\n]+)_(?!_)/g,
+                    "$1<em>$2</em>"
+                );
 
         return html.replace(
             /\u0000ADUMEX(\d+)\u0000/g,
             (_, index) =>
                 tokens[
-                    Number(index)
+                Number(index)
                 ] || ""
         );
     }
 
-    function renderMarkdown(markdown) {
-        const lines = String(markdown || "")
-            .replace(/\r\n?/g, "\n")
-            .split("\n");
+    function renderMarkdown(
+        markdown
+    ) {
+        const lines =
+            String(markdown || "")
+                .replace(
+                    /\r\n?/g,
+                    "\n"
+                )
+                .split("\n");
 
         const output = [];
 
@@ -427,8 +559,8 @@
                     ? `
                         <span class="code-language">
                             ${escapeHtml(
-                                code.language
-                            )}
+                        code.language
+                    )}
                         </span>
                     `
                     : `
@@ -438,7 +570,9 @@
                     `;
 
             const codeText =
-                code.lines.join("\n");
+                code.lines.join(
+                    "\n"
+                );
 
             output.push(`
                 <div class="adumex-code-block">
@@ -449,8 +583,8 @@
                             type="button"
                             class="adumex-copy-code"
                             data-code="${escapeHtml(
-                                codeText
-                            )}"
+                codeText
+            )}"
                             aria-label="Copy code"
                         >
                             <i class="fa-regular fa-copy"></i>
@@ -459,18 +593,21 @@
                     </div>
 
                     <pre><code>${escapeHtml(
-                        codeText
-                    )}</code></pre>
+                codeText
+            )}</code></pre>
                 </div>
             `);
 
             code = null;
         };
 
-        for (const line of lines) {
-            const fence = line.match(
-                /^```[ \t]*([^\s]*)[ \t]*$/
-            );
+        for (
+            const line of lines
+        ) {
+            const fence =
+                line.match(
+                    /^```[ \t]*([^\s]*)[ \t]*$/
+                );
 
             if (fence) {
                 if (code) {
@@ -489,7 +626,9 @@
             }
 
             if (code) {
-                code.lines.push(line);
+                code.lines.push(
+                    line
+                );
                 continue;
             }
 
@@ -528,7 +667,9 @@
                         ? "ol"
                         : "ul";
 
-                if (list !== type) {
+                if (
+                    list !== type
+                ) {
                     closeList();
 
                     list = type;
@@ -540,14 +681,20 @@
 
                 output.push(
                     `<li>${renderInline(
-                        (ordered ||
-                            unordered)[1]
+                        (
+                            ordered ||
+                            unordered
+                        )[1]
                     )}</li>`
                 );
-            } else if (!line.trim()) {
+            } else if (
+                !line.trim()
+            ) {
                 closeList();
 
-                output.push("<br>");
+                output.push(
+                    "<br>"
+                );
             } else {
                 closeList();
 
@@ -565,7 +712,9 @@
         return output.join("");
     }
 
-    function renderTextWithLinks(text) {
+    function renderTextWithLinks(
+        text
+    ) {
         return renderInline(
             String(text || "")
         ).replace(
@@ -597,7 +746,11 @@
             16;
 
         container.scrollTo({
-            top: Math.max(0, top),
+            top:
+                Math.max(
+                    0,
+                    top
+                ),
             behavior
         });
     }
@@ -655,7 +808,9 @@
             "adumex-user"
         ];
 
-        for (const key of possibleKeys) {
+        for (
+            const key of possibleKeys
+        ) {
             try {
                 const raw =
                     localStorage.getItem(
@@ -667,7 +822,9 @@
                 }
 
                 const parsed =
-                    JSON.parse(raw);
+                    JSON.parse(
+                        raw
+                    );
 
                 const name =
                     parsed?.name ||
@@ -678,7 +835,8 @@
                     parsed?.user?.name;
 
                 if (
-                    typeof name === "string" &&
+                    typeof name ===
+                    "string" &&
                     name.trim()
                 ) {
                     return name.trim();
@@ -691,7 +849,9 @@
         return "";
     }
 
-    function getRandomItem(items) {
+    function getRandomItem(
+        items
+    ) {
         return items[
             Math.floor(
                 Math.random() *
@@ -713,19 +873,16 @@
                 "Morning",
                 "Good morning — ready to build?"
             ],
-
             afternoon: [
                 "Good afternoon",
                 "Afternoon",
                 "Good afternoon — what are we working on?"
             ],
-
             evening: [
                 "Good evening",
                 "Evening",
                 "Good evening — what should we tackle?"
             ],
-
             night: [
                 "Good night",
                 "Still working?",
@@ -762,119 +919,12 @@
             getGreeting();
 
         if (welcome) {
-            welcome.hidden = false;
+            welcome.hidden =
+                false;
         }
     }
 
     /* Composer */
-
-    function hasSelectedFiles() {
-        return getFiles().length > 0;
-    }
-
-    function updateComposerState() {
-        const input =
-            getInput();
-
-        const commandArea =
-            getCommandArea();
-
-        if (
-            !input ||
-            !commandArea
-        ) {
-            return;
-        }
-
-        const hasText =
-            input.value.length > 0;
-
-        const hasFiles =
-            hasSelectedFiles();
-
-        const active =
-            hasText ||
-            hasFiles;
-
-        commandArea.classList.toggle(
-            "composer-active",
-            active
-        );
-
-        commandArea.classList.toggle(
-            "composer-empty",
-            !active
-        );
-
-        emit(
-            "composer-state",
-            {
-                active,
-                value:
-                    input.value
-            }
-        );
-    }
-
-    function autoGrowInput() {
-        const input =
-            getInput();
-
-        if (!input) {
-            return;
-        }
-
-        input.style.height =
-            "auto";
-
-        const maxHeight =
-            220;
-
-        const nextHeight =
-            Math.min(
-                input.scrollHeight,
-                maxHeight
-            );
-
-        input.style.height =
-            `${nextHeight}px`;
-
-        input.style.overflowY =
-            input.scrollHeight >
-            maxHeight
-                ? "auto"
-                : "hidden";
-    }
-
-    function handleInput(event) {
-        const input =
-            event.target;
-
-        if (!input) {
-            return;
-        }
-
-        autoGrowInput();
-        updateComposerState();
-
-        emit(
-            "typing",
-            {
-                value:
-                    input.value,
-                length:
-                    input.value.length,
-                lastCharacter:
-                    input.value.length
-                        ? input.value[
-                            input.value.length - 1
-                        ]
-                        : ""
-            }
-        );
-    }
-
-    /* Attachments */
 
     function getFiles() {
         const tools =
@@ -883,7 +933,7 @@
         if (
             !tools ||
             typeof tools.getFiles !==
-                "function"
+            "function"
         ) {
             return [];
         }
@@ -896,14 +946,18 @@
                 (
                     file &&
                     typeof file.name ===
-                        "string"
+                    "string"
                 )
         );
     }
 
-    function getFileExtension(name) {
+    function getFileExtension(
+        name
+    ) {
         const value =
-            String(name || "")
+            String(
+                name || ""
+            )
                 .trim()
                 .toLowerCase();
 
@@ -918,34 +972,42 @@
             .pop();
     }
 
-    function getFileMetadata(files) {
-        return files.map(file => ({
-            name:
-                file?.name ||
-                "Unnamed file",
-
-            type:
-                file?.type ||
-                "application/octet-stream",
-
-            size:
-                Number(
-                    file?.size || 0
-                ),
-
-            extension:
-                getFileExtension(
-                    file?.name
-                )
-        }));
+    function getFileMetadata(
+        files
+    ) {
+        return files.map(
+            file => ({
+                name:
+                    file?.name ||
+                    "Unnamed file",
+                type:
+                    file?.type ||
+                    "application/octet-stream",
+                size:
+                    Number(
+                        file?.size ||
+                        0
+                    ),
+                extension:
+                    getFileExtension(
+                        file?.name
+                    )
+            })
+        );
     }
 
-    function getTotalFileSize(files) {
+    function getTotalFileSize(
+        files
+    ) {
         return files.reduce(
-            (total, file) =>
+            (
+                total,
+                file
+            ) =>
                 total +
                 Number(
-                    file?.size || 0
+                    file?.size ||
+                    0
                 ),
             0
         );
@@ -960,14 +1022,16 @@
         updateComposerState();
     }
 
-    function isImageFile(file) {
+    function isImageFile(
+        file
+    ) {
         if (!file) {
             return false;
         }
 
         if (
             typeof file.type ===
-                "string" &&
+            "string" &&
             file.type.startsWith(
                 "image/"
             )
@@ -980,7 +1044,9 @@
         );
     }
 
-    function isCodeFile(file) {
+    function isCodeFile(
+        file
+    ) {
         return /\.(js|mjs|cjs|jsx|ts|tsx|py|java|c|h|cpp|cc|cxx|hpp|cs|go|rs|php|rb|swift|kt|kts|dart|lua|r|sql|sh|bash|zsh|ps1|html|htm|css|scss|sass|less|json|xml|yaml|yml|toml|env)$/i.test(
             file?.name || ""
         );
@@ -1005,88 +1071,93 @@
         wrapper.className =
             "adumex-message-attachments";
 
-        files.forEach(file => {
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-            item.className =
-                "adumex-message-attachment";
-
-            if (
-                isImageFile(file)
-            ) {
-                const image =
+        files.forEach(
+            file => {
+                const item =
                     document.createElement(
-                        "img"
+                        "div"
                     );
 
-                image.className =
-                    "adumex-message-image";
+                item.className =
+                    "adumex-message-attachment";
 
-                image.alt =
-                    `Uploaded image: ${
-                        file.name ||
-                        "image"
-                    }`;
-
-                const objectUrl =
-                    URL.createObjectURL(
+                if (
+                    isImageFile(
                         file
-                    );
-
-                image.src =
-                    objectUrl;
-
-                image.addEventListener(
-                    "load",
-                    () => {
-                        URL.revokeObjectURL(
-                            objectUrl
+                    )
+                ) {
+                    const image =
+                        document.createElement(
+                            "img"
                         );
-                    },
-                    {
-                        once: true
-                    }
-                );
 
-                item.appendChild(
-                    image
-                );
-            } else {
-                const icon =
-                    document.createElement(
-                        "i"
+                    image.className =
+                        "adumex-message-image";
+
+                    image.alt =
+                        `Uploaded image: ${file.name ||
+                        "image"
+                        }`;
+
+                    const objectUrl =
+                        URL.createObjectURL(
+                            file
+                        );
+
+                    image.src =
+                        objectUrl;
+
+                    image.addEventListener(
+                        "load",
+                        () => {
+                            URL.revokeObjectURL(
+                                objectUrl
+                            );
+                        },
+                        {
+                            once: true
+                        }
                     );
 
-                icon.className =
-                    isCodeFile(file)
-                        ? "fa-solid fa-code"
-                        : "fa-regular fa-file";
+                    item.appendChild(
+                        image
+                    );
+                } else {
+                    const icon =
+                        document.createElement(
+                            "i"
+                        );
+
+                    icon.className =
+                        isCodeFile(
+                            file
+                        )
+                            ? "fa-solid fa-code"
+                            : "fa-regular fa-file";
+
+                    item.appendChild(
+                        icon
+                    );
+                }
+
+                const name =
+                    document.createElement(
+                        "span"
+                    );
+
+                name.textContent =
+                    file.name ||
+                    "Uploaded file";
 
                 item.appendChild(
-                    icon
+                    name
+                );
+
+                wrapper.appendChild(
+                    item
                 );
             }
-
-            const name =
-                document.createElement(
-                    "span"
-                );
-
-            name.textContent =
-                file.name ||
-                "Uploaded file";
-
-            item.appendChild(
-                name
-            );
-
-            wrapper.appendChild(
-                item
-            );
-        });
+        );
 
         parent.appendChild(
             wrapper
@@ -1113,10 +1184,9 @@
             );
 
         message.className =
-            `message adumex-message ${
-                role === "user"
-                    ? "user-message"
-                    : "assistant-message"
+            `message adumex-message ${role === "user"
+                ? "user-message"
+                : "assistant-message"
             }`;
 
         message.dataset.role =
@@ -1144,14 +1214,6 @@
             files
         );
 
-        bindCopyButtons(
-            message
-        );
-
-        bindGitHubButtons(
-            message
-        );
-
         return message;
     }
 
@@ -1174,7 +1236,9 @@
             "assistant"
         ) {
             content.innerHTML =
-                renderMarkdown(text);
+                renderMarkdown(
+                    text
+                );
         } else {
             content.innerHTML =
                 renderTextWithLinks(
@@ -1198,130 +1262,116 @@
 
     /* Copy Buttons */
 
-    function bindCopyButtons(root) {
+    function bindCopyButtons(
+        root
+    ) {
         root
             ?.querySelectorAll(
                 ".adumex-copy-code"
             )
-            .forEach(button => {
-                if (
-                    button.dataset.bound
-                ) {
-                    return;
-                }
-
-                button.dataset.bound =
-                    "true";
-
-                button.addEventListener(
-                    "click",
-                    async () => {
-                        const code =
-                            button.dataset.code ||
-                            "";
-
-                        try {
-                            await navigator.clipboard.writeText(
-                                code
-                            );
-
-                            button.innerHTML =
-                                `
-                                    <i class="fa-solid fa-check"></i>
-                                    Copied
-                                `;
-
-                            setTimeout(
-                                () => {
-                                    button.innerHTML =
-                                        `
-                                            <i class="fa-regular fa-copy"></i>
-                                            Copy
-                                        `;
-                                },
-                                1400
-                            );
-                        } catch {
-                            button.textContent =
-                                "Copy failed";
-
-                            setTimeout(
-                                () => {
-                                    button.innerHTML =
-                                        `
-                                            <i class="fa-regular fa-copy"></i>
-                                            Copy
-                                        `;
-                                },
-                                1400
-                            );
-                        }
+            .forEach(
+                button => {
+                    if (
+                        button.dataset.bound
+                    ) {
+                        return;
                     }
-                );
-            });
+
+                    button.dataset.bound =
+                        "true";
+
+                    button.addEventListener(
+                        "click",
+                        async () => {
+                            const code =
+                                button.dataset.code ||
+                                "";
+
+                            try {
+                                await navigator.clipboard.writeText(
+                                    code
+                                );
+
+                                button.innerHTML =
+                                    `
+                                        <i class="fa-solid fa-check"></i>
+                                        Copied
+                                    `;
+
+                                setTimeout(
+                                    () => {
+                                        button.innerHTML =
+                                            `
+                                                <i class="fa-regular fa-copy"></i>
+                                                Copy
+                                            `;
+                                    },
+                                    1400
+                                );
+                            } catch {
+                                button.textContent =
+                                    "Copy failed";
+                            }
+                        }
+                    );
+                }
+            );
     }
 
-    function bindGitHubButtons(root) {
+    function bindGitHubButtons(
+        root
+    ) {
         root
             ?.querySelectorAll(
                 ".adumex-github-copy"
             )
-            .forEach(button => {
-                if (
-                    button.dataset.bound
-                ) {
-                    return;
-                }
-
-                button.dataset.bound =
-                    "true";
-
-                button.addEventListener(
-                    "click",
-                    async () => {
-                        const url =
-                            button.dataset.githubUrl ||
-                            "";
-
-                        try {
-                            await navigator.clipboard.writeText(
-                                url
-                            );
-
-                            button.innerHTML =
-                                `
-                                    <i class="fa-solid fa-check"></i>
-                                    Copied
-                                `;
-
-                            setTimeout(
-                                () => {
-                                    button.innerHTML =
-                                        `
-                                            <i class="fa-regular fa-copy"></i>
-                                            Copy link
-                                        `;
-                                },
-                                1400
-                            );
-                        } catch {
-                            button.textContent =
-                                "Copy failed";
-
-                            setTimeout(
-                                () => {
-                                    button.innerHTML =
-                                        `
-                                            <i class="fa-regular fa-copy"></i>
-                                            Copy link
-                                        `;
-                                },
-                                1400
-                            );
-                        }
+            .forEach(
+                button => {
+                    if (
+                        button.dataset.bound
+                    ) {
+                        return;
                     }
-                );
-            });
+
+                    button.dataset.bound =
+                        "true";
+
+                    button.addEventListener(
+                        "click",
+                        async () => {
+                            const url =
+                                button.dataset.githubUrl ||
+                                "";
+
+                            try {
+                                await navigator.clipboard.writeText(
+                                    url
+                                );
+
+                                button.innerHTML =
+                                    `
+                                        <i class="fa-solid fa-check"></i>
+                                        Copied
+                                    `;
+
+                                setTimeout(
+                                    () => {
+                                        button.innerHTML =
+                                            `
+                                                <i class="fa-regular fa-copy"></i>
+                                                Copy link
+                                            `;
+                                    },
+                                    1400
+                                );
+                            } catch {
+                                button.textContent =
+                                    "Copy failed";
+                            }
+                        }
+                    );
+                }
+            );
     }
 
     /* Authentication */
@@ -1329,45 +1379,56 @@
     async function getAccessToken() {
         const client =
             window.adumexSupabase ||
-            window.supabaseClient ||
-            window.supabase;
+            window.AdumexSupabase?.getClient?.() ||
+            window.supabaseClient;
 
         if (
-            client?.auth?.getSession
+            !client?.auth?.getSession
         ) {
-            try {
-                return (
-                    await client.auth.getSession()
-                )
-                    .data
-                    ?.session
-                    ?.access_token ||
-                    null;
-            } catch {
-                return null;
-            }
-        }
-
-        if (
-            typeof window.getSupabaseAccessToken ===
-            "function"
-        ) {
-            try {
-                return await window.getSupabaseAccessToken();
-            } catch {
-                return null;
-            }
+            throw new Error(
+                "Adumex authentication is not initialized."
+            );
         }
 
         try {
-            return (
-                localStorage.getItem(
-                    "access_token"
-                ) || null
+            const result =
+                await client.auth.getSession();
+
+            const session =
+                result?.data?.session;
+
+            if (
+                session?.access_token
+            ) {
+                return session.access_token;
+            }
+
+            throw new Error(
+                "No active Adumex session was found."
             );
-        } catch {
-            return null;
+        } catch (
+        error
+        ) {
+            if (
+                error?.message
+            ) {
+                throw error;
+            }
+
+            throw new Error(
+                "Unable to read the Adumex session."
+            );
         }
+    }
+
+    async function getAuthHeaders() {
+        const token =
+            await getAccessToken();
+
+        return {
+            Authorization:
+                `Bearer ${token}`
+        };
     }
 
     /* Conversation Persistence */
@@ -1431,28 +1492,37 @@
         const recentChats =
             window.AdumexRecentChats;
 
+        const firstUserMessage =
+            state.messages.find(
+                item =>
+                    item.role ===
+                    "user"
+            );
+
+        const title =
+            firstUserMessage
+                ?.content
+                ?.replace(
+                    /\s+/g,
+                    " "
+                )
+                ?.slice(
+                    0,
+                    42
+                ) ||
+            "New chat";
+
         if (
             recentChats?.updateChat
         ) {
-            const firstUserMessage =
-                state.messages.find(
-                    item =>
-                        item.role ===
-                        "user"
-                );
-
-            const title =
-                firstUserMessage?.content
-                    ?.replace(/\s+/g, " ")
-                    ?.slice(0, 42) ||
-                "New chat";
-
             recentChats.updateChat(
                 state.chatId,
                 {
                     title,
                     messages:
-                        state.messages
+                        state.messages,
+                    conversationId:
+                        state.conversationId
                 }
             );
 
@@ -1464,14 +1534,7 @@
             {
                 id:
                     state.chatId,
-                title:
-                    state.messages.find(
-                        item =>
-                            item.role ===
-                            "user"
-                    )?.content
-                        ?.slice(0, 42) ||
-                    "New chat",
+                title,
                 messages:
                     state.messages,
                 conversationId:
@@ -1482,9 +1545,11 @@
 
     /* Generation */
 
-    function setGenerating(value) {
+    function setGenerating(
+        value
+    ) {
         state.generating =
-            value;
+            Boolean(value);
 
         const button =
             getSendButton();
@@ -1498,32 +1563,34 @@
 
             button.classList.toggle(
                 "is-generating",
-                value
+                state.generating
             );
 
             button.setAttribute(
                 "aria-label",
-                value
+                state.generating
                     ? "Stop response"
                     : "Send message"
             );
 
             button.setAttribute(
                 "title",
-                value
+                state.generating
                     ? "Stop response"
                     : "Send message"
             );
 
             button.innerHTML =
-                value
+                state.generating
                     ? '<i class="fa-solid fa-stop"></i>'
                     : '<i class="fa-solid fa-arrow-up"></i>';
         }
 
         input?.setAttribute(
             "aria-busy",
-            String(value)
+            String(
+                state.generating
+            )
         );
     }
 
@@ -1563,13 +1630,18 @@
                                 )
                         )
                         .map(
-                            line =>
-                                line
-                                    .slice(5)
-                                    .replace(
-                                        /^ /,
-                                        ""
-                                    )
+                            line => {
+                                const raw =
+                                    line.slice(
+                                        5
+                                    );
+
+                                return raw.startsWith(
+                                    " "
+                                )
+                                    ? raw.slice(1)
+                                    : raw;
+                            }
                         );
 
                 if (
@@ -1583,12 +1655,10 @@
                         "\n"
                     );
 
-                if (!data) {
-                    return;
-                }
-
                 if (
-                    data === "[DONE]"
+                    !data ||
+                    data ===
+                    "[DONE]"
                 ) {
                     return;
                 }
@@ -1616,9 +1686,9 @@
 
                 if (
                     payload?.type ===
-                        "text" &&
+                    "text" &&
                     typeof payload.token ===
-                        "string"
+                    "string"
                 ) {
                     state.assistantText +=
                         payload.token;
@@ -1626,14 +1696,6 @@
                     renderMessage(
                         state.assistantElement,
                         state.assistantText
-                    );
-
-                    bindCopyButtons(
-                        state.assistantElement
-                    );
-
-                    bindGitHubButtons(
-                        state.assistantElement
                     );
 
                     scrollToBottom(
@@ -1699,7 +1761,9 @@
         buffer +=
             decoder.decode();
 
-        if (buffer.trim()) {
+        if (
+            buffer.trim()
+        ) {
             processBlock(
                 buffer
             );
@@ -1767,7 +1831,9 @@
     async function sendMessage(
         value
     ) {
-        if (state.generating) {
+        if (
+            state.generating
+        ) {
             return {
                 success: false,
                 error:
@@ -1814,13 +1880,10 @@
             };
         }
 
-        const totalFileSize =
+        if (
             getTotalFileSize(
                 files
-            );
-
-        if (
-            totalFileSize >
+            ) >
             MAX_TOTAL_FILE_SIZE
         ) {
             return {
@@ -1860,7 +1923,8 @@
             "Please analyze the uploaded files.";
 
         state.messages.push({
-            role: "user",
+            role:
+                "user",
             content:
                 displayMessage,
             attachments:
@@ -1896,7 +1960,6 @@
 
         updateComposerState();
         setGenerating(true);
-
         updateHistoryUi();
 
         try {
@@ -1956,26 +2019,21 @@
                 );
             }
 
-            files.forEach(file => {
-                formData.append(
-                    "files",
-                    file,
-                    file.name
-                );
-            });
+            files.forEach(
+                file => {
+                    formData.append(
+                        "files",
+                        file,
+                        file.name
+                    );
+                }
+            );
 
-            const token =
-                await getAccessToken();
+            const headers =
+                await getAuthHeaders();
 
-            const headers = {
-                Accept:
-                    "text/event-stream"
-            };
-
-            if (token) {
-                headers.Authorization =
-                    `Bearer ${token}`;
-            }
+            headers.Accept =
+                "text/event-stream";
 
             state.controller =
                 new AbortController();
@@ -1997,7 +2055,9 @@
                     }
                 );
 
-            if (!response.ok) {
+            if (
+                !response.ok
+            ) {
                 const body =
                     await response
                         .json()
@@ -2010,7 +2070,8 @@
                     401
                 ) {
                     throw new Error(
-                        "Your session has expired. Please log in again."
+                        body?.error ||
+                        "Authentication failed. Please sign in again."
                     );
                 }
 
@@ -2059,14 +2120,6 @@
                 reply
             );
 
-            bindCopyButtons(
-                state.assistantElement
-            );
-
-            bindGitHubButtons(
-                state.assistantElement
-            );
-
             updateHistoryUi();
 
             scrollToResponse(
@@ -2091,10 +2144,12 @@
                 conversationId:
                     state.conversationId
             };
-        } catch (error) {
+        } catch (
+        error
+        ) {
             const messageText =
                 error?.name ===
-                "AbortError"
+                    "AbortError"
                     ? "Response stopped."
                     : cleanText(
                         error?.message ||
@@ -2151,6 +2206,82 @@
 
     /* Conversations */
 
+    async function openChat(
+        chat
+    ) {
+        state.chatId =
+            chat?.id ||
+            null;
+
+        state.conversationId =
+            state.chatId
+                ? getServerConversation(
+                    state.chatId
+                )
+                : null;
+
+        renderConversation(
+            chat?.messages ||
+            []
+        );
+
+        if (
+            !state.conversationId
+        ) {
+            return;
+        }
+
+        try {
+            const headers =
+                await getAuthHeaders();
+
+            const response =
+                await fetch(
+                    `${API}/conversations/${encodeURIComponent(
+                        state.conversationId
+                    )}/messages`,
+                    {
+                        headers,
+                        credentials:
+                            "omit"
+                    }
+                );
+
+            if (
+                response.status ===
+                401
+            ) {
+                emit(
+                    "auth-expired"
+                );
+                return;
+            }
+
+            if (
+                response.ok
+            ) {
+                const data =
+                    await response.json();
+
+                renderConversation(
+                    data.messages ||
+                    []
+                );
+            }
+        } catch (
+        error
+        ) {
+            emit(
+                "error",
+                {
+                    error:
+                        error?.message ||
+                        "Unable to load this conversation."
+                }
+            );
+        }
+    }
+
     function renderConversation(
         messages
     ) {
@@ -2183,7 +2314,8 @@
             );
 
         if (welcome) {
-            welcome.hidden = true;
+            welcome.hidden =
+                true;
         }
 
         state.messages.forEach(
@@ -2207,83 +2339,6 @@
         scrollToBottom(
             "auto"
         );
-    }
-
-    async function openChat(
-        chat
-    ) {
-        state.chatId =
-            chat?.id ||
-            null;
-
-        state.conversationId =
-            state.chatId
-                ? getServerConversation(
-                    state.chatId
-                )
-                : null;
-
-        renderConversation(
-            chat?.messages ||
-            []
-        );
-
-        if (
-            !state.conversationId
-        ) {
-            return;
-        }
-
-        try {
-            const token =
-                await getAccessToken();
-
-            const headers =
-                token
-                    ? {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                    : {};
-
-            const response =
-                await fetch(
-                    `${API}/conversations/${encodeURIComponent(
-                        state.conversationId
-                    )}/messages`,
-                    {
-                        headers
-                    }
-                );
-
-            if (
-                response.status ===
-                401
-            ) {
-                emit(
-                    "auth-expired"
-                );
-                return;
-            }
-
-            if (response.ok) {
-                const data =
-                    await response.json();
-
-                renderConversation(
-                    data.messages ||
-                    []
-                );
-            }
-        } catch {
-            emit(
-                "error",
-                {
-                    error:
-                        "Unable to load this conversation."
-                }
-            );
-        }
     }
 
     function newChat(
@@ -2329,6 +2384,113 @@
 
         emit(
             "new-chat-ready"
+        );
+    }
+
+    /* Composer State */
+
+    function hasSelectedFiles() {
+        return getFiles().length >
+            0;
+    }
+
+    function updateComposerState() {
+        const input =
+            getInput();
+
+        const commandArea =
+            getCommandArea();
+
+        if (
+            !input ||
+            !commandArea
+        ) {
+            return;
+        }
+
+        const active =
+            input.value.length >
+            0 ||
+            hasSelectedFiles();
+
+        commandArea.classList.toggle(
+            "composer-active",
+            active
+        );
+
+        commandArea.classList.toggle(
+            "composer-empty",
+            !active
+        );
+
+        emit(
+            "composer-state",
+            {
+                active,
+                value:
+                    input.value
+            }
+        );
+    }
+
+    function autoGrowInput() {
+        const input =
+            getInput();
+
+        if (!input) {
+            return;
+        }
+
+        input.style.height =
+            "auto";
+
+        const maxHeight =
+            220;
+
+        const nextHeight =
+            Math.min(
+                input.scrollHeight,
+                maxHeight
+            );
+
+        input.style.height =
+            `${nextHeight}px`;
+
+        input.style.overflowY =
+            input.scrollHeight >
+                maxHeight
+                ? "auto"
+                : "hidden";
+    }
+
+    function handleInput(
+        event
+    ) {
+        const input =
+            event.target;
+
+        if (!input) {
+            return;
+        }
+
+        autoGrowInput();
+        updateComposerState();
+
+        emit(
+            "typing",
+            {
+                value:
+                    input.value,
+                length:
+                    input.value.length,
+                lastCharacter:
+                    input.value.length
+                        ? input.value[
+                        input.value.length -
+                        1
+                        ]
+                        : ""
+            }
         );
     }
 
@@ -2440,8 +2602,6 @@
             }
         );
 
-        /* New chat */
-
         window.addEventListener(
             "adumex:new-chat",
             event => {
@@ -2451,8 +2611,6 @@
             }
         );
 
-        /* Open chat */
-
         window.addEventListener(
             "adumex:open-chat",
             event => {
@@ -2461,8 +2619,6 @@
                 );
             }
         );
-
-        /* Deleted chat */
 
         window.addEventListener(
             "adumex:chat-deleted",
@@ -2476,14 +2632,10 @@
             }
         );
 
-        /* Attachments */
-
         window.addEventListener(
             "adumex:attachments-changed",
             updateComposerState
         );
-
-        /* Public API */
 
         window.AdumexAI = {
             sendMessage,
@@ -2517,8 +2669,6 @@
         window.startAdumexNewChat =
             () =>
                 newChat(null);
-
-        /* Initial state */
 
         updateComposerState();
         renderGreeting();
