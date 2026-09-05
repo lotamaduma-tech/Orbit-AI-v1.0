@@ -3,19 +3,8 @@
 (() => {
     /* Configuration */
 
-    const configuredApi =
-        String(
-            window.ADUMEX_API_URL ||
-            "http://localhost:5000/api/chat"
-        ).replace(/\/+$/, "");
-
-    const API =
-        configuredApi.endsWith("/chat")
-            ? configuredApi.slice(0, -5)
-            : configuredApi.replace(/\/api$/, "") + "/api";
-
-    const CHAT_URL =
-        `${API}/chat`;
+    const API = window.AdumexApi.base;
+    const CHAT_URL = API + "/chat";
 
     const HISTORY_LIMIT = 30;
     const MAX_MESSAGE_LENGTH = 20000;
@@ -35,6 +24,9 @@
         controller: null,
         assistantElement: null,
         assistantText: "",
+        request: null,
+        loadController: null,
+        loadVersion: 0,
         initialized: false
     };
 
@@ -1466,59 +1458,9 @@
 
     /* Authentication */
 
-    async function getAccessToken() {
-        const client =
-            window.adumexSupabase ||
-            window.AdumexSupabase?.getClient?.() ||
-            window.supabaseClient;
-
-        if (
-            !client?.auth?.getSession
-        ) {
-            throw new Error(
-                "Adumex authentication is not initialized."
-            );
-        }
-
-        try {
-            const result =
-                await client.auth.getSession();
-
-            const session =
-                result?.data?.session;
-
-            if (
-                session?.access_token
-            ) {
-                return session.access_token;
-            }
-
-            throw new Error(
-                "No active Adumex session was found."
-            );
-        } catch (
-        error
-        ) {
-            if (
-                error?.message
-            ) {
-                throw error;
-            }
-
-            throw new Error(
-                "Unable to read the Adumex session."
-            );
-        }
-    }
-
-    async function getAuthHeaders() {
-        const token =
-            await getAccessToken();
-
-        return {
-            Authorization:
-                `Bearer ${token}`
-        };
+    async function getAuthHeaders(signal) {
+        const session = await window.AdumexApi.session(signal);
+        return { Authorization: "Bearer " + session.access_token };
     }
 
     /* Conversation Persistence */
@@ -1530,7 +1472,7 @@
             const values =
                 JSON.parse(
                     localStorage.getItem(
-                        SERVER_CONVERSATIONS_KEY
+                        SERVER_CONVERSATIONS_KEY + ":" + window.AdumexRecentChats?.getUserId?.()
                     ) || "{}"
                 );
 
@@ -1558,7 +1500,7 @@
             const values =
                 JSON.parse(
                     localStorage.getItem(
-                        SERVER_CONVERSATIONS_KEY
+                        SERVER_CONVERSATIONS_KEY + ":" + window.AdumexRecentChats?.getUserId?.()
                     ) || "{}"
                 );
 
@@ -1566,7 +1508,7 @@
                 conversationId;
 
             localStorage.setItem(
-                SERVER_CONVERSATIONS_KEY,
+                SERVER_CONVERSATIONS_KEY + ":" + window.AdumexRecentChats?.getUserId?.(),
                 JSON.stringify(values)
             );
         } catch {
@@ -1692,183 +1634,59 @@
 
     /* SSE */
 
-    async function processSse(
-        response
-    ) {
-        if (!response.body) {
-            throw new Error(
-                "Adumex received no response stream."
-            );
+    async function processSse(response, run) {
+        if (!response.body) throw new Error("Adumex received no response stream.");
+        if (!response.headers.get("content-type")?.includes("text/event-stream")) {
+            throw new Error("Adumex returned an unexpected response format.");
         }
-
-        const reader =
-            response.body.getReader();
-
-        const decoder =
-            new TextDecoder();
-
-        let buffer = "";
-        let complete = null;
-
-        const processBlock =
-            block => {
-                const lines =
-                    block.split(
-                        /\r?\n/
-                    );
-
-                const dataLines =
-                    lines
-                        .filter(
-                            line =>
-                                line.startsWith(
-                                    "data:"
-                                )
-                        )
-                        .map(
-                            line => {
-                                const raw =
-                                    line.slice(
-                                        5
-                                    );
-
-                                return raw.startsWith(
-                                    " "
-                                )
-                                    ? raw.slice(1)
-                                    : raw;
-                            }
-                        );
-
-                if (
-                    !dataLines.length
-                ) {
-                    return;
-                }
-
-                const data =
-                    dataLines.join(
-                        "\n"
-                    );
-
-                if (
-                    !data ||
-                    data ===
-                    "[DONE]"
-                ) {
-                    return;
-                }
-
-                let payload;
-
-                try {
-                    payload =
-                        JSON.parse(
-                            data
-                        );
-                } catch {
-                    return;
-                }
-
-                if (
-                    payload?.type ===
-                    "error"
-                ) {
-                    throw new Error(
-                        payload.error ||
-                        "Adumex could not complete the request."
-                    );
-                }
-
-                if (
-                    payload?.type ===
-                    "text" &&
-                    typeof payload.token ===
-                    "string"
-                ) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "", complete = null, terminal = false;
+        const processBlock = block => {
+            const data = block.split(/\r?\n/).filter(line => line.startsWith("data:"))
+                .map(line => line.slice(5).trimStart()).join("\n").trimEnd();
+            if (!data) return;
+            if (data === "[DONE]") { terminal = true; return; }
+            let payload;
+            try { payload = JSON.parse(data); } catch { return; }
+            if (payload.type === "error") throw new Error(payload.error || "Adumex could not complete the request.");
+            if (payload.type === "text" && typeof payload.token === "string") {
+                run.assistantText += payload.token;
+                if (state.request === run) {
+                    state.assistantText = run.assistantText;
                     window.AdumexThinking?.hide?.();
-
-                    state.assistantText +=
-                        payload.token;
-
-                    renderMessage(
-                        state.assistantElement,
-                        state.assistantText
-                    );
-
-                    scrollToResponse(
-                        state.assistantElement,
-                        "auto"
-                    );
+                    renderMessage(run.assistantElement, run.assistantText);
+                    scrollToResponse(run.assistantElement, "auto");
                 }
-
-                if (
-                    payload?.type ===
-                    "image"
-                ) {
-                    renderGeneratedImage(
-                        payload
-                    );
-                }
-
-                if (
-                    payload?.type ===
-                    "complete"
-                ) {
-                    complete =
-                        payload;
-                }
-            };
-
-        while (true) {
-            const {
-                value,
-                done
-            } =
-                await reader.read();
-
-            if (done) {
-                break;
             }
-
-            buffer +=
-                decoder.decode(
-                    value,
-                    {
-                        stream: true
-                    }
-                );
-
-            const blocks =
-                buffer.split(
-                    /\r?\n\r?\n/
-                );
-
-            buffer =
-                blocks.pop() ||
-                "";
-
-            for (
-                const block of blocks
-            ) {
-                processBlock(
-                    block
-                );
+            if (payload.type === "image" && state.request === run) renderGeneratedImage(payload);
+            if (payload.type === "complete") { complete = payload; terminal = true; }
+        };
+        try {
+            while (!terminal) {
+                const idle = window.AdumexApi.scope(run.signal, 30000, "The response stream stalled. Please retry.");
+                let chunk;
+                try { chunk = await window.AdumexApi.wait(reader.read(), idle.signal); }
+                finally { idle.dispose(); }
+                if (chunk.done) {
+                    buffer += decoder.decode();
+                    if (buffer.trim()) processBlock(buffer);
+                    if (!terminal) throw new Error("The response was interrupted before completion. Please retry.");
+                    break;
+                }
+                buffer += decoder.decode(chunk.value, { stream: true });
+                const blocks = buffer.split(/\r?\n\r?\n/);
+                buffer = blocks.pop() || "";
+                for (const block of blocks) { processBlock(block); if (terminal) break; }
             }
+            run.signal.throwIfAborted();
+            if (!cleanText(complete?.reply || run.assistantText)) throw new Error("Adumex returned an empty response.");
+            return complete;
+        } finally {
+            // Cancellation is best effort and must never hold the composer busy.
+            Promise.resolve(reader.cancel()).catch(() => {});
+            try { reader.releaseLock(); } catch { /* A cancelled read may still be settling. */ }
         }
-
-        buffer +=
-            decoder.decode();
-
-        if (
-            buffer.trim()
-        ) {
-            processBlock(
-                buffer
-            );
-        }
-
-        return complete;
     }
 
     /* Generated Images */
@@ -1927,472 +1745,139 @@
 
     /* Send */
 
-    async function sendMessage(
-        value
-    ) {
-        if (
-            state.generating
-        ) {
-            return {
-                success: false,
-                error:
-                    "Adumex is still responding."
-            };
-        }
-
-        const input =
-            getInput();
-
-        const rawMessage =
-            typeof value ===
-                "string"
-                ? value
-                : input?.value || "";
-
-        const message =
-            cleanText(
-                rawMessage
-            );
-
-        const files =
-            getFiles();
-
-        if (
-            !message &&
-            !files.length
-        ) {
-            return {
-                success: false,
-                error:
-                    "Message cannot be empty."
-            };
-        }
-
-        if (
-            files.length >
-            MAX_FILES
-        ) {
-            return {
-                success: false,
-                error:
-                    `You can upload up to ${MAX_FILES} files at once.`
-            };
-        }
-
-        if (
-            getTotalFileSize(
-                files
-            ) >
-            MAX_TOTAL_FILE_SIZE
-        ) {
-            return {
-                success: false,
-                error:
-                    "The total size of the selected files is too large."
-            };
-        }
-
-        if (!state.chatId) {
-            const chat =
-                window.AdumexRecentChats
-                    ?.createChat?.();
-
-            state.chatId =
-                chat?.id ||
-                `chat_${Date.now()}`;
-        }
-
-        state.conversationId ||=
-            getServerConversation(
-                state.chatId
-            );
-
-        const history =
-            normalizeMessages(
-                state.messages
-            );
-
-        const fileMetadata =
-            getFileMetadata(
-                files
-            );
-
-        const displayMessage =
-            message ||
-            "Please analyze the uploaded files.";
-
-        state.messages.push({
-            role:
-                "user",
-            content:
-                displayMessage,
-            attachments:
-                fileMetadata
-        });
-
-        const userElement =
-            createMessage(
-                "user",
-                displayMessage,
-                files
-            );
-
-        state.assistantElement =
-            createMessage(
-                "assistant",
-                ""
-            );
-
-        state.assistantText =
-            "";
-
-        if (input) {
-            input.value =
-                "";
-
-            input.style.height =
-                "auto";
-
-            input.style.overflowY =
-                "hidden";
-        }
-
-        updateComposerState();
-        setGenerating(true);
-        updateHistoryUi();
-
+    async function sendMessage(value) {
+        if (state.generating) return { success: false, error: "Adumex is still responding." };
+        const input = getInput();
+        const message = cleanText(typeof value === "string" ? value : input?.value || "");
+        const files = getFiles();
+        const invalid = !message && !files.length ? "Message cannot be empty."
+            : files.length > MAX_FILES ? "You can upload up to 10 files at once."
+            : getTotalFileSize(files) > MAX_TOTAL_FILE_SIZE ? "The selected files are too large." : null;
+        if (invalid) { emit("error", { error: invalid }); input?.setCustomValidity?.(invalid); input?.reportValidity?.(); return { success: false, error: invalid }; }
+        input?.setCustomValidity?.("");
+        const task = window.AdumexApi.scope(null, 150000, "The response request timed out. Please retry.");
+        const run = { ...task, messages: state.messages, assistantText: "", assistantElement: null, chatId: state.chatId, conversationId: state.conversationId };
+        let completed = false;
+        state.request = run;
+        state.controller = run.controller;
+        // Set the flag before any UI work that can throw.
+        state.generating = true;
         try {
-            const formData =
-                new FormData();
-
-            formData.append(
-                "message",
-                message
-            );
-
-            formData.append(
-                "history",
-                JSON.stringify(
-                    history
-                )
-            );
-
-            formData.append(
-                "filesMetadata",
-                JSON.stringify(
-                    fileMetadata
-                )
-            );
-
-            formData.append(
-                "hasImages",
-                String(
-                    files.some(
-                        isImageFile
-                    )
-                )
-            );
-
-            formData.append(
-                "hasCode",
-                String(
-                    files.some(
-                        isCodeFile
-                    )
-                )
-            );
-
-            formData.append(
-                "fileCount",
-                String(
-                    files.length
-                )
-            );
-
-            formData.append(
-                "memoryEnabled",
-                String(
-                    window.AdumexSettings?.getValue?.("memory") !== false
-                )
-            );
-
-            if (
-                state.conversationId
-            ) {
-                formData.append(
-                    "conversationId",
-                    state.conversationId
-                );
+            state.loadVersion++;
+            state.loadController?.abort();
+            setGenerating(true);
+            const session = await window.AdumexApi.session(run.signal);
+            run.userId = session.user.id;
+            if (window.AdumexRecentChats?.getUserId?.() !== run.userId) throw new Error("Chat history is still initializing. Please retry.");
+            if (!state.chatId) {
+                const chat = window.AdumexRecentChats?.createChat?.({ silent: true });
+                state.chatId = chat?.id || "chat_" + Date.now();
             }
-
-            files.forEach(
-                file => {
-                    formData.append(
-                        "files",
-                        file,
-                        file.name
-                    );
-                }
-            );
-
-            const headers =
-                await getAuthHeaders();
-
-            headers.Accept =
-                "text/event-stream";
-
-            state.controller =
-                new AbortController();
-
-            const response =
-                await fetch(
-                    CHAT_URL,
-                    {
-                        method:
-                            "POST",
-                        headers,
-                        body:
-                            formData,
-                        signal:
-                            state.controller
-                                .signal,
-                        credentials:
-                            "omit"
-                    }
-                );
-
-            if (
-                !response.ok
-            ) {
-                const body =
-                    await response
-                        .json()
-                        .catch(
-                            () => null
-                        );
-
-                if (
-                    response.status ===
-                    401
-                ) {
-                    throw new Error(
-                        body?.error ||
-                        "Authentication failed. Please sign in again."
-                    );
-                }
-
-                throw new Error(
-                    body?.error ||
-                    `Adumex server error (${response.status}).`
-                );
-            }
-
-            const complete =
-                await processSse(
-                    response
-                );
-
-            const reply =
-                cleanText(
-                    complete?.reply ||
-                    state.assistantText,
-                    MAX_STORED_RESPONSE_LENGTH
-                );
-
-            if (!reply) {
-                throw new Error(
-                    "Adumex returned an empty response."
-                );
-            }
-
-            state.messages.push({
-                role:
-                    "assistant",
-                content:
-                    reply
-            });
-
-            if (
-                window.AdumexSettings?.getValue?.("memory") !== false
-            ) {
-                await window.AdumexMemory?.rememberFromMessage?.(message);
-            }
-
-            state.conversationId =
-                complete?.conversationId ||
-                state.conversationId;
-
-            setServerConversation(
-                state.chatId,
-                state.conversationId
-            );
-
-            renderMessage(
-                state.assistantElement,
-                reply
-            );
-
-            updateHistoryUi();
-
-            scrollToResponse(
-                state.assistantElement
-            );
-
-            emit(
-                "message-complete",
-                {
-                    conversationId:
-                        state.conversationId,
-                    response:
-                        reply
-                }
-            );
-
-            return {
-                success:
-                    true,
-                response:
-                    reply,
-                conversationId:
-                    state.conversationId
-            };
-        } catch (
-        error
-        ) {
-            const messageText =
-                error?.name ===
-                    "AbortError"
-                    ? "Response stopped."
-                    : cleanText(
-                        error?.message ||
-                        "Adumex could not complete the request.",
-                        3000
-                    );
-
-            if (
-                state.assistantElement
-            ) {
-                renderMessage(
-                    state.assistantElement,
-                    `**Adumex error:** ${messageText}`
-                );
-
-                scrollToResponse(
-                    state.assistantElement
-                );
-            }
-
-            emit(
-                "error",
-                {
-                    error:
-                        messageText
-                }
-            );
-
-            return {
-                success:
-                    false,
-                error:
-                    messageText
-            };
-        } finally {
+            run.chatId = state.chatId;
+            run.conversationId = state.conversationId || getServerConversation(run.chatId);
+            const history = normalizeMessages(run.messages);
+            const fileMetadata = getFileMetadata(files);
+            const displayMessage = message || "Please analyze the uploaded files.";
+            run.messages.push({ role: "user", content: displayMessage, attachments: fileMetadata });
+            createMessage("user", displayMessage, files);
+            run.assistantElement = createMessage("assistant", "");
+            state.assistantElement = run.assistantElement;
+            state.assistantText = "";
+            if (input) { input.value = ""; input.style.height = "auto"; input.style.overflowY = "hidden"; }
             clearSelectedFiles();
-
-            state.controller =
-                null;
-
-            state.assistantElement =
-                null;
-
-            state.assistantText =
-                "";
-
-            setGenerating(
-                false
-            );
-
             updateComposerState();
+            updateHistoryUi();
+            const formData = new FormData();
+            formData.append("message", message);
+            formData.append("history", JSON.stringify(history));
+            formData.append("filesMetadata", JSON.stringify(fileMetadata));
+            formData.append("memoryEnabled", String(window.AdumexSettings?.getValue?.("memory") !== false));
+            if (run.conversationId) formData.append("conversationId", run.conversationId);
+            files.forEach(file => formData.append("files", file, file.name));
+            run.signal.throwIfAborted();
+            const response = await window.AdumexApi.wait(fetch(CHAT_URL, {
+                method: "POST", headers: { Authorization: "Bearer " + session.access_token, Accept: "text/event-stream" },
+                body: formData, signal: run.signal, credentials: "omit"
+            }), run.signal);
+            if (!response.ok) {
+                const body = await window.AdumexApi.wait(response.json().catch(() => null), run.signal);
+                throw new Error(body?.error || (response.status === 401 ? "Authentication failed. Please sign in again." : "Adumex server error (" + response.status + ")."));
+            }
+            const complete = await processSse(response, run);
+            run.signal.throwIfAborted();
+            const reply = cleanText(complete?.reply || run.assistantText, MAX_STORED_RESPONSE_LENGTH);
+            run.messages.push({ role: "assistant", content: reply });
+            run.conversationId = complete?.conversationId || run.conversationId;
+            if (state.request !== run) throw new DOMException("Response stopped.", "AbortError");
+            state.conversationId = run.conversationId;
+            setServerConversation(run.chatId, run.conversationId);
+            renderMessage(run.assistantElement, reply);
+            updateHistoryUi();
+            scrollToResponse(run.assistantElement);
+            emit("message-complete", { conversationId: run.conversationId, response: reply });
+            completed = true;
+            return { success: true, response: reply, conversationId: run.conversationId };
+        } catch (error) {
+            const reason = run.signal.aborted ? run.signal.reason : error;
+            const stopped = reason?.name === "AbortError";
+            const messageText = stopped ? "Response stopped." : cleanText(reason?.message || "Adumex could not complete the request.", 3000);
+            if (state.request === run) {
+                if (run.assistantElement) renderMessage(run.assistantElement, "**Adumex error:** " + messageText);
+                else { input?.setCustomValidity?.(messageText); input?.reportValidity?.(); }
+                emit("error", { error: messageText, stopped });
+            }
+            return { success: false, error: messageText, stopped };
+        } finally {
+            task.dispose();
+            if (state.request === run) {
+                state.request = null;
+                state.controller = null;
+                state.assistantElement = null;
+                state.assistantText = "";
+                state.generating = false;
+                try { setGenerating(false); updateComposerState(); } catch (error) { console.warn("Adumex composer cleanup failed."); }
+            }
+            if (completed && window.AdumexSettings?.getValue?.("memory") !== false) {
+                Promise.resolve().then(() => window.AdumexMemory?.rememberFromMessage?.(message, run.userId))
+                    .catch(() => console.warn("Adumex memory could not be saved."));
+            }
         }
     }
 
     /* Conversations */
 
-    async function openChat(
-        chat
-    ) {
-        state.chatId =
-            chat?.id ||
-            null;
-
-        state.conversationId =
-            state.chatId
-                ? getServerConversation(
-                    state.chatId
-                )
-                : null;
-
-        renderConversation(
-            chat?.messages ||
-            []
-        );
-
-        if (
-            !state.conversationId
-        ) {
-            return;
-        }
-
-        try {
-            const headers =
-                await getAuthHeaders();
-
-            const response =
-                await fetch(
-                    `${API}/conversations/${encodeURIComponent(
-                        state.conversationId
-                    )}/messages`,
-                    {
-                        headers,
-                        credentials:
-                            "omit"
-                    }
-                );
-
-            if (
-                response.status ===
-                401
-            ) {
-                emit(
-                    "auth-expired"
-                );
-                return;
-            }
-
-            if (
-                response.ok
-            ) {
-                const data =
-                    await response.json();
-
-                renderConversation(
-                    data.messages ||
-                    []
-                );
-            }
-        } catch (
-        error
-        ) {
-            emit(
-                "error",
-                {
-                    error:
-                        error?.message ||
-                        "Unable to load this conversation."
-                }
-            );
-        }
+    function cancelActiveWork() {
+        state.loadVersion++;
+        state.loadController?.abort();
+        state.loadController = null;
+        state.controller?.abort();
+        state.request = null;
+        state.controller = null;
+        state.assistantElement = null;
+        state.assistantText = "";
+        state.generating = false;
+        setGenerating(false);
     }
+
+    async function openChat(chat) {
+        cancelActiveWork();
+        const version = state.loadVersion;
+        state.chatId = chat?.id || null;
+        state.conversationId = chat?.conversationId || (state.chatId ? getServerConversation(state.chatId) : null);
+        renderConversation(chat?.messages || []);
+        if (!state.conversationId) return;
+        const controller = new AbortController();
+        state.loadController = controller;
+        try {
+            const data = await window.AdumexApi.json("/conversations/" + encodeURIComponent(state.conversationId) + "/messages", { signal: controller.signal }, window.AdumexRecentChats?.getUserId?.());
+            if (version !== state.loadVersion || controller.signal.aborted) return;
+            renderConversation(data.messages || []);
+            updateHistoryUi();
+        } catch (error) {
+            if (!controller.signal.aborted && version === state.loadVersion) emit("error", { error: error.message || "Unable to load this conversation." });
+        } finally { if (state.loadController === controller) state.loadController = null; }
+    }
+
 
     function renderConversation(
         messages
@@ -2456,6 +1941,7 @@
     function newChat(
         chat
     ) {
+        cancelActiveWork();
         state.chatId =
             chat?.id ||
             null;
@@ -2580,6 +2066,7 @@
     ) {
         const input =
             event.target;
+        input?.setCustomValidity?.("");
 
         if (!input) {
             return;
@@ -2758,6 +2245,8 @@
             updateComposerState
         );
 
+        window.addEventListener("adumex:history-cleared", () => newChat(null));
+
         window.AdumexAI = {
             sendMessage,
             stopGeneration,
@@ -2778,6 +2267,7 @@
                 messages,
                 conversationId
             ) => {
+                cancelActiveWork();
                 state.conversationId =
                     conversationId ||
                     null;
@@ -2800,7 +2290,7 @@
         const activeChat =
             window.AdumexRecentChats?.getActiveChat?.();
 
-        if (activeChat?.conversationId) {
+        if (activeChat) {
             setTimeout(
                 () => openChat(activeChat),
                 0

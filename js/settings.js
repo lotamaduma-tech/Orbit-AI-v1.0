@@ -41,10 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function loadSettings() {
     try {
-      const saved = localStorage.getItem(SETTINGS_KEY);
+      let saved = localStorage.getItem(SETTINGS_KEY);
+      if (!saved) {
+        const legacy = localStorage.getItem("orbitAISettings");
+        if (legacy) { saved = legacy; localStorage.setItem(SETTINGS_KEY, legacy); localStorage.removeItem("orbitAISettings"); }
+      }
 
       if (!saved) {
-        return { ...defaultSettings };
+        return { ...defaultSettings, theme: window.AdumexTheme?.getTheme?.() || "light" };
       }
 
       const parsed = JSON.parse(saved);
@@ -234,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (updateUrl) {
       const newUrl =
-        `${window.location.pathname}${window.location.search} #${targetSection.id} `;
+        `${window.location.pathname}${window.location.search}#${targetSection.id}`;
 
       window.history.replaceState(
         null,
@@ -358,15 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
         enabled
       );
 
-      if (
-        window.AdumexChatSettings &&
-        typeof window.AdumexChatSettings.setEnterToSend ===
-        "function"
-      ) {
-        window.AdumexChatSettings.setEnterToSend(
-          enabled
-        );
-      }
+
     });
   }
 
@@ -381,15 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
         enabled
       );
 
-      if (
-        window.AdumexChatSettings &&
-        typeof window.AdumexChatSettings.setTimestamps ===
-        "function"
-      ) {
-        window.AdumexChatSettings.setTimestamps(
-          enabled
-        );
-      }
+
     });
   }
 
@@ -560,6 +548,14 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
   };
+
+  window.addEventListener("storage", event => {
+    if (event.key !== SETTINGS_KEY) return;
+    settings = loadSettings();
+    syncControls(); applyTheme(); applyAnimations(); applyDataPreferences();
+    window.AdumexMemory?.setEnabled?.(settings.memory);
+    window.dispatchEvent(new CustomEvent("adumexSettingChanged", { detail: { settings: { ...settings } } }));
+  });
 
   /* Initialize */
 

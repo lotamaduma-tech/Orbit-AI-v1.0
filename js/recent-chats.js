@@ -13,8 +13,12 @@
 
     /* Configuration */
 
-    const STORAGE_KEY = "adumex-conversation-history";
-    const ACTIVE_CHAT_KEY = "adumex-active-chat";
+    let userId = null;
+    let STORAGE_KEY = null;
+    let ACTIVE_CHAT_KEY = null;
+    let syncVersion = 0;
+    let syncController = null;
+    let localVersion = 0;
     const MAX_CHATS = 50;
 
     /* State */
@@ -66,6 +70,7 @@
     /* Storage */
 
     function getStoredChats() {
+        if (!userId) return [];
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
 
@@ -87,13 +92,14 @@
 
                     return Number(b.updatedAt) - Number(a.updatedAt);
                 })
-                .slice(0, MAX_CHATS);
+;
         } catch {
             return [];
         }
     }
 
     function saveChats() {
+        if (!userId) return;
         try {
             localStorage.setItem(
                 STORAGE_KEY,
@@ -116,6 +122,7 @@
         activeChatId = id || null;
 
         try {
+            if (!userId) return;
             if (activeChatId) {
                 localStorage.setItem(
                     ACTIVE_CHAT_KEY,
@@ -334,7 +341,9 @@
 
     /* Chat Actions */
 
-    function createNewChat() {
+    function createNewChat(options = {}) {
+        if (!userId) return null;
+        localVersion++;
         const now = Date.now();
 
         const chat = {
@@ -347,17 +356,14 @@
 
         chats.unshift(chat);
 
-        chats = chats.slice(
-            0,
-            MAX_CHATS
-        );
+        // Pending local chats are retained until synchronized.
 
         setActiveChatId(chat.id);
 
         saveChats();
         render();
 
-        window.dispatchEvent(
+        if (!options.silent) window.dispatchEvent(
             new CustomEvent("adumex:new-chat", {
                 detail: {
                     chat
@@ -378,62 +384,25 @@
 
     async function togglePin(id) {
         const chat = chats.find(item => item.id === id);
-
-        if (!chat || !chat.conversationId) {
-            return;
-        }
-
+        if (!chat?.conversationId) return;
+        const owner = userId;
         try {
-            const token = await getAuthToken();
-            const response = await fetch(
-                `${getApiBase()}/conversations/${encodeURIComponent(
-                    chat.conversationId
-                )}/pin`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        ...(token
-                            ? { Authorization: `Bearer ${token}` }
-                            : {})
-                    },
-                    body: JSON.stringify({
-                        isPinned: !chat.isPinned
-                    })
-                }
-            );
+            const data = await window.AdumexApi.json("/conversations/" + encodeURIComponent(chat.conversationId) + "/pin", {
+                method: "PATCH", body: JSON.stringify({ isPinned: !chat.isPinned })
+            }, owner);
+            if (owner !== userId || !chats.includes(chat)) return;
+            localVersion++;
+            chat.isPinned = Boolean(data.conversation.is_pinned);
+            saveChats(); render();
+        } catch (error) { reportError(error); }
+    }
 
-            if (!response.ok) {
-                return;
-            }
-
-            chat.isPinned = !chat.isPinned;
-            chat.updatedAt = Date.now();
-            chats.sort((first, second) => {
-                if (first.isPinned !== second.isPinned) {
-                    return Number(second.isPinned) - Number(first.isPinned);
-                }
-
-                return second.updatedAt - first.updatedAt;
-            });
-            saveChats();
-            render();
-
-            const activeChat = chats.find(chat => chat.id === activeChatId);
-
-            if (activeChat?.conversationId) {
-                window.dispatchEvent(
-                    new CustomEvent("adumex:restore-active-chat", {
-                        detail: { chat: activeChat }
-                    })
-                );
-            }
-        } catch {
-            return;
-        }
+    function reportError(error) {
+        window.dispatchEvent(new CustomEvent("adumex:error", { detail: { error: error.message || "Unable to update chat history." } }));
     }
 
     function openChat(id) {
+        localVersion++;
         const chat = chats.find(
             item => item.id === id
         );
@@ -463,97 +432,51 @@
         return chat;
     }
 
-    function getApiBase() {
-        return String(
-            window.ADUMEX_API_URL ||
-            "http://localhost:5000/api/chat"
-        )
-            .replace(/\/chat\/?$/, "")
-            .replace(/\/+$/, "");
-    }
-
-    async function getAuthToken() {
-        const client =
-            window.adumexSupabase ||
-            window.AdumexSupabase?.getClient?.();
-
-        if (!client?.auth?.getSession) {
-            return null;
-        }
-
-        const result = await client.auth.getSession();
-        return result?.data?.session?.access_token || null;
-    }
-
     async function syncCloudChats() {
+        if (!userId) return;
+        const owner = userId, version = ++syncVersion, startedVersion = localVersion;
+        syncController?.abort();
+        const controller = new AbortController();
+        syncController = controller;
         try {
-            const token = await getAuthToken();
-
-            if (!token) {
-                return;
+            const data = await window.AdumexApi.json("/conversations", { signal: controller.signal }, owner);
+            if (version !== syncVersion || owner !== userId) return;
+            const merged = new Map(chats.map(chat => [chat.conversationId || chat.id, chat]));
+            for (const conversation of data.conversations || []) {
+                const key = String(conversation.id);
+                const local = merged.get(key);
+                // A local mutation during this fetch wins over this snapshot.
+                if (local && localVersion !== startedVersion) continue;
+                merged.set(key, normalizeChat({
+                    id: local?.id || "cloud_" + key, conversationId: key,
+                    title: conversation.title, createdAt: Date.parse(conversation.created_at),
+                    updatedAt: Date.parse(conversation.updated_at), isPinned: conversation.is_pinned,
+                    messages: local?.messages || []
+                }));
             }
+            chats = [...merged.values()].sort((a, b) => Number(b.isPinned) - Number(a.isPinned) || b.updatedAt - a.updatedAt);
+            // Never discard an unsynced chat to satisfy the sidebar limit.
+            const synced = chats.filter(chat => chat.conversationId).slice(0, MAX_CHATS);
+            chats = [...chats.filter(chat => !chat.conversationId), ...synced];
+            saveChats(); render();
+        } catch (error) { if (!controller.signal.aborted) reportError(error); }
+        finally { if (syncController === controller) syncController = null; }
+    }
 
-            const response = await fetch(
-                `${getApiBase()}/conversations`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            if (!response.ok) {
-                return;
-            }
-
-            const data = await response.json();
-            const cloudChats = Array.isArray(data?.conversations)
-                ? data.conversations.map(conversation => {
-                    const conversationId = String(conversation.id);
-                    const localChat = chats.find(chat =>
-                        chat.conversationId === conversationId
-                    );
-
-                    return normalizeChat({
-                        id: localChat?.id || `cloud_${conversationId}`,
-                        conversationId,
-                        title: conversation.title,
-                        createdAt: Date.parse(conversation.created_at),
-                        updatedAt: Date.parse(conversation.updated_at),
-                        isPinned: conversation.is_pinned,
-                        messages: localChat?.messages || []
-                    });
-                }).filter(Boolean)
-                : [];
-
-            chats = cloudChats.slice(0, MAX_CHATS);
-
-            chats.forEach(chat => {
-                if (chat.conversationId) {
-                    try {
-                        const mappings = JSON.parse(
-                            localStorage.getItem("adumex-server-conversations") || "{}"
-                        );
-                        mappings[chat.id] = chat.conversationId;
-                        localStorage.setItem(
-                            "adumex-server-conversations",
-                            JSON.stringify(mappings)
-                        );
-                    } catch {
-                        return;
-                    }
-                }
-            });
-
-            if (!chats.some(chat => chat.id === activeChatId)) {
-                setActiveChatId(null);
-            }
-
-            saveChats();
-            render();
-        } catch {
-            return;
-        }
+    function switchAccount(id) {
+        if (id === userId) return;
+        syncVersion++; localVersion++;
+        syncController?.abort();
+        userId = id || null;
+        STORAGE_KEY = userId ? "adumex-conversation-history:" + userId : null;
+        ACTIVE_CHAT_KEY = userId ? "adumex-active-chat:" + userId : null;
+        chats = getStoredChats();
+        activeChatId = userId ? getStoredActiveChatId() : null;
+        if (!chats.some(chat => chat.id === activeChatId)) activeChatId = null;
+        render();
+        const chat = chats.find(chat => chat.id === activeChatId);
+        window.dispatchEvent(new CustomEvent("adumex:restore-active-chat", { detail: { chat: chat || null } }));
+        syncCloudChats();
     }
 
     async function deleteChat(id) {
@@ -563,29 +486,15 @@
 
         if (!chat) return;
 
+        const owner = userId;
+        // Invalidate any in-flight list snapshot before deleting.
+        syncVersion++; localVersion++; syncController?.abort();
+        if (chat.id === activeChatId) window.AdumexAI?.stopGeneration?.();
         if (chat.conversationId) {
-            try {
-                const token = await getAuthToken();
-                const response = await fetch(
-                    `${getApiBase()}/conversations/${encodeURIComponent(
-                        chat.conversationId
-                    )}`,
-                    {
-                        method: "DELETE",
-                        headers: token
-                            ? { Authorization: `Bearer ${token}` }
-                            : {}
-                    }
-                );
-
-                if (!response.ok) {
-                    return;
-                }
-            } catch {
-                return;
-            }
+            try { await window.AdumexApi.json("/conversations/" + encodeURIComponent(chat.conversationId), { method: "DELETE" }, owner); }
+            catch (error) { reportError(error); return; }
         }
-
+        if (owner !== userId) return;
         chats = chats.filter(
             item => item.id !== id
         );
@@ -619,6 +528,7 @@
     }
 
     function updateChat(id, updates = {}) {
+        localVersion++;
         const chat = chats.find(
             item => item.id === id
         );
@@ -652,7 +562,7 @@
             ...chats.filter(
                 item => item.id !== id
             )
-        ].slice(0, MAX_CHATS);
+        ];
 
         saveChats();
         render();
@@ -865,14 +775,11 @@
         searchChats
     );
 
-    window.addEventListener(
-        "adumex:history-updated",
-        syncFromAdumexHistory
-    );
+
 
     window.addEventListener(
         "adumex:auth-ready",
-        syncCloudChats
+        event => switchAccount(event.detail?.user?.id || null)
     );
 
     window.addEventListener(
@@ -918,6 +825,8 @@
     /* Public API */
 
     window.AdumexRecentChats = {
+        getUserId: () => userId,
+        sync: syncCloudChats,
         getChats: () => [...chats],
 
         getActiveChat: () =>
@@ -946,25 +855,21 @@
         render
     };
 
-    /* Initialization */
-
-    chats = getStoredChats();
-
-    activeChatId =
-        getStoredActiveChatId();
-
-    if (
-        activeChatId &&
-        !chats.some(
-            chat =>
-                chat.id ===
-                activeChatId
-        )
-    ) {
-        activeChatId = null;
-        setActiveChatId(null);
-    }
-
+    /* Old unscoped content cannot safely be attributed to the next account. */
+    window.addEventListener("adumex:account-changed", event => switchAccount(event.detail?.user?.id || null));
+    window.addEventListener("adumex:history-cleared", () => {
+        syncVersion++; localVersion++; syncController?.abort();
+        chats = []; setActiveChatId(null); saveChats(); render();
+    });
+    window.addEventListener("storage", event => {
+        if (event.key === STORAGE_KEY || event.key === ACTIVE_CHAT_KEY) {
+            if (window.AdumexAI?.getState?.().generating) return;
+            chats = getStoredChats(); activeChatId = getStoredActiveChatId(); render();
+            window.dispatchEvent(new CustomEvent("adumex:restore-active-chat", { detail: { chat: chats.find(chat => chat.id === activeChatId) || null } }));
+        }
+    });
     render();
-    syncCloudChats();
+    const initialVersion = syncVersion;
+    window.AdumexApi.session().then(session => { if (initialVersion === syncVersion) switchAccount(session.user.id); }).catch(() => {});
+
 })();

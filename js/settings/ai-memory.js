@@ -1,234 +1,16 @@
 "use strict";
 
 (() => {
-    const MEMORY_ENABLED_KEY = "orbit_memory_enabled";
-    const MEMORY_DATA_KEY = "orbit_memory";
-
-    function getMemoryEnabled() {
-        return localStorage.getItem(MEMORY_ENABLED_KEY) !== "false";
+    const getAllMemory = () => window.AdumexMemory.getMemory();
+    const getMemoryEnabled = () => window.AdumexSettings.getValue("memory") !== false;
+    const setMemoryEnabled = value => window.AdumexSettings.set("memory", value);
+    async function removeMemory(id) {
+        const all = getAllMemory();
+        const text = all.find((entry, index) => getMemoryId(entry, index) === id);
+        if (text && !await window.AdumexMemory.remove(getMemoryText(text))) throw new Error("Memory was not deleted.");
     }
-
-    function setMemoryEnabled(enabled) {
-        const value = Boolean(enabled);
-
-        localStorage.setItem(
-            MEMORY_ENABLED_KEY,
-            value ? "true" : "false"
-        );
-
-        document.documentElement.setAttribute(
-            "data-memory",
-            value ? "enabled" : "disabled"
-        );
-
-        window.dispatchEvent(
-            new CustomEvent("orbitMemoryChanged", {
-                detail: {
-                    enabled: value
-                }
-            })
-        );
-    }
-
-    function getAllMemory() {
-        try {
-            const stored = localStorage.getItem(
-                MEMORY_DATA_KEY
-            );
-
-            if (!stored) {
-                return [];
-            }
-
-            const memory = JSON.parse(stored);
-
-            return Array.isArray(memory)
-                ? memory
-                : [];
-        } catch {
-            return [];
-        }
-    }
-
-    function saveAllMemory(memory) {
-        if (!Array.isArray(memory)) {
-            return false;
-        }
-
-        try {
-            localStorage.setItem(
-                MEMORY_DATA_KEY,
-                JSON.stringify(memory)
-            );
-
-            window.dispatchEvent(
-                new CustomEvent("orbitMemoryUpdated", {
-                    detail: {
-                        memory
-                    }
-                })
-            );
-
-            return true;
-        } catch (error) {
-            console.error(
-                "Orbit memory could not be saved.",
-                error
-            );
-
-            return false;
-        }
-    }
-
-    function normalizeMemoryEntry(entry) {
-        if (typeof entry === "string") {
-            const text = entry.trim();
-
-            if (!text) {
-                return null;
-            }
-
-            return {
-                id: createMemoryId(),
-                text,
-                createdAt: new Date().toISOString()
-            };
-        }
-
-        if (
-            typeof entry !== "object" ||
-            entry === null
-        ) {
-            return null;
-        }
-
-        const text = String(
-            entry.text ||
-            entry.content ||
-            entry.memory ||
-            ""
-        ).trim();
-
-        if (!text) {
-            return null;
-        }
-
-        return {
-            id:
-                entry.id ||
-                createMemoryId(),
-
-            text,
-
-            createdAt:
-                entry.createdAt ||
-                new Date().toISOString()
-        };
-    }
-
-    function createMemoryId() {
-        if (
-            window.crypto &&
-            typeof window.crypto.randomUUID === "function"
-        ) {
-            return window.crypto.randomUUID();
-        }
-
-        return (
-            "memory-" +
-            Date.now() +
-            "-" +
-            Math.random()
-                .toString(36)
-                .slice(2)
-        );
-    }
-
-    function memoryAlreadyExists(text) {
-        const normalized = text
-            .trim()
-            .toLowerCase();
-
-        return getAllMemory().some(entry => {
-            const existing =
-                typeof entry === "string"
-                    ? entry
-                    : entry?.text ||
-                    entry?.content ||
-                    entry?.memory ||
-                    "";
-
-            return (
-                String(existing)
-                    .trim()
-                    .toLowerCase() === normalized
-            );
-        });
-    }
-
-    function addMemory(entry) {
-        if (!getMemoryEnabled()) {
-            return false;
-        }
-
-        const normalized =
-            normalizeMemoryEntry(entry);
-
-        if (!normalized) {
-            return false;
-        }
-
-        if (
-            memoryAlreadyExists(
-                normalized.text
-            )
-        ) {
-            return false;
-        }
-
-        const memory = getAllMemory();
-
-        memory.push(normalized);
-
-        return saveAllMemory(memory);
-    }
-
-    function removeMemory(memoryId) {
-        const memory = getAllMemory();
-
-        const updated = memory.filter(
-            (entry, index) => {
-                if (
-                    typeof entry === "string"
-                ) {
-                    return String(index) !==
-                        String(memoryId);
-                }
-
-                return (
-                    entry?.id !== memoryId
-                );
-            }
-        );
-
-        if (
-            updated.length ===
-            memory.length
-        ) {
-            return false;
-        }
-
-        return saveAllMemory(updated);
-    }
-
-    function clearAllMemory() {
-        const memory = getAllMemory();
-
-        if (!memory.length) {
-            return true;
-        }
-
-        return saveAllMemory([]);
+    async function clearAllMemory() {
+        if (!await window.AdumexMemory.clear()) throw new Error("Memory was not cleared.");
     }
 
     function createMemoryManager() {
@@ -268,7 +50,7 @@
                         </h3>
 
                         <p>
-                            Review information Orbit has saved
+                            Review information Adumex has saved
                             to personalize your conversations.
                         </p>
                     </div>
@@ -376,7 +158,7 @@
                     </strong>
 
                     <p>
-                        When Orbit remembers something useful
+                        When Adumex remembers something useful
                         about you, it will appear here.
                     </p>
                 </div>
@@ -476,12 +258,10 @@
 
                 deleteButton.addEventListener(
                     "click",
-                    () => {
-                        removeMemory(
-                            memoryId
-                        );
-
-                        renderMemoryManager();
+                    async () => {
+                        deleteButton.disabled = true;
+                        try { await removeMemory(memoryId); renderMemoryManager(); }
+                        catch (error) { window.alert(error.message); deleteButton.disabled = false; }
                     }
                 );
 
@@ -498,7 +278,9 @@
         );
     }
 
-    function openMemoryManager() {
+    async function openMemoryManager() {
+        try { await window.AdumexMemory.load(true); }
+        catch (error) { window.alert(error.message); return; }
         const manager =
             createMemoryManager();
 
@@ -541,39 +323,6 @@
     }
 
     function initialize() {
-        const toggle =
-            document.getElementById(
-                "memory-toggle"
-            );
-
-        const enabled =
-            getMemoryEnabled();
-
-        if (toggle) {
-            toggle.checked = enabled;
-
-            if (
-                toggle.dataset
-                    .orbitMemoryReady !==
-                "true"
-            ) {
-                toggle.dataset
-                    .orbitMemoryReady =
-                    "true";
-
-                toggle.addEventListener(
-                    "change",
-                    event => {
-                        setMemoryEnabled(
-                            event.target.checked
-                        );
-                    }
-                );
-            }
-        }
-
-        setMemoryEnabled(enabled);
-
         const manageButton =
             document.getElementById(
                 "manage-memory"
@@ -602,7 +351,7 @@
 
     document.addEventListener(
         "click",
-        event => {
+        async event => {
             if (
                 event.target.closest(
                     "#orbit-memory-close"
@@ -630,16 +379,15 @@
 
                 const confirmed =
                     window.confirm(
-                        "Delete all saved Orbit memory?"
+                        "Delete all saved Adumex memory?"
                     );
 
                 if (!confirmed) {
                     return;
                 }
 
-                clearAllMemory();
-
-                renderMemoryManager();
+                try { await clearAllMemory(); renderMemoryManager(); }
+                catch (error) { window.alert(error.message); }
 
                 return;
             }
@@ -669,37 +417,7 @@
         }
     );
 
-    window.OrbitMemory = {
-        isEnabled:
-            getMemoryEnabled,
-
-        setEnabled:
-            setMemoryEnabled,
-
-        getAll:
-            getAllMemory,
-
-        save:
-            addMemory,
-
-        add:
-            addMemory,
-
-        remove:
-            removeMemory,
-
-        clear:
-            clearAllMemory,
-
-        openManager:
-            openMemoryManager,
-
-        closeManager:
-            closeMemoryManager,
-
-        render:
-            renderMemoryManager
-    };
+    window.AdumexMemoryManager = { openManager: openMemoryManager, closeManager: closeMemoryManager };
 
     if (
         document.readyState ===

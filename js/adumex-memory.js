@@ -1,144 +1,51 @@
 "use strict";
 
-/* Adumex AI memory */
-
+/* Authenticated Adumex memory; settings only renders this source. */
 (() => {
-
-    const API_URL = String(
-        window.ADUMEX_API_URL ||
-        "http://localhost:5000/api/chat"
-    )
-        .replace(/\/+$/, "")
-        .replace(/\/chat$/, "");
-
-    const MEMORY_URL = `${API_URL}/memories`;
-
-    let memory = [];
-    let cacheKey = "adumex-memory-cache";
-
-    function cleanText(value, maxLength = 1000) {
-
-        return String(value || "")
-            .replace(/\u0000/g, "")
-            .trim()
-            .slice(0, maxLength);
+    let memory = [], userId = null, revision = 0;
+    let queue = Promise.resolve();
+    const operations = new Set();
+    const cleanText = (value, maxLength = 1000) => String(value || "").replace(/\u0000/g, "").trim().slice(0, maxLength);
+    const uniqueMemory = items => [...new Set(items.map(item => cleanText(item)).filter(Boolean))].slice(-50);
+    const enabled = () => window.AdumexSettings?.getValue?.("memory") !== false;
+    const key = () => "adumex-memory-cache:" + userId;
+    function saveCache() {
+        if (!userId) return;
+        try { localStorage.setItem(key(), JSON.stringify(memory)); } catch { /* Optional cache. */ }
     }
-
-    function uniqueMemory(items) {
-
-        return [
-            ...new Set(
-                items
-                    .map(cleanText)
-                    .filter(Boolean)
-            )
-        ].slice(-50);
-    }
-
-    async function getSession() {
-
-        const client =
-            window.adumexSupabase ||
-            window.AdumexSupabase?.getClient?.();
-
-        if (!client) {
-            return null;
+    function switchAccount(id) {
+        if (id === userId) return;
+        revision++;
+        for (const controller of operations) controller.abort();
+        userId = id || null;
+        memory = [];
+        if (userId) {
+            try { memory = uniqueMemory(JSON.parse(localStorage.getItem(key()) || "[]")); } catch { memory = []; }
         }
-
+    }
+    async function request(options, owner) {
+        const controller = new AbortController();
+        operations.add(controller);
+        try { return await window.AdumexApi.json("/memories", { ...options, signal: controller.signal }, owner); }
+        finally { operations.delete(controller); }
+    }
+    async function load(strict = false) {
+        const start = revision;
         try {
-
-            const {
-                data,
-                error
-            } = await client.auth.getSession();
-
-            if (error) {
-                return null;
-            }
-
-            return data?.session || null;
-
-        } catch {
-
-            return null;
-        }
+            const session = await window.AdumexApi.session();
+            if (start !== revision) return [...memory];
+            switchAccount(session.user.id);
+            const owner = userId, version = revision;
+            const result = await request({}, owner);
+            if (owner === userId && version === revision) { memory = uniqueMemory(result.memories || []); saveCache(); }
+        } catch (error) { if (strict) throw error; console.warn("Adumex memory load failed."); }
+        return [...memory];
     }
-
-    function saveCache(items) {
-
-        try {
-
-            localStorage.setItem(
-                cacheKey,
-                JSON.stringify(items)
-            );
-
-        } catch {
-            /* Ignore cache errors */
-        }
+    function serialize(action) {
+        const result = queue.then(action);
+        queue = result.catch(() => {});
+        return result;
     }
-
-    function loadCache() {
-
-        try {
-
-            const stored = localStorage.getItem(
-                cacheKey
-            );
-
-            if (!stored) {
-                return [];
-            }
-
-            const parsed = JSON.parse(stored);
-
-            return Array.isArray(parsed)
-                ? uniqueMemory(parsed)
-                : [];
-
-        } catch {
-
-            return [];
-        }
-    }
-
-    async function request(
-        url,
-        options = {}
-    ) {
-
-        const session = await getSession();
-
-        if (!session?.access_token) {
-            return null;
-        }
-
-        const response = await fetch(
-            url,
-            {
-                ...options,
-                headers: {
-                    "Content-Type":
-                        "application/json",
-
-                    "Authorization":
-                        `Bearer ${session.access_token}`,
-
-                    ...(options.headers || {})
-                }
-            }
-        );
-
-        if (!response.ok) {
-
-            throw new Error(
-                `Memory request failed: ${response.status}`
-            );
-        }
-
-        return response.json();
-    }
-
     function detectMemory(message) {
 
         const text = cleanText(
@@ -183,168 +90,45 @@
         return null;
     }
 
-    async function load() {
-        const session = await getSession();
 
-        if (!session?.access_token) {
-            memory = [];
-            return memory;
-        }
-
-        cacheKey = `adumex-memory-cache:${session.user.id}`;
-        memory = loadCache();
-
-        try {
-
-            const result = await request(
-                MEMORY_URL
-            );
-
-            if (Array.isArray(result?.memories)) {
-
-                memory = uniqueMemory(
-                    result.memories
-                );
-
-                saveCache(memory);
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Adumex memory load failed:",
-                error.message
-            );
-        }
-
-        return memory;
-    }
-
-    async function rememberFromMessage(
-        message
-    ) {
-
-        const detected =
-            detectMemory(message);
-
-        if (!detected) {
-            return false;
-        }
-
-        if (
-            memory.some(
-                item =>
-                    item.toLowerCase() ===
-                    detected.toLowerCase()
-            )
-        ) {
+    function rememberFromMessage(message, expectedUserId) {
+        const detected = detectMemory(message);
+        const version = revision;
+        if (!detected || !enabled()) return Promise.resolve(false);
+        return serialize(async () => {
+            if (!enabled() || version !== revision) return false;
+            const session = await window.AdumexApi.session();
+            if (version !== revision || (expectedUserId && session.user.id !== expectedUserId)) return false;
+            switchAccount(session.user.id);
+            const owner = userId, operationVersion = revision;
+            if (memory.includes(detected)) return true;
+            await request({ method: "POST", body: JSON.stringify({ memory: detected }) }, owner);
+            if (owner !== userId || operationVersion !== revision || !enabled()) return false;
+            memory = uniqueMemory([...memory, detected]); saveCache();
             return true;
-        }
-
-        memory = uniqueMemory([
-            ...memory,
-            detected
-        ]);
-
-        saveCache(memory);
-
-        const session = await getSession();
-
-        if (!session?.access_token) {
+        });
+    }
+    function remove(text) { return erase(text); }
+    function clear() { return erase(); }
+    function erase(text) {
+        revision++;
+        for (const controller of operations) controller.abort();
+        const version = revision, expected = userId;
+        return serialize(async () => {
+            const session = await window.AdumexApi.session();
+            if (version !== revision || (expected && expected !== session.user.id)) throw new Error("The signed-in account changed.");
+            switchAccount(session.user.id);
+            const owner = userId, operationVersion = revision;
+            await request({ method: "DELETE", ...(text ? { body: JSON.stringify({ memory: text }) } : {}) }, owner);
+            if (owner !== userId || operationVersion !== revision) return false;
+            memory = text ? memory.filter(item => item !== text) : []; saveCache();
             return true;
-        }
-
-        try {
-
-            await request(
-                MEMORY_URL,
-                {
-                    method: "POST",
-
-                    body: JSON.stringify({
-                        memory: detected
-                    })
-                }
-            );
-
-        } catch (error) {
-
-            console.warn(
-                "Adumex memory save failed:",
-                error.message
-            );
-        }
-
-        return true;
+        });
     }
-
-    function getMemory() {
-
-        return [...memory];
+    function setEnabled(value) {
+        if (!value) { revision++; for (const controller of operations) controller.abort(); }
     }
-
-    function getMemoryForChat() {
-
-        return memory.join("\n");
-    }
-
-    async function clear() {
-
-        const session = await getSession();
-
-        memory = [];
-
-        try {
-
-            localStorage.removeItem(
-                cacheKey
-            );
-
-        } catch {
-            /* Ignore cache errors */
-        }
-
-        if (!session?.access_token) {
-            return true;
-        }
-
-        try {
-
-            await request(
-                MEMORY_URL,
-                {
-                    method: "DELETE"
-                }
-            );
-
-            return true;
-
-        } catch {
-
-            return false;
-        }
-    }
-
-    window.AdumexMemory = {
-
-        load,
-
-        getMemory,
-
-        getMemoryForChat,
-
-        rememberFromMessage,
-
-        clear,
-
-        detectMemory
-    };
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
-            load();
-        }
-    );
-
+    window.AdumexMemory = { load, getMemory: () => [...memory], getMemoryForChat: () => enabled() ? memory.join("\n") : "", rememberFromMessage, clear, remove, detectMemory, setEnabled };
+    window.addEventListener("adumex:account-changed", event => { switchAccount(event.detail?.user?.id || null); if (userId) load(); });
+    document.addEventListener("DOMContentLoaded", () => load());
 })();

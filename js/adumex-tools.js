@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Configuration */
 
     const MAX_FILES = 10;
-    const MAX_FILE_SIZE = 20 * 1024 * 1024;
+    const MAX_FILE_SIZE = 15 * 1024 * 1024;
     const MAX_TEXT_SIZE = 5 * 1024 * 1024;
 
     const FILE_TYPES = {

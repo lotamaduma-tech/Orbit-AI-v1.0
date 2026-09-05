@@ -1,6 +1,6 @@
 "use strict";
 
-require("dotenv").config();
+require("dotenv").config({ path: require("node:path").join(__dirname, ".env"), quiet: true });
 
 const express = require("express");
 const cors = require("cors");
@@ -9,7 +9,14 @@ const Groq = require("groq-sdk");
 const OpenAI = require("openai");
 const { createClient } = require("@supabase/supabase-js");
 const mammoth = require("mammoth");
-const pdfParse = require("pdf-parse");
+const { PDFParse } = require("pdf-parse");
+const { AsyncLocalStorage } = require("node:async_hooks");
+const requestContext = new AsyncLocalStorage();
+const requestFetch = (url, options = {}) => {
+    const signal = requestContext.getStore()?.signal;
+    signal?.throwIfAborted();
+    return fetch(url, { ...options, signal: signal && options.signal ? AbortSignal.any([signal, options.signal]) : signal || options.signal });
+};
 const AdmZip = require("adm-zip");
 
 const app = express();
@@ -89,6 +96,7 @@ const supabaseAdmin =
             SUPABASE_URL,
             SUPABASE_SERVICE_ROLE_KEY,
             {
+                global: { fetch: requestFetch },
                 auth: {
                     autoRefreshToken: false,
                     persistSession: false
@@ -103,6 +111,7 @@ const supabaseAuth =
             SUPABASE_URL,
             SUPABASE_ANON_KEY,
             {
+                global: { fetch: requestFetch },
                 auth: {
                     autoRefreshToken: false,
                     persistSession: false
@@ -125,15 +134,14 @@ app.use(
     cors({
         origin: (origin, callback) => {
             const allowed = String(
-                process.env.ALLOWED_ORIGINS || "*"
+                process.env.ALLOWED_ORIGINS || "http://localhost:5500,http://127.0.0.1:5500,http://localhost:5000,http://127.0.0.1:5000"
             )
                 .split(",")
                 .map((value) => value.trim())
-                .filter(Boolean);
+                .filter(value => value && value !== "*");
 
 
             if (
-                allowed.includes("*") ||
                 !origin ||
                 allowed.includes(origin)
             ) {
@@ -144,7 +152,7 @@ app.use(
                 new Error("Origin not allowed by CORS")
             );
         },
-        credentials: true,
+        credentials: false,
         methods: [
             "GET",
             "POST",
@@ -326,6 +334,7 @@ function getBearerToken(req) {
 }
 
 async function authenticateRequest(req) {
+    if (req.adumexAuth) return req.adumexAuth;
     const token = getBearerToken(req);
 
 
@@ -413,7 +422,7 @@ function setSSEHeaders(res) {
 }
 
 function sendSSE(res, payload) {
-    if (res.writableEnded) {
+    if (res.writableEnded || res.destroyed) {
         return;
     }
 
@@ -424,14 +433,14 @@ function sendSSE(res, payload) {
             : JSON.stringify(payload);
 
     res.write(
-        `data: ${data} \n\n`
+        `data: ${data}\n\n`
     );
 
 
 }
 
 function sendDone(res) {
-    if (res.writableEnded) {
+    if (res.writableEnded || res.destroyed) {
         return;
     }
 
@@ -449,7 +458,7 @@ function sendSSEError(
     res,
     message
 ) {
-    if (res.writableEnded) {
+    if (res.writableEnded || res.destroyed) {
         return;
     }
 
@@ -687,21 +696,14 @@ async function extractFileText(file) {
         "uploaded-file";
 
     if (isPdf(file)) {
-        const result =
-            await pdfParse(
-                file.buffer
-            );
-
-        return {
-            name: filename,
-            type: file.mimetype,
-            size: file.size,
-            text: cleanText(
-                result?.text || "",
-                MAX_EXTRACTED_TEXT
-            ),
-            readable: true
-        };
+        const parser = new PDFParse({ data: new Uint8Array(file.buffer) });
+        try {
+            const result = await parser.getText();
+            return { name: filename, type: file.mimetype, size: file.size,
+                text: cleanText(result.text, MAX_EXTRACTED_TEXT), readable: true };
+        } catch {
+            throw new Error("Unable to read this PDF. It may be damaged or password protected.");
+        } finally { await parser.destroy(); }
     }
 
     if (isDocx(file)) {
@@ -957,7 +959,8 @@ async function createGroqStream(
 async function streamGroqResponse(
     messages,
     options,
-    onToken
+    onToken,
+    signal
 ) {
     if (!groq) {
         throw new Error(
@@ -999,12 +1002,12 @@ async function streamGroqResponse(
                     primaryModel,
                     messages,
                     options,
-                    controller.signal
+                    signal ? AbortSignal.any([signal, controller.signal]) : controller.signal
                 );
         } catch (
         primaryError
         ) {
-            if (!fallbackModel) {
+            if (!fallbackModel || signal?.aborted || controller.signal.aborted) {
                 throw primaryError;
             }
 
@@ -1016,7 +1019,7 @@ async function streamGroqResponse(
                     fallbackModel,
                     messages,
                     options,
-                    controller.signal
+                    signal ? AbortSignal.any([signal, controller.signal]) : controller.signal
                 );
         }
 
@@ -1025,6 +1028,7 @@ async function streamGroqResponse(
         for await (
             const chunk of stream
         ) {
+            signal?.throwIfAborted();
             const token =
                 chunk?.choices?.[0]
                     ?.delta?.content ||
@@ -1268,7 +1272,7 @@ async function getConversationMessages(
         !conversationId ||
         !userId
     ) {
-        return [];
+        throw new Error("Unable to load conversation messages.");
     }
 
 
@@ -1280,7 +1284,7 @@ async function getConversationMessages(
             );
 
         if (!conversation) {
-            return [];
+            throw new Error("Unable to load conversation messages.");
         }
 
         const {
@@ -1303,7 +1307,7 @@ async function getConversationMessages(
                 .order(
                     "created_at",
                     {
-                        ascending: true
+                        ascending: false
                     }
                 )
                 .limit(
@@ -1318,7 +1322,7 @@ async function getConversationMessages(
         }
 
         return normalizeMessages(
-            data
+            data.reverse()
         );
     } catch {
         return [];
@@ -1374,7 +1378,7 @@ async function listConversations(
         !supabaseAdmin ||
         !userId
     ) {
-        return [];
+        throw new Error("Unable to load conversation history.");
     }
 
 
@@ -1414,7 +1418,7 @@ async function listConversations(
             error ||
             !Array.isArray(data)
         ) {
-            return [];
+            throw new Error("Unable to load conversation history.");
         }
 
         return data;
@@ -1578,7 +1582,8 @@ function detectImageRequest(
 }
 
 async function generateImage(
-    prompt
+    prompt,
+    signal
 ) {
     if (!openai) {
         throw new Error(
@@ -1598,7 +1603,7 @@ async function generateImage(
                 ),
             size:
                 "1024x1024"
-        });
+        }, { signal });
 
     const item =
         result?.data?.[0];
@@ -1635,7 +1640,8 @@ async function generateImage(
 
 async function readImageWithOpenAI(
     file,
-    message = ""
+    message = "",
+    signal
 ) {
     if (!openai) {
         throw new Error(
@@ -1671,13 +1677,13 @@ async function readImageWithOpenAI(
                             type:
                                 "input_image",
                             image_url:
-                                `data:${file.mimetype}; base64, ${base64} `
+                                `data:${file.mimetype};base64,${base64}`
                         }
                     ]
                 }
             ],
             max_output_tokens: 3000
-        });
+        }, { signal });
 
     return cleanText(
         response?.output_text ||
@@ -1687,6 +1693,35 @@ async function readImageWithOpenAI(
 
 
 }
+
+/* Bound the full API request, including auth, uploads and database calls. */
+app.use("/api", (req, res, next) => {
+    if (req.path === "/health") return next();
+    const controller = new AbortController();
+    req.adumexSignal = controller.signal;
+    const disconnected = () => { if (!res.writableEnded) controller.abort(new DOMException("Client disconnected.", "AbortError")); };
+    const timer = setTimeout(() => {
+        controller.abort(new DOMException("Adumex request timed out.", "TimeoutError"));
+        if (res.destroyed || res.writableEnded) return;
+        if (res.headersSent) sendSSEError(res, "Adumex request timed out. Please retry.");
+        else res.status(504).json({ error: "Adumex request timed out. Please retry." });
+    }, REQUEST_TIMEOUT);
+    const cleanup = () => { clearTimeout(timer); res.off("close", disconnected); req.off("aborted", disconnected); };
+    res.on("close", disconnected);
+    req.on("aborted", disconnected);
+    res.once("finish", cleanup);
+    res.once("close", cleanup);
+    requestContext.run({ signal: controller.signal }, next);
+}, async (req, res, next) => {
+    if (req.path === "/health") return next();
+    try {
+        const auth = await authenticateRequest(req);
+        if (req.adumexSignal.aborted || res.writableEnded || res.destroyed) return;
+        if (!auth.authenticated) return res.status(401).json({ error: "Authentication required." });
+        req.adumexAuth = auth;
+        next();
+    } catch (error) { next(error); }
+});
 
 /* Routes */
 
@@ -1728,528 +1763,106 @@ app.get(
 
 /* Chat */
 
-app.post(
-    "/api/chat",
-    upload.array(
-        "files",
-        10
-    ),
-    async (req, res) => {
-        const files =
-            Array.isArray(
-                req.files
-            )
-                ? req.files
-                : [];
-
-
-        const message =
-            cleanText(
-                req.body?.message,
-                MAX_MESSAGE_CHARS
-            );
-
-        if (
-            !message &&
-            !files.length
-        ) {
-            return res.status(
-                400
-            ).json({
-                error:
-                    "Message or file is required."
-            });
+app.post("/api/chat", upload.array("files", 10), async (req, res) => {
+    const signal = req.adumexSignal;
+    let heartbeat;
+    try {
+        signal.throwIfAborted();
+        const userId = getAuthenticatedUserId(req.adumexAuth);
+        const files = Array.isArray(req.files) ? req.files : [];
+        const message = cleanText(req.body?.message, MAX_MESSAGE_CHARS);
+        if (!message && !files.length) return res.status(400).json({ error: "Message or file is required." });
+        const imageRequest = detectImageRequest(message);
+        if (!imageRequest && !groq) return res.status(503).json({ error: "Groq API is not configured." });
+        if (files.reduce((total, file) => total + file.size, 0) > MAX_TOTAL_FILE_SIZE) {
+            return res.status(413).json({ error: "The combined uploaded files are too large." });
         }
-
-        const auth =
-            await authenticateRequest(
-                req
-            );
-
-        const userId =
-            getAuthenticatedUserId(
-                auth
-            );
-
-        if (!userId) {
-            return res.status(
-                401
-            ).json({
-                error:
-                    "Authentication required."
-            });
+        // Begin a bounded stream before slow extraction, vision and database work.
+        setSSEHeaders(res);
+        heartbeat = setInterval(() => { if (!res.writableEnded && !res.destroyed) res.write(": heartbeat\n\n"); }, 10000);
+        const parsedFiles = await Promise.all(files.map(extractFileText));
+        signal.throwIfAborted();
+        for (const file of files.filter(isImageFile)) {
+            const description = await readImageWithOpenAI(file, message, signal);
+            signal.throwIfAborted();
+            parsedFiles.push({ name: file.originalname, text: description, readable: true });
         }
-
-        if (!groq) {
-            return res.status(
-                503
-            ).json({
-                error:
-                    "Groq API is not configured."
-            });
+        let suppliedHistory = req.body?.history;
+        if (typeof suppliedHistory === "string") {
+            try { suppliedHistory = JSON.parse(suppliedHistory); } catch { suppliedHistory = []; }
         }
-
-        const totalFileSize =
-            files.reduce(
-                (
-                    total,
-                    file
-                ) =>
-                    total +
-                    Number(
-                        file.size ||
-                        0
-                    ),
-                0
-            );
-
-        if (
-            totalFileSize >
-            MAX_TOTAL_FILE_SIZE
-        ) {
-            return res.status(
-                413
-            ).json({
-                error:
-                    "The combined uploaded files are too large."
-            });
+        let history = normalizeMessages(suppliedHistory);
+        const memories = req.body?.memoryEnabled === "false" ? [] : await getUserMemories(userId);
+        signal.throwIfAborted();
+        let conversationId = cleanText(req.body?.conversationId, 100);
+        if (conversationId) {
+            const existing = await getConversation(conversationId, userId);
+            signal.throwIfAborted();
+            if (!existing) throw new Error("Conversation not found or unavailable. Please reload your chat.");
+            history = await getConversationMessages(conversationId, userId);
+        } else {
+            const conversation = await createConversation(userId, message || files.map(file => file.originalname).join(", "));
+            signal.throwIfAborted();
+            if (!conversation) throw new Error("Unable to create the conversation. Please retry.");
+            conversationId = conversation.id;
         }
-
-        let parsedFiles = [];
-
-        try {
-            parsedFiles =
-                await Promise.all(
-                    files.map(
-                        extractFileText
-                    )
-                );
-        } catch (
-        error
-        ) {
-            return res.status(
-                400
-            ).json({
-                error:
-                    error?.message ||
-                    "Unable to read one of the uploaded files."
-            });
+        const fileContext = buildFileContext(parsedFiles);
+        if (!await saveMessage(conversationId, userId, "user", buildUserMessage(message, fileContext))) {
+            throw new Error("Unable to save your message. Please retry.");
         }
-
-        const imageFiles =
-            files.filter(
-                isImageFile
-            );
-
-        if (
-            imageFiles.length
-        ) {
-            const imageResults =
-                [];
-
-            for (
-                const image of imageFiles
-            ) {
-                try {
-                    const description =
-                        await readImageWithOpenAI(
-                            image,
-                            message
-                        );
-
-                    if (
-                        description
-                    ) {
-                        imageResults.push(
-                            `Image: ${image.originalname} \n${description} `
-                        );
-                    }
-                } catch (
-                error
-                ) {
-                    imageResults.push(
-                        `Image: ${image.originalname} \nUnable to analyze this image.`
-                    );
-                }
-            }
-
-            if (
-                imageResults.length
-            ) {
-                parsedFiles.push({
-                    name:
-                        "Image analysis",
-                    type:
-                        "image/analysis",
-                    size:
-                        0,
-                    text:
-                        imageResults.join(
-                            "\n\n"
-                        ),
-                    readable:
-                        true
-                });
-            }
+        signal.throwIfAborted();
+        const startedAt = Date.now();
+        let reply, model;
+        if (imageRequest) {
+            const generated = await generateImage(message, signal);
+            signal.throwIfAborted();
+            sendSSE(res, { ...generated, type: "image" });
+            reply = "I generated the image based on your request.";
+            model = OPENAI_IMAGE_MODEL;
+            sendSSE(res, { type: "text", token: reply });
+        } else {
+            const result = await streamGroqResponse(buildGroqMessages({
+                systemPrompt: getSystemPrompt(req.body?.systemPrompt), history, message, memory: memories, fileContext
+            }), { model: req.body?.model || GROQ_MODEL, max_tokens: req.body?.max_tokens, temperature: req.body?.temperature }, token => {
+                signal.throwIfAborted();
+                sendSSE(res, { type: "text", token });
+            }, signal);
+            reply = cleanText(result.text, MAX_OUTPUT_CHARS);
+            model = result.model;
         }
-
-        let history = [];
-
-        const suppliedHistory =
-            typeof req.body?.history ===
-                "string"
-                ? (() => {
-                    try {
-                        return JSON.parse(
-                            req.body.history
-                        );
-                    } catch {
-                        return [];
-                    }
-                })()
-                : req.body?.history;
-
-        history =
-            normalizeMessages(
-                suppliedHistory
-            );
-
-        const memoryEnabled =
-            req.body?.memoryEnabled !== "false";
-
-        let memories = memoryEnabled
-            ? await getUserMemories(userId)
-            : [];
-
-        if (
-            !memories.length
-        ) {
-            const suppliedMemory =
-                typeof req.body?.memory ===
-                    "string"
-                    ? req.body.memory
-                    : "";
-
-            if (
-                suppliedMemory
-            ) {
-                memories =
-                    suppliedMemory
-                        .split("\n")
-                        .map(
-                            (item) =>
-                                item.trim()
-                        )
-                        .filter(
-                            Boolean
-                        )
-                        .slice(
-                            -MEMORY_LIMIT
-                        );
-            }
+        signal.throwIfAborted();
+        if (!reply?.trim()) throw new Error("The provider returned an empty response.");
+        if (!await saveMessage(conversationId, userId, "assistant", reply)) throw new Error("The response could not be saved. Please reload this chat before retrying.");
+        const { error } = await supabaseAdmin.from("conversations").update({ updated_at: new Date().toISOString() })
+            .eq("id", conversationId).eq("user_id", userId);
+        if (error) throw new Error("The conversation could not be updated. Please reload it.");
+        signal.throwIfAborted();
+        sendSSE(res, { type: "complete", reply, conversationId, model, responseTime: Date.now() - startedAt });
+        sendDone(res);
+    } catch (error) {
+        if (!res.destroyed && !res.writableEnded) {
+            if (res.headersSent) sendSSEError(res, signal.aborted ? "Adumex request timed out or stopped." : error.message || "Unable to generate a response.");
+            else res.status(500).json({ error: "Unable to complete the chat request." });
         }
-
-        let conversationId =
-            cleanText(
-                req.body?.conversationId,
-                100
-            );
-
-        if (
-            conversationId
-        ) {
-            const existing =
-                await getConversation(
-                    conversationId,
-                    userId
-                );
-
-            if (existing) {
-                const storedMessages =
-                    await getConversationMessages(
-                        conversationId,
-                        userId
-                    );
-
-                if (
-                    storedMessages.length
-                ) {
-                    history =
-                        storedMessages;
-                }
-            } else {
-                conversationId =
-                    "";
-            }
-        }
-
-        if (
-            !conversationId
-        ) {
-            const titleSource =
-                message ||
-                files
-                    .map(
-                        (file) =>
-                            file.originalname
-                    )
-                    .join(", ");
-
-            const title =
-                titleSource.length >
-                    80
-                    ? `${titleSource.slice(
-                        0,
-                        80
-                    )
-                    }...`
-                    : titleSource;
-
-            const conversation =
-                await createConversation(
-                    userId,
-                    title ||
-                    "New Chat"
-                );
-
-            conversationId =
-                conversation?.id ||
-                "";
-        }
-
-        const fileContext =
-            buildFileContext(
-                parsedFiles
-            );
-
-        const userContent =
-            buildUserMessage(
-                message,
-                fileContext
-            );
-
-        if (
-            conversationId
-        ) {
-            await saveMessage(
-                conversationId,
-                userId,
-                "user",
-                userContent
-            );
-        }
-
-        const systemPrompt =
-            getSystemPrompt(
-                req.body?.systemPrompt
-            );
-
-        const messages =
-            buildGroqMessages({
-                systemPrompt,
-                history,
-                message,
-                memory: memories,
-                fileContext
-            });
-
-        setSSEHeaders(
-            res
-        );
-
-        let disconnected =
-            false;
-
-        req.on(
-            "close",
-            () => {
-                disconnected =
-                    true;
-            }
-        );
-
-        const startedAt =
-            Date.now();
-
-        try {
-            if (
-                detectImageRequest(
-                    message
-                )
-            ) {
-                try {
-                    const generated =
-                        await generateImage(
-                            message
-                        );
-
-                    if (
-                        disconnected
-                    ) {
-                        return;
-                    }
-
-                    sendSSE(
-                        res,
-                        {
-                            type:
-                                "image",
-                            ...generated
-                        }
-                    );
-
-                    sendSSE(
-                        res,
-                        {
-                            type:
-                                "text",
-                            token:
-                                "I generated the image based on your request."
-                        }
-                    );
-
-                    sendDone(
-                        res
-                    );
-
-                    return;
-                } catch {
-                }
-            }
-
-            let fullResponse =
-                "";
-
-            let activeModel =
-                GROQ_MODEL;
-
-            const result =
-                await streamGroqResponse(
-                    messages,
-                    {
-                        model:
-                            req.body?.model ||
-                            GROQ_MODEL,
-                        max_tokens:
-                            req.body?.max_tokens,
-                        temperature:
-                            req.body?.temperature
-                    },
-                    (token) => {
-                        if (
-                            disconnected
-                        ) {
-                            return;
-                        }
-
-                        fullResponse +=
-                            token;
-
-                        sendSSE(
-                            res,
-                            {
-                                type:
-                                    "text",
-                                token
-                            }
-                        );
-                    }
-                );
-
-            fullResponse =
-                result.text;
-
-            activeModel =
-                result.model;
-
-            if (
-                disconnected
-            ) {
-                return;
-            }
-
-            if (
-                !fullResponse.trim()
-            ) {
-                throw new Error(
-                    "Groq returned an empty response."
-                );
-            }
-
-            if (
-                conversationId
-            ) {
-                await saveMessage(
-                    conversationId,
-                    userId,
-                    "assistant",
-                    fullResponse
-                );
-
-                if (
-                    supabaseAdmin
-                ) {
-                    await supabaseAdmin
-                        .from(
-                            "conversations"
-                        )
-                        .update({
-                            updated_at:
-                                new Date().toISOString()
-                        })
-                        .eq(
-                            "id",
-                            conversationId
-                        )
-                        .eq(
-                            "user_id",
-                            String(
-                                userId
-                            )
-                        );
-                }
-            }
-
-            sendSSE(
-                res,
-                {
-                    type:
-                        "complete",
-                    reply:
-                        fullResponse,
-                    conversationId,
-                    model:
-                        activeModel,
-                    responseTime:
-                        Date.now() -
-                        startedAt
-                }
-            );
-
-            sendDone(
-                res
-            );
-        } catch (
-        error
-        ) {
-            if (
-                disconnected
-            ) {
-                return;
-            }
-
-            sendSSEError(
-                res,
-                error?.message ||
-                "Unable to generate a response."
-            );
-        }
+    } finally {
+        clearInterval(heartbeat);
+        if (!res.destroyed && !res.writableEnded) res.end();
     }
-
-
-);
+});
 
 /* Conversation API */
+app.delete("/api/conversations", async (req, res, next) => {
+    try {
+        const userId = getAuthenticatedUserId(req.adumexAuth);
+        if (!supabaseAdmin) return res.status(503).json({ error: "Supabase is not configured." });
+        const messages = await supabaseAdmin.from("messages").delete().eq("user_id", userId);
+        if (messages.error) throw new Error("Unable to clear messages.");
+        req.adumexSignal.throwIfAborted();
+        const conversations = await supabaseAdmin.from("conversations").delete().eq("user_id", userId);
+        if (conversations.error) throw new Error("Unable to clear conversations.");
+        if (!res.writableEnded && !res.destroyed) res.json({ success: true });
+    } catch (error) { next(error); }
+});
 
 app.get(
     "/api/conversations",
@@ -2828,10 +2441,9 @@ app.delete(
         }
 
         try {
-            const { error } = await supabaseAdmin
-                .from("memories")
-                .delete()
-                .eq("user_id", String(userId));
+            let query = supabaseAdmin.from("memories").delete().eq("user_id", String(userId));
+            if (req.body?.memory) query = query.eq("memory", cleanText(req.body.memory, 4000));
+            const { error } = await query;
 
             if (error) {
                 return res.status(500).json({
@@ -2890,7 +2502,7 @@ app.post(
         try {
             const image =
                 await generateImage(
-                    prompt
+                    prompt, req.adumexSignal
                 );
 
             return res.json({
@@ -2961,7 +2573,7 @@ app.post(
             const text =
                 await readImageWithOpenAI(
                     req.file,
-                    req.body?.message
+                    req.body?.message, req.adumexSignal
                 );
 
             return res.json({
@@ -3028,7 +2640,7 @@ app.post(
                 const text =
                     await readImageWithOpenAI(
                         req.file,
-                        req.body?.message
+                        req.body?.message, req.adumexSignal
                     );
 
                 return res.json({
@@ -3107,7 +2719,7 @@ app.get(
                             50,
                         temperature:
                             0
-                    }
+                    }, { signal: req.adumexSignal }
                 );
 
             return res.json({
@@ -3162,6 +2774,8 @@ app.use(
         res,
         next
     ) => {
+        if (res.writableEnded || res.destroyed) return;
+        if (res.headersSent) return sendSSEError(res, "Unable to complete the request.");
         if (
             error?.code ===
             "LIMIT_FILE_SIZE"
@@ -3213,7 +2827,7 @@ app.use(
 
 /* Server */
 
-app.listen(
+if (require.main === module) app.listen(
     PORT,
     () => {
         console.log(
@@ -3221,3 +2835,5 @@ app.listen(
         );
     }
 );
+
+module.exports = { app, extractFileText, getConversationMessages };
